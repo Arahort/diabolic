@@ -13,5 +13,8 @@ desktop.ini
 *.tmp
 *~
 
+# Project files
+TODO.md
+
 # Archives
 DiabolicUI3.rar
