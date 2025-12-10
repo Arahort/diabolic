@@ -1,0 +1,14 @@
+# WoW SavedVariables
+*.lua.bak
+*.toc.bak
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# MacOS
+.DS_Store
+
+# Temporary files
+*.tmp
+*~
