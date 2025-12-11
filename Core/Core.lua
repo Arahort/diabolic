@@ -80,7 +80,8 @@ local defaults = {
 			hideTargetNameOnCast = true,
 			useHealthColorForTarget = true,
 			targetPositionX = 0,
-			targetPositionY = -40
+			targetPositionY = -40,
+			targetRelativeScale = 1
 		},
 		micromenu = {
 			enableMicroMenu = false
