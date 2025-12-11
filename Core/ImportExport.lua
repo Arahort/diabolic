@@ -7,57 +7,6 @@ local ImportExport = ns:NewModule("ImportExport", "AceEvent-3.0")
 local AceSerializer = LibStub("AceSerializer-3.0")
 local L = ns.L
 local exportFrame
-local base64chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-local function base64encode(data)
-	local result = {}
-	local padding = ""
-	local length = #data
-	local i = 1
-	while i <= length do
-		local a = data:byte(i)
-		local b = data:byte(i + 1)
-		local c = data:byte(i + 2)
-		local bits = a * 65536
-		if b then bits = bits + b * 256 end
-		if c then bits = bits + c end
-		local char1 = base64chars:sub(bit.rshift(bits, 18) + 1, bit.rshift(bits, 18) + 1)
-		local char2 = base64chars:sub(bit.band(bit.rshift(bits, 12), 0x3F) + 1, bit.band(bit.rshift(bits, 12), 0x3F) + 1)
-		local char3 = b and base64chars:sub(bit.band(bit.rshift(bits, 6), 0x3F) + 1, bit.band(bit.rshift(bits, 6), 0x3F) + 1) or "="
-		local char4 = c and base64chars:sub(bit.band(bits, 0x3F) + 1, bit.band(bits, 0x3F) + 1) or "="
-		result[#result + 1] = char1 .. char2 .. char3 .. char4
-		i = i + 3
-	end
-	return table.concat(result)
-end
-local function base64decode(data)
-	local result = {}
-	data = data:gsub("[^" .. base64chars .. "=]", "")
-	local padding = data:match("(=*)$")
-	data = data:gsub("=", "")
-	local length = #data
-	local i = 1
-	while i <= length do
-		local chars = data:sub(i, i + 3)
-		local bits = 0
-		for j = 1, #chars do
-			local char = chars:sub(j, j)
-			local value = base64chars:find(char, 1, true) - 1
-			bits = bits * 64 + value
-		end
-		local byte1 = bit.rshift(bits, 16)
-		local byte2 = bit.band(bit.rshift(bits, 8), 0xFF)
-		local byte3 = bit.band(bits, 0xFF)
-		result[#result + 1] = string.char(byte1)
-		if #chars > 2 or #padding < 2 then
-			result[#result + 1] = string.char(byte2)
-		end
-		if #chars > 3 or #padding < 1 then
-			result[#result + 1] = string.char(byte3)
-		end
-		i = i + 4
-	end
-	return table.concat(result)
-end
 local function deepMerge(target, source)
 	for k, v in pairs(source) do
 		if type(v) == "table" and type(target[k]) == "table" then
@@ -131,9 +80,8 @@ ImportExport.ExportSettings = function(self)
 		global = db.global
 	}
 	local serialized = AceSerializer:Serialize(data)
-	local encoded = base64encode(serialized)
 	local frame = CreateExportFrame()
-	frame.editBox:SetText(encoded)
+	frame.editBox:SetText(serialized)
 	frame.editBox:SetFocus()
 	frame.editBox:HighlightText()
 	frame:Show()
@@ -148,14 +96,9 @@ ImportExport.ImportSettings = function(self)
 		button1 = L["ImportButton"] or "Import",
 		button2 = CANCEL,
 		OnAccept = function()
-			local encoded = frame.editBox:GetText()
-			if not encoded or encoded == "" then
+			local serialized = frame.editBox:GetText()
+			if not serialized or serialized == "" then
 				print("|cffaa0022DiabolicUI3:|r No settings string found")
-				return
-			end
-			local success, serialized = pcall(base64decode, encoded)
-			if not success then
-				print("|cffaa0022DiabolicUI3:|r Failed to decode settings string")
 				return
 			end
 			local ok, data = AceSerializer:Deserialize(serialized)
