@@ -193,6 +193,11 @@ BlizzKill.KillActionBars = function(self)
 		hideActionBarFrame(PetActionBar, true)
 		hideActionBarFrame(StatusTrackingBarManager, false)
 
+		-- Hide individual pet action buttons
+		for i = 1, NUM_PET_ACTION_SLOTS do
+			hideActionButton(_G["PetActionButton" .. i])
+		end
+
 		-- these events drive visibility, we want the MainActionBar to remain invisible
 		if MainActionBar then
 			MainActionBar:UnregisterEvent("PLAYER_REGEN_ENABLED")
@@ -280,7 +285,15 @@ BlizzKill.KillActionBars = function(self)
 		hideActionBar(PetActionBarFrame, true, true)
 		hideActionBar(OverrideActionBar, true)
 
+		-- Additional pet bar hiding for WoW 11.x
+		if PetBar then
+			hideActionBar(PetBar, true, true)
+		end
+
 		ShowPetActionBar = function() end
+		if PetBar and PetBar.Show then
+			PetBar.Show = function() end
+		end
 
 		if (not ns.IsClassic) then
 			if (PlayerTalentFrame) then
