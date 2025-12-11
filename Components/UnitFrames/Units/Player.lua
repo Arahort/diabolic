@@ -304,16 +304,19 @@ local UnitFrame_OnEvent = function(self, event)
 		local runes = self.Runes
 		if (runes) and (not runes.inCombat) then
 			runes.inCombat = true
+			runes:Show()
 			runes:ForceUpdate()
 		end
 		local stagger = self.Stagger
 		if (stagger and not stagger.inCombat) then
 			stagger.inCombat = true
+			stagger:Show()
 			stagger:ForceUpdate()
 		end
 		local classpower = self.ClassPower
 		if (classpower) and (not classpower.inCombat) then
 			classpower.inCombat = true
+			classpower:Show()
 			classpower:ForceUpdate()
 		end
 	elseif (event == "PLAYER_REGEN_ENABLED") then
@@ -321,16 +324,19 @@ local UnitFrame_OnEvent = function(self, event)
 		local runes = self.Runes
 		if (runes) and (runes.inCombat) then
 			runes.inCombat = false
+			runes:Hide()
 			runes:ForceUpdate()
 		end
 		local stagger = self.Stagger
 		if (stagger and stagger.inCombat) then
 			stagger.inCombat = false
+			stagger:Hide()
 			stagger:ForceUpdate()
 		end
 		local classpower = self.ClassPower
 		if (classpower) and (classpower.inCombat) then
 			classpower.inCombat = false
+			classpower:Hide()
 			classpower:ForceUpdate()
 		end
 	end
@@ -778,6 +784,7 @@ UnitStyles["Player"] = function(self, unit, id)
 		end
 
 		self.ClassPower = classpower
+		self.ClassPower:Hide()
 	end
 
 	-- Stagger (Monk)
@@ -804,6 +811,7 @@ UnitStyles["Player"] = function(self, unit, id)
 
 		self.Stagger = stagger
 		self.Stagger.PostUpdate = Stagger_PostUpdate
+		self.Stagger:Hide()
 	end
 
 	-- Runes (Death Knight)
@@ -829,6 +837,7 @@ UnitStyles["Player"] = function(self, unit, id)
 		end
 
 		self.Runes = runes
+		self.Runes:Hide()
 	end
 
 	-- Auras
