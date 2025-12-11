@@ -45,7 +45,10 @@ local defaults = {
 		actionbars = {
 			enableSecondary = true,
 			showPetBar = true,
-			showStanceBar = true
+			showStanceBar = true,
+			showBlizzardBar5 = false,
+			showBlizzardBar6 = false,
+			showBlizzardBar7 = false
 		},
 		auras = {
 			alwaysHideAuras = false,
@@ -54,9 +57,9 @@ local defaults = {
 	},
 	global = {
 		core = {
-			relativeScale = 1,
-			minimapRelativeScale = 1,
-			unitframesRelativeScale = 1
+			relativeScale = 1.1,
+			minimapRelativeScale = 0.9,
+			unitframesRelativeScale = 0.85
 		},
 		chatbubbles = {
 			enableChatBubbles = true,
@@ -68,37 +71,37 @@ local defaults = {
 			}
 		},
 		chatframes = {
-			enableChatFrames = true
+			enableChatFrames = false
 		},
 		castbar = {
 			enableCastbar = true,
 			positionX = 0,
-			positionY = -150
+			positionY = -290
 		},
 		unitframes = {
 			useClassColorForPower = false,
-			hideTargetNameOnCast = true,
+			hideTargetNameOnCast = false,
 			useHealthColorForTarget = true,
 			targetPositionX = 0,
-			targetPositionY = -40,
-			targetRelativeScale = 1
+			targetPositionY = -55,
+			targetRelativeScale = 1.1
 		},
 		micromenu = {
 			enableMicroMenu = false
 		},
 		minimap = {
 			useServerTime = false,
-			useHalfClock = true,
-			positionX = -60,
-			positionY = -60
+			useHalfClock = false,
+			positionX = -20,
+			positionY = -20
 		},
 		auras = {
-			positionX = -380,
-			positionY = -66
+			positionX = -290,
+			positionY = -5
 		},
 		petbar = {
 			positionX = 4,
-			positionY = 84
+			positionY = 130
 		},
 		stancebar = {
 			positionX = 380,
