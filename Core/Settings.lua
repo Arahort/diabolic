@@ -505,6 +505,38 @@ SettingsModule.OnInitialize = function(self)
 			)
 			layout:AddInitializer(initializer)
 		end
+		do
+			local function OnExportClick()
+				local importExport = ns:GetModule("ImportExport")
+				if importExport then
+					importExport:ExportSettings()
+				end
+			end
+			local initializer = CreateSettingsButtonInitializer(
+				L["ExportButton"],
+				"Export",
+				OnExportClick,
+				L["ExportButtonDesc"],
+				true
+			)
+			layout:AddInitializer(initializer)
+		end
+		do
+			local function OnImportClick()
+				local importExport = ns:GetModule("ImportExport")
+				if importExport then
+					importExport:ImportSettings()
+				end
+			end
+			local initializer = CreateSettingsButtonInitializer(
+				L["ImportSettingsButton"],
+				"Import",
+				OnImportClick,
+				L["ImportSettingsButtonDesc"],
+				true
+			)
+			layout:AddInitializer(initializer)
+		end
 		Settings.RegisterAddOnCategory(category)
 		StaticPopupDialogs["DIABOLICUI3_RESET_SETTINGS"] = {
 			text = L["ResetConfirmation"],

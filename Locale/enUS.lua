@@ -77,3 +77,11 @@ L["TargetRelativeScale"] = "Target Frame Relative Scale"
 L["TargetRelativeScaleDesc"] = "Target frame scale multiplier relative to bottom UI scale (0.5 - 1.5, requires /reload)"
 -- Reset
 L["ResetHeader"] = "Reset"
+-- Import/Export
+L["ExportImport"] = "Export/Import Settings"
+L["ExportButton"] = "Export Settings"
+L["ExportButtonDesc"] = "Export current settings as a string"
+L["ImportButton"] = "Import"
+L["ImportSettingsButton"] = "Import Settings"
+L["ImportSettingsButtonDesc"] = "Import settings from a string"
+L["SelectAll"] = "Select All"

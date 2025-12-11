@@ -37,6 +37,7 @@
 	<Script file="Development.lua"/>
 	<Script file="Debugging.lua"/>
 	<Script file="Settings.lua"/>
+	<Script file="ImportExport.lua"/>
 	<Script file="Experimental.lua"/>
 
 	<!-- Finalize the environment -->

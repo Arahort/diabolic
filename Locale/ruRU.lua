@@ -77,3 +77,11 @@ L["TargetRelativeScale"] = "Относительный масштаб фрейм
 L["TargetRelativeScaleDesc"] = "Множитель масштаба фрейма цели относительно нижнего блока (0.5 - 1.5, требуется /reload)"
 -- Сброс
 L["ResetHeader"] = "Сброс"
+-- Экспорт/Импорт
+L["ExportImport"] = "Экспорт/Импорт настроек"
+L["ExportButton"] = "Экспортировать настройки"
+L["ExportButtonDesc"] = "Экспортировать текущие настройки в виде строки"
+L["ImportButton"] = "Импортировать"
+L["ImportSettingsButton"] = "Импортировать настройки"
+L["ImportSettingsButtonDesc"] = "Импортировать настройки из строки"
+L["SelectAll"] = "Выделить всё"
