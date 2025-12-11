@@ -58,6 +58,16 @@ local function base64decode(data)
 	end
 	return table.concat(result)
 end
+local function deepMerge(target, source)
+	for k, v in pairs(source) do
+		if type(v) == "table" and type(target[k]) == "table" then
+			deepMerge(target[k], v)
+		else
+			target[k] = v
+		end
+	end
+	return target
+end
 local function CreateExportFrame()
 	if exportFrame then
 		return exportFrame
@@ -115,6 +125,8 @@ ImportExport.ExportSettings = function(self)
 		return
 	end
 	local data = {
+		version = "3.0.0",
+		exportDate = date("%Y-%m-%d %H:%M:%S"),
 		char = db.char,
 		global = db.global
 	}
@@ -151,23 +163,25 @@ ImportExport.ImportSettings = function(self)
 				print("|cffaa0022DiabolicUI3:|r Failed to deserialize settings")
 				return
 			end
-			if not data.char or not data.global then
+			if not data.char and not data.global then
 				print("|cffaa0022DiabolicUI3:|r Invalid settings data")
 				return
 			end
 			local db = ns.db
+			local version = data.version or "unknown"
+			local exportDate = data.exportDate or "unknown"
 			if data.char then
-				for k, v in pairs(data.char) do
-					db.char[k] = v
-				end
+				deepMerge(db.char, data.char)
 			end
 			if data.global then
-				for k, v in pairs(data.global) do
-					db.global[k] = v
-				end
+				deepMerge(db.global, data.global)
 			end
 			frame:Hide()
-			print("|cff00ff00DiabolicUI3:|r Settings imported successfully! Type /reload to apply changes.")
+			print("|cff00ff00DiabolicUI3:|r Settings imported successfully!")
+			if version ~= "unknown" then
+				print("|cff00ff00DiabolicUI3:|r Version: " .. version .. ", Exported: " .. exportDate)
+			end
+			print("|cff00ff00DiabolicUI3:|r Type /reload to apply changes.")
 		end,
 		timeout = 0,
 		whileDead = true,
