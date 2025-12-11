@@ -422,11 +422,15 @@ UnitFrames.SpawnUnitFrames = function(self)
 		local db = ns.db
 		local posX = 0
 		local posY = -40
+		local targetScale = 1
 		if db and db.global and db.global.unitframes then
 			posX = db.global.unitframes.targetPositionX or 0
 			posY = db.global.unitframes.targetPositionY or -40
+			targetScale = db.global.unitframes.targetRelativeScale or 1
 		end
-		Spawn("target", "Target"):SetPoint("TOP", posX, posY)
+		local targetFrame = Spawn("target", "Target")
+		targetFrame:SetPoint("TOP", posX, posY)
+		ns.API.SetUnitFramesObjectScale(targetFrame, targetScale)
 		Spawn("targettarget", "ToT"):SetPoint("CENTER", ns.UnitFramesByName["Target"], "CENTER", 0, -26)
 
 		-- The dock manager will position these.
@@ -569,12 +573,15 @@ UnitFrames.UpdateTargetPosition = function(self)
 		local db = ns.db
 		local posX = 0
 		local posY = -40
+		local targetScale = 1
 		if db and db.global and db.global.unitframes then
 			posX = db.global.unitframes.targetPositionX or 0
 			posY = db.global.unitframes.targetPositionY or -40
+			targetScale = db.global.unitframes.targetRelativeScale or 1
 		end
 		targetFrame:ClearAllPoints()
 		targetFrame:SetPoint("TOP", posX, posY)
+		ns.API.SetUnitFramesObjectScale(targetFrame, targetScale)
 	end
 end
 

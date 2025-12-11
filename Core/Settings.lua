@@ -38,7 +38,7 @@ local function OnSettingChanged(_, setting, value)
 	elseif variable:match("^global_castbar_") then
 		ns.callbacks:Fire("Castbar_Settings_Updated")
 	elseif variable:match("^global_unitframes_") then
-		if variable:match("targetPosition") then
+		if variable:match("targetPosition") or variable:match("targetRelativeScale") then
 			ns.callbacks:Fire("Target_Position_Updated")
 		end
 		ns.callbacks:Fire("UnitFrames_Settings_Updated")
@@ -475,6 +475,21 @@ SettingsModule.OnInitialize = function(self)
 				return tostring(value)
 			end)
 			Settings.CreateSlider(category, setting, options, L["TargetPosYDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"targetRelativeScale",
+				"global.unitframes",
+				L["TargetRelativeScale"],
+				1,
+				L["TargetRelativeScaleDesc"]
+			)
+			local options = Settings.CreateSliderOptions(0.5, 1.5, 0.05)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return string.format("%.2f", value)
+			end)
+			Settings.CreateSlider(category, setting, options, L["TargetRelativeScaleDesc"])
 		end
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["ResetHeader"]))
 		do

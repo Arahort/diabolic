@@ -73,5 +73,7 @@ L["TargetPosX"] = "Target Frame Horizontal Position"
 L["TargetPosXDesc"] = "Adjust horizontal position (-1000 to 1000)"
 L["TargetPosY"] = "Target Frame Vertical Position"
 L["TargetPosYDesc"] = "Adjust vertical position (-500 to 500)"
+L["TargetRelativeScale"] = "Target Frame Relative Scale"
+L["TargetRelativeScaleDesc"] = "Target frame scale multiplier relative to bottom UI scale (0.5 - 1.5, requires /reload)"
 -- Reset
 L["ResetHeader"] = "Reset"
