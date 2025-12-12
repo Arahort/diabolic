@@ -81,8 +81,12 @@ local hideActionBarFrame = function(frame, clearEvents)
 
 		-- remove some EditMode hooks
 		if frame.system then
-			-- purge the show state to avoid any taint concerns
-			purgeKey(frame, "isShownExternal")
+			-- DISABLED: purgeKey creates execution taint in WoW 11.x with TaintLess loaded
+			-- TaintLess already handles taint cleanup, purgeKey conflicts with EditMode
+			-- purgeKey(frame, "isShownExternal")
+
+			-- Instead just set to nil directly without purging
+			frame.isShownExternal = nil
 		end
 
 		-- EditMode overrides the Hide function, avoid calling it as it can taint
@@ -169,9 +173,16 @@ BlizzKill.KillActionBars = function(self)
 		hideActionBarFrame(MultiBarBottomRight, true)
 		hideActionBarFrame(MultiBarLeft, true)
 		hideActionBarFrame(MultiBarRight, true)
-		hideActionBarFrame(MultiBar5, true)
-		hideActionBarFrame(MultiBar6, true)
-		hideActionBarFrame(MultiBar7, true)
+		-- Additional Blizzard bars controlled by settings
+		if not ns.db.char.actionbars.showBlizzardBar5 then
+			hideActionBarFrame(MultiBar5, true)
+		end
+		if not ns.db.char.actionbars.showBlizzardBar6 then
+			hideActionBarFrame(MultiBar6, true)
+		end
+		if not ns.db.char.actionbars.showBlizzardBar7 then
+			hideActionBarFrame(MultiBar7, true)
+		end
 
 		-- Hide MultiBar Buttons, but keep the bars alive
 		-- NOTE: Скрываем ActionButton'ы и отключаем у них мышь (EnableMouse=false)
@@ -181,9 +192,16 @@ BlizzKill.KillActionBars = function(self)
 			hideActionButton(_G["MultiBarBottomRightButton" .. i])
 			hideActionButton(_G["MultiBarRightButton" .. i])
 			hideActionButton(_G["MultiBarLeftButton" .. i])
-			hideActionButton(_G["MultiBar5Button" .. i])
-			hideActionButton(_G["MultiBar6Button" .. i])
-			hideActionButton(_G["MultiBar7Button" .. i])
+			-- Additional bar buttons controlled by settings
+			if not ns.db.char.actionbars.showBlizzardBar5 then
+				hideActionButton(_G["MultiBar5Button" .. i])
+			end
+			if not ns.db.char.actionbars.showBlizzardBar6 then
+				hideActionButton(_G["MultiBar6Button" .. i])
+			end
+			if not ns.db.char.actionbars.showBlizzardBar7 then
+				hideActionButton(_G["MultiBar7Button" .. i])
+			end
 		end
 
 		hideActionBarFrame(MicroButtonAndBagsBar, false)
@@ -191,6 +209,7 @@ BlizzKill.KillActionBars = function(self)
 		hideActionBarFrame(PossessActionBar, true)
 		hideActionBarFrame(MultiCastActionBarFrame, false)
 		hideActionBarFrame(PetActionBar, true)
+		hideActionBarFrame(PetActionBarFrame, true)
 		hideActionBarFrame(StatusTrackingBarManager, false)
 
 		-- Hide individual pet action buttons
@@ -293,6 +312,19 @@ BlizzKill.KillActionBars = function(self)
 		ShowPetActionBar = function() end
 		if PetBar and PetBar.Show then
 			PetBar.Show = function() end
+		end
+
+		-- Hook pet action bar visibility functions (Wrath/Classic)
+		if PetActionBarFrame then
+			hooksecurefunc(PetActionBarFrame, "Show", function(self)
+				self:Hide()
+			end)
+		end
+
+		if PetActionBar_Update then
+			hooksecurefunc("PetActionBar_Update", function()
+				if PetActionBarFrame then PetActionBarFrame:Hide() end
+			end)
 		end
 
 		if (not ns.IsClassic) then
@@ -477,7 +509,9 @@ BlizzKill.KillFloaters = function(self)
 		-- Prevent the durability frame size affecting other anchors
 		DurabilityFrame:SetParent(UIHider)
 		DurabilityFrame:Hide()
-		DurabilityFrame.IsShown = function() return false end
+		-- FIX: Instead of overriding IsShown() (which creates taint in WoW 11.x),
+		-- use ignoreFramePositionManager flag to prevent layout interference
+		DurabilityFrame.ignoreFramePositionManager = true
 	end
 
 	if (LevelUpDisplay) then

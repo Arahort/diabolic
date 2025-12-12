@@ -304,8 +304,9 @@ Clutter.HandleVehicleSeatIndicator = function(self)
 	VehicleSeatIndicator:ClearAllPoints()
 	VehicleSeatIndicator:SetPoint("BOTTOMRIGHT", -12, 20)
 
-	-- This will block UIParent_ManageFramePositions() from being executed
-	VehicleSeatIndicator.IsShown = function() return false end
+	-- FIX: Instead of overriding IsShown() (which creates taint in WoW 11.x),
+	-- use ignoreFramePositionManager flag to prevent UIParent_ManageFramePositions()
+	VehicleSeatIndicator.ignoreFramePositionManager = true
 end
 
 Clutter.OnEvent = function(self, event, ...)
