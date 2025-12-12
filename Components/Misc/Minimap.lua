@@ -351,6 +351,19 @@ end
 
 MinimapMod.UpdatePosition = function(self)
 	Minimap:SetParent(PetHider)
+	if ns.IsRetail and EditModeManagerFrame then
+		if EditModeManagerFrame:IsEditModeActive() then
+			Minimap:SetMovable(true)
+			return
+		else
+			local point, relativeTo, relativePoint, xOfs, yOfs = Minimap:GetPoint()
+			if point and relativeTo and xOfs and yOfs then
+				local db = ns.db.global.minimap
+				db.positionX = xOfs
+				db.positionY = yOfs
+			end
+		end
+	end
 	local db = ns.db.global.minimap
 	Minimap:ClearAllPoints()
 	Minimap:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", db.positionX or -60, db.positionY or -60)
