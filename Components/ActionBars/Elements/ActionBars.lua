@@ -453,20 +453,14 @@ Bars.SpawnBars = function(self)
 			local bar3 = self:GetFrameRef("Bar3");
 
 			if (button == "LeftButton") then
-				if (not bar1:IsShown()) then
-					bar1:Show();
-				elseif (not bar2:IsShown()) then
-					bar2:Show();
-				elseif (not bar3:IsShown()) then
-					bar3:Show();
-				end
-			elseif (button == "RightButton") then
-				if (bar3:IsShown()) then
-					bar3:Hide();
-				elseif (bar2:IsShown()) then
-					bar2:Hide();
-				elseif (bar1:IsShown()) then
+				if (bar1:IsShown() and bar2:IsShown() and bar3:IsShown()) then
 					bar1:Hide();
+					bar2:Hide();
+					bar3:Hide();
+				else
+					bar1:Show();
+					bar2:Show();
+					bar3:Show();
 				end
 			end
 
