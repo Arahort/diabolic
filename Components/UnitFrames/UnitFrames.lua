@@ -603,6 +603,16 @@ end
 UnitFrames.OnInitialize = function(self)
 	self:RegisterMetaFunctions()
 	self:RegisterStyles()
+
+	-- Disable Blizzard unit frames before spawning custom frames
+	oUF:DisableBlizzard("player")
+	oUF:DisableBlizzard("target")
+	oUF:DisableBlizzard("focus")
+	oUF:DisableBlizzard("pet")
+	oUF:DisableBlizzard("party")
+	oUF:DisableBlizzard("boss")
+	oUF:DisableBlizzard("arena")
+
 	self:SpawnUnitFrames()
 	self:SpawnGroupFrames()
 	self:SpawnNamePlates()
