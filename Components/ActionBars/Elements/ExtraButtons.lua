@@ -25,7 +25,7 @@
 --]]
 local Addon, ns = ...
 local ActionBars = ns:GetModule("ActionBars")
-local ExtraButtons = ActionBars:NewModule("ExtraButtons", "LibMoreEvents-1.0", "AceHook-3.0")
+local ExtraButtons = ActionBars:NewModule("ExtraButtons", "LibMoreEvents-1.0", "AceHook-3.0", "AceEvent-3.0")
 
 -- Lua API
 local pairs = pairs
@@ -211,6 +211,40 @@ ExtraButtons.UpdateBindings = function(self)
 	end
 end
 
+ExtraButtons.UpdatePosition = function(self)
+	if ns.IsRetail and EditModeManagerFrame then
+		if EditModeManagerFrame:IsEditModeActive() then
+			return
+		else
+			if self.ExtraScaffold then
+				local point, relativeTo, relativePoint, xOfs, yOfs = self.ExtraScaffold:GetPoint()
+				if point and relativeTo and xOfs and yOfs then
+					local db = ns.db.global.extrabuttons
+					db.extraPositionX = xOfs
+					db.extraPositionY = yOfs
+				end
+			end
+			if self.ZoneScaffold then
+				local point, relativeTo, relativePoint, xOfs, yOfs = self.ZoneScaffold:GetPoint()
+				if point and relativeTo and xOfs and yOfs then
+					local db = ns.db.global.extrabuttons
+					db.zonePositionX = xOfs
+					db.zonePositionY = yOfs
+				end
+			end
+		end
+	end
+	local db = ns.db.global.extrabuttons
+	if self.ExtraScaffold then
+		self.ExtraScaffold:ClearAllPoints()
+		self.ExtraScaffold:SetPoint("BOTTOM", db.extraPositionX or -546, db.extraPositionY or 156)
+	end
+	if self.ZoneScaffold then
+		self.ZoneScaffold:ClearAllPoints()
+		self.ZoneScaffold:SetPoint("BOTTOM", db.zonePositionX or 558, db.zonePositionY or 162)
+	end
+end
+
 ExtraButtons.OnInitialize = function(self)
 
 	local ExtraAbilityContainer, ExtraActionBarFrame = SetObjectScale(ExtraAbilityContainer), SetObjectScale(ExtraActionBarFrame)
@@ -218,7 +252,6 @@ ExtraButtons.OnInitialize = function(self)
 		local extraScaffold = SetObjectScale(CreateFrame("Frame", nil, UIParent))
 		extraScaffold:SetFrameStrata("LOW")
 		extraScaffold:SetFrameLevel(10)
-		extraScaffold:SetPoint("BOTTOM", -546, 156)
 		extraScaffold:SetSize(64,64)
 
 		-- This might go away in Dragonflight,
@@ -245,7 +278,6 @@ ExtraButtons.OnInitialize = function(self)
 		local zoneScaffold = SetObjectScale(CreateFrame("Frame", nil, UIParent))
 		zoneScaffold:SetFrameStrata("LOW")
 		zoneScaffold:SetFrameLevel(10)
-		zoneScaffold:SetPoint("BOTTOM", 558, 162)
 		zoneScaffold:SetSize(64,64)
 
 		ZoneAbilityFrame.SpellButtonContainer.holder = zoneScaffold
@@ -259,6 +291,12 @@ ExtraButtons.OnInitialize = function(self)
 
 		self.ZoneScaffold = zoneScaffold
 		self:SecureHook(ZoneAbilityFrame, "UpdateDisplayedZoneAbilities", "UpdateZoneButtons")
+	end
+
+	self:UpdatePosition()
+
+	if ns.IsRetail then
+		self:RegisterEvent("EDIT_MODE_LAYOUTS_UPDATED", "UpdatePosition")
 	end
 
 	if (not self.ExtraScaffold) and (not self.ZoneScaffold) then

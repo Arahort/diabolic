@@ -95,6 +95,16 @@ local defaults = {
 			positionX = -20,
 			positionY = -20
 		},
+		talkinghead = {
+			positionX = 0,
+			positionY = 160
+		},
+		extrabuttons = {
+			extraPositionX = -546,
+			extraPositionY = 156,
+			zonePositionX = 558,
+			zonePositionY = 162
+		},
 		auras = {
 			positionX = -290,
 			positionY = -5
