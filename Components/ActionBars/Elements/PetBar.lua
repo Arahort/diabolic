@@ -302,7 +302,7 @@ PetBar.SpawnBar = function(self)
 		handle.bar = bar
 
 		local texture = handle:CreateTexture()
-		texture:SetColorTexture(.5, 0, 0, .5)
+		texture:SetColorTexture(.5, 0, 0, 0)
 		texture:SetAllPoints()
 		handle.texture = texture
 
