@@ -325,12 +325,10 @@ BlizzKill.KillActionBars = function(self)
 		-- Prevent layout manager from repositioning pet bars
 		if PetActionBarFrame then
 			PetActionBarFrame.ignoreFramePositionManager = true
-			PetActionBarFrame.Show = function() end
 		end
 
 		if PetActionBar then
 			PetActionBar.ignoreFramePositionManager = true
-			PetActionBar.Show = function() end
 		end
 
 
