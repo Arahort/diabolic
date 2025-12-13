@@ -212,6 +212,13 @@ BlizzKill.KillActionBars = function(self)
 		hideActionBarFrame(PetActionBarFrame, true)
 		hideActionBarFrame(StatusTrackingBarManager, false)
 
+		if PetActionBar then
+			PetActionBar.ignoreFramePositionManager = true
+		end
+		if PetActionBarFrame then
+			PetActionBarFrame.ignoreFramePositionManager = true
+		end
+
 		-- Hide individual pet action buttons
 		for i = 1, NUM_PET_ACTION_SLOTS do
 			hideActionButton(_G["PetActionButton" .. i])
@@ -307,6 +314,7 @@ BlizzKill.KillActionBars = function(self)
 		-- Additional pet bar hiding for WoW 11.x
 		if PetBar then
 			hideActionBar(PetBar, true, true)
+			PetBar.ignoreFramePositionManager = true
 		end
 
 		ShowPetActionBar = function() end
