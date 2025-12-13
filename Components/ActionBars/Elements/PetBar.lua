@@ -428,6 +428,23 @@ PetBar.OnEvent = function(self, event, ...)
 	then
 		self:ForAll("Update")
 
+		if event == "UNIT_PET" or event == "PET_BAR_UPDATE" then
+			C_Timer.After(0.1, function()
+				if PetActionBar then
+					PetActionBar:Hide()
+					PetActionBar.ignoreFramePositionManager = true
+				end
+				if PetActionBarFrame then
+					PetActionBarFrame:Hide()
+					PetActionBarFrame.ignoreFramePositionManager = true
+				end
+				if PetBar then
+					PetBar:Hide()
+					PetBar.ignoreFramePositionManager = true
+				end
+			end)
+		end
+
 	elseif (event == "PET_BAR_UPDATE_COOLDOWN") then
 		self:ForAll("UpdateCooldown")
 
