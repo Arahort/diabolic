@@ -322,19 +322,21 @@ BlizzKill.KillActionBars = function(self)
 			PetBar.Show = function() end
 		end
 
-		-- Hook pet action bar visibility functions (Wrath/Classic)
+		-- Prevent layout manager from repositioning pet bars
 		if PetActionBarFrame then
 			PetActionBarFrame.ignoreFramePositionManager = true
-			hooksecurefunc(PetActionBarFrame, "Show", function(self)
-				self:Hide()
+			PetActionBarFrame.Show = function() end
+			hooksecurefunc(PetActionBarFrame, "SetShown", function(self, shown)
+				if shown then self:Hide() end
 			end)
 		end
 
 		if PetActionBar then
 			PetActionBar.ignoreFramePositionManager = true
-			if PetActionBar.Show then
-				hooksecurefunc(PetActionBar, "Show", function(self)
-					self:Hide()
+			PetActionBar.Show = function() end
+			if PetActionBar.SetShown then
+				hooksecurefunc(PetActionBar, "SetShown", function(self, shown)
+					if shown then self:Hide() end
 				end)
 			end
 		end
