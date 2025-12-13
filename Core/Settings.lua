@@ -452,7 +452,7 @@ SettingsModule.OnInitialize = function(self)
 				"showThreatOnTarget",
 				"global.unitframes",
 				L["ShowThreatOnTarget"],
-				false,
+				true,
 				L["ShowThreatOnTargetDesc"]
 			)
 			CreateCheckbox(category, setting, L["ShowThreatOnTargetDesc"])
