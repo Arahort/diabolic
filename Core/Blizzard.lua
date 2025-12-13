@@ -217,6 +217,8 @@ BlizzKill.KillActionBars = function(self)
 		end
 		if PetActionBarFrame then
 			PetActionBarFrame.ignoreFramePositionManager = true
+		RegisterAttributeDriver(PetActionBarFrame, "state-visibility", "hide")
+		PetActionBarFrame:SetAttribute("statehidden", true)
 		end
 
 		-- Hide individual pet action buttons
@@ -325,10 +327,14 @@ BlizzKill.KillActionBars = function(self)
 		-- Prevent layout manager from repositioning pet bars
 		if PetActionBarFrame then
 			PetActionBarFrame.ignoreFramePositionManager = true
+		RegisterAttributeDriver(PetActionBarFrame, "state-visibility", "hide")
+		PetActionBarFrame:SetAttribute("statehidden", true)
 		end
 
 		if PetActionBar then
 			PetActionBar.ignoreFramePositionManager = true
+		RegisterAttributeDriver(PetActionBar, "state-visibility", "hide")
+		PetActionBar:SetAttribute("statehidden", true)
 		end
 
 
