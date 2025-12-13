@@ -73,7 +73,7 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 	local allNegativeHeals = healAbsorb
 	local showPrediction, change
 
-	if ((allIncomingHeal > 0) or (allNegativeHeals > 0)) and (maxHealth > 0) then
+	if curHealth and maxHealth and ((allIncomingHeal > 0) or (allNegativeHeals > 0)) and (maxHealth > 0) then
 		local startPoint = curHealth/maxHealth
 
 		-- Dev switch to test absorbs with normal healing
