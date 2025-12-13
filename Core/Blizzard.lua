@@ -326,29 +326,13 @@ BlizzKill.KillActionBars = function(self)
 		if PetActionBarFrame then
 			PetActionBarFrame.ignoreFramePositionManager = true
 			PetActionBarFrame.Show = function() end
-			hooksecurefunc(PetActionBarFrame, "SetShown", function(self, shown)
-				if shown and not InCombatLockdown() then self:Hide() end
-			end)
 		end
 
 		if PetActionBar then
 			PetActionBar.ignoreFramePositionManager = true
 			PetActionBar.Show = function() end
-			if PetActionBar.SetShown then
-				hooksecurefunc(PetActionBar, "SetShown", function(self, shown)
-					if shown and not InCombatLockdown() then self:Hide() end
-				end)
-			end
 		end
 
-		if PetActionBar_Update then
-			hooksecurefunc("PetActionBar_Update", function()
-				if not InCombatLockdown() then
-					if PetActionBarFrame then PetActionBarFrame:Hide() end
-					if PetActionBar then PetActionBar:Hide() end
-				end
-			end)
-		end
 
 		if (not ns.IsClassic) then
 			if (PlayerTalentFrame) then
