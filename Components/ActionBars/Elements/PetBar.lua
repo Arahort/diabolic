@@ -858,45 +858,6 @@ PetBar.OnEvent = function(self, event, ...)
 
 
 
-		if event == "UNIT_PET" or event == "PET_BAR_UPDATE" then
-
-			local HideBlizzardPetBars = function()
-
-				if _G.PetActionBar then
-
-					_G.PetActionBar:Hide()
-
-					_G.PetActionBar.ignoreFramePositionManager = true
-
-				end
-
-				if _G.PetActionBarFrame then
-
-					_G.PetActionBarFrame:Hide()
-
-					_G.PetActionBarFrame.ignoreFramePositionManager = true
-
-				end
-
-				if _G.PetBar then
-
-					_G.PetBar:Hide()
-
-					_G.PetBar.ignoreFramePositionManager = true
-
-				end
-
-			end
-
-			HideBlizzardPetBars()
-
-			C_Timer.After(0.05, HideBlizzardPetBars)
-
-			C_Timer.After(0.1, HideBlizzardPetBars)
-
-			C_Timer.After(0.2, HideBlizzardPetBars)
-
-		end
 
 
 
