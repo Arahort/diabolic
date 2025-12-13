@@ -226,8 +226,10 @@ local function updateAura(element, unit, data, position)
 
 	local width = element.width or element.size or 16
 	local height = element.height or element.size or 16
-	button:SetSize(width, height)
-	button:EnableMouse(not element.disableMouse)
+	if not InCombatLockdown() then
+		button:SetSize(width, height)
+		button:EnableMouse(not element.disableMouse)
+	end
 	button:Show()
 
 	--[[ Callback: Auras:PostUpdateButton(unit, button, data, position)
