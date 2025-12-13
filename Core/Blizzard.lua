@@ -324,14 +324,25 @@ BlizzKill.KillActionBars = function(self)
 
 		-- Hook pet action bar visibility functions (Wrath/Classic)
 		if PetActionBarFrame then
+			PetActionBarFrame.ignoreFramePositionManager = true
 			hooksecurefunc(PetActionBarFrame, "Show", function(self)
 				self:Hide()
 			end)
 		end
 
+		if PetActionBar then
+			PetActionBar.ignoreFramePositionManager = true
+			if PetActionBar.Show then
+				hooksecurefunc(PetActionBar, "Show", function(self)
+					self:Hide()
+				end)
+			end
+		end
+
 		if PetActionBar_Update then
 			hooksecurefunc("PetActionBar_Update", function()
 				if PetActionBarFrame then PetActionBarFrame:Hide() end
+				if PetActionBar then PetActionBar:Hide() end
 			end)
 		end
 
