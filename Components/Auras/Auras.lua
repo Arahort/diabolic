@@ -284,7 +284,9 @@ Aura.OnInitialize = function(self)
 	self:SetScript("OnLeave", self.OnLeave)
 	self:SetScript("OnAttributeChanged", self.OnAttributeChanged)
 
-	self:RegisterForClicks("AnyUp")
+	if not InCombatLockdown() then
+		self:RegisterForClicks("AnyUp")
+	end
 	local unit = self:GetParent():GetAttribute("unit")
 	if (unit and not InCombatLockdown()) then
 		self:SetAttribute("unit", unit)
