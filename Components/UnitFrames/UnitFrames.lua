@@ -609,9 +609,9 @@ UnitFrames.OnInitialize = function(self)
 	oUF:DisableBlizzard("target")
 	oUF:DisableBlizzard("focus")
 	oUF:DisableBlizzard("pet")
-	oUF:DisableBlizzard("party")
+	--[[ oUF:DisableBlizzard("party")
 	oUF:DisableBlizzard("boss")
-	oUF:DisableBlizzard("arena")
+	oUF:DisableBlizzard("arena") ]]
 
 	self:SpawnUnitFrames()
 	self:SpawnGroupFrames()
