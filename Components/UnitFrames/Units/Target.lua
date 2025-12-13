@@ -298,11 +298,14 @@ UnitStyles["Target"] = function(self, unit, id)
 	health.colorTapping = true
 	health.colorClass = true
 	health.colorReaction = true
-	health.colorThreat = true
 	local db = ns.db
+	health.colorThreat = true
 	health.colorHealth = true
 	if db and db.global and db.global.unitframes then
 		health.colorHealth = db.global.unitframes.useHealthColorForTarget
+		if db.global.unitframes.showThreatOnTarget ~= nil then
+			health.colorThreat = db.global.unitframes.showThreatOnTarget
+		end
 	end
 
 	self.Health = health
