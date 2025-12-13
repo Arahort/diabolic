@@ -229,8 +229,8 @@ local function updateAura(element, unit, data, position)
 	if not InCombatLockdown() then
 		button:SetSize(width, height)
 		button:EnableMouse(not element.disableMouse)
+		button:Show()
 	end
-	button:Show()
 
 	--[[ Callback: Auras:PostUpdateButton(unit, button, data, position)
 	Called after the aura button has been updated.
