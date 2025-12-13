@@ -418,10 +418,11 @@ PetBar.UpdatePosition = function(self)
 end
 
 PetBar.OnEvent = function(self, event, ...)
+	local unit = ...
 
 	if event == "PET_BAR_UPDATE" or event == "PET_BAR_UPDATE_USABLE" or event == "PET_SPECIALIZATION_CHANGED" or
-	  (event == "UNIT_PET" and arg1 == "player") or
-	 ((event == "UNIT_FLAGS" or event == "UNIT_AURA") and arg1 == "pet") or
+	  (event == "UNIT_PET" and unit == "player") or
+	 ((event == "UNIT_FLAGS" or event == "UNIT_AURA") and unit == "pet") or
 	   event == "PLAYER_CONTROL_LOST" or event == "PLAYER_CONTROL_GAINED" or event == "PLAYER_FARSIGHT_FOCUS_CHANGED" or
 	   event == "PLAYER_TARGET_CHANGED" or event == "PLAYER_MOUNT_DISPLAY_CHANGED"
 	then
