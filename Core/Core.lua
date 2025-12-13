@@ -82,6 +82,7 @@ local defaults = {
 			useClassColorForPower = false,
 			hideTargetNameOnCast = false,
 			useHealthColorForTarget = true,
+			showThreatOnTarget = true,
 			targetPositionX = 0,
 			targetPositionY = -55,
 			targetRelativeScale = 1.1

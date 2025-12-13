@@ -449,6 +449,17 @@ SettingsModule.OnInitialize = function(self)
 		do
 			local setting = RegisterSetting(
 				category,
+				"showThreatOnTarget",
+				"global.unitframes",
+				L["ShowThreatOnTarget"],
+				false,
+				L["ShowThreatOnTargetDesc"]
+			)
+			CreateCheckbox(category, setting, L["ShowThreatOnTargetDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
 				"targetPositionX",
 				"global.unitframes",
 				L["TargetPosX"],
