@@ -27,9 +27,9 @@ This is an updated version of the original Diabolic UI 2.0 by Lars Norberg and D
 This is a community-maintained fork. For issues specific to WoW 11.x compatibility, please report them on the GitHub repository.
 
 - Patreon: https://www.patreon.com/c/Arahort
-- Boosty: 
-- 
+- Boosty:
 - GitHub: https://github.com/Arahort/diabolic
+- Curse: https://www.curseforge.com/wow/addons/diabolicui-arahort-edition
 
 ## Support Crypto
 - USDT TRC20 TShMCz6xGiLvtES8JquqhavrMvFnLM4UQ4
