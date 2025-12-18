@@ -272,7 +272,7 @@ Aura.OnAttributeChanged = function(self, attribute, value)
 	if (attribute == "index") then
 		-- Debug for right-click buff cancellation
 		print("|cFFFF00FF[Aura] OnAttributeChanged:|r index=", value, "for", self:GetName())
-		print("|cFFFF00FF  Attributes:|r type=", self:GetAttribute("type"), "unit=", self:GetAttribute("unit"), "index=", self:GetAttribute("index"))
+		print("|cFFFF00FF  Attributes:|r type=", self:GetAttribute("type"), "unit=", self:GetAttribute("unit"), "index=", self:GetAttribute("index"), "filter=", self:GetAttribute("filter"))
 		return self:Update(value)
 	elseif(attribute == "target-slot") then
 		return self:UpdateTempEnchant(value)
@@ -295,6 +295,11 @@ Aura.OnInitialize = function(self)
 	if (unit and not InCombatLockdown()) then
 		self:SetAttribute("unit", unit)
 		self:SetAttribute("unit2", unit)
+		-- CRITICAL: Set filter attribute for cancelaura to work!
+		-- cancelaura requires filter="HELPFUL" or "HARMFUL" in Retail
+		if self.filter then
+			self:SetAttribute("filter", self.filter)
+		end
 	end
 end
 
