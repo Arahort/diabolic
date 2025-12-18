@@ -985,4 +985,37 @@ local function Disable(self)
 	end
 end
 
+-- Debug command to check buff buttons
+SLASH_DEBUGBUFFS1 = "/debugbuffs"
+SlashCmdList["DEBUGBUFFS"] = function()
+	local player = oUF.objects.player
+	if not player then
+		print("|cFFFF0000No player frame found!|r")
+		return
+	end
+	local buffs = player.Buffs
+	if not buffs then
+		print("|cFFFF0000No Buffs element found!|r")
+		return
+	end
+	print("|cFF00FF00=== Buff Buttons Debug ===|r")
+	print("Buffs parent:", buffs:GetName() or "unnamed", "Shown:", buffs:IsShown())
+	print("Buffs size:", buffs:GetSize())
+	print("Buffs level:", buffs:GetFrameLevel(), "Strata:", buffs:GetFrameStrata())
+	for i = 1, buffs.createdButtons or 0 do
+		local button = buffs[i]
+		if button and button:IsShown() then
+			local w, h = button:GetSize()
+			local hasEnter = button:GetScript("OnEnter") ~= nil
+			local hasClick = button:GetScript("OnClick") ~= nil
+			print("|cFFFFFF00Button", i, ":|r", button:GetName() or "unnamed")
+			print("  Size:", w, "x", h, "Mouse:", button:IsMouseEnabled())
+			print("  Level:", button:GetFrameLevel(), "Strata:", button:GetFrameStrata())
+			print("  OnEnter:", hasEnter, "OnClick:", hasClick)
+			print("  Visible:", button:IsVisible(), "Shown:", button:IsShown())
+		end
+	end
+	print("|cFF00FF00========================|r")
+end
+
 oUF:AddElement('Auras', Update, Enable, Disable)
