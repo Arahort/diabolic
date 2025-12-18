@@ -725,6 +725,16 @@ end
 
 MinimapMod.OnEvent = function(self, event)
 	if (event == "PLAYER_ENTERING_WORLD") then
+		-- Ensure ZoneTextButton is visible after entering world
+		if (ns.IsRetail) then
+			if MinimapCluster.ZoneTextButton then
+				MinimapCluster.ZoneTextButton:Show()
+			end
+		else
+			if MinimapZoneTextButton then
+				MinimapZoneTextButton:Show()
+			end
+		end
 		self:UpdateZone()
 		self:UpdateMail()
 		self:UpdateTimers()
