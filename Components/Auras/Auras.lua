@@ -297,9 +297,9 @@ Aura.OnInitialize = function(self)
 		self:SetAttribute("filter", self.filter)
 	end
 
-	-- DON'T use SetScript("OnAttributeChanged") - it OVERWRITES secure handlers!
-	-- Use HookScript to preserve secure system
-	self:HookScript("OnAttributeChanged", self.OnAttributeChanged)
+	-- DON'T hook OnAttributeChanged at all - even HookScript may interfere with secure handlers!
+	-- Instead, SecureAuraHeaderTemplate will call us via secure OnAttributeChanged in XML
+	-- We'll update visuals via polling instead
 
 	-- DON'T set any other secure attributes here!
 	-- SecureAuraHeaderTemplate manages: unit, index automatically

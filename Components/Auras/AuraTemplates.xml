@@ -12,6 +12,13 @@
 				DiabolicUI3:GetModule("Auras"):Embed(self)
 				self:OnInitialize()
 			</OnLoad>
+			<OnAttributeChanged>
+				if name == "index" then
+					self:CallMethod("Update", value)
+				elseif name == "target-slot" then
+					self:CallMethod("UpdateTempEnchant", value)
+				end
+			</OnAttributeChanged>
 			<PreClick>
 				print("|cFFFF0000[PreClick]|r", self:GetName(), "type:", self:GetAttribute("type"), "unit:", self:GetAttribute("unit"), "index:", self:GetAttribute("index"), "filter:", self:GetAttribute("filter"))
 			</PreClick>
