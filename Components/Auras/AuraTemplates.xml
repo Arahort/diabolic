@@ -10,7 +10,12 @@
 				DiabolicUI3:GetModule("Auras"):Embed(self)
 				self:OnInitialize()
 				self:RegisterForClicks("RightButtonUp")
+				print("|cFF00FFFF[AuraTemplate OnLoad]|r Registered for RightButtonUp, Name:", self:GetName() or "unnamed")
 			</OnLoad>
+			<OnClick>
+				print("|cFFFF0000[AuraTemplate OnClick]|r Button:", button, "for", self:GetName() or "unnamed")
+				print("|cFFFF0000  Attributes:|r type=", self:GetAttribute("type"), "unit=", self:GetAttribute("unit"), "index=", self:GetAttribute("index"), "filter=", self:GetAttribute("filter"))
+			</OnClick>
 		</Scripts>
 	</Button>
 </Ui>
