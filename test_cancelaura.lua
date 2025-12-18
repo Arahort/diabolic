@@ -1,22 +1,32 @@
--- Temporary test for cancelaura
+-- Temporary test for cancelaura - TRY MACRO APPROACH
 local testBtn = CreateFrame("Button", "TestCancelAuraButton", UIParent, "SecureActionButtonTemplate")
 testBtn:SetSize(50, 50)
 testBtn:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 testBtn:SetNormalTexture("Interface\\Icons\\Spell_Magic_LesserInvisibilty")
 
--- Set cancelaura attributes
-testBtn:SetAttribute("type", "cancelaura")
-testBtn:SetAttribute("unit", "player")
-testBtn:SetAttribute("index", 1)
-testBtn:SetAttribute("filter", "HELPFUL")
-
-testBtn:RegisterForClicks("RightButtonUp")
+-- Try using MACRO instead of cancelaura type
+testBtn:SetAttribute("type", "macro")
+testBtn:RegisterForClicks("AnyUp")
 
 -- Add border so we can see it
 local border = testBtn:CreateTexture(nil, "OVERLAY")
 border:SetAllPoints()
 border:SetColorTexture(1, 0, 0, 0.5)
 
-print("|cFF00FF00[TEST] Created test cancelaura button in center of screen|r")
-print("|cFF00FF00[TEST] Right-click it to cancel first buff (index=1)|r")
-print("|cFF00FF00[TEST] Attributes:|r", "type=", testBtn:GetAttribute("type"), "unit=", testBtn:GetAttribute("unit"), "index=", testBtn:GetAttribute("index"), "filter=", testBtn:GetAttribute("filter"))
+-- Set macro dynamically on click
+testBtn:SetScript("PreClick", function(self, button)
+    print("|cFFFF0000[TEST] PreClick fired!|r Button:", button)
+    local auraData = C_UnitAuras.GetAuraDataByIndex("player", 1, "HELPFUL")
+    if auraData then
+        print("|cFF00FF00  First buff:|r", auraData.name, "ID:", auraData.spellId)
+        -- Try macro command
+        local macroText = "/cancelaura " .. auraData.name
+        self:SetAttribute("macrotext", macroText)
+        print("|cFF00FF00  Macro set to:|r", macroText)
+    else
+        print("|cFFFF0000  No buffs found!|r")
+    end
+end)
+
+print("|cFF00FF00[TEST] Created test MACRO cancelaura button in center|r")
+print("|cFF00FF00[TEST] Click it to cancel first buff using /cancelaura macro|r")
