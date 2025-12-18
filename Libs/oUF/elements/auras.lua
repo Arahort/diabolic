@@ -938,6 +938,8 @@ local function Enable(self)
 			auras.visibleButtons = 0
 			auras.tooltipAnchor = auras.tooltipAnchor or 'ANCHOR_BOTTOMRIGHT'
 
+			-- Enable mouse on container so child buttons receive mouse events
+			auras:EnableMouse(not auras.disableMouse)
 			auras:Show()
 		end
 
@@ -953,6 +955,8 @@ local function Enable(self)
 			buffs.visibleButtons = 0
 			buffs.tooltipAnchor = buffs.tooltipAnchor or 'ANCHOR_BOTTOMRIGHT'
 
+			-- Enable mouse on container so child buttons receive mouse events
+			buffs:EnableMouse(not buffs.disableMouse)
 			buffs:Show()
 		end
 
@@ -968,6 +972,8 @@ local function Enable(self)
 			debuffs.visibleButtons = 0
 			debuffs.tooltipAnchor = debuffs.tooltipAnchor or 'ANCHOR_BOTTOMRIGHT'
 
+			-- Enable mouse on container so child buttons receive mouse events
+			debuffs:EnableMouse(not debuffs.disableMouse)
 			debuffs:Show()
 		end
 
