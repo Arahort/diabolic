@@ -1007,32 +1007,41 @@ SlashCmdList["DEBUGBUFFS"] = function(msg)
 	print("|cFF00FF00=== Buff Buttons Debug for", unit, "===|r")
 	print("Unit frame:", unitFrame:GetName() or "unnamed", "Shown:", unitFrame:IsShown())
 
-	local buffs = unitFrame.Buffs
-	if not buffs then
-		print("|cFFFF0000No Buffs element found on", unit, "frame!|r")
+	-- Check which aura elements exist
+	local elements = {}
+	if unitFrame.Auras then table.insert(elements, {"Auras", unitFrame.Auras}) end
+	if unitFrame.Buffs then table.insert(elements, {"Buffs", unitFrame.Buffs}) end
+	if unitFrame.Debuffs then table.insert(elements, {"Debuffs", unitFrame.Debuffs}) end
+
+	if #elements == 0 then
+		print("|cFFFF0000No aura elements found on", unit, "frame!|r")
 		return
 	end
-	print("|cFFFFFF00Buffs parent:|r", buffs:GetName() or "unnamed", "Shown:", buffs:IsShown())
-	print("  Size:", buffs:GetSize())
-	print("  Level:", buffs:GetFrameLevel(), "Strata:", buffs:GetFrameStrata())
-	print("  Mouse enabled:", buffs:IsMouseEnabled())
-	print("  Created buttons:", buffs.createdButtons or 0)
 
-	for i = 1, buffs.createdButtons or 0 do
-		local button = buffs[i]
-		if button then
-			local w, h = button:GetSize()
-			local hasEnter = button:GetScript("OnEnter") ~= nil
-			local hasClick = button:GetScript("OnClick") ~= nil
-			local mouseOver = button:IsMouseOver()
-			print("|cFFFFFF00Button", i, ":|r", button:GetName() or "unnamed")
-			print("  Size:", w, "x", h, "Mouse:", button:IsMouseEnabled(), "MouseOver:", mouseOver)
-			print("  Level:", button:GetFrameLevel(), "Strata:", button:GetFrameStrata())
-			print("  OnEnter:", hasEnter, "OnClick:", hasClick)
-			print("  Visible:", button:IsVisible(), "Shown:", button:IsShown())
-			print("  Parent:", button:GetParent():GetName() or "UNNAMED PARENT!")
-			if button.Icon then
-				print("  Icon:", button.Icon:GetTexture())
+	for _, element in ipairs(elements) do
+		local name, container = element[1], element[2]
+		print("|cFFFFFF00" .. name .. " container:|r", container:GetName() or "unnamed", "Shown:", container:IsShown())
+		print("  Size:", container:GetSize())
+		print("  Level:", container:GetFrameLevel(), "Strata:", container:GetFrameStrata())
+		print("  Mouse enabled:", container:IsMouseEnabled())
+		print("  Created buttons:", container.createdButtons or 0)
+
+		for i = 1, container.createdButtons or 0 do
+			local button = container[i]
+			if button then
+				local w, h = button:GetSize()
+				local hasEnter = button:GetScript("OnEnter") ~= nil
+				local hasClick = button:GetScript("OnClick") ~= nil
+				local mouseOver = button:IsMouseOver()
+				print("|cFFFFFF00  Button", i, ":|r", button:GetName() or "unnamed")
+				print("    Size:", w, "x", h, "Mouse:", button:IsMouseEnabled(), "MouseOver:", mouseOver)
+				print("    Level:", button:GetFrameLevel(), "Strata:", button:GetFrameStrata())
+				print("    OnEnter:", hasEnter, "OnClick:", hasClick)
+				print("    Visible:", button:IsVisible(), "Shown:", button:IsShown())
+				print("    Parent:", button:GetParent():GetName() or "UNNAMED PARENT!")
+				if button.Icon then
+					print("    Icon:", button.Icon:GetTexture())
+				end
 			end
 		end
 	end
