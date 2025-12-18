@@ -84,6 +84,7 @@ local function UpdateTooltip(self)
 end
 
 local function onEnter(self)
+	print('|cFF00AAFF[oUF Auras] OnEnter - Mouse hover detected!|r Button:', self:GetName() or 'unnamed')
 	if(GameTooltip:IsForbidden() or not self:IsVisible()) then return end
 
 	-- Avoid parenting GameTooltip to frames with anchoring restrictions,
@@ -136,6 +137,7 @@ local function CreateButton(element, index)
 	button:SetScript('OnLeave', onLeave)
 	button:EnableMouse(true)
 	button:RegisterForClicks('RightButtonUp')
+	print('|cFFAA00AA[oUF Auras] Button setup:|r Registered for RightButtonUp, Mouse:', button:IsMouseEnabled())
 	button:SetScript('OnClick', function(self, mouseButton)
 		print('|cFFFF0000========== BUFF CLICKED ==========|r')
 		print('|cFFFF0000Button:|r', mouseButton, '|cFFFFFF00Unit:|r', self.unit, '|cFF00FF00Index:|r', self.auraIndex, '|cFF00FFFFFilter:|r', self.filter)
@@ -267,6 +269,7 @@ local function updateAura(element, unit, data, position)
 		button:SetSize(width, height)
 		button:EnableMouse(not element.disableMouse)
 		button:Show()
+		print('|cFFFFAA00[oUF Auras] After update - Mouse enabled:|r', button:IsMouseEnabled(), '|cFFFFAA00disableMouse:|r', element.disableMouse, '|cFFFFAA00Button:|r', data.name)
 	end
 
 	--[[ Callback: Auras:PostUpdateButton(unit, button, data, position)
