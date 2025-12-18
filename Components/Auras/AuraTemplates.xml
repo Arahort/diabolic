@@ -10,10 +10,15 @@
 				self:SetAttribute("_onattributechanged", [[
 					if name == "index" then
 						local unit = self:GetParent():GetAttribute("unit") or "player"
-						local filter = self:GetParent():GetAttribute("filter") or "HELPFUL"
-						local auraInfo = C_UnitAuras.GetAuraDataByIndex(unit, value, filter)
-						if auraInfo and auraInfo.name then
-							self:SetAttribute("macrotext2", "/cancelaura " .. auraInfo.name)
+						local filter = self:GetParent():GetAttribute("filter")
+						local buffName
+						if filter == "HELPFUL" then
+							buffName = UnitBuff(unit, value)
+						else
+							buffName = UnitDebuff(unit, value)
+						end
+						if buffName then
+							self:SetAttribute("macrotext2", "/cancelaura " .. buffName)
 						end
 					end
 				]])
