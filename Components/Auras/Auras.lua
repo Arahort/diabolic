@@ -125,9 +125,9 @@ end
 
 Aura.Update = function(self, index)
 
-	-- Use GetID() instead of index parameter - SecureAuraHeaderTemplate sets ID correctly
+	-- Use index parameter - it's the correct buff index from SecureAuraHeaderTemplate
 	local unit = self:GetParent():GetAttribute("unit") or "player"
-	local auraData = C_UnitAuras.GetAuraDataByIndex(unit, self:GetID(), self.filter)
+	local auraData = C_UnitAuras.GetAuraDataByIndex(unit, index, self.filter)
 
 	if (auraData) then
 		local name, icon, count, dispelType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, castByPlayer, nameplateShowAll, timeMod = auraData.name, auraData.icon, auraData.applications, auraData.dispelName, auraData.duration, auraData.expirationTime, auraData.sourceUnit, auraData.isStealable, auraData.nameplateShowPersonal, auraData.spellId, auraData.canApplyAura, auraData.isBossAura, auraData.isFromPlayerOrPlayerPet, auraData.nameplateShowAll, auraData.timeMod
@@ -220,7 +220,9 @@ end
 
 Aura.UpdateTooltip = function(self)
 	if (GameTooltip:IsForbidden()) then return end
-	GameTooltip:SetUnitAura(self:GetParent():GetAttribute("unit"), self:GetID(), self.filter)
+	local unit = self:GetParent():GetAttribute("unit") or "player"
+	local index = self:GetAttribute("index")
+	GameTooltip:SetUnitAura(unit, index, self.filter)
 end
 
 Aura.OnUpdate = function(self, elapsed)
