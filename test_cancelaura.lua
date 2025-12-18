@@ -13,18 +13,35 @@ local border = testBtn:CreateTexture(nil, "OVERLAY")
 border:SetAllPoints()
 border:SetColorTexture(1, 0, 0, 0.5)
 
--- Set macro dynamically on click
+-- Set macro dynamically on click - find CANCELABLE buff
 testBtn:SetScript("PreClick", function(self, button)
     print("|cFFFF0000[TEST] PreClick fired!|r Button:", button)
-    local auraData = C_UnitAuras.GetAuraDataByIndex("player", 1, "HELPFUL")
-    if auraData then
-        print("|cFF00FF00  First buff:|r", auraData.name, "ID:", auraData.spellId)
-        -- Try macro command
-        local macroText = "/cancelaura " .. auraData.name
+
+    -- Search for first CANCELABLE buff (not passive auras)
+    local foundBuff = nil
+    for i = 1, 40 do
+        local auraData = C_UnitAuras.GetAuraDataByIndex("player", i, "HELPFUL")
+        if auraData then
+            -- Check if cancelable (has duration, not from player permanent ability, etc)
+            local isCancelable = auraData.isCancelable or (auraData.duration and auraData.duration > 0)
+            print("|cFFFFAA00  Buff", i, ":|r", auraData.name, "Cancelable:", auraData.isCancelable, "Duration:", auraData.duration)
+
+            if isCancelable then
+                foundBuff = auraData
+                break
+            end
+        else
+            break
+        end
+    end
+
+    if foundBuff then
+        print("|cFF00FF00  FOUND CANCELABLE:|r", foundBuff.name, "ID:", foundBuff.spellId)
+        local macroText = "/cancelaura " .. foundBuff.name
         self:SetAttribute("macrotext", macroText)
         print("|cFF00FF00  Macro set to:|r", macroText)
     else
-        print("|cFFFF0000  No buffs found!|r")
+        print("|cFFFF0000  No cancelable buffs found! Mount up or use temp buff|r")
     end
 end)
 
