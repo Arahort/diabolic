@@ -31,4 +31,4 @@ Core\Core.xml
 Components\Components.xml
 
 # TEMPORARY: Test cancelaura functionality
-test_cancelaura.lua
+# test_cancelaura.lua

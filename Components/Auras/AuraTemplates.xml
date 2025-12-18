@@ -1,11 +1,6 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Button name="DiabolicAuraTemplate" inherits="SecureActionButtonTemplate" virtual="true">
+	<Button name="DiabolicAuraTemplate" virtual="true">
 		<Size x="36" y="36"/>
-		<Attributes>
-			<Attribute name="type" value="cancelaura"/>
-			<Attribute name="type2" value="cancelaura"/>
-			<Attribute name="unit" value="player"/>
-		</Attributes>
 		<Scripts>
 			<OnLoad>
 				self:RegisterForClicks("RightButtonUp")
@@ -14,30 +9,17 @@
 			</OnLoad>
 			<OnAttributeChanged>
 				if name == "index" then
-					-- Update visual
 					self:CallMethod("Update", value)
-					-- Set spell name for cancelaura from secure context
-					local unit = self:GetParent():GetAttribute("unit") or "player"
-					local filter = self:GetParent():GetAttribute("filter")
-					local buffName
-					if filter == "HELPFUL" then
-						buffName = UnitBuff(unit, value)
-					else
-						buffName = UnitDebuff(unit, value)
-					end
-					if buffName then
-						self:SetAttribute("spell", buffName)
-					end
 				elseif name == "target-slot" then
 					self:CallMethod("UpdateTempEnchant", value)
 				end
 			</OnAttributeChanged>
-			<PreClick>
-				print("|cFFFF0000[PreClick]|r", self:GetName(), "spell:", self:GetAttribute("spell"), "unit:", self:GetAttribute("unit"))
-			</PreClick>
-			<PostClick>
-				print("|cFFFFFF00[PostClick]|r", self:GetName())
-			</PostClick>
+			<OnClick>
+				if button == "RightButton" then
+					local unit = self:GetParent():GetAttribute("unit") or "player"
+					CancelUnitBuff(unit, self:GetID(), self.filter)
+				end
+			</OnClick>
 		</Scripts>
 	</Button>
 </Ui>
