@@ -127,11 +127,11 @@ Aura.Update = function(self, index)
 
 	-- Use index parameter - it's the correct buff index from SecureAuraHeaderTemplate
 	local unit = self:GetParent():GetAttribute("unit") or "player"
-	print("|cFF00FFFF[Update]|r", self:GetName(), "index:", index, "unit:", unit, "filter:", self.filter)
+	-- print("|cFF00FFFF[Update]|r", self:GetName(), "index:", index, "unit:", unit, "filter:", self.filter)
 	local auraData = C_UnitAuras.GetAuraDataByIndex(unit, index, self.filter)
 
 	if (auraData) then
-		print("|cFF00FF00  Got aura:|r", auraData.name, "icon:", auraData.icon)
+		-- print("|cFF00FF00  Got aura:|r", auraData.name, "icon:", auraData.icon)
 		local name, icon, count, dispelType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, castByPlayer, nameplateShowAll, timeMod = auraData.name, auraData.icon, auraData.applications, auraData.dispelName, auraData.duration, auraData.expirationTime, auraData.sourceUnit, auraData.isStealable, auraData.nameplateShowPersonal, auraData.spellId, auraData.canApplyAura, auraData.isBossAura, auraData.isFromPlayerOrPlayerPet, auraData.nameplateShowAll, auraData.timeMod
 
 		-- DON'T set index here - SecureAuraHeaderTemplate already sets it automatically!
@@ -143,7 +143,7 @@ Aura.Update = function(self, index)
 		self:SetAlpha(1)
 		self.icon:SetTexture(icon)
 		self.count:SetText((count and count > 1) and count or "")
-		print("|cFF00FF00  Set texture:|r", icon)
+		-- print("|cFF00FF00  Set texture:|r", icon)
 
 		if (duration and duration > 0 and expirationTime) then
 			self.cd:SetCooldown(expirationTime - duration, duration)

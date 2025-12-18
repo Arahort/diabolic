@@ -11,7 +11,7 @@
 				if button == "RightButton" then
 					local unit = self:GetParent():GetAttribute("unit") or "player"
 					local index = self:GetAttribute("index")
-					print("|cFFFF00FF[OnClick]|r Canceling buff - unit:", unit, "index:", index, "filter:", self.filter)
+					-- print("|cFFFF00FF[OnClick]|r Canceling buff - unit:", unit, "index:", index, "filter:", self.filter)
 					CancelUnitBuff(unit, index, self.filter)
 				end
 			</OnClick>
