@@ -1,5 +1,5 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Button name="DiabolicAuraTemplate" inherits="SecureActionButtonTemplate" virtual="true">
+	<Button name="DiabolicAuraTemplate" inherits="SecureActionButtonTemplate, SecureHandlerAttributeTemplate" virtual="true">
 		<Size x="36" y="36"/>
 		<Attributes>
 			<Attribute name="type2" value="macro"/>
@@ -7,6 +7,16 @@
 		<Scripts>
 			<OnLoad>
 				self:RegisterForClicks("AnyUp")
+				self:SetAttribute("_onattributechanged", [[
+					if name == "index" then
+						local unit = self:GetParent():GetAttribute("unit") or "player"
+						local filter = self:GetParent():GetAttribute("filter") or "HELPFUL"
+						local auraInfo = C_UnitAuras.GetAuraDataByIndex(unit, value, filter)
+						if auraInfo and auraInfo.name then
+							self:SetAttribute("macrotext2", "/cancelaura " .. auraInfo.name)
+						end
+					end
+				]])
 				DiabolicUI3:GetModule("Auras"):Embed(self)
 				self:OnInitialize()
 			</OnLoad>

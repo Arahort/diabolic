@@ -134,12 +134,8 @@ Aura.Update = function(self, index)
 		-- DON'T set index here - SecureAuraHeaderTemplate already sets it automatically!
 		-- Setting it here would overwrite the secure attribute and break cancelaura
 
-		-- Set macrotext2 for canceling this specific buff by name (right-click)
-		if (not InCombatLockdown() and name) then
-			local macroCmd = "/cancelaura " .. name
-			self:SetAttribute("macrotext2", macroCmd)
-			print("|cFF00FF00[Aura] Set macrotext2:|r", macroCmd, "on", self:GetName())
-		end
+		-- macrotext2 is now set by secure _onattributechanged handler in XML template
+		-- This ensures it's set from SECURE code, not insecure Lua
 
 		self:SetAlpha(1)
 		self.icon:SetTexture(icon)
