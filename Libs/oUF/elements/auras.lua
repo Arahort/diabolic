@@ -987,32 +987,37 @@ end
 
 -- Debug command to check buff buttons
 SLASH_DEBUGBUFFS1 = "/debugbuffs"
-SlashCmdList["DEBUGBUFFS"] = function()
-	local playerFrame = nil
+SlashCmdList["DEBUGBUFFS"] = function(msg)
+	local unit = msg and msg:trim() ~= "" and msg:trim() or "player"
+	local unitFrame = nil
 	for _, frame in next, oUF.objects do
-		if frame.unit == "player" then
-			playerFrame = frame
+		if frame.unit == unit then
+			unitFrame = frame
 			break
 		end
 	end
-	if not playerFrame then
-		print("|cFFFF0000No player frame found!|r")
+	if not unitFrame then
+		print("|cFFFF0000No", unit, "frame found!|r")
 		print("Available frames:", #oUF.objects)
 		for i, frame in next, oUF.objects do
 			print("  Frame", i, "unit:", frame.unit or "nil", "name:", frame:GetName() or "unnamed")
 		end
 		return
 	end
-	local buffs = playerFrame.Buffs
+	print("|cFF00FF00=== Buff Buttons Debug for", unit, "===|r")
+	print("Unit frame:", unitFrame:GetName() or "unnamed", "Shown:", unitFrame:IsShown())
+
+	local buffs = unitFrame.Buffs
 	if not buffs then
-		print("|cFFFF0000No Buffs element found on player frame!|r")
+		print("|cFFFF0000No Buffs element found on", unit, "frame!|r")
 		return
 	end
-	print("|cFF00FF00=== Buff Buttons Debug ===|r")
-	print("Buffs parent:", buffs:GetName() or "unnamed", "Shown:", buffs:IsShown())
-	print("Buffs size:", buffs:GetSize())
-	print("Buffs level:", buffs:GetFrameLevel(), "Strata:", buffs:GetFrameStrata())
-	print("Created buttons:", buffs.createdButtons or 0)
+	print("|cFFFFFF00Buffs parent:|r", buffs:GetName() or "unnamed", "Shown:", buffs:IsShown())
+	print("  Size:", buffs:GetSize())
+	print("  Level:", buffs:GetFrameLevel(), "Strata:", buffs:GetFrameStrata())
+	print("  Mouse enabled:", buffs:IsMouseEnabled())
+	print("  Created buttons:", buffs.createdButtons or 0)
+
 	for i = 1, buffs.createdButtons or 0 do
 		local button = buffs[i]
 		if button then
@@ -1025,6 +1030,7 @@ SlashCmdList["DEBUGBUFFS"] = function()
 			print("  Level:", button:GetFrameLevel(), "Strata:", button:GetFrameStrata())
 			print("  OnEnter:", hasEnter, "OnClick:", hasClick)
 			print("  Visible:", button:IsVisible(), "Shown:", button:IsShown())
+			print("  Parent:", button:GetParent():GetName() or "UNNAMED PARENT!")
 			if button.Icon then
 				print("  Icon:", button.Icon:GetTexture())
 			end
