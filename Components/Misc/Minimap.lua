@@ -351,8 +351,10 @@ MinimapMod.UpdateZone = function(self)
 	if (ns.IsRetail) then
 		if MinimapCluster.ZoneTextButton then
 			MinimapCluster.ZoneTextButton:Show()
-			if MinimapZoneText then
-				MinimapZoneText:SetText(minimapZoneName)
+			-- Find the actual text element inside ZoneTextButton
+			local zoneText = MinimapCluster.ZoneTextButton.Text or MinimapCluster.ZoneTextButton:GetRegions()
+			if zoneText and zoneText.SetText then
+				zoneText:SetText(minimapZoneName)
 			end
 		end
 	else

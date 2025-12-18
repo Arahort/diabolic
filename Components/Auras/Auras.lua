@@ -131,6 +131,11 @@ Aura.Update = function(self, index)
 	if (auraData) then
 		local name, icon, count, dispelType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, castByPlayer, nameplateShowAll, timeMod = auraData.name, auraData.icon, auraData.applications, auraData.dispelName, auraData.duration, auraData.expirationTime, auraData.sourceUnit, auraData.isStealable, auraData.nameplateShowPersonal, auraData.spellId, auraData.canApplyAura, auraData.isBossAura, auraData.isFromPlayerOrPlayerPet, auraData.nameplateShowAll, auraData.timeMod
 
+		-- Set spell attribute for cancelaura to work with right-click
+		if spellId and not InCombatLockdown() then
+			self:SetAttribute("spell", spellId)
+		end
+
 		self:SetAlpha(1)
 		self.icon:SetTexture(icon)
 		self.count:SetText((count and count > 1) and count or "")

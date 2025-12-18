@@ -9,11 +9,7 @@
 			<OnLoad>
 				DiabolicUI3:GetModule("Auras"):Embed(self)
 				self:OnInitialize()
-				if (DiabolicUI3.IsRetail) then
-					self:RegisterForClicks("RightButtonDown","RightButtonUp")
-				else
-					self:RegisterForClicks("RightButtonUp")
-				end
+				self:RegisterForClicks("RightButtonUp")
 			</OnLoad>
 		</Scripts>
 	</Button>
