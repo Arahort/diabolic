@@ -100,7 +100,11 @@ local function onLeave()
 end
 
 local function CreateButton(element, index)
-	local button = CreateFrame('Button', element:GetDebugName() .. 'Button' .. index, element)
+	local button = CreateFrame('Button', element:GetDebugName() .. 'Button' .. index, element, 'SecureActionButtonTemplate')
+
+	-- Enable right-click to cancel aura
+	button:SetAttribute('type2', 'cancelaura')
+	button:RegisterForClicks('RightButtonUp')
 
 	local cd = CreateFrame('Cooldown', '$parentCooldown', button, 'CooldownFrameTemplate')
 	cd:SetAllPoints()
