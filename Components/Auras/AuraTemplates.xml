@@ -12,6 +12,12 @@
 				DiabolicUI3:GetModule("Auras"):Embed(self)
 				self:OnInitialize()
 			</OnLoad>
+			<PreClick>
+				print("|cFFFF0000[PreClick]|r", self:GetName(), "type:", self:GetAttribute("type"), "unit:", self:GetAttribute("unit"), "index:", self:GetAttribute("index"), "filter:", self:GetAttribute("filter"))
+			</PreClick>
+			<PostClick>
+				print("|cFFFFFF00[PostClick]|r", self:GetName())
+			</PostClick>
 		</Scripts>
 	</Button>
 </Ui>
