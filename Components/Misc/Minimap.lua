@@ -350,12 +350,25 @@ MinimapMod.UpdateZone = function(self)
 	-- Update Blizzard ZoneTextButton since we disabled MinimapCluster events
 	if (ns.IsRetail) then
 		if MinimapCluster.ZoneTextButton then
+			print("|cFF00FF00[Minimap] Updating ZoneTextButton:|r", minimapZoneName)
 			MinimapCluster.ZoneTextButton:Show()
-			-- Find the actual text element inside ZoneTextButton
-			local zoneText = MinimapCluster.ZoneTextButton.Text or MinimapCluster.ZoneTextButton:GetRegions()
+			-- Try multiple ways to find the text element
+			local zoneText = MinimapCluster.ZoneTextButton.Text
+			if not zoneText then
+				-- Try getting regions
+				local region1, region2, region3 = MinimapCluster.ZoneTextButton:GetRegions()
+				print("|cFFFFFF00  Regions:|r", region1, region2, region3)
+				zoneText = region1
+			end
+			print("|cFFFFFF00  ZoneText:|r", zoneText, "Type:", zoneText and zoneText:GetObjectType())
 			if zoneText and zoneText.SetText then
 				zoneText:SetText(minimapZoneName)
+				print("|cFF00FF00  Text set to:|r", zoneText:GetText())
+			else
+				print("|cFFFF0000  ERROR: Cannot find text element!|r")
 			end
+		else
+			print("|cFFFF0000[Minimap] ERROR: MinimapCluster.ZoneTextButton not found!|r")
 		end
 	else
 		if MinimapZoneTextButton then

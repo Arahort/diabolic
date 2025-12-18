@@ -134,6 +134,8 @@ Aura.Update = function(self, index)
 		-- Set spell attribute for cancelaura to work with right-click
 		if spellId and not InCombatLockdown() then
 			self:SetAttribute("spell", spellId)
+			print("|cFF00FF00[Aura] Updated:|r", name, "|cFFFFFF00SpellID:|r", spellId, "|cFFFFFF00Index:|r", index)
+			print("|cFFFFFF00  Attributes - type:|r", self:GetAttribute("type"), "|cFFFFFF00unit:|r", self:GetAttribute("unit"), "|cFFFFFF00spell:|r", self:GetAttribute("spell"))
 		end
 
 		self:SetAlpha(1)
