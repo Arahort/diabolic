@@ -284,9 +284,10 @@ Aura.OnInitialize = function(self)
 	self:SetScript("OnLeave", self.OnLeave)
 	self:SetScript("OnAttributeChanged", self.OnAttributeChanged)
 
-	if not InCombatLockdown() then
-		self:RegisterForClicks("AnyUp")
-	end
+	-- Don't overwrite RegisterForClicks from XML template
+	-- AuraTemplates.xml already registers clicks correctly for cancelaura
+	-- RegisterForClicks("AnyUp") would break SecureActionButton cancelaura behavior
+
 	local unit = self:GetParent():GetAttribute("unit")
 	if (unit and not InCombatLockdown()) then
 		self:SetAttribute("unit", unit)
