@@ -279,9 +279,6 @@ end
 
 Aura.OnAttributeChanged = function(self, attribute, value)
 	if (attribute == "index") then
-		-- Debug for right-click buff cancellation
-		print("|cFFFF00FF[Aura] OnAttributeChanged:|r index=", value, "for", self:GetName())
-		print("|cFFFF00FF  Attributes:|r type=", self:GetAttribute("type"), "unit=", self:GetAttribute("unit"), "index=", self:GetAttribute("index"), "filter=", self:GetAttribute("filter"))
 		return self:Update(value)
 	elseif(attribute == "target-slot") then
 		return self:UpdateTempEnchant(value)
@@ -303,9 +300,9 @@ Aura.OnInitialize = function(self)
 		self:SetAttribute("filter", self.filter)
 	end
 
-	-- DON'T hook OnAttributeChanged at all - even HookScript may interfere with secure handlers!
-	-- Instead, SecureAuraHeaderTemplate will call us via secure OnAttributeChanged in XML
-	-- We'll update visuals via polling instead
+	-- Hook OnAttributeChanged to update visuals when SecureAuraHeaderTemplate changes index
+	-- Using HookScript (not SetScript) to preserve any secure handlers
+	self:HookScript("OnAttributeChanged", self.OnAttributeChanged)
 
 	-- DON'T set any other secure attributes here!
 	-- SecureAuraHeaderTemplate manages: unit, index automatically

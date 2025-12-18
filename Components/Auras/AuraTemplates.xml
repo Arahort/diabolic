@@ -7,15 +7,6 @@
 				DiabolicUI3:GetModule("Auras"):Embed(self)
 				self:OnInitialize()
 			</OnLoad>
-			<OnAttributeChanged>
-				if name == "index" then
-					-- SecureAuraHeaderTemplate already sets ID correctly via SetID()
-					-- Just update visuals
-					self:CallMethod("Update", value)
-				elseif name == "target-slot" then
-					self:CallMethod("UpdateTempEnchant", value)
-				end
-			</OnAttributeChanged>
 			<OnClick>
 				if button == "RightButton" then
 					local unit = self:GetParent():GetAttribute("unit") or "player"
