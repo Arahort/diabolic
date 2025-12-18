@@ -84,7 +84,7 @@ local function UpdateTooltip(self)
 end
 
 local function onEnter(self)
-	print('|cFF00AAFF[oUF Auras] OnEnter - Mouse hover detected!|r Button:', self:GetName() or 'unnamed')
+	-- print('|cFF00AAFF[oUF Auras] OnEnter - Mouse hover detected!|r Button:', self:GetName() or 'unnamed')
 	if(GameTooltip:IsForbidden() or not self:IsVisible()) then return end
 
 	-- Avoid parenting GameTooltip to frames with anchoring restrictions,
@@ -141,38 +141,38 @@ local function CreateButton(element, index)
 	local w, h = button:GetSize()
 	local level = button:GetFrameLevel()
 	local strata = button:GetFrameStrata()
-	print('|cFFAA00AA[oUF Auras] Button created:|r', button:GetName() or 'unnamed')
-	print('  |cFFAA00AAMouse:|r', button:IsMouseEnabled(), '|cFFAA00AASize:|r', w, 'x', h, '|cFFAA00AALevel:|r', level, '|cFFAA00AAStrata:|r', strata)
-	print('  |cFFAA00AAClicks:|r', 'RightButtonUp', '|cFFAA00AAParent:|r', element:GetName() or 'unnamed')
+	-- print('|cFFAA00AA[oUF Auras] Button created:|r', button:GetName() or 'unnamed')
+	-- print('  |cFFAA00AAMouse:|r', button:IsMouseEnabled(), '|cFFAA00AASize:|r', w, 'x', h, '|cFFAA00AALevel:|r', level, '|cFFAA00AAStrata:|r', strata)
+	-- print('  |cFFAA00AAClicks:|r', 'RightButtonUp', '|cFFAA00AAParent:|r', element:GetName() or 'unnamed')
 
 	button:SetScript('OnClick', function(self, mouseButton)
-		print('|cFFFF0000========== BUFF CLICKED ==========|r')
-		print('|cFFFF0000Button:|r', mouseButton, '|cFFFFFF00Unit:|r', self.unit, '|cFF00FF00Index:|r', self.auraIndex, '|cFF00FFFFFilter:|r', self.filter)
+		-- print('|cFFFF0000========== BUFF CLICKED ==========|r')
+		-- print('|cFFFF0000Button:|r', mouseButton, '|cFFFFFF00Unit:|r', self.unit, '|cFF00FF00Index:|r', self.auraIndex, '|cFF00FFFFFilter:|r', self.filter)
 		if mouseButton == 'RightButton' then
 			if not self.unit then
-				print('|cFFFF0000ERROR: No unit on button!|r')
+				-- print('|cFFFF0000ERROR: No unit on button!|r')
 				return
 			end
 			local owner = self:GetParent().__owner
-			print('|cFFFFFF00Owner:|r', owner, '|cFFFFFF00Owner unit:|r', owner and owner.unit)
+			-- print('|cFFFFFF00Owner:|r', owner, '|cFFFFFF00Owner unit:|r', owner and owner.unit)
 			if owner and owner.unit then
 				local unitMatches = UnitIsUnit(self.unit, owner.unit)
-				print('|cFFFFFF00UnitIsUnit result:|r', unitMatches)
+				-- print('|cFFFFFF00UnitIsUnit result:|r', unitMatches)
 				if unitMatches then
-					print('|cFF00FF00Calling CancelUnitBuff:|r', self.unit, self.auraIndex, self.filter)
+					-- print('|cFF00FF00Calling CancelUnitBuff:|r', self.unit, self.auraIndex, self.filter)
 					local success, err = pcall(CancelUnitBuff, self.unit, self.auraIndex or 1, self.filter)
-					if success then
-						print('|cFF00FF00SUCCESS: Buff cancelled!|r')
-					else
-						print('|cFFFF0000ERROR calling CancelUnitBuff:|r', err)
-					end
+					-- if success then
+					-- 	print('|cFF00FF00SUCCESS: Buff cancelled!|r')
+					-- else
+					-- 	print('|cFFFF0000ERROR calling CancelUnitBuff:|r', err)
+					-- end
 				end
 			end
 		end
-		print('|cFFFF0000=====================================|r')
+		-- print('|cFFFF0000=====================================|r')
 	end)
 
-	print('|cFF888888[oUF Auras] Button created:|r', button:GetName() or 'unnamed', '|cFF888888Mouse enabled:|r', button:IsMouseEnabled())
+	-- print('|cFF888888[oUF Auras] Button created:|r', button:GetName() or 'unnamed', '|cFF888888Mouse enabled:|r', button:IsMouseEnabled())
 
 	--[[ Callback: Auras:PostCreateButton(button)
 	Called after a new aura button has been created.
@@ -237,7 +237,7 @@ local function updateAura(element, unit, data, position)
 	button.auraIndex = position
 	button.filter = data.isHarmful and 'HARMFUL' or 'HELPFUL'
 
-	print('|cFF00FFFF[oUF Auras] Updated buff:|r', data.name, '|cFF00FFFFUnit:|r', unit, '|cFF00FFFFIndex:|r', position, '|cFF00FFFFFilter:|r', button.filter)
+	-- print('|cFF00FFFF[oUF Auras] Updated buff:|r', data.name, '|cFF00FFFFUnit:|r', unit, '|cFF00FFFFIndex:|r', position, '|cFF00FFFFFilter:|r', button.filter)
 
 	if(button.Cooldown and not element.disableCooldown) then
 		if(data.duration > 0) then
@@ -281,9 +281,9 @@ local function updateAura(element, unit, data, position)
 		local strata = button:GetFrameStrata()
 		local visible = button:IsVisible()
 		local shown = button:IsShown()
-		print('|cFFFFAA00[oUF Auras] After update:|r', data.name)
-		print('  |cFFFFAA00Mouse:|r', button:IsMouseEnabled(), '|cFFFFAA00Size:|r', w, 'x', h, '|cFFFFAA00Visible:|r', visible, '|cFFFFAA00Shown:|r', shown)
-		print('  |cFFFFAA00Level:|r', level, '|cFFFFAA00Strata:|r', strata, '|cFFFFAA00Parent:|r', button:GetParent():GetName() or 'unnamed')
+		-- print('|cFFFFAA00[oUF Auras] After update:|r', data.name)
+		-- print('  |cFFFFAA00Mouse:|r', button:IsMouseEnabled(), '|cFFFFAA00Size:|r', w, 'x', h, '|cFFFFAA00Visible:|r', visible, '|cFFFFAA00Shown:|r', shown)
+		-- print('  |cFFFFAA00Level:|r', level, '|cFFFFAA00Strata:|r', strata, '|cFFFFAA00Parent:|r', button:GetParent():GetName() or 'unnamed')
 	end
 
 	--[[ Callback: Auras:PostUpdateButton(unit, button, data, position)
