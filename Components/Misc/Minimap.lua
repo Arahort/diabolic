@@ -347,6 +347,22 @@ MinimapMod.UpdateZone = function(self)
 		zoneName:SetTextColor(Colors.normal[1], Colors.normal[2], Colors.normal[3], a)
 	end
 	zoneName:SetText(minimapZoneName)
+	-- Update Blizzard ZoneTextButton since we disabled MinimapCluster events
+	if (ns.IsRetail) then
+		if MinimapCluster.ZoneTextButton then
+			MinimapCluster.ZoneTextButton:Show()
+			if MinimapZoneText then
+				MinimapZoneText:SetText(minimapZoneName)
+			end
+		end
+	else
+		if MinimapZoneTextButton then
+			MinimapZoneTextButton:Show()
+			if MinimapZoneText then
+				MinimapZoneText:SetText(minimapZoneName)
+			end
+		end
+	end
 end
 
 MinimapMod.UpdatePosition = function(self)
