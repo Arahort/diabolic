@@ -329,8 +329,10 @@ MinimapMod.UpdateTimers = function(self)
 end
 
 MinimapMod.UpdateZone = function(self)
+	print("|cFFFF00FF[Minimap] UpdateZone called!|r")
 	local zoneName = self.zoneName
 	if (not zoneName) then
+		print("|cFFFF0000[Minimap] ERROR: self.zoneName is nil!|r")
 		return
 	end
 	local a = zoneName:GetAlpha() -- needed to preserve alpha after text color changes

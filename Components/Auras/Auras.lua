@@ -131,11 +131,12 @@ Aura.Update = function(self, index)
 	if (auraData) then
 		local name, icon, count, dispelType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, castByPlayer, nameplateShowAll, timeMod = auraData.name, auraData.icon, auraData.applications, auraData.dispelName, auraData.duration, auraData.expirationTime, auraData.sourceUnit, auraData.isStealable, auraData.nameplateShowPersonal, auraData.spellId, auraData.canApplyAura, auraData.isBossAura, auraData.isFromPlayerOrPlayerPet, auraData.nameplateShowAll, auraData.timeMod
 
-		-- Set spell attribute for cancelaura to work with right-click
-		if spellId and not InCombatLockdown() then
-			self:SetAttribute("spell", spellId)
+		-- Set index attribute for cancelaura to work with right-click
+		-- cancelaura uses index, not spell!
+		if not InCombatLockdown() then
+			self:SetAttribute("index", index)
 			print("|cFF00FF00[Aura] Updated:|r", name, "|cFFFFFF00SpellID:|r", spellId, "|cFFFFFF00Index:|r", index)
-			print("|cFFFFFF00  Attributes - type:|r", self:GetAttribute("type"), "|cFFFFFF00unit:|r", self:GetAttribute("unit"), "|cFFFFFF00spell:|r", self:GetAttribute("spell"))
+			print("|cFFFFFF00  Attributes - type:|r", self:GetAttribute("type"), "|cFFFFFF00unit:|r", self:GetAttribute("unit"), "|cFFFFFF00index:|r", self:GetAttribute("index"))
 		end
 
 		self:SetAlpha(1)
