@@ -14,13 +14,26 @@
 			</OnLoad>
 			<OnAttributeChanged>
 				if name == "index" then
+					-- Update visual
 					self:CallMethod("Update", value)
+					-- Set spell name for cancelaura from secure context
+					local unit = self:GetParent():GetAttribute("unit") or "player"
+					local filter = self:GetParent():GetAttribute("filter")
+					local buffName
+					if filter == "HELPFUL" then
+						buffName = UnitBuff(unit, value)
+					else
+						buffName = UnitDebuff(unit, value)
+					end
+					if buffName then
+						self:SetAttribute("spell", buffName)
+					end
 				elseif name == "target-slot" then
 					self:CallMethod("UpdateTempEnchant", value)
 				end
 			</OnAttributeChanged>
 			<PreClick>
-				print("|cFFFF0000[PreClick]|r", self:GetName(), "type:", self:GetAttribute("type"), "unit:", self:GetAttribute("unit"), "index:", self:GetAttribute("index"), "filter:", self:GetAttribute("filter"))
+				print("|cFFFF0000[PreClick]|r", self:GetName(), "spell:", self:GetAttribute("spell"), "unit:", self:GetAttribute("unit"))
 			</PreClick>
 			<PostClick>
 				print("|cFFFFFF00[PostClick]|r", self:GetName())
