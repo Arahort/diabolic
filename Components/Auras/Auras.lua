@@ -283,8 +283,10 @@ Aura.OnInitialize = function(self)
 	self:Style()
 	self.filter = self:GetParent():GetAttribute("filter")
 	self.UpdateTooltip = self.UpdateTooltip
-	self:SetScript("OnEnter", self.OnEnter)
-	self:SetScript("OnLeave", self.OnLeave)
+	-- CRITICAL: Use HookScript instead of SetScript for SecureActionButton!
+	-- SetScript would overwrite secure handlers and break cancelaura
+	self:HookScript("OnEnter", self.OnEnter)
+	self:HookScript("OnLeave", self.OnLeave)
 	self:SetScript("OnAttributeChanged", self.OnAttributeChanged)
 
 	-- Don't overwrite RegisterForClicks from XML template
