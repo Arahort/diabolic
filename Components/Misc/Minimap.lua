@@ -386,7 +386,7 @@ MinimapMod.DisableBlizzard = function(self)
 		if MinimapCluster.InstanceDifficulty then MinimapCluster.InstanceDifficulty:SetParent(UIHider) end
 		if MinimapCluster.MailFrame then MinimapCluster.MailFrame:SetParent(UIHider) end
 		if MinimapCluster.Tracking then MinimapCluster.Tracking:SetParent(UIHider) end
-		if MinimapCluster.ZoneTextButton then MinimapCluster.ZoneTextButton:SetParent(UIHider) end
+		--if MinimapCluster.ZoneTextButton then MinimapCluster.ZoneTextButton:SetParent(UIHider) end -- Показываем название локации
 		Minimap.ZoomIn:SetParent(UIHider)
 		Minimap.ZoomIn:UnregisterAllEvents()
 		Minimap.ZoomOut:SetParent(UIHider)
@@ -406,7 +406,7 @@ MinimapMod.DisableBlizzard = function(self)
 		end
 		if MiniMapMailFrame then MiniMapMailFrame:SetParent(UIHider) end
 		if MiniMapTracking then MiniMapTracking:SetParent(UIHider) end
-		if MinimapZoneTextButton then MinimapZoneTextButton:SetParent(UIHider) end
+		--if MinimapZoneTextButton then MinimapZoneTextButton:SetParent(UIHider) end -- Показываем название локации
 		if MinimapZoomIn then MinimapZoomIn:SetParent(UIHider) end
 		if MinimapZoomOut then MinimapZoomOut:SetParent(UIHider) end
 	end

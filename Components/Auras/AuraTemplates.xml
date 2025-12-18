@@ -1,5 +1,5 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Button name="DiabolicAuraTemplate" inherits="SecureActionButtonTemplate" virtual="true" registerForClicks="RightButtonUp">
+	<Button name="DiabolicAuraTemplate" inherits="SecureActionButtonTemplate" virtual="true">
 		<Size x="36" y="36"/>
 		<Attributes>
 			<Attribute name="type" value="cancelaura"/>
@@ -9,6 +9,11 @@
 			<OnLoad>
 				DiabolicUI3:GetModule("Auras"):Embed(self)
 				self:OnInitialize()
+				if (DiabolicUI3.IsRetail) then
+					self:RegisterForClicks("RightButtonDown","RightButtonUp")
+				else
+					self:RegisterForClicks("RightButtonUp")
+				end
 			</OnLoad>
 		</Scripts>
 	</Button>

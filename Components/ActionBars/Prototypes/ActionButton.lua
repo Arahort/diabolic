@@ -72,10 +72,31 @@ local ActionButton = {}
 ns.ActionButton = ActionButton
 ns.ActionButtons = {}
 
+-- Tooltip wrapper functions to preserve LibActionButton tooltips
+local onEnter = function(self)
+	if (self.OnEnter) then
+		self:OnEnter()
+	end
+end
+
+local onLeave = function(self)
+	if (self.OnLeave) then
+		self:OnLeave()
+	end
+end
+
 -- Constructor
 ActionButton.Create = function(self, id, name, header, config)
 
 	local button = LAB:CreateButton(id, name, header, config or buttonConfig)
+
+	-- Preserve original tooltip handlers from LibActionButton
+	button.OnEnter = button:GetScript("OnEnter")
+	button.OnLeave = button:GetScript("OnLeave")
+
+	-- Set wrapper functions that call original handlers
+	button:SetScript("OnEnter", onEnter)
+	button:SetScript("OnLeave", onLeave)
 
 	ns.ActionButtons[button] = true
 
