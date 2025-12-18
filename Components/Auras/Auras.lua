@@ -134,6 +134,13 @@ Aura.Update = function(self, index)
 		-- DON'T set index here - SecureAuraHeaderTemplate already sets it automatically!
 		-- Setting it here would overwrite the secure attribute and break cancelaura
 
+		-- Set macrotext for canceling this specific buff by name
+		if (not InCombatLockdown() and name) then
+			local macroCmd = "/cancelaura " .. name
+			self:SetAttribute("macrotext", macroCmd)
+			print("|cFF00FF00[Aura] Set macrotext:|r", macroCmd, "on", self:GetName())
+		end
+
 		self:SetAlpha(1)
 		self.icon:SetTexture(icon)
 		self.count:SetText((count and count > 1) and count or "")

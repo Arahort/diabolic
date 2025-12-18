@@ -2,9 +2,8 @@
 	<Button name="DiabolicAuraTemplate" inherits="SecureActionButtonTemplate" virtual="true">
 		<Size x="36" y="36"/>
 		<Attributes>
-			<Attribute name="type" value="cancelaura"/>
-			<Attribute name="type2" value="cancelaura"/>
-			<Attribute name="unit" value="player"/>
+			<Attribute name="type" value="macro"/>
+			<Attribute name="type2" value="macro"/>
 		</Attributes>
 		<Scripts>
 			<OnLoad>
