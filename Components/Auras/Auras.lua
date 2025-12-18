@@ -283,26 +283,18 @@ Aura.OnInitialize = function(self)
 	self:Style()
 	self.filter = self:GetParent():GetAttribute("filter")
 	self.UpdateTooltip = self.UpdateTooltip
-	-- CRITICAL: Use HookScript instead of SetScript for SecureActionButton!
-	-- SetScript would overwrite secure handlers and break cancelaura
+
+	-- MINIMAL initialization - let SecureAuraHeaderTemplate handle everything!
+	-- Only hook tooltips, don't touch secure attributes at all
 	self:HookScript("OnEnter", self.OnEnter)
 	self:HookScript("OnLeave", self.OnLeave)
+
+	-- OnAttributeChanged for visual updates only (not secure)
 	self:SetScript("OnAttributeChanged", self.OnAttributeChanged)
 
-	-- Don't overwrite RegisterForClicks from XML template
-	-- AuraTemplates.xml already registers clicks correctly for cancelaura
-	-- RegisterForClicks("AnyUp") would break SecureActionButton cancelaura behavior
-
-	local unit = self:GetParent():GetAttribute("unit")
-	if (unit and not InCombatLockdown()) then
-		self:SetAttribute("unit", unit)
-		self:SetAttribute("unit2", unit)
-		-- CRITICAL: Set filter attribute for cancelaura to work!
-		-- cancelaura requires filter="HELPFUL" or "HARMFUL" in Retail
-		if self.filter then
-			self:SetAttribute("filter", self.filter)
-		end
-	end
+	-- DON'T set any secure attributes here!
+	-- SecureAuraHeaderTemplate manages: unit, index, filter automatically
+	-- Setting them in Lua may break the secure system!
 end
 
 -- Module API
