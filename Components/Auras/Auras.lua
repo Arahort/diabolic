@@ -134,11 +134,11 @@ Aura.Update = function(self, index)
 		-- DON'T set index here - SecureAuraHeaderTemplate already sets it automatically!
 		-- Setting it here would overwrite the secure attribute and break cancelaura
 
-		-- Set macrotext for canceling this specific buff by name
+		-- Set macrotext2 for canceling this specific buff by name (right-click)
 		if (not InCombatLockdown() and name) then
 			local macroCmd = "/cancelaura " .. name
-			self:SetAttribute("macrotext", macroCmd)
-			print("|cFF00FF00[Aura] Set macrotext:|r", macroCmd, "on", self:GetName())
+			self:SetAttribute("macrotext2", macroCmd)
+			print("|cFF00FF00[Aura] Set macrotext2:|r", macroCmd, "on", self:GetName())
 		end
 
 		self:SetAlpha(1)
@@ -296,8 +296,9 @@ Aura.OnInitialize = function(self)
 	self:HookScript("OnEnter", self.OnEnter)
 	self:HookScript("OnLeave", self.OnLeave)
 
-	-- OnAttributeChanged for visual updates only (not secure)
-	self:SetScript("OnAttributeChanged", self.OnAttributeChanged)
+	-- DON'T use SetScript("OnAttributeChanged") - it OVERWRITES secure handlers!
+	-- Use HookScript to preserve secure system
+	self:HookScript("OnAttributeChanged", self.OnAttributeChanged)
 
 	-- DON'T set any secure attributes here!
 	-- SecureAuraHeaderTemplate manages: unit, index, filter automatically

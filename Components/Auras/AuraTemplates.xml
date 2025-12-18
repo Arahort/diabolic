@@ -1,20 +1,17 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Button name="DiabolicAuraTemplate" inherits="SecureActionButtonTemplate, SecureHandlerClickTemplate" virtual="true">
+	<Button name="DiabolicAuraTemplate" inherits="SecureActionButtonTemplate" virtual="true">
 		<Size x="36" y="36"/>
+		<Attributes>
+			<Attribute name="type2" value="macro"/>
+		</Attributes>
 		<Scripts>
 			<OnLoad>
 				self:RegisterForClicks("AnyUp")
-				self:SetAttribute("_onclick", [[
-					local macrotext = self:GetAttribute("macrotext")
-					if macrotext then
-						self:RunMacroText(macrotext)
-					end
-				]])
 				DiabolicUI3:GetModule("Auras"):Embed(self)
 				self:OnInitialize()
 			</OnLoad>
 			<PostClick>
-				print("|cFFFFFF00[CLICK!]|r Button clicked:", self:GetName(), "macrotext:", self:GetAttribute("macrotext"))
+				print("|cFFFFFF00[CLICK!]|r Button clicked:", self:GetName(), "macrotext2:", self:GetAttribute("macrotext2"))
 			</PostClick>
 		</Scripts>
 	</Button>
