@@ -134,22 +134,36 @@ local function CreateButton(element, index)
 	button.UpdateTooltip = UpdateTooltip
 	button:SetScript('OnEnter', onEnter)
 	button:SetScript('OnLeave', onLeave)
+	button:EnableMouse(true)
 	button:RegisterForClicks('RightButtonUp')
 	button:SetScript('OnClick', function(self, mouseButton)
-		print('[oUF Auras] OnClick:', mouseButton, 'unit:', self.unit, 'index:', self.auraIndex, 'filter:', self.filter)
-		if mouseButton == 'RightButton' and self.unit then
+		print('|cFFFF0000========== BUFF CLICKED ==========|r')
+		print('|cFFFF0000Button:|r', mouseButton, '|cFFFFFF00Unit:|r', self.unit, '|cFF00FF00Index:|r', self.auraIndex, '|cFF00FFFFFilter:|r', self.filter)
+		if mouseButton == 'RightButton' then
+			if not self.unit then
+				print('|cFFFF0000ERROR: No unit on button!|r')
+				return
+			end
 			local owner = self:GetParent().__owner
-			print('[oUF Auras] Owner unit:', owner and owner.unit)
+			print('|cFFFFFF00Owner:|r', owner, '|cFFFFFF00Owner unit:|r', owner and owner.unit)
 			if owner and owner.unit then
 				local unitMatches = UnitIsUnit(self.unit, owner.unit)
-				print('[oUF Auras] UnitIsUnit result:', unitMatches)
+				print('|cFFFFFF00UnitIsUnit result:|r', unitMatches)
 				if unitMatches then
-					print('[oUF Auras] Calling CancelUnitBuff:', self.unit, self.auraIndex, self.filter)
-					CancelUnitBuff(self.unit, self.auraIndex or 1, self.filter)
+					print('|cFF00FF00Calling CancelUnitBuff:|r', self.unit, self.auraIndex, self.filter)
+					local success, err = pcall(CancelUnitBuff, self.unit, self.auraIndex or 1, self.filter)
+					if success then
+						print('|cFF00FF00SUCCESS: Buff cancelled!|r')
+					else
+						print('|cFFFF0000ERROR calling CancelUnitBuff:|r', err)
+					end
 				end
 			end
 		end
+		print('|cFFFF0000=====================================|r')
 	end)
+
+	print('|cFF888888[oUF Auras] Button created:|r', button:GetName() or 'unnamed', '|cFF888888Mouse enabled:|r', button:IsMouseEnabled())
 
 	--[[ Callback: Auras:PostCreateButton(button)
 	Called after a new aura button has been created.
@@ -213,6 +227,8 @@ local function updateAura(element, unit, data, position)
 	button.unit = unit
 	button.auraIndex = position
 	button.filter = data.isHarmful and 'HARMFUL' or 'HELPFUL'
+
+	print('|cFF00FFFF[oUF Auras] Updated buff:|r', data.name, '|cFF00FFFFUnit:|r', unit, '|cFF00FFFFIndex:|r', position, '|cFF00FFFFFilter:|r', button.filter)
 
 	if(button.Cooldown and not element.disableCooldown) then
 		if(data.duration > 0) then
