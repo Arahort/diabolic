@@ -292,12 +292,17 @@ Aura.OnInitialize = function(self)
 	self:HookScript("OnEnter", self.OnEnter)
 	self:HookScript("OnLeave", self.OnLeave)
 
+	-- Set filter for cancelaura to work (must match parent)
+	if (not InCombatLockdown() and self.filter) then
+		self:SetAttribute("filter", self.filter)
+	end
+
 	-- DON'T use SetScript("OnAttributeChanged") - it OVERWRITES secure handlers!
 	-- Use HookScript to preserve secure system
 	self:HookScript("OnAttributeChanged", self.OnAttributeChanged)
 
-	-- DON'T set any secure attributes here!
-	-- SecureAuraHeaderTemplate manages: unit, index, filter automatically
+	-- DON'T set any other secure attributes here!
+	-- SecureAuraHeaderTemplate manages: unit, index automatically
 	-- Setting them in Lua may break the secure system!
 end
 

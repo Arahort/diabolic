@@ -1,33 +1,17 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Button name="DiabolicAuraTemplate" inherits="SecureActionButtonTemplate, SecureHandlerAttributeTemplate" virtual="true">
+	<Button name="DiabolicAuraTemplate" inherits="SecureActionButtonTemplate" virtual="true">
 		<Size x="36" y="36"/>
 		<Attributes>
-			<Attribute name="type2" value="macro"/>
+			<Attribute name="type" value="cancelaura"/>
+			<Attribute name="type2" value="cancelaura"/>
+			<Attribute name="unit" value="player"/>
 		</Attributes>
 		<Scripts>
 			<OnLoad>
-				self:RegisterForClicks("AnyUp")
-				self:SetAttribute("_onattributechanged", [[
-					if name == "index" then
-						local unit = self:GetParent():GetAttribute("unit") or "player"
-						local filter = self:GetParent():GetAttribute("filter")
-						local buffName
-						if filter == "HELPFUL" then
-							buffName = UnitBuff(unit, value)
-						else
-							buffName = UnitDebuff(unit, value)
-						end
-						if buffName then
-							self:SetAttribute("macrotext2", "/cancelaura " .. buffName)
-						end
-					end
-				]])
+				self:RegisterForClicks("RightButtonUp")
 				DiabolicUI3:GetModule("Auras"):Embed(self)
 				self:OnInitialize()
 			</OnLoad>
-			<PostClick>
-				print("|cFFFFFF00[CLICK!]|r Button clicked:", self:GetName(), "macrotext2:", self:GetAttribute("macrotext2"))
-			</PostClick>
 		</Scripts>
 	</Button>
 </Ui>
