@@ -731,6 +731,19 @@ Bars.OnEvent = function(self, event, ...)
 		if (isInitialLogin or isReloadingUi) then
 			self:UpdateSettings()
 		end
+	elseif (event == "UPDATE_VEHICLE_ACTIONBAR") or (event == "UPDATE_OVERRIDE_ACTIONBAR") or (event == "UPDATE_POSSESS_BAR") then
+		if (not InCombatLockdown()) then
+			for name,bar in pairs(self.Bars) do
+				if (bar.UpdateStateDriver) then
+					bar:UpdateStateDriver()
+				end
+			end
+		end
+		for name,bar in pairs(self.Bars) do
+			if (bar.ForAll) then
+				bar:ForAll("UpdateAction")
+			end
+		end
 	elseif (event == "OnButtonUpdate") then
 		local button = ...
 		button.cooldown:ClearAllPoints()
@@ -762,6 +775,9 @@ Bars.OnEnable = function(self)
 
 	self:RegisterEvent("UPDATE_BINDINGS", "UpdateBindings")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnEvent")
+	self:RegisterEvent("UPDATE_VEHICLE_ACTIONBAR", "OnEvent")
+	self:RegisterEvent("UPDATE_OVERRIDE_ACTIONBAR", "OnEvent")
+	self:RegisterEvent("UPDATE_POSSESS_BAR", "OnEvent")
 
 	if (ns.IsRetail) then
 		LAB.RegisterCallback(self, "OnButtonUpdate", "OnEvent")
