@@ -988,31 +988,46 @@ end
 -- Debug command to check buff buttons
 SLASH_DEBUGBUFFS1 = "/debugbuffs"
 SlashCmdList["DEBUGBUFFS"] = function()
-	local player = oUF.objects.player
-	if not player then
+	local playerFrame = nil
+	for _, frame in next, oUF.objects do
+		if frame.unit == "player" then
+			playerFrame = frame
+			break
+		end
+	end
+	if not playerFrame then
 		print("|cFFFF0000No player frame found!|r")
+		print("Available frames:", #oUF.objects)
+		for i, frame in next, oUF.objects do
+			print("  Frame", i, "unit:", frame.unit or "nil", "name:", frame:GetName() or "unnamed")
+		end
 		return
 	end
-	local buffs = player.Buffs
+	local buffs = playerFrame.Buffs
 	if not buffs then
-		print("|cFFFF0000No Buffs element found!|r")
+		print("|cFFFF0000No Buffs element found on player frame!|r")
 		return
 	end
 	print("|cFF00FF00=== Buff Buttons Debug ===|r")
 	print("Buffs parent:", buffs:GetName() or "unnamed", "Shown:", buffs:IsShown())
 	print("Buffs size:", buffs:GetSize())
 	print("Buffs level:", buffs:GetFrameLevel(), "Strata:", buffs:GetFrameStrata())
+	print("Created buttons:", buffs.createdButtons or 0)
 	for i = 1, buffs.createdButtons or 0 do
 		local button = buffs[i]
-		if button and button:IsShown() then
+		if button then
 			local w, h = button:GetSize()
 			local hasEnter = button:GetScript("OnEnter") ~= nil
 			local hasClick = button:GetScript("OnClick") ~= nil
+			local mouseOver = button:IsMouseOver()
 			print("|cFFFFFF00Button", i, ":|r", button:GetName() or "unnamed")
-			print("  Size:", w, "x", h, "Mouse:", button:IsMouseEnabled())
+			print("  Size:", w, "x", h, "Mouse:", button:IsMouseEnabled(), "MouseOver:", mouseOver)
 			print("  Level:", button:GetFrameLevel(), "Strata:", button:GetFrameStrata())
 			print("  OnEnter:", hasEnter, "OnClick:", hasClick)
 			print("  Visible:", button:IsVisible(), "Shown:", button:IsShown())
+			if button.Icon then
+				print("  Icon:", button.Icon:GetTexture())
+			end
 		end
 	end
 	print("|cFF00FF00========================|r")
