@@ -100,11 +100,7 @@ local function onLeave()
 end
 
 local function CreateButton(element, index)
-	local button = CreateFrame('Button', element:GetDebugName() .. 'Button' .. index, element, 'SecureActionButtonTemplate')
-
-	-- Enable right-click to cancel aura
-	button:SetAttribute('type2', 'cancelaura')
-	button:RegisterForClicks('RightButtonDown', 'RightButtonUp')
+	local button = CreateFrame('Button', element:GetDebugName() .. 'Button' .. index, element)
 
 	local cd = CreateFrame('Cooldown', '$parentCooldown', button, 'CooldownFrameTemplate')
 	cd:SetAllPoints()
@@ -138,6 +134,22 @@ local function CreateButton(element, index)
 	button.UpdateTooltip = UpdateTooltip
 	button:SetScript('OnEnter', onEnter)
 	button:SetScript('OnLeave', onLeave)
+	button:RegisterForClicks('RightButtonUp')
+	button:SetScript('OnClick', function(self, mouseButton)
+		print('[oUF Auras] OnClick:', mouseButton, 'unit:', self.unit, 'index:', self.auraIndex, 'filter:', self.filter)
+		if mouseButton == 'RightButton' and self.unit then
+			local owner = self:GetParent().__owner
+			print('[oUF Auras] Owner unit:', owner and owner.unit)
+			if owner and owner.unit then
+				local unitMatches = UnitIsUnit(self.unit, owner.unit)
+				print('[oUF Auras] UnitIsUnit result:', unitMatches)
+				if unitMatches then
+					print('[oUF Auras] Calling CancelUnitBuff:', self.unit, self.auraIndex, self.filter)
+					CancelUnitBuff(self.unit, self.auraIndex or 1, self.filter)
+				end
+			end
+		end
+	end)
 
 	--[[ Callback: Auras:PostCreateButton(button)
 	Called after a new aura button has been created.
@@ -197,13 +209,10 @@ local function updateAura(element, unit, data, position)
 	button.auraInstanceID = data.auraInstanceID
 	button.isHarmful = data.isHarmful
 
-	-- Set secure attributes for cancelaura functionality
-	if not InCombatLockdown() then
-		button:SetAttribute('unit', unit)
-		button:SetAttribute('spell', data.name)
-		button:SetAttribute('index', position)
-		button:SetAttribute('filter', data.isHarmful and 'HARMFUL' or 'HELPFUL')
-	end
+	-- Store data for CancelUnitBuff
+	button.unit = unit
+	button.auraIndex = position
+	button.filter = data.isHarmful and 'HARMFUL' or 'HELPFUL'
 
 	if(button.Cooldown and not element.disableCooldown) then
 		if(data.duration > 0) then
