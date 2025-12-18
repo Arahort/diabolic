@@ -9,6 +9,8 @@
 			</OnLoad>
 			<OnAttributeChanged>
 				if name == "index" then
+					-- SecureAuraHeaderTemplate already sets ID correctly via SetID()
+					-- Just update visuals
 					self:CallMethod("Update", value)
 				elseif name == "target-slot" then
 					self:CallMethod("UpdateTempEnchant", value)
@@ -17,6 +19,7 @@
 			<OnClick>
 				if button == "RightButton" then
 					local unit = self:GetParent():GetAttribute("unit") or "player"
+					print("|cFFFF00FF[OnClick]|r Canceling buff - unit:", unit, "index:", self:GetID(), "filter:", self.filter)
 					CancelUnitBuff(unit, self:GetID(), self.filter)
 				end
 			</OnClick>

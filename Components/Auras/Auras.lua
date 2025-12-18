@@ -125,8 +125,9 @@ end
 
 Aura.Update = function(self, index)
 
-	local unit = self:GetParent():GetAttribute("unit")
-	local auraData = C_UnitAuras.GetAuraDataByIndex(unit, index, self.filter)
+	-- Use GetID() instead of index parameter - SecureAuraHeaderTemplate sets ID correctly
+	local unit = self:GetParent():GetAttribute("unit") or "player"
+	local auraData = C_UnitAuras.GetAuraDataByIndex(unit, self:GetID(), self.filter)
 
 	if (auraData) then
 		local name, icon, count, dispelType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, castByPlayer, nameplateShowAll, timeMod = auraData.name, auraData.icon, auraData.applications, auraData.dispelName, auraData.duration, auraData.expirationTime, auraData.sourceUnit, auraData.isStealable, auraData.nameplateShowPersonal, auraData.spellId, auraData.canApplyAura, auraData.isBossAura, auraData.isFromPlayerOrPlayerPet, auraData.nameplateShowAll, auraData.timeMod
