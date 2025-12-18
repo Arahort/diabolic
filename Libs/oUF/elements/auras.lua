@@ -104,7 +104,7 @@ local function CreateButton(element, index)
 
 	-- Enable right-click to cancel aura
 	button:SetAttribute('type2', 'cancelaura')
-	button:RegisterForClicks('RightButtonUp')
+	button:RegisterForClicks('RightButtonDown', 'RightButtonUp')
 
 	local cd = CreateFrame('Cooldown', '$parentCooldown', button, 'CooldownFrameTemplate')
 	cd:SetAllPoints()
@@ -196,6 +196,14 @@ local function updateAura(element, unit, data, position)
 	-- for tooltips
 	button.auraInstanceID = data.auraInstanceID
 	button.isHarmful = data.isHarmful
+
+	-- Set secure attributes for cancelaura functionality
+	if not InCombatLockdown() then
+		button:SetAttribute('unit', unit)
+		button:SetAttribute('spell', data.name)
+		button:SetAttribute('index', position)
+		button:SetAttribute('filter', data.isHarmful and 'HARMFUL' or 'HELPFUL')
+	end
 
 	if(button.Cooldown and not element.disableCooldown) then
 		if(data.duration > 0) then
