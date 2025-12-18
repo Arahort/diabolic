@@ -4,6 +4,7 @@
 		<Attributes>
 			<Attribute name="type" value="cancelaura"/>
 			<Attribute name="type2" value="cancelaura"/>
+			<Attribute name="unit" value="player"/>
 		</Attributes>
 		<Scripts>
 			<OnLoad>
