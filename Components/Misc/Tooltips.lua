@@ -81,6 +81,9 @@ local SetObjectScale = ns.API.SetObjectScale
 local UIHider = ns.Hider
 local noop = ns.Noop
 
+-- Tooltip On Mouse tracking
+local trackedTooltips = {}
+
 -- Localized Search Patterns
 local LEVEL1 = string_lower(_G.TOOLTIP_UNIT_LEVEL:gsub("%s?%%s%s?%-?",""))
 local LEVEL2 = _G.TOOLTIP_UNIT_LEVEL_CLASS and string_lower(_G.TOOLTIP_UNIT_LEVEL_CLASS:gsub("^%%2$s%s?(.-)%s?%%1$s","%1"):gsub("^%-?г?о?%s?",""):gsub("%s?%%s%s?%-?","")) or ""
@@ -557,11 +560,77 @@ Tooltips.OnTooltipSetUnit = function(self, tooltip)
 
 end
 
+local updateTooltip = function(tooltip)
+	if not tooltip.update then return end
+	if not ns.db or not ns.db.char or not ns.db.char.tooltips then return end
+	if not ns.db.char.tooltips.enabled then return end
+
+	local settings = ns.db.char.tooltips
+	local scale = UIParent:GetEffectiveScale()
+	local mX, mY = GetCursorPosition()
+	mX, mY = mX / scale + settings.x, mY / scale + settings.y
+
+	if settings.anchor == "TOPLEFT" then
+		mY = mY - tooltip:GetHeight()
+	elseif settings.anchor == "TOPRIGHT" then
+		mX = mX - tooltip:GetWidth()
+		mY = mY - tooltip:GetHeight()
+	elseif settings.anchor == "BOTTOMRIGHT" then
+		mX = mX - tooltip:GetWidth()
+	elseif settings.anchor == "TOP" then
+		mX = mX - tooltip:GetWidth() / 2
+		mY = mY - tooltip:GetHeight()
+	elseif settings.anchor == "BOTTOM" then
+		mX = mX - tooltip:GetWidth() / 2
+	elseif settings.anchor == "LEFT" then
+		mY = mY - tooltip:GetHeight() / 2
+	elseif settings.anchor == "RIGHT" then
+		mX = mX - tooltip:GetWidth()
+		mY = mY - tooltip:GetHeight() / 2
+	elseif settings.anchor == "CENTER" then
+		mX = mX - tooltip:GetWidth() / 2
+		mY = mY - tooltip:GetHeight() / 2
+	end
+
+	tooltip:ClearAllPoints()
+	tooltip:SetPoint("BOTTOMLEFT", "UIParent", "BOTTOMLEFT", mX, mY)
+end
+
+Tooltips.UpdateSettings = function(self)
+	if not ns.db or not ns.db.char or not ns.db.char.tooltips then
+		ns.db.char.tooltips = {
+			enabled = true,
+			x = 32,
+			y = -32,
+			anchor = "TOPLEFT"
+		}
+	end
+end
+
 Tooltips.SetDefaultAnchor = function(self, tooltip, parent)
 	if (not tooltip) or (tooltip:IsForbidden()) then return end
 
-	tooltip:SetOwner(parent, "ANCHOR_NONE")
-	tooltip:SetPoint("BOTTOMRIGHT", -40, 40)
+	if ns.db and ns.db.char and ns.db.char.tooltips and ns.db.char.tooltips.enabled then
+		if parent.unit then
+			tooltip:SetOwner(parent, "ANCHOR_PRESERVE")
+		else
+			tooltip:SetOwner(parent, "ANCHOR_CURSOR")
+		end
+
+		updateTooltip(tooltip)
+		tooltip.update = true
+
+		if not trackedTooltips[tostring(tooltip)] then
+			trackedTooltips[tostring(tooltip)] = true
+			tooltip:HookScript("OnUpdate", updateTooltip)
+			tooltip:HookScript("OnHide", function()
+				tooltip.update = false
+			end)
+		end
+	else
+		tooltip:SetOwner(parent, "ANCHOR_NONE")
+		tooltip:SetPoint("BOTTOMRIGHT", -40, 40)
+	end
 end
 
 Tooltips.SetUnitColor = function(self, unit)
@@ -646,6 +715,7 @@ end
 
 Tooltips.OnInitialize = function(self)
 
+	self:UpdateSettings()
 	self:StyleStatusBar()
 	self:StyleTooltips()
 
@@ -655,4 +725,8 @@ end
 
 Tooltips.OnEnable = function(self)
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "StyleTooltips")
+	if ns.callbacks and ns.callbacks.RegisterCallback then
+		ns.RegisterCallback(self, "Saved_Settings_Updated", "UpdateSettings")
+		ns.RegisterCallback(self, "Tooltips_Settings_Updated", "UpdateSettings")
+	end
 end

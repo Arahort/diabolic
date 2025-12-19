@@ -22,6 +22,8 @@ local function OnSettingChanged(_, setting, value)
 		ns.callbacks:Fire("ActionBar_Settings_Updated")
 	elseif variable:match("^char_auras_") then
 		ns.callbacks:Fire("Aura_Settings_Updated")
+	elseif variable:match("^char_tooltips_") then
+		ns.callbacks:Fire("Tooltips_Settings_Updated")
 	elseif variable:match("^global_core_") then
 		if variable:match("relativeScale$") then
 			ns:SetScale(tostring(value))
@@ -501,6 +503,50 @@ SettingsModule.OnInitialize = function(self)
 				return string.format("%.2f", value)
 			end)
 			Settings.CreateSlider(category, setting, options, L["TargetRelativeScaleDesc"])
+		end
+		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["TooltipsHeader"]))
+		--[[
+		do
+			local setting = RegisterSetting(
+				category,
+				"enabled",
+				"char.tooltips",
+				L["EnableTooltipsOnMouse"],
+				true,
+				L["EnableTooltipsOnMouseDesc"]
+			)
+			CreateCheckbox(category, setting, L["EnableTooltipsOnMouseDesc"])
+		end
+		]]
+		do
+			local setting = RegisterSetting(
+				category,
+				"x",
+				"char.tooltips",
+				L["TooltipOffsetX"],
+				32,
+				L["TooltipOffsetXDesc"]
+			)
+			local options = Settings.CreateSliderOptions(-100, 100, 5)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return tostring(value)
+			end)
+			Settings.CreateSlider(category, setting, options, L["TooltipOffsetXDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"y",
+				"char.tooltips",
+				L["TooltipOffsetY"],
+				-32,
+				L["TooltipOffsetYDesc"]
+			)
+			local options = Settings.CreateSliderOptions(-100, 100, 5)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return tostring(value)
+			end)
+			Settings.CreateSlider(category, setting, options, L["TooltipOffsetYDesc"])
 		end
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["ResetHeader"]))
 		do
