@@ -1,0 +1,61 @@
+# DiabolicUI3 Project Instructions
+
+## ВАЖНО: Всегда читай DEVELOPMENT.md перед началом работы!
+
+Файл `DEVELOPMENT.md` содержит критически важную информацию о структуре проекта и workflow разработки.
+
+## Основные правила
+
+1. **Работай ТОЛЬКО в папке `diabolic-dev\`** - это рабочая папка с git репозиторием
+2. **НИКОГДА не работай в `_retail_\Interface\AddOns\DiabolicUI3\`** - эта папка управляется CurseForge клиентом
+3. **Git пуши в ветку `github` делай ТОЛЬКО по просьбе пользователя**
+4. **Локальные коммиты можно и нужно делать** для сохранения прогресса
+5. Перед тестированием в игре используй robocopy из DEVELOPMENT.md
+
+## Структура проекта
+
+```
+X:\Games\World of Warcraft\
+├── diabolic-dev\                    ← РАБОЧАЯ ПАПКА (git)
+│   ├── .git\
+│   ├── DEVELOPMENT.md               ← ЧИТАЙ ОБЯЗАТЕЛЬНО!
+│   └── TODO.md
+└── _retail_\Interface\AddOns\
+    └── DiabolicUI3\                 ← ИГРОВАЯ ПАПКА (CurseForge)
+```
+
+## Git Workflow
+
+### Локальные коммиты (можно делать свободно)
+```bash
+cd "X:\Games\World of Warcraft\diabolic-dev"
+git add .
+git commit -m "Описание изменений"
+```
+
+### Push на GitHub (ТОЛЬКО по просьбе пользователя!)
+```bash
+git push origin github
+```
+
+### Теги релизов (ТОЛЬКО по просьбе пользователя!)
+```bash
+git tag -a release-X.X.X -m "Описание релиза"
+git push origin release-X.X.X
+```
+
+## Файлы в .gitignore
+
+Эти файлы НЕ коммитятся, но используются локально:
+- `TODO.md` - список задач
+- `RELEASE_NOTES*.md` - заметки к релизам
+- `CURSE_DESCRIPTION.html` - описание для CurseForge
+- `CHANGELOG_RELEASE.md` - черновики changelog
+- `CHANGES.txt` - генерируется CurseForge
+- `DiabolicUI3.rar` - локальные архивы
+
+## Важные ссылки
+
+- GitHub: https://github.com/Arahort/diabolic
+- CurseForge: https://www.curseforge.com/wow/addons/diabolicui-arahort-edition
+- Автор: Arahort (alex@arahort.pro)
