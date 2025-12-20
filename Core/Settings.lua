@@ -24,6 +24,8 @@ local function OnSettingChanged(_, setting, value)
 		ns.callbacks:Fire("Aura_Settings_Updated")
 	elseif variable:match("^char_tooltips_") then
 		ns.callbacks:Fire("Tooltips_Settings_Updated")
+	elseif variable:match("^char_qol_") then
+		ns.callbacks:Fire("QoL_Settings_Updated")
 	elseif variable:match("^global_core_") then
 		if variable:match("relativeScale$") then
 			ns:SetScale(tostring(value))
@@ -547,6 +549,18 @@ SettingsModule.OnInitialize = function(self)
 				return tostring(value)
 			end)
 			Settings.CreateSlider(category, setting, options, L["TooltipOffsetYDesc"])
+		end
+		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["QualityOfLifeHeader"]))
+		do
+			local setting = RegisterSetting(
+				category,
+				"movableFrames",
+				"char.qol",
+				L["MovableFrames"],
+				true,
+				L["MovableFramesDesc"]
+			)
+			CreateCheckbox(category, setting, L["MovableFramesDesc"])
 		end
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["ResetHeader"]))
 		do

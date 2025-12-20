@@ -53,6 +53,15 @@ local defaults = {
 		auras = {
 			alwaysHideAuras = false,
 			alwaysShowAuras = true
+		},
+		tooltips = {
+			enabled = true,
+			x = 32,
+			y = -32,
+			anchor = "TOPLEFT"
+		},
+		qol = {
+			movableFrames = true
 		}
 	},
 	global = {

@@ -97,3 +97,7 @@ L["TooltipOffsetY"] = "Tooltip Y Offset"
 L["TooltipOffsetYDesc"] = "Vertical offset from cursor (-100 to 100)"
 L["TooltipAnchor"] = "Tooltip Anchor Point"
 L["TooltipAnchorDesc"] = "Which corner of tooltip to anchor to cursor position"
+-- Quality of Life
+L["QualityOfLifeHeader"] = "Quality of Life"
+L["MovableFrames"] = "Movable Interface Frames"
+L["MovableFramesDesc"] = "Hold SHIFT and drag to move interface windows (Character, Bags, Map, etc). Does not work if BlizzMove addon is loaded."

@@ -30,6 +30,9 @@ local QoL = ns:NewModule("QualityOfLife")
 
 -- WoW API
 local hooksecurefunc = hooksecurefunc
+local InCombatLockdown = InCombatLockdown
+local IsShiftKeyDown = IsShiftKeyDown
+local C_AddOns = C_AddOns
 
 QoL.AutoFillDeleteConfirmation = function(self)
 	-- Auto-fill DELETE confirmation text when destroying items
@@ -41,7 +44,70 @@ QoL.AutoFillDeleteConfirmation = function(self)
 		dialog.EditBox:SetText(DELETE_ITEM_CONFIRM_STRING)
 	end)
 end
-
+QoL.MakeFrameMovable = function(self, frame)
+	if not frame then return end
+	frame:SetMovable(true)
+	frame:SetUserPlaced(true)
+	frame:EnableMouse(true)
+	frame:RegisterForDrag("LeftButton")
+	frame:SetScript("OnDragStart", function(self)
+		if InCombatLockdown() then return end
+		if IsShiftKeyDown() then
+			self:StartMoving()
+		end
+	end)
+	frame:SetScript("OnDragStop", function(self)
+		self:StopMovingOrSizing()
+	end)
+end
+QoL.EnableMovableFrames = function(self)
+	if not ns.db or not ns.db.char or not ns.db.char.qol then return end
+	if not ns.db.char.qol.movableFrames then return end
+	if C_AddOns.IsAddOnLoaded("BlizzMove") then return end
+	local standardFrames = {
+		"CharacterFrame",
+		"FriendsFrame",
+		"PVEFrame",
+		"ContainerFrameCombinedBags",
+		"WorldMapFrame",
+		"GameMenuFrame",
+		"SettingsPanel",
+		"MerchantFrame",
+	}
+	for _, frameName in ipairs(standardFrames) do
+		local frame = _G[frameName]
+		if frame then
+			self:MakeFrameMovable(frame)
+		end
+	end
+	local addonFrames = {
+		["Blizzard_Professions"] = "ProfessionsFrame",
+		["Blizzard_Communities"] = "CommunitiesFrame",
+		["Blizzard_ClassTalentUI"] = "ClassTalentFrame",
+		["Blizzard_PlayerSpells"] = "PlayerSpellsFrame",
+	}
+	local eventFrame = CreateFrame("Frame")
+	eventFrame:RegisterEvent("ADDON_LOADED")
+	eventFrame:SetScript("OnEvent", function(_, _, addonName)
+		local frameName = addonFrames[addonName]
+		if frameName then
+			local frame = _G[frameName]
+			if frame then
+				self:MakeFrameMovable(frame)
+			end
+		end
+	end)
+end
+QoL.UpdateMovableFrames = function(self)
+	if not ns.db or not ns.db.char or not ns.db.char.qol then return end
+	if ns.db.char.qol.movableFrames then
+		self:EnableMovableFrames()
+	end
+end
 QoL.OnInitialize = function(self)
 	self:AutoFillDeleteConfirmation()
+	self:EnableMovableFrames()
+	if ns.callbacks and ns.callbacks.RegisterCallback then
+		ns.callbacks:RegisterCallback(self, "QoL_Settings_Updated", "UpdateMovableFrames")
+	end
 end
