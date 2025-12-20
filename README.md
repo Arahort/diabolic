@@ -2,36 +2,130 @@
 
 Orb-based graphical user interface replacement for World of Warcraft.
 
-## About
+## About This Fork
 
-This is an updated version of the original Diabolic UI 2.0 by Lars Norberg and Daniel Troko, ported to work with WoW 11.x (The War Within and later).
+This is a **community-maintained fork** of the original [Diabolic UI 2.0](https://www.curseforge.com/wow/addons/diabolicui) by Lars Norberg and Daniel Troko.
 
-**Original Authors:**
-- Code: Lars Norberg
-- Artwork: Daniel Troko and Lars Norberg
+**Important:** The original Diabolic UI 2.0 is **no longer functional** in modern World of Warcraft (11.2.7+). This fork has been completely rebuilt to work with current game versions.
 
-**Updated for WoW 11.x by:** Arahort
+### Original Project Credits
+
+- **Original Addon:** [Diabolic UI 2.0](https://www.curseforge.com/wow/addons/diabolicui)
+- **Original Code:** Lars Norberg
+- **Original Artwork:** Daniel Troko and Lars Norberg
+- **Original License:** Custom License (All Rights Reserved)
+
+### This Fork
+
+- **Updated for WoW 11.x by:** Alex Arahort
+- **Status:** Fully functional for The War Within (11.2.7+)
+- **License:** Community Fork - respecting original authors' work
+
+---
+
+## What's Different From the Original
+
+The original Diabolic UI 2.0 **stopped working completely** after Blizzard's API changes in WoW 11.x. This edition includes:
+
+### Core Fixes (Making it Work Again)
+
+- ✅ Complete API migration to WoW 11.x standards
+- ✅ Migrated to `C_AddOns` namespace (old AddOn API deprecated)
+- ✅ Updated Aura system to use `C_UnitAuras` API
+- ✅ Updated Reputation system to use `C_Reputation` API
+- ✅ Fixed `MainMenuBar` → `MainActionBar` transition
+- ✅ Fixed `ObjectiveTracker` hooks for new API
+- ✅ Fixed hundreds of deprecated function calls
+- ✅ Replaced LibActionButton-1.0 with LibActionButton-1.0-GE for WoW 11.x compatibility
+- ✅ Fixed action button click registration (EnableMouse propagation)
+- ✅ Fixed taint issues with secure templates
+- ✅ Updated oUF (unit frames library) to version 12.1.0
+
+### Settings & Customization
+
+- ✅ Settings panel in Interface Options → AddOns
+- ✅ Addon Compartment support for quick settings access
+- ✅ Export/Import settings - share configurations or backup your setup with version control
+- ✅ Target Frame Scale Control - adjust target frame size independently (0.5x - 1.5x)
+- ✅ Threat Indicator setting - toggle threat-based HP coloring (green/yellow/red)
+- ✅ Improved "Hide target name on cast" - now also hides cast bar, cast time, and spell text
+- ✅ Tooltip offset customization - adjust X/Y position relative to cursor
+
+### UI Improvements
+
+- ✅ Better default scaling for modern displays
+- ✅ Secondary action bar enabled by default
+- ✅ Improved power orb for hybrid classes (shows primary resource)
+- ✅ Optimized default positions for all UI elements
+- ✅ EditMode position saving - Minimap, TalkingHead, and ExtraButtons properly save positions
+
+### Quality of Life Features
+
+- ✅ **Tooltips follow mouse cursor** - integrated TTOM functionality with customizable offset
+- ✅ **Auto-fill delete confirmation** - no need to type "DELETE" manually when destroying items
+- ✅ **Fixed buff cancellation** - right-click buffs to cancel them (works on player and target frames)
+- ✅ **Action bars switching in quests** - properly switches when entering vehicles/dragons
+- ✅ **Pet bar duplication fixed** - reworked Blizzard pet bar hiding using safe methods
+- ✅ **Combat lockdown protection** - added InCombatLockdown() checks to prevent taint errors
+- ✅ **Action bar toggle improved** - left click shows/hides all 3 extra bars
+
+---
 
 ## Requirements
 
-- World of Warcraft 11.2.7 or later
+- World of Warcraft **Retail 11.2.7** or later (The War Within)
 
 ## Installation
 
-1. Download or clone this repository
-2. Place the DiabolicUI3 folder in your `World of Warcraft\_retail_\Interface\AddOns` directory
+1. Download the addon
+2. Extract to `World of Warcraft\_retail_\Interface\AddOns`
 3. Restart WoW or type `/reload` in-game
+
+---
 
 ## Support
 
-This is a community-maintained fork. For issues specific to WoW 11.x compatibility, please report them on the GitHub repository.
+This is a community-maintained fork. For issues or feature requests, please visit:
 
-- Patreon: https://www.patreon.com/c/Arahort
-- Boosty: https://boosty.to/alex_arahort
-- GitHub: https://github.com/Arahort/diabolic
-- Curse: https://www.curseforge.com/wow/addons/diabolicui-arahort-edition
+- **GitHub:** https://github.com/Arahort/diabolic
+- **CurseForge:** https://www.curseforge.com/wow/addons/diabolicui-arahort-edition
 
-## Support Crypto
-- USDT TRC20 TShMCz6xGiLvtES8JquqhavrMvFnLM4UQ4
-- USDT TON UQAKgkYbTk9qWICUn4O249X4F_hqPUHUpCEXNONLbHVfUjcc
-- BTC bc1q89d70zz5v0f0x00pulrdggmmfav35c0nm99ua3
+### Support the Developer
+
+- **Patreon:** https://www.patreon.com/c/Arahort
+- **Boosty:** https://boosty.to/alex_arahort
+
+#### Crypto:
+
+- USDT TRC20: `TShMCz6xGiLvtES8JquqhavrMvFnLM4UQ4`
+- USDT TON: `UQAKgkYbTk9qWICUn4O249X4F_hqPUHUpCEXNONLbHVfUjcc`
+- BTC: `bc1q89d70zz5v0f0x00pulrdggmmfav35c0nm99ua3`
+
+---
+
+## List of Add-ons Present in the Video
+
+- DiabolicUI Arahort Edition
+- Scrap
+- DBM
+- Rematch
+- Talent Tree Tweaks
+- DragonRider
+- AllTheThings
+- Auctinator
+- Baganator
+- Syndicator
+- Chattynator
+- Better Fishing
+- Almost Completed Achievements
+- BugGrabber
+- BugSack
+- Details!
+- Dialogue UI
+- MapCoords
+- Plumber
+- Postal
+- TomTom
+- WIM
+- World Quest Tracker
+- MinimapButtonButton

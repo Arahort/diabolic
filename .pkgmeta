@@ -1,0 +1,15 @@
+package-as: DiabolicUI3
+
+ignore:
+  - TODO.md
+  - RELEASE_NOTES*.md
+  - CURSE_DESCRIPTION.html
+  - CHANGELOG_RELEASE.md
+  - .github
+  - .git
+  - .gitignore
+  - .pkgmeta
+  - DiabolicUI3.rar
+  - DiabolicUI3_Wrath.toc
+
+enable-nolib-creation: no
