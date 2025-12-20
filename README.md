@@ -61,6 +61,7 @@ The original Diabolic UI 2.0 **stopped working completely** after Blizzard's API
 
 ### Quality of Life Features
 
+- ✅ **Movable interface windows** - hold SHIFT and drag to move Character, Bags, Map, Friends, Settings, and more
 - ✅ **Tooltips follow mouse cursor** - integrated TTOM functionality with customizable offset
 - ✅ **Auto-fill delete confirmation** - no need to type "DELETE" manually when destroying items
 - ✅ **Fixed buff cancellation** - right-click buffs to cancel them (works on player and target frames)
