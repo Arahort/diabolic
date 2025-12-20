@@ -1,5 +1,7 @@
 package-as: DiabolicUI3
 
+manual-changelog: CHANGELOG.md
+
 ignore:
   - TODO.md
   - RELEASE_NOTES*.md
