@@ -68,6 +68,15 @@ local defaults = {
 			worldmapPlayer = true,
 			minimap = true,
 			decimals = false
+		},
+		minimapbuttons = {
+			enabled = true,
+			direction = "leftdown",
+			buttonsPerRow = 5,
+			autohide = 2,
+			mainButtonScale = 1,
+			buttonScale = 0.9,
+			blacklist = {}
 		}
 	},
 	global = {

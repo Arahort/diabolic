@@ -607,6 +607,85 @@ SettingsModule.OnInitialize = function(self)
 			)
 			CreateCheckbox(category, setting, L["UseDecimalsDesc"])
 		end
+		-- Minimap Buttons
+		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["MinimapButtonsHeader"]))
+		do
+			local setting = RegisterSetting(
+				category,
+				"enabled",
+				"char.minimapbuttons",
+				L["EnableMinimapButtons"],
+				true,
+				L["EnableMinimapButtonsDesc"]
+			)
+			local OnEnabledChanged = function()
+				if ns.callbacks then
+					ns.callbacks:Fire("MinimapButtons_Settings_Updated")
+				end
+			end
+			Settings.SetOnValueChangedCallback("char_minimapbuttons_enabled", OnEnabledChanged)
+			CreateCheckbox(category, setting, L["EnableMinimapButtonsDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"buttonsPerRow",
+				"char.minimapbuttons",
+				L["ButtonsPerRow"],
+				5,
+				L["ButtonsPerRowDesc"]
+			)
+			local options = Settings.CreateSliderOptions(3, 10, 1)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return tostring(value)
+			end)
+			Settings.CreateSlider(category, setting, options, L["ButtonsPerRowDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"autohide",
+				"char.minimapbuttons",
+				L["AutoHideDelay"],
+				2,
+				L["AutoHideDelayDesc"]
+			)
+			local options = Settings.CreateSliderOptions(0, 10, 1)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return tostring(value)
+			end)
+			Settings.CreateSlider(category, setting, options, L["AutoHideDelayDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"mainButtonScale",
+				"char.minimapbuttons",
+				L["MainButtonScale"],
+				1,
+				L["MainButtonScaleDesc"]
+			)
+			local options = Settings.CreateSliderOptions(0.75, 1.25, 0.05)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return string.format("%.2f", value)
+			end)
+			Settings.CreateSlider(category, setting, options, L["MainButtonScaleDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"buttonScale",
+				"char.minimapbuttons",
+				L["CollectedButtonScale"],
+				0.9,
+				L["CollectedButtonScaleDesc"]
+			)
+			local options = Settings.CreateSliderOptions(0.5, 1.5, 0.05)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return string.format("%.2f", value)
+			end)
+			Settings.CreateSlider(category, setting, options, L["CollectedButtonScaleDesc"])
+		end
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["ResetHeader"]))
 		do
 			local function OnButtonClick()

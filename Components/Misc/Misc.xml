@@ -5,6 +5,7 @@
 	<Script file="ChatBubbles.lua"/>
 	<Script file="Clutter.lua"/>
 	<Script file="MapCoords.lua"/>
+	<Script file="MinimapButtons.lua"/>
 	<Script file="Minimap.lua"/>
 	<Script file="ObjectivesTracker.lua"/>
 	<Script file="QualityOfLife.lua"/>
