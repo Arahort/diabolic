@@ -67,7 +67,7 @@ local defaults = {
 			worldmapCursor = true,
 			worldmapPlayer = true,
 			minimap = true,
-			decimals = false
+			decimals = true
 		},
 		minimapbuttons = {
 			enabled = true,
@@ -104,12 +104,12 @@ local defaults = {
 		},
 		unitframes = {
 			useClassColorForPower = false,
-			hideTargetNameOnCast = false,
+			hideTargetNameOnCast = true,
 			useHealthColorForTarget = true,
-			showThreatOnTarget = true,
+			showThreatOnTarget = false,
 			targetPositionX = 0,
-			targetPositionY = -55,
-			targetRelativeScale = 1.1
+			targetPositionY = -95,
+			targetRelativeScale = 1.2
 		},
 		micromenu = {
 			enableMicroMenu = false
@@ -118,11 +118,11 @@ local defaults = {
 			useServerTime = false,
 			useHalfClock = false,
 			positionX = -20,
-			positionY = -20
+			positionY = -40
 		},
 		talkinghead = {
 			positionX = 0,
-			positionY = 160
+			positionY = -454.54
 		},
 		extrabuttons = {
 			extraPositionX = -546,
