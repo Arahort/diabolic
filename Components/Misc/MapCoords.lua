@@ -18,12 +18,13 @@
 	SOFTWARE.
 --]]
 local Addon, ns = ...
-local MapCoords = ns:NewModule("MapCoords")
+local MapCoords = ns:NewModule("MapCoords", "LibMoreEvents-1.0")
 -- Lua API
 local floor = math.floor
 local format = string.format
 -- WoW API
 local C_Map = C_Map
+local C_Timer = C_Timer
 local CreateFrame = CreateFrame
 local GetFramerate = GetFramerate
 -- Addon API
@@ -132,19 +133,35 @@ MapCoords.ThrottledUpdate = function(self, elapsed)
 		self.updateTimer = 0
 	end
 end
-MapCoords.OnInitialize = function(self)
+MapCoords.SetupMinimapCoords = function(self)
+	if self.minimapText then return end
+
 	-- Create Minimap coordinates frame
 	local minimapFrame = CreateFrame("Frame", "DiabolicUI3MinimapCoords", Minimap)
 	minimapFrame:SetFrameLevel(Minimap:GetFrameLevel() + 10)
+	minimapFrame:SetAllPoints(Minimap)
 	self.minimapFrame = minimapFrame
+
 	local minimapText = minimapFrame:CreateFontString(nil, "OVERLAY")
 	minimapText:SetFontObject(GetFont(12, true))
 	minimapText:SetTextColor(unpack(Colors.offwhite))
 	minimapText:SetAlpha(.75)
 	minimapText:SetJustifyH("CENTER")
 	minimapText:SetJustifyV("BOTTOM")
-	minimapText:SetPoint("BOTTOM", Minimap, "BOTTOM", 0, 30)
+
+	-- Try to anchor to MinimapCompassTexture like original MapCoords
+	if MinimapCompassTexture then
+		minimapText:SetPoint("TOP", MinimapCompassTexture, "BOTTOM", 0, 5)
+	else
+		minimapText:SetPoint("BOTTOM", Minimap, "BOTTOM", 0, 30)
+	end
+
 	self.minimapText = minimapText
+
+	-- Immediate update
+	self:UpdateMinimapCoords()
+end
+MapCoords.OnInitialize = function(self)
 	-- Create WorldMap coordinates frame
 	local worldMapFrame = CreateFrame("Frame", "DiabolicUI3WorldMapCoords", WorldMapFrame)
 	worldMapFrame:SetFrameLevel(WorldMapFrame:GetFrameLevel() + 10)
@@ -160,6 +177,23 @@ MapCoords.OnInitialize = function(self)
 		self:ThrottledUpdate(elapsed)
 	end)
 	self.updateTimer = 0
+	-- Register events for proper initialization
+	self:RegisterEvent("PLAYER_ENTERING_WORLD")
+	self:RegisterEvent("ADDON_LOADED")
+end
+MapCoords.OnEvent = function(self, event, ...)
+	if event == "PLAYER_ENTERING_WORLD" then
+		-- Setup minimap coords after entering world
+		C_Timer.After(0.5, function()
+			self:SetupMinimapCoords()
+		end)
+	elseif event == "ADDON_LOADED" then
+		local addon = ...
+		if addon == "DiabolicUI3" then
+			-- Try setup immediately
+			self:SetupMinimapCoords()
+		end
+	end
 end
 MapCoords.OnEnable = function(self)
 	-- Initial update
