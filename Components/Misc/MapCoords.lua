@@ -30,6 +30,7 @@ local GetFramerate = GetFramerate
 -- Addon API
 local Colors = ns.Colors
 local GetFont = ns.API.GetFont
+local L = ns.L
 -- Utility Functions
 local function round(float)
 	return floor(float + 0.5)
@@ -89,7 +90,7 @@ MapCoords.UpdateWorldMapCoords = function(self)
 	if ns.db.char.mapcoords.worldmapCursor then
 		local adjustedX, adjustedY = WorldMapFrame:GetNormalizedCursorPosition()
 		if adjustedX > 0 and adjustedY > 0 and adjustedX < 1 and adjustedY < 1 then
-			output = format("Cursor: %s / %s", formatCoord(adjustedX, useDecimals), formatCoord(adjustedY, useDecimals))
+			output = format("%s: %s / %s", L["CursorCoords"], formatCoord(adjustedX, useDecimals), formatCoord(adjustedY, useDecimals))
 		end
 	end
 	-- Separator
@@ -102,9 +103,9 @@ MapCoords.UpdateWorldMapCoords = function(self)
 	if ns.db.char.mapcoords.worldmapPlayer then
 		local x, y = getPlayerCoords()
 		if x == 0 and y == 0 then
-			output = output .. "Player: n/a"
+			output = output .. L["PlayerCoords"] .. ": n/a"
 		else
-			output = output .. format("Player: %s / %s", formatCoord(x, useDecimals), formatCoord(y, useDecimals))
+			output = output .. format("%s: %s / %s", L["PlayerCoords"], formatCoord(x, useDecimals), formatCoord(y, useDecimals))
 		end
 	end
 	-- Dynamic positioning based on map state
@@ -135,29 +136,25 @@ MapCoords.ThrottledUpdate = function(self, elapsed)
 end
 MapCoords.SetupMinimapCoords = function(self)
 	if self.minimapText then return end
-
+	if not Minimap then return end
 	-- Create Minimap coordinates frame
 	local minimapFrame = CreateFrame("Frame", "DiabolicUI3MinimapCoords", Minimap)
 	minimapFrame:SetFrameLevel(Minimap:GetFrameLevel() + 10)
 	minimapFrame:SetAllPoints(Minimap)
 	self.minimapFrame = minimapFrame
-
 	local minimapText = minimapFrame:CreateFontString(nil, "OVERLAY")
 	minimapText:SetFontObject(GetFont(12, true))
 	minimapText:SetTextColor(unpack(Colors.offwhite))
 	minimapText:SetAlpha(.75)
 	minimapText:SetJustifyH("CENTER")
 	minimapText:SetJustifyV("BOTTOM")
-
 	-- Try to anchor to MinimapCompassTexture like original MapCoords
 	if MinimapCompassTexture then
 		minimapText:SetPoint("TOP", MinimapCompassTexture, "BOTTOM", 0, 5)
 	else
 		minimapText:SetPoint("BOTTOM", Minimap, "BOTTOM", 0, 30)
 	end
-
 	self.minimapText = minimapText
-
 	-- Immediate update
 	self:UpdateMinimapCoords()
 end
@@ -196,6 +193,8 @@ MapCoords.OnEvent = function(self, event, ...)
 	end
 end
 MapCoords.OnEnable = function(self)
+	-- Try to setup minimap coords immediately
+	self:SetupMinimapCoords()
 	-- Initial update
 	self:UpdateMinimapCoords()
 end
