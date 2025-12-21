@@ -562,6 +562,51 @@ SettingsModule.OnInitialize = function(self)
 			)
 			CreateCheckbox(category, setting, L["MovableFramesDesc"])
 		end
+		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["MapCoordsHeader"]))
+		do
+			local setting = RegisterSetting(
+				category,
+				"worldmapCursor",
+				"char.mapcoords",
+				L["WorldMapCursor"],
+				true,
+				L["WorldMapCursorDesc"]
+			)
+			CreateCheckbox(category, setting, L["WorldMapCursorDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"worldmapPlayer",
+				"char.mapcoords",
+				L["WorldMapPlayer"],
+				true,
+				L["WorldMapPlayerDesc"]
+			)
+			CreateCheckbox(category, setting, L["WorldMapPlayerDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"minimap",
+				"char.mapcoords",
+				L["MinimapCoords"],
+				true,
+				L["MinimapCoordsDesc"]
+			)
+			CreateCheckbox(category, setting, L["MinimapCoordsDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"decimals",
+				"char.mapcoords",
+				L["UseDecimals"],
+				false,
+				L["UseDecimalsDesc"]
+			)
+			CreateCheckbox(category, setting, L["UseDecimalsDesc"])
+		end
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["ResetHeader"]))
 		do
 			local function OnButtonClick()

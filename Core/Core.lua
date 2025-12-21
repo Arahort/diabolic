@@ -62,6 +62,12 @@ local defaults = {
 		},
 		qol = {
 			movableFrames = true
+		},
+		mapcoords = {
+			worldmapCursor = true,
+			worldmapPlayer = true,
+			minimap = true,
+			decimals = false
 		}
 	},
 	global = {
