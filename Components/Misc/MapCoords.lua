@@ -54,25 +54,23 @@ local function getPlayerCoords()
 end
 -- Minimap Coordinates Update
 MapCoords.UpdateMinimapCoords = function(self)
-	local minimapModule = ns:GetModule("Minimap", true)
-	if not minimapModule or not minimapModule.coordinates then
+	if not self.minimapText then
 		return
 	end
-	local coords = minimapModule.coordinates
 	if not ns.db or not ns.db.char or not ns.db.char.mapcoords then
-		coords:SetText("")
+		self.minimapText:SetText("")
 		return
 	end
 	if ns.db.char.mapcoords.minimap then
 		local x, y = getPlayerCoords()
 		if x == 0 and y == 0 then
-			coords:SetText("n/a")
+			self.minimapText:SetText("n/a")
 		else
 			local useDecimals = ns.db.char.mapcoords.decimals or false
-			coords:SetFormattedText("%s / %s", formatCoord(x, useDecimals), formatCoord(y, useDecimals))
+			self.minimapText:SetFormattedText("%s / %s", formatCoord(x, useDecimals), formatCoord(y, useDecimals))
 		end
 	else
-		coords:SetText("")
+		self.minimapText:SetText("")
 	end
 end
 -- WorldMap Coordinates Update
@@ -135,14 +133,18 @@ MapCoords.ThrottledUpdate = function(self, elapsed)
 	end
 end
 MapCoords.OnInitialize = function(self)
-	-- Setup minimap coordinates positioning
-	local minimapModule = ns:GetModule("Minimap", true)
-	if minimapModule and minimapModule.coordinates then
-		local coords = minimapModule.coordinates
-		coords:SetTextColor(unpack(Colors.offwhite))
-		coords:SetAlpha(.75)
-		coords:SetPoint("BOTTOM", Minimap, "BOTTOM", 0, 30)
-	end
+	-- Create Minimap coordinates frame
+	local minimapFrame = CreateFrame("Frame", "DiabolicUI3MinimapCoords", Minimap)
+	minimapFrame:SetFrameLevel(Minimap:GetFrameLevel() + 10)
+	self.minimapFrame = minimapFrame
+	local minimapText = minimapFrame:CreateFontString(nil, "OVERLAY")
+	minimapText:SetFontObject(GetFont(12, true))
+	minimapText:SetTextColor(unpack(Colors.offwhite))
+	minimapText:SetAlpha(.75)
+	minimapText:SetJustifyH("CENTER")
+	minimapText:SetJustifyV("BOTTOM")
+	minimapText:SetPoint("BOTTOM", Minimap, "BOTTOM", 0, 30)
+	self.minimapText = minimapText
 	-- Create WorldMap coordinates frame
 	local worldMapFrame = CreateFrame("Frame", "DiabolicUI3WorldMapCoords", WorldMapFrame)
 	worldMapFrame:SetFrameLevel(WorldMapFrame:GetFrameLevel() + 10)
