@@ -77,6 +77,8 @@ L["TargetPosY"] = "Target Frame Vertical Position"
 L["TargetPosYDesc"] = "Adjust vertical position (-500 to 500)"
 L["TargetRelativeScale"] = "Target Frame Relative Scale"
 L["TargetRelativeScaleDesc"] = "Target frame scale multiplier relative to bottom UI scale (0.5 - 1.5, requires /reload)"
+L["EnableNamePlates"] = "Enable DiabolicUI NamePlates"
+L["EnableNamePlatesDesc"] = "Replace default Blizzard nameplates with DiabolicUI custom nameplates (requires /reload)"
 -- Reset
 L["ResetHeader"] = "Reset"
 -- Import/Export

@@ -103,6 +103,7 @@ local defaults = {
 			positionY = -290
 		},
 		unitframes = {
+			enableNamePlates = false,
 			useClassColorForPower = false,
 			hideTargetNameOnCast = true,
 			useHealthColorForTarget = true,

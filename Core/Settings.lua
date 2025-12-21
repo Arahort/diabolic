@@ -420,6 +420,23 @@ SettingsModule.OnInitialize = function(self)
 		do
 			local setting = RegisterSetting(
 				category,
+				"enableNamePlates",
+				"global.unitframes",
+				L["EnableNamePlates"],
+				false,
+				L["EnableNamePlatesDesc"]
+			)
+			local OnNamePlatesChanged = function()
+				if ns.callbacks then
+					ns.callbacks:Fire("NamePlates_Settings_Updated")
+				end
+			end
+			Settings.SetOnValueChangedCallback("global_unitframes_enableNamePlates", OnNamePlatesChanged)
+			CreateCheckbox(category, setting, L["EnableNamePlatesDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
 				"useClassColorForPower",
 				"global.unitframes",
 				L["UseClassColorForPower"],

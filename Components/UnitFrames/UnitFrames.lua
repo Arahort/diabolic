@@ -615,7 +615,11 @@ UnitFrames.OnInitialize = function(self)
 
 	self:SpawnUnitFrames()
 	self:SpawnGroupFrames()
-	self:SpawnNamePlates()
+	-- Spawn nameplates only if enabled in settings
+	local db = ns.db
+	if db and db.global and db.global.unitframes and db.global.unitframes.enableNamePlates then
+		self:SpawnNamePlates()
+	end
 end
 
 UnitFrames.OnEnable = function(self)

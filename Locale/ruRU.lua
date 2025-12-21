@@ -77,6 +77,8 @@ L["TargetPosY"] = "Вертикальная позиция фрейма цели
 L["TargetPosYDesc"] = "Настройка вертикальной позиции (-500 до 500)"
 L["TargetRelativeScale"] = "Относительный масштаб фрейма цели"
 L["TargetRelativeScaleDesc"] = "Множитель масштаба фрейма цели относительно нижнего блока (0.5 - 1.5, требуется /reload)"
+L["EnableNamePlates"] = "Включить неймплейты DiabolicUI"
+L["EnableNamePlatesDesc"] = "Заменить стандартные неймплейты Blizzard на кастомные DiabolicUI (требуется /reload)"
 -- Сброс
 L["ResetHeader"] = "Сброс"
 -- Экспорт/Импорт
