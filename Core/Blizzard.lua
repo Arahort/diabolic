@@ -455,6 +455,9 @@ BlizzKill.KillActionBars = function(self)
 		if MainActionBar.BorderArt then
 			MainActionBar.BorderArt:SetParent(UIHider)
 		end
+		if MainActionBar.ActionBarPageNumber then
+			MainActionBar.ActionBarPageNumber:SetParent(UIHider)
+		end
 	end
 
 end
