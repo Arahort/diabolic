@@ -43,10 +43,35 @@ git commit -m "Описание изменений"
 git push origin github
 ```
 
-### Теги релизов (ТОЛЬКО по просьбе пользователя!)
+### Создание релизов (ТОЛЬКО по просьбе пользователя!)
+
+⚠️ **КРИТИЧЕСКИ ВАЖНО:** Коммит и тег ДОЛЖНЫ быть отправлены ВМЕСТЕ в одном push!
+
+GitHub Actions срабатывает только когда тег и коммит приходят одновременно!
+
+**Правильный порядок:**
 ```bash
-git tag -a release-X.X.X -m "Описание релиза"
-git push origin release-X.X.X
+# 1. Обновить версию в DiabolicUI3.toc и CHANGELOG.md
+# 2. Создать коммит
+git add DiabolicUI3.toc CHANGELOG.md
+git commit -m "Update version to X.X.X"
+
+# 3. Создать тег НА ЛОКАЛЬНОМ коммите (который ещё НЕ на GitHub!)
+git tag -a release-X.X.X -m "Release X.X.X"
+
+# 4. Отправить коммит И тег ВМЕСТЕ
+git push origin github --follow-tags
+```
+
+**❌ НЕПРАВИЛЬНО:**
+```bash
+git push origin github           # коммит отдельно
+git push origin release-X.X.X    # тег отдельно - Actions НЕ сработает!
+```
+
+**✅ ПРАВИЛЬНО:**
+```bash
+git push origin github --follow-tags  # коммит И тег вместе - Actions сработает!
 ```
 
 ## Файлы в .gitignore

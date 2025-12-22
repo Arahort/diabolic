@@ -81,16 +81,52 @@ git push origin github
 
 ⚠️ **ТОЛЬКО по просьбе пользователя!**
 
+⚠️ **КРИТИЧЕСКИ ВАЖНО:** Коммит и тег ДОЛЖНЫ быть отправлены ВМЕСТЕ в одном push!
+
+GitHub Actions срабатывает только когда тег и коммит приходят одновременно. Если отправить коммит отдельно, а потом тег отдельно - workflow НЕ запустится!
+
+**Правильный порядок действий:**
+
 ```bash
 cd "X:\Games\World of Warcraft\diabolic-dev"
-git tag -a release-X.X.X -m "Описание релиза"
-git push origin release-X.X.X
+
+# 1. Обновить версию в DiabolicUI3.toc
+# 2. Обновить CHANGELOG.md
+
+# 3. Создать коммит с изменениями
+git add DiabolicUI3.toc CHANGELOG.md
+git commit -m "Update version to X.X.X"
+
+# 4. Создать тег НА ЭТОМ локальном коммите (который ещё НЕ на GitHub!)
+git tag -a release-X.X.X -m "Release X.X.X
+
+Описание изменений релиза"
+
+# 5. Отправить коммит И тег ВМЕСТЕ одной командой
+git push origin github --follow-tags
 ```
 
-GitHub Actions автоматически:
-1. Создаст архив DiabolicUI3.zip
-2. Опубликует релиз на GitHub
-3. CurseForge синхронизируется (5-15 минут)
+**Что происходит:**
+1. GitHub получает НОВЫЙ коммит с тегом одновременно
+2. GitHub Actions видит событие "push tag" и запускает workflow
+3. Workflow создаёт архив DiabolicUI3.zip
+4. Публикуется релиз на GitHub
+5. CurseForge синхронизируется (5-15 минут)
+
+**❌ НЕПРАВИЛЬНО (так workflow НЕ запустится):**
+```bash
+git commit -m "..."
+git push origin github           # ← коммит уже на GitHub
+git tag -a release-X.X.X -m "..."
+git push origin release-X.X.X    # ← тег приходит отдельно - Actions НЕ сработает!
+```
+
+**✅ ПРАВИЛЬНО:**
+```bash
+git commit -m "..."
+git tag -a release-X.X.X -m "..."
+git push origin github --follow-tags  # ← коммит И тег вместе - Actions сработает!
+```
 
 ### 5. Обновление CHANGELOG
 
