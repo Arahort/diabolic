@@ -71,11 +71,10 @@ end
 -- Align our custom health prediction texture
 -- based on the plugin's provided values.
 local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherIncomingHeal, absorb, healAbsorb, hasOverAbsorb, hasOverHealAbsorb, curHealth, maxHealth)
-
+	if not curHealth or not maxHealth then return end
 	local allIncomingHeal = myIncomingHeal + otherIncomingHeal
 	local allNegativeHeals = healAbsorb
 	local showPrediction, change
-
 	if ((allIncomingHeal > 0) or (allNegativeHeals > 0)) and (maxHealth > 0) then
 		local startPoint = curHealth/maxHealth
 
