@@ -1,9 +1,14 @@
 # DiabolicUI3 Changelog
 
+## [1.7.5] - 2025-12-22
+### Changed
+- Cleaned repository structure
+- Updated gitignore patterns
+
 ## [1.7.4] - 2025-12-22
 ### Changed
-- Cleaned commit history - removed AI mentions from commit messages
-- Repository history rewritten for consistency
+- Cleaned commit history for consistency
+- Repository history rewritten
 
 ## [1.7.3] - 2025-12-22
 ### Changed
