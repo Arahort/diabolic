@@ -1,5 +1,9 @@
 # DiabolicUI3 Changelog
 
+## [1.7.6] - 2025-12-22
+### Changed
+- Removed archive files from repository
+
 ## [1.7.5] - 2025-12-22
 ### Changed
 - Cleaned repository structure
