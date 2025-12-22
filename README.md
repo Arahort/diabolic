@@ -120,16 +120,16 @@ This is a community-maintained fork. For issues or feature requests, please visi
 - Baganator
 - Syndicator
 - Chattynator
+- Platynator
 - Better Fishing
 - Almost Completed Achievements
 - BugGrabber
 - BugSack
 - Details!
 - Dialogue UI
-- MapCoords
 - Plumber
 - Postal
 - TomTom
 - WIM
 - World Quest Tracker
-- MinimapButtonButton
+- WaypointUI
