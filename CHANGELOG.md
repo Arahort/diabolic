@@ -1,5 +1,9 @@
 # DiabolicUI3 Changelog
 
+## [1.7.3] - 2025-12-22
+### Changed
+- Updated version number to match release tags for better version tracking
+
 ## [1.7.2] - 2025-12-22
 ### Added
 - **NamePlates Toggle Setting** - Optional setting to enable/disable DiabolicUI nameplates
