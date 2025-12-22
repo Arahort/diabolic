@@ -69,6 +69,9 @@ The original Diabolic UI 2.0 **stopped working completely** after Blizzard's API
 - ✅ **Pet bar duplication fixed** - reworked Blizzard pet bar hiding using safe methods
 - ✅ **Combat lockdown protection** - added InCombatLockdown() checks to prevent taint errors
 - ✅ **Action bar toggle improved** - left click shows/hides all 3 extra bars
+- ✅ **Map coordinates display** - player and cursor coordinates on world map and minimap
+- ✅ **Minimap buttons container** - collects addon buttons into single organized container
+- ✅ **NamePlates toggle** - optional setting to enable/disable custom nameplates
 
 ---
 

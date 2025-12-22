@@ -1,5 +1,33 @@
 # DiabolicUI3 Changelog
 
+## [1.7.2] - 2025-12-22
+### Added
+- **NamePlates Toggle Setting** - Optional setting to enable/disable DiabolicUI nameplates
+  - New "Enable DiabolicUI NamePlates" checkbox in Unit Frames settings
+  - Default: disabled (uses standard Blizzard nameplates)
+  - Allows users to choose between custom and standard nameplates
+  - English and Russian localization
+
+## [1.7.1] - 2025-12-21
+### Fixed
+- Fixed action bar page navigation buttons visibility
+
+## [1.7.0] - 2025-12-21
+### Added
+- **MinimapButtons Module** - Collect addon minimap buttons into single container
+  - Automatically gathers all addon buttons around minimap
+  - Styled container matching DiabolicUI aesthetic
+  - Toggle visibility with minimap button
+  - Reduces minimap clutter
+
+## [1.6.0] - 2025-12-21
+### Added
+- **MapCoords Module** - Display coordinates on map and minimap
+  - Player coordinates on world map
+  - Cursor coordinates on hover
+  - Minimap coordinates display
+  - Styled to match DiabolicUI design
+
 ## [1.5.0] - 2025-01-20
 ### Added
 - **Movable Interface Frames** - Hold SHIFT and drag to move Blizzard interface windows
