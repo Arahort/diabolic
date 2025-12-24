@@ -1,5 +1,11 @@
 # DiabolicUI3 Changelog
 
+## [1.7.7] - 2025-12-24
+### Fixed
+- Fixed ADDON_ACTION_BLOCKED errors in aura positioning during combat
+- Fixed nil comparison error in target health prediction
+- Improved combat lockdown handling for protected frames
+
 ## [1.7.6] - 2025-12-22
 ### Changed
 - Removed archive files from repository
