@@ -424,8 +424,8 @@ MinimapMod.DisableBlizzard = function(self)
 end
 
 MinimapMod.HideBlizzardZoneFrames = function(self)
-	if MinimapCluster.BorderTop and MinimapCluster.BorderTop.BottomEdge then
-		MinimapCluster.BorderTop.BottomEdge:SetAlpha(0)
+	if MinimapCluster.BorderTop then
+		MinimapCluster.BorderTop:SetAlpha(0)
 	end
 	if MinimapZoneText then
 		MinimapZoneText:SetAlpha(0)
