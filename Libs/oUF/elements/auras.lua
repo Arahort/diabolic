@@ -594,9 +594,10 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				auras.visibleButtons = numVisible
 				visibleChanged = auras.reanchorIfVisibleChanged -- more convenient than auras.reanchorIfVisibleChanged and visibleChanged
 			end
-
-			for i = numVisible + 1, #auras do
-				auras[i]:Hide()
+			if not InCombatLockdown() then
+				for i = numVisible + 1, #auras do
+					auras[i]:Hide()
+				end
 			end
 
 			if(visibleChanged or auras.createdButtons > auras.anchoredButtons) then
