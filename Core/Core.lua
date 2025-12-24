@@ -119,7 +119,7 @@ local defaults = {
 			useServerTime = false,
 			useHalfClock = false,
 			positionX = -20,
-			positionY = -40
+			positionY = -20
 		},
 		talkinghead = {
 			positionX = 0,

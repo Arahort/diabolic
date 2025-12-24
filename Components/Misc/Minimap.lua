@@ -370,7 +370,7 @@ MinimapMod.UpdatePosition = function(self)
 	end
 	local db = ns.db.global.minimap
 	Minimap:ClearAllPoints()
-	Minimap:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", db.positionX or -60, db.positionY or -60)
+	Minimap:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", db.positionX or -20, db.positionY or -20)
 	Minimap:SetMovable(true)
 end
 
