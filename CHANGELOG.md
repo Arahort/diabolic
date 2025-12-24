@@ -1,5 +1,11 @@
 # DiabolicUI3 Changelog
 
+## [1.8.0] - 2025-12-25
+### Changed
+- Hidden Blizzard's default minimap zone name background and text
+- Updated default minimap position to (-20, -20) for better screen alignment
+- Minimap now displays only DiabolicUI's custom zone text without Blizzard overlay
+
 ## [1.7.7] - 2025-12-24
 ### Fixed
 - Fixed ADDON_ACTION_BLOCKED errors in aura positioning during combat
