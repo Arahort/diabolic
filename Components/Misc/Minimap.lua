@@ -326,6 +326,10 @@ MinimapMod.UpdateTimers = function(self)
 		self.clockTimer = self:ScheduleRepeatingTimer("UpdateClock", 1)
 		self:UpdateClock()
 	end
+	if (not self.hideZoneTimer) then
+		self.hideZoneTimer = self:ScheduleRepeatingTimer("HideBlizzardZoneFrames", 0.1)
+		self:HideBlizzardZoneFrames()
+	end
 end
 
 MinimapMod.UpdateZone = function(self)
@@ -382,11 +386,18 @@ MinimapMod.DisableBlizzard = function(self)
 	GameTimeFrame:UnregisterAllEvents()
 
 	if (ns.IsRetail) then
-		if MinimapCluster.BorderTop then MinimapCluster.BorderTop:SetParent(UIHider) end
+		if MinimapCluster.BorderTop then
+			MinimapCluster.BorderTop:SetParent(UIHider)
+		end
 		if MinimapCluster.InstanceDifficulty then MinimapCluster.InstanceDifficulty:SetParent(UIHider) end
 		if MinimapCluster.MailFrame then MinimapCluster.MailFrame:SetParent(UIHider) end
 		if MinimapCluster.Tracking then MinimapCluster.Tracking:SetParent(UIHider) end
-		if MinimapCluster.ZoneTextButton then MinimapCluster.ZoneTextButton:SetParent(UIHider) end -- Скрываем название локации (есть своё)
+		if MinimapCluster.ZoneTextButton then
+			MinimapCluster.ZoneTextButton:SetParent(UIHider)
+		end
+		if MinimapZoneText then
+			MinimapZoneText:SetParent(UIHider)
+		end
 		Minimap.ZoomIn:SetParent(UIHider)
 		Minimap.ZoomIn:UnregisterAllEvents()
 		Minimap.ZoomOut:SetParent(UIHider)
@@ -412,6 +423,14 @@ MinimapMod.DisableBlizzard = function(self)
 	end
 end
 
+MinimapMod.HideBlizzardZoneFrames = function(self)
+	if MinimapCluster.BorderTop and MinimapCluster.BorderTop.BottomEdge then
+		MinimapCluster.BorderTop.BottomEdge:SetAlpha(0)
+	end
+	if MinimapZoneText then
+		MinimapZoneText:SetAlpha(0)
+	end
+end
 MinimapMod.StyleMinimap = function(self)
 
 	SetObjectScale(MinimapCluster)
@@ -726,15 +745,15 @@ end
 MinimapMod.OnEvent = function(self, event)
 	if (event == "PLAYER_ENTERING_WORLD") then
 		-- Ensure ZoneTextButton is visible after entering world
-		if (ns.IsRetail) then
-			if MinimapCluster.ZoneTextButton then
-				MinimapCluster.ZoneTextButton:Show()
-			end
-		else
-			if MinimapZoneTextButton then
-				MinimapZoneTextButton:Show()
-			end
-		end
+		--if (ns.IsRetail) then
+		--	if MinimapCluster.ZoneTextButton then
+		--		MinimapCluster.ZoneTextButton:Show()
+		--	end
+		--else
+		--	if MinimapZoneTextButton then
+		--		MinimapZoneTextButton:Show()
+		--	end
+		--end
 		self:UpdateZone()
 		self:UpdateMail()
 		self:UpdateTimers()
