@@ -743,8 +743,10 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				visibleChanged = buffs.reanchorIfVisibleChanged
 			end
 
-			for i = numVisible + 1, #buffs do
-				buffs[i]:Hide()
+			if not InCombatLockdown() then
+				for i = numVisible + 1, #buffs do
+					buffs[i]:Hide()
+				end
 			end
 
 			if(visibleChanged or buffs.createdButtons > buffs.anchoredButtons) then
@@ -874,8 +876,10 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				visibleChanged = debuffs.reanchorIfVisibleChanged
 			end
 
-			for i = numVisible + 1, #debuffs do
-				debuffs[i]:Hide()
+			if not InCombatLockdown() then
+				for i = numVisible + 1, #debuffs do
+					debuffs[i]:Hide()
+				end
 			end
 
 			if(visibleChanged or debuffs.createdButtons > debuffs.anchoredButtons) then
