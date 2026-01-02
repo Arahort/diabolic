@@ -46,6 +46,7 @@ QoL.AutoFillDeleteConfirmation = function(self)
 end
 QoL.MakeFrameMovable = function(self, frame)
 	if not frame then return end
+	if InCombatLockdown() then return end
 	frame:SetMovable(true)
 	frame:SetUserPlaced(true)
 	frame:EnableMouse(true)
