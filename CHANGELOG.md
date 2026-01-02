@@ -1,5 +1,11 @@
 # DiabolicUI3 Changelog
 
+## [1.8.2] - 2026-01-02
+### Fixed
+- Fixed ADDON_ACTION_BLOCKED when EditMode tries to reposition frames during combat (blizzard.lua)
+- Fixed ADDON_ACTION_BLOCKED when making protected frames movable during combat (QualityOfLife.lua)
+- Added InCombatLockdown() checks in resetParent function and MakeFrameMovable function
+
 ## [1.8.1] - 2026-01-02
 ### Fixed
 - Fixed ADDON_ACTION_BLOCKED errors when hiding buff and debuff buttons during combat
