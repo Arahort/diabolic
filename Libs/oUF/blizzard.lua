@@ -23,7 +23,9 @@ end
 
 local function resetParent(self, parent)
 	if(parent ~= hiddenParent) then
-		self:SetParent(hiddenParent)
+		if not InCombatLockdown() then
+			self:SetParent(hiddenParent)
+		end
 	end
 end
 
