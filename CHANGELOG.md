@@ -1,5 +1,10 @@
 # DiabolicUI3 Changelog
 
+## [1.8.1] - 2026-01-02
+### Fixed
+- Fixed ADDON_ACTION_BLOCKED errors when hiding buff and debuff buttons during combat
+- Added InCombatLockdown() checks in auras.lua for both buffs (line 746) and debuffs (line 879)
+
 ## [1.8.0] - 2025-12-25
 ### Changed
 - Hidden Blizzard's default minimap zone name background and text
