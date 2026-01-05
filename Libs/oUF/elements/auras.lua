@@ -233,6 +233,9 @@ local function updateAura(element, unit, data, position)
 	if(isNewButton) then
 		local width = element.width or element.size or 16
 		local height = element.height or element.size or 16
+		-- Set size immediately for new buttons (they are not tainted yet)
+		button:SetSize(width, height)
+		button:EnableMouse(not element.disableMouse)
 		local sizex = width + (element['spacing-x'] or element.spacing or 0)
 		local sizey = height + (element['spacing-y'] or element.spacing or 0)
 		local anchor = element.initialAnchor or 'BOTTOMLEFT'
@@ -292,7 +295,16 @@ local function updateAura(element, unit, data, position)
 	if not InCombatLockdown() then
 		button:SetSize(width, height)
 		button:EnableMouse(not element.disableMouse)
+	end
+	-- Show the button
+	-- New buttons can always be shown (not tainted yet)
+	-- Existing buttons can only be shown outside combat to avoid ADDON_ACTION_BLOCKED
+	if isNewButton then
 		button:Show()
+	elseif not InCombatLockdown() then
+		button:Show()
+	end
+	if not InCombatLockdown() then
 		local w, h = button:GetSize()
 		local level = button:GetFrameLevel()
 		local strata = button:GetFrameStrata()
