@@ -631,17 +631,4 @@ UnitFrames.OnEnable = function(self)
 	self:RegisterEvent("DISPLAY_SIZE_CHANGED", "OnEvent")
 	self:RegisterEvent("UI_SCALE_CHANGED", "OnEvent")
 	self:RegisterEvent("VARIABLES_LOADED", "OnEvent")
-	-- Force update auras after leaving combat to reposition buttons
-	self:RegisterEvent("PLAYER_REGEN_ENABLED", function()
-		for i, frame in ipairs(oUF.objects) do
-			if frame and frame:IsShown() then
-				if frame.Buffs and frame.Buffs.SetPosition then
-					frame.Buffs:SetPosition(1, frame.Buffs.createdButtons or 0)
-				end
-				if frame.Debuffs and frame.Debuffs.SetPosition then
-					frame.Debuffs:SetPosition(1, frame.Debuffs.createdButtons or 0)
-				end
-			end
-		end
-	end)
 end
