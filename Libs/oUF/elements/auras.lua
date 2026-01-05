@@ -209,6 +209,7 @@ local function updateAura(element, unit, data, position)
 	if(not data.name) then return end
 
 	local button = element[position]
+	local isNewButton = false
 	if(not button) then
 		--[[ Override: Auras:CreateButton(position)
 		Used to create an aura button at a given position.
@@ -224,6 +225,24 @@ local function updateAura(element, unit, data, position)
 
 		table.insert(element, button)
 		element.createdButtons = element.createdButtons + 1
+		isNewButton = true
+	end
+
+	-- Position the button immediately if it was just created, even during combat
+	-- This works because newly created buttons are not yet tainted/protected
+	if(isNewButton) then
+		local width = element.width or element.size or 16
+		local height = element.height or element.size or 16
+		local sizex = width + (element['spacing-x'] or element.spacing or 0)
+		local sizey = height + (element['spacing-y'] or element.spacing or 0)
+		local anchor = element.initialAnchor or 'BOTTOMLEFT'
+		local growthx = (element['growth-x'] == 'LEFT' and -1) or 1
+		local growthy = (element['growth-y'] == 'DOWN' and -1) or 1
+		local cols = math.floor(element:GetWidth() / sizex + 0.5)
+		local col = (position - 1) % cols
+		local row = math.floor((position - 1) / cols)
+		button:ClearAllPoints()
+		button:SetPoint(anchor, element, anchor, col * sizex * growthx, row * sizey * growthy)
 	end
 
 	-- for tooltips
