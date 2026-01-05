@@ -362,6 +362,30 @@ Bars.SpawnBars = function(self)
 	self.Bars.SecondaryActionBar = bar
 
 
+	-- Third ActionBar (Bottom Right MultiBar)
+	-------------------------------------------------------
+	local bar = SetObjectScale(ns.ActionBar:Create(BOTTOMRIGHT_ACTIONBAR_PAGE, ns.Prefix.."ActionBar3", UIParent))
+	bar:SetPoint("BOTTOM", -1, 11 + self:GetSecondaryBarOffset() + self:GetThirdBarOffset())
+	bar:SetSize(647, 53)
+	bar:Hide()
+
+	for i = 1,12 do
+		local button = bar:CreateButton(i)
+		button:SetPoint("BOTTOMLEFT", (i-1)*54, 0)
+		style(button)
+	end
+
+	bar:UpdateStateDriver()
+
+	local onVisibility = function(self)
+		ns:Fire("ActionBars_ThirdBar_Updated", self:IsShown() and true or false)
+	end
+	bar:HookScript("OnHide", onVisibility)
+	bar:HookScript("OnShow", onVisibility)
+
+	self.Bars.ThirdActionBar = bar
+
+
 	-- Small Action Bars
 	-------------------------------------------------------
 	-- 1: Left Bar 1 (Bottom Right 1-6)
@@ -569,6 +593,7 @@ Bars.SpawnBars = function(self)
 	-- Inform the environment about the spawned bars
 	ns:Fire("ActionBar_Created", ns.Prefix.."PrimaryActionBar")
 	ns:Fire("ActionBar_Created", ns.Prefix.."SecondaryActionBar")
+	ns:Fire("ActionBar_Created", ns.Prefix.."ThirdActionBar")
 	ns:Fire("ActionBar_Created", ns.Prefix.."SmallActionBar1")
 	ns:Fire("ActionBar_Created", ns.Prefix.."SmallActionBar2")
 	ns:Fire("ActionBar_Created", ns.Prefix.."SmallActionBar3")
@@ -599,6 +624,12 @@ Bars.SpawnArtwork = function(self)
 	double:SetTexture(GetMedia("bars-double"))
 	double:SetAlpha(0)
 
+	local triple = scaffold:CreateTexture(nil, "BACKGROUND", nil, -6)
+	triple:SetSize(1024,256)
+	triple:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, -10)
+	triple:SetTexture(GetMedia("bars-double")) -- TODO: Создать текстуру bars-triple
+	triple:SetAlpha(0)
+
 	local left = scaffold:CreateTexture(nil, "BACKGROUND", nil, -7)
 	left:SetSize(128,128)
 	left:SetPoint("BOTTOM", UIParent, "BOTTOM", -364, -29)
@@ -615,6 +646,7 @@ Bars.SpawnArtwork = function(self)
 	self.Artwork = scaffold
 	self.Artwork.Single = single
 	self.Artwork.Double = double
+	self.Artwork.Triple = triple
 	self.Artwork.LeftFill = left
 	self.Artwork.RightFill = right
 	self.SpawnArtwork = nil
@@ -661,6 +693,49 @@ Bars.ToggleSecondary = function(self)
 	end
 end
 
+Bars.EnableThird = function(self)
+	if (InCombatLockdown()) then
+		return
+	end
+	self.Bars.ThirdActionBar:Enable()
+	ns.db.char.actionbars.enableThird = true
+end
+
+Bars.DisableThird = function(self)
+	if (InCombatLockdown()) then
+		return
+	end
+	self.Bars.ThirdActionBar:Disable()
+	ns.db.char.actionbars.enableThird = false
+end
+
+Bars.ToggleThird = function(self)
+	if (InCombatLockdown()) then
+		return
+	end
+	if (ns.db.char.actionbars.enableThird) then
+		self:DisableThird()
+	else
+		self:EnableThird()
+	end
+end
+
+Bars.HasThirdBar = function(self)
+	if (not self.Bars) then
+		return
+	end
+	local third = self.Bars.ThirdActionBar
+	return third and third:IsShown()
+end
+
+Bars.GetThirdBar = function(self)
+	if (not self.Bars) then
+		return
+	end
+	local third = self.Bars.ThirdActionBar
+	return third and third:IsShown()
+end
+
 Bars.HasSecondaryBar = function(self)
 	if (not self.Bars) then
 		return
@@ -681,8 +756,19 @@ Bars.GetSecondaryBarOffset = function(self)
 	return 59
 end
 
+Bars.GetThirdBarOffset = function(self)
+	return 59
+end
+
 Bars.GetBarOffset = function(self)
-	return self:GetSecondaryBar() and self:GetSecondaryBarOffset() or 0
+	local offset = 0
+	if self:GetSecondaryBar() then
+		offset = offset + self:GetSecondaryBarOffset()
+	end
+	if self:GetThirdBar() then
+		offset = offset + self:GetThirdBarOffset()
+	end
+	return offset
 end
 
 Bars.UpdateArtwork = function(self)
@@ -690,14 +776,21 @@ Bars.UpdateArtwork = function(self)
 		return
 	end
 	local hasSecondary = ActionBars:HasSecondaryBar()
-	if (hasSecondary) then
+	local hasThird = ActionBars:HasThirdBar()
+	if (hasSecondary and hasThird) then
+		self.Artwork.Single:SetAlpha(0)
+		self.Artwork.Double:SetAlpha(0)
+		self.Artwork.Triple:SetAlpha(1)
+	elseif (hasSecondary) then
 		self.Artwork.Single:SetAlpha(0)
 		self.Artwork.Double:SetAlpha(1)
+		self.Artwork.Triple:SetAlpha(0)
 	else
 		self.Artwork.Single:SetAlpha(1)
 		self.Artwork.Double:SetAlpha(0)
+		self.Artwork.Triple:SetAlpha(0)
 	end
-	ns:Fire("ActionBars_Artwork_Updated", hasSecondary)
+	ns:Fire("ActionBars_Artwork_Updated", hasSecondary, hasThird)
 end
 
 Bars.UpdateBindings = function(self)
@@ -719,6 +812,11 @@ Bars.UpdateSettings = function(self, event)
 		self:EnableSecondary()
 	else
 		self:DisableSecondary()
+	end
+	if (ns.db.char.actionbars.enableThird) then
+		self:EnableThird()
+	else
+		self:DisableThird()
 	end
 end
 
@@ -760,11 +858,15 @@ Bars.OnInitialize = function(self)
 	self:RegisterChatCommand("enablesecondary", "EnableSecondary")
 	self:RegisterChatCommand("disablesecondary", "DisableSecondary")
 	self:RegisterChatCommand("togglesecondary", "ToggleSecondary")
+	self:RegisterChatCommand("enablethird", "EnableThird")
+	self:RegisterChatCommand("disablethird", "DisableThird")
+	self:RegisterChatCommand("togglethird", "ToggleThird")
 end
 
 Bars.OnEnable = function(self)
 	if ns.callbacks and ns.callbacks.RegisterCallback then
 		ns.RegisterCallback(self, "ActionBars_SecondaryBar_Updated", "UpdateArtwork")
+		ns.RegisterCallback(self, "ActionBars_ThirdBar_Updated", "UpdateArtwork")
 		ns.RegisterCallback(self, "Saved_Settings_Updated", "UpdateSettings")
 		ns.callbacks:RegisterCallback(self, "ActionBar_Settings_Updated", "UpdateSettings")
 	end

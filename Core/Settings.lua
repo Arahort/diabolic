@@ -168,6 +168,17 @@ SettingsModule.OnInitialize = function(self)
 		do
 			local setting = RegisterSetting(
 				category,
+				"enableThird",
+				"char.actionbars",
+				L["EnableThird"] or "Enable Third ActionBar",
+				false,
+				L["EnableThirdDesc"] or "Toggle the third action bar"
+			)
+			CreateCheckbox(category, setting, L["EnableThirdDesc"] or "Toggle the third action bar")
+		end
+		do
+			local setting = RegisterSetting(
+				category,
 				"showPetBar",
 				"char.actionbars",
 				L["ShowPetBar"],
