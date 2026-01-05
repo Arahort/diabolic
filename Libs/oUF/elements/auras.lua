@@ -186,11 +186,10 @@ local function CreateButton(element, index)
 end
 
 local function SetPosition(element, from, to)
-	if InCombatLockdown() then return end
 	local width = element.width or element.size or 16
 	local height = element.height or element.size or 16
 	local sizex = width + (element['spacing-x'] or element.spacing or 0)
-	local sizey = height + (element['spacing-y'] or element.spacing or 0)
+	local sizey = height + (element['spacing-y'] or element.size or 0)
 	local anchor = element.initialAnchor or 'BOTTOMLEFT'
 	local growthx = (element['growth-x'] == 'LEFT' and -1) or 1
 	local growthy = (element['growth-y'] == 'DOWN' and -1) or 1
