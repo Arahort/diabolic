@@ -1,5 +1,16 @@
 # DiabolicUI3 Changelog
 
+## [1.9.0] - 2026-01-05
+### Fixed
+- Fixed buff/debuff icon duplication and texture mask exhaustion during combat
+- Fixed empty buff/debuff icons appearing during combat
+- Fixed incorrect buff/debuff positioning after exiting combat (second row starting mid-way)
+- Optimized texture updates to only call SetTexture() when icon fileID actually changes
+- Improved combat lockdown handling for aura buttons - new buttons are positioned immediately, existing buttons repositioned when safe
+
+### Changed
+- Minor player buff/debuff horizontal position adjustment for better alignment (-320→-316, 320→316)
+
 ## [1.8.2] - 2026-01-02
 ### Fixed
 - Fixed ADDON_ACTION_BLOCKED when EditMode tries to reposition frames during combat (blizzard.lua)

@@ -228,24 +228,45 @@ local function updateAura(element, unit, data, position)
 		isNewButton = true
 	end
 
-	-- Position the button immediately if it was just created, even during combat
-	-- This works because newly created buttons are not yet tainted/protected
-	if(isNewButton) then
-		local width = element.width or element.size or 16
-		local height = element.height or element.size or 16
-		-- Set size immediately for new buttons (they are not tainted yet)
+	-- Position the button if:
+	-- 1. It's a new button (not yet tainted) - can position even during combat
+	-- 2. We're not in combat - can reposition existing buttons
+	-- Store desired position on button for use after combat ends
+	local width = element.width or element.size or 16
+	local height = element.height or element.size or 16
+	local sizex = width + (element['spacing-x'] or element.spacing or 0)
+	local sizey = height + (element['spacing-y'] or element.spacing or 0)
+	local anchor = element.initialAnchor or 'BOTTOMLEFT'
+	local growthx = (element['growth-x'] == 'LEFT' and -1) or 1
+	local growthy = (element['growth-y'] == 'DOWN' and -1) or 1
+	local cols = math.floor(element:GetWidth() / sizex + 0.5)
+	local col = (position - 1) % cols
+	local row = math.floor((position - 1) / cols)
+
+	-- Store desired position
+	button.desiredCol = col
+	button.desiredRow = row
+	button.desiredPosition = position
+
+	if(isNewButton or not InCombatLockdown()) then
 		button:SetSize(width, height)
 		button:EnableMouse(not element.disableMouse)
-		local sizex = width + (element['spacing-x'] or element.spacing or 0)
-		local sizey = height + (element['spacing-y'] or element.spacing or 0)
-		local anchor = element.initialAnchor or 'BOTTOMLEFT'
-		local growthx = (element['growth-x'] == 'LEFT' and -1) or 1
-		local growthy = (element['growth-y'] == 'DOWN' and -1) or 1
-		local cols = math.floor(element:GetWidth() / sizex + 0.5)
-		local col = (position - 1) % cols
-		local row = math.floor((position - 1) / cols)
 		button:ClearAllPoints()
 		button:SetPoint(anchor, element, anchor, col * sizex * growthx, row * sizey * growthy)
+	end
+
+	-- Restore alpha and clear hidden flag (button is now in use)
+	if not InCombatLockdown() then
+		button:SetAlpha(1)
+		button.hiddenDuringCombat = false
+	elseif isNewButton then
+		-- Only set alpha for NEW buttons during combat
+		button:SetAlpha(1)
+		button.hiddenDuringCombat = false
+	elseif button.hiddenDuringCombat then
+		-- Button was hidden during combat, restore it now that it's being used again
+		button:SetAlpha(1)
+		button.hiddenDuringCombat = false
 	end
 
 	-- for tooltips
@@ -287,7 +308,22 @@ local function updateAura(element, unit, data, position)
 		end
 	end
 
-	if(button.Icon) then button.Icon:SetTexture(data.icon) end
+	if(button.Icon) then
+		-- CRITICAL FIX: Only call SetTexture() when the icon fileID actually changes
+		-- This prevents creating new mask textures every update for the same buff
+		-- We can call SetTexture() during combat as long as we're not doing it redundantly
+		button.currentIconFileID = button.currentIconFileID or 0
+		if button.currentIconFileID ~= data.icon then
+			button.Icon:SetTexture(data.icon)
+			button.currentIconFileID = data.icon
+		end
+		-- Always show icon - it might have been hidden during combat
+		button.Icon:Show()
+	end
+	-- Also ensure Bar is visible if it exists
+	if(button.Bar) then
+		button.Bar:Show()
+	end
 	if(button.Count) then button.Count:SetText(data.applications > 1 and data.applications or '') end
 
 	local width = element.width or element.size or 16
@@ -371,10 +407,13 @@ local function processData(element, unit, data)
 	return data
 end
 
+-- Debug: track update calls
+_G.DiabolicAuraUpdateCount = _G.DiabolicAuraUpdateCount or {}
 local function UpdateAuras(self, event, unit, updateInfo)
 	if(self.unit ~= unit) then return end
 
 	local isFullUpdate = not updateInfo or updateInfo.isFullUpdate
+
 
 	local auras = self.Auras
 	if(auras) then
@@ -547,6 +586,7 @@ local function UpdateAuras(self, event, unit, updateInfo)
 
 				numVisible = math.min(numBuffs, numTotal, #auras.sortedBuffs)
 
+
 				for i = 1, numVisible do
 					updateAura(auras, unit, auras.sortedBuffs[i], i)
 				end
@@ -591,7 +631,10 @@ local function UpdateAuras(self, event, unit, updateInfo)
 
 					-- prevent the button from displaying anything
 					if(button.Cooldown) then button.Cooldown:Hide() end
-					if(button.Icon) then button.Icon:SetTexture() end
+					if(button.Icon) then
+					button.Icon:SetTexture()
+					button.currentIconFileID = 0
+				end
 					if(button.Overlay) then button.Overlay:Hide() end
 					if(button.Stealable) then button.Stealable:Hide() end
 					if(button.Count) then button.Count:SetText() end
@@ -625,9 +668,31 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				auras.visibleButtons = numVisible
 				visibleChanged = auras.reanchorIfVisibleChanged -- more convenient than auras.reanchorIfVisibleChanged and visibleChanged
 			end
-			if not InCombatLockdown() then
-				for i = numVisible + 1, #auras do
+			local elementName = auras:GetParent() and auras:GetParent():GetName() or "unknown"
+			local elementType = auras.filter or "unknown"
+			if InCombatLockdown() and elementType == "HELPFUL" then
+				end
+			for i = numVisible + 1, #auras do
+				if not InCombatLockdown() then
 					auras[i]:Hide()
+					auras[i].hiddenDuringCombat = false
+				auras[i].currentIconFileID = 0 -- Reset cached fileID
+				else
+					-- During combat we can't Hide() the button, but we can hide its content
+					local button = auras[i]
+					if button.Icon then
+						button.Icon:Hide()
+						button.Icon:SetTexture(nil)
+					button.currentIconFileID = 0 -- Reset cached fileID
+					end
+					if button.Count then button.Count:SetText("") end
+					if button.Cooldown then button.Cooldown:Hide() end
+					if button.Overlay then button.Overlay:Hide() end
+					if button.Stealable then button.Stealable:Hide() end
+					if button.Bar then button.Bar:Hide() end
+					-- Set alpha to 0 to make it invisible and mark as hidden
+					button:SetAlpha(0)
+					button.hiddenDuringCombat = true
 				end
 			end
 
@@ -763,7 +828,12 @@ local function UpdateAuras(self, event, unit, updateInfo)
 
 			local numVisible = math.min(numBuffs, #buffs.sorted)
 
+
+
 			for i = 1, numVisible do
+				if InCombatLockdown() and unit == "player" and #buffs.sorted >= 10 and i <= numVisible then
+					local data = buffs.sorted[i]
+				end
 				updateAura(buffs, unit, buffs.sorted[i], i)
 			end
 
@@ -774,9 +844,26 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				visibleChanged = buffs.reanchorIfVisibleChanged
 			end
 
-			if not InCombatLockdown() then
-				for i = numVisible + 1, #buffs do
+			for i = numVisible + 1, #buffs do
+				if not InCombatLockdown() then
 					buffs[i]:Hide()
+					buffs[i].hiddenDuringCombat = false
+				else
+					-- During combat we can't Hide() the button, but we can hide its content
+					local button = buffs[i]
+					if button.Icon then
+						button.Icon:Hide()
+						button.Icon:SetTexture(nil)
+					button.currentIconFileID = 0 -- Reset cached fileID
+					end
+					if button.Count then button.Count:SetText("") end
+					if button.Cooldown then button.Cooldown:Hide() end
+					if button.Overlay then button.Overlay:Hide() end
+					if button.Stealable then button.Stealable:Hide() end
+					if button.Bar then button.Bar:Hide() end
+					-- Set alpha to 0 to make it invisible and mark as hidden
+					button:SetAlpha(0)
+					button.hiddenDuringCombat = true
 				end
 			end
 
@@ -907,9 +994,26 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				visibleChanged = debuffs.reanchorIfVisibleChanged
 			end
 
-			if not InCombatLockdown() then
-				for i = numVisible + 1, #debuffs do
+			for i = numVisible + 1, #debuffs do
+				if not InCombatLockdown() then
 					debuffs[i]:Hide()
+					debuffs[i].hiddenDuringCombat = false
+				else
+					-- During combat we can't Hide() the button, but we can hide its content
+					local button = debuffs[i]
+					if button.Icon then
+						button.Icon:Hide()
+						button.Icon:SetTexture(nil)
+					button.currentIconFileID = 0 -- Reset cached fileID
+					end
+					if button.Count then button.Count:SetText("") end
+					if button.Cooldown then button.Cooldown:Hide() end
+					if button.Overlay then button.Overlay:Hide() end
+					if button.Stealable then button.Stealable:Hide() end
+					if button.Bar then button.Bar:Hide() end
+					-- Set alpha to 0 to make it invisible and mark as hidden
+					button:SetAlpha(0)
+					button.hiddenDuringCombat = true
 				end
 			end
 
