@@ -419,8 +419,8 @@ local PostUpdateAuraPositions = function(self, event, ...)
 		stanceOffset = 40
 	end
 
-	self.Buffs:SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", -320, 100 + offset)
-	self.Debuffs:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOM", 320, 100 + offset + stanceOffset)
+	self.Buffs:SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", -316, 100 + offset)
+	self.Debuffs:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOM", 316, 100 + offset + stanceOffset)
 
 	ns:Fire("UnitFrame_Position_Updated", self:GetName())
 end

@@ -365,7 +365,7 @@ Bars.SpawnBars = function(self)
 	-- Third ActionBar (Bottom Right MultiBar)
 	-------------------------------------------------------
 	local bar = SetObjectScale(ns.ActionBar:Create(BOTTOMRIGHT_ACTIONBAR_PAGE, ns.Prefix.."ActionBar3", UIParent))
-	bar:SetPoint("BOTTOM", -1, 11 + self:GetSecondaryBarOffset() + self:GetThirdBarOffset())
+	bar:SetPoint("BOTTOM", -1, 7 + self:GetSecondaryBarOffset() + self:GetThirdBarOffset())
 	bar:SetSize(647, 53)
 	bar:Hide()
 
@@ -678,6 +678,10 @@ Bars.DisableSecondary = function(self)
 	if (InCombatLockdown()) then
 		return
 	end
+	-- Если включена третья панель, сначала отключаем её
+	if (ns.db.char.actionbars.enableThird) then
+		self:DisableThird()
+	end
 	self.Bars.SecondaryActionBar:Disable()
 	ns.db.char.actionbars.enableSecondary = false
 end
@@ -696,6 +700,10 @@ end
 Bars.EnableThird = function(self)
 	if (InCombatLockdown()) then
 		return
+	end
+	-- Третья панель требует чтобы вторая была включена
+	if (not ns.db.char.actionbars.enableSecondary) then
+		self:EnableSecondary()
 	end
 	self.Bars.ThirdActionBar:Enable()
 	ns.db.char.actionbars.enableThird = true
@@ -753,11 +761,11 @@ Bars.GetSecondaryBar = function(self)
 end
 
 Bars.GetSecondaryBarOffset = function(self)
-	return 59
+	return 64
 end
 
 Bars.GetThirdBarOffset = function(self)
-	return 59
+	return 64
 end
 
 Bars.GetBarOffset = function(self)
