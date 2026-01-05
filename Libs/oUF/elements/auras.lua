@@ -269,12 +269,11 @@ local function updateAura(element, unit, data, position)
 
 	local width = element.width or element.size or 16
 	local height = element.height or element.size or 16
-	if not InCombatLockdown() then
-		button:SetSize(width, height)
-		button:EnableMouse(not element.disableMouse)
-		button:Show()
-		local w, h = button:GetSize()
-		local level = button:GetFrameLevel()
+	button:SetSize(width, height)
+	button:EnableMouse(not element.disableMouse)
+	button:Show()
+	local w, h = button:GetSize()
+	local level = button:GetFrameLevel()
 		local strata = button:GetFrameStrata()
 		local visible = button:IsVisible()
 		local shown = button:IsShown()
@@ -593,11 +592,9 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				auras.visibleButtons = numVisible
 				visibleChanged = auras.reanchorIfVisibleChanged -- more convenient than auras.reanchorIfVisibleChanged and visibleChanged
 			end
-			if not InCombatLockdown() then
-				for i = numVisible + 1, #auras do
-					auras[i]:Hide()
-				end
-			end
+		for i = numVisible + 1, #auras do
+			auras[i]:Hide()
+		end
 
 			if(visibleChanged or auras.createdButtons > auras.anchoredButtons) then
 				--[[ Override: Auras:SetPosition(from, to)
@@ -742,11 +739,9 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				visibleChanged = buffs.reanchorIfVisibleChanged
 			end
 
-			if not InCombatLockdown() then
-				for i = numVisible + 1, #buffs do
-					buffs[i]:Hide()
-				end
-			end
+		for i = numVisible + 1, #buffs do
+			buffs[i]:Hide()
+		end
 
 			if(visibleChanged or buffs.createdButtons > buffs.anchoredButtons) then
 				if(visibleChanged) then
@@ -875,11 +870,9 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				visibleChanged = debuffs.reanchorIfVisibleChanged
 			end
 
-			if not InCombatLockdown() then
-				for i = numVisible + 1, #debuffs do
-					debuffs[i]:Hide()
-				end
-			end
+		for i = numVisible + 1, #debuffs do
+			debuffs[i]:Hide()
+		end
 
 			if(visibleChanged or debuffs.createdButtons > debuffs.anchoredButtons) then
 				if(visibleChanged) then
