@@ -917,8 +917,10 @@ UnitStyles["Player"] = function(self, unit, id)
 	self:PostUpdateAuraPositions()
 
 	ns.RegisterCallback(self, "ActionBars_SecondaryBar_Updated", "PostUpdateAuraPositions")
+	ns.RegisterCallback(self, "ActionBars_ThirdBar_Updated", "PostUpdateAuraPositions")
 	ns.RegisterCallback(self, "ActionBars_PetBar_Updated", "PostUpdateAuraPositions")
 	ns.RegisterCallback(self, "ActionBars_StanceBar_Updated", "PostUpdateAuraPositions")
+	self:RegisterEvent("PLAYER_REGEN_ENABLED", function() self:PostUpdateAuraPositions() end)
 
 	self.UpdateCastbarPosition = UpdateCastbarPosition
 	ns.RegisterCallback(self, "Castbar_Settings_Updated", "UpdateCastbarPosition")
