@@ -627,7 +627,7 @@ Bars.SpawnArtwork = function(self)
 	local triple = scaffold:CreateTexture(nil, "BACKGROUND", nil, -6)
 	triple:SetSize(1024,256)
 	triple:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, -10)
-	triple:SetTexture(GetMedia("bars-double")) -- TODO: Создать текстуру bars-triple
+	triple:SetTexture(GetMedia("bars-triple"))
 	triple:SetAlpha(0)
 
 	local left = scaffold:CreateTexture(nil, "BACKGROUND", nil, -7)
