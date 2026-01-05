@@ -12,6 +12,7 @@ local hookedNameplates = {}
 local isArenaHooked = false
 local isBossHooked = false
 local isPartyHooked = false
+local pendingReparent = {}
 
 local hiddenParent = CreateFrame('Frame', nil, UIParent)
 hiddenParent:SetAllPoints()
@@ -25,9 +26,24 @@ local function resetParent(self, parent)
 	if(parent ~= hiddenParent) then
 		if not InCombatLockdown() then
 			self:SetParent(hiddenParent)
+		else
+			-- Save frame to reparent after combat
+			pendingReparent[self] = true
 		end
 	end
 end
+
+-- Reparent frames after leaving combat
+local eventFrame = CreateFrame('Frame')
+eventFrame:RegisterEvent('PLAYER_REGEN_ENABLED')
+eventFrame:SetScript('OnEvent', function()
+	for frame in pairs(pendingReparent) do
+		if frame:GetParent() ~= hiddenParent then
+			frame:SetParent(hiddenParent)
+		end
+		pendingReparent[frame] = nil
+	end
+end)
 
 local function handleFrame(baseName, doNotReparent)
 	local frame

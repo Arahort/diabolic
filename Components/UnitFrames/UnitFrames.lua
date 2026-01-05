@@ -631,4 +631,12 @@ UnitFrames.OnEnable = function(self)
 	self:RegisterEvent("DISPLAY_SIZE_CHANGED", "OnEvent")
 	self:RegisterEvent("UI_SCALE_CHANGED", "OnEvent")
 	self:RegisterEvent("VARIABLES_LOADED", "OnEvent")
+	-- Force update auras after leaving combat to fix hidden buttons
+	self:RegisterEvent("PLAYER_REGEN_ENABLED", function()
+		for i, frame in ipairs(oUF.objects) do
+			if frame and frame:IsShown() and frame.Buffs then
+				frame:UpdateElement("Auras")
+			end
+		end
+	end)
 end
