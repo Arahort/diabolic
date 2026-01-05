@@ -106,13 +106,14 @@ local OnEvent = function(self, event, ...)
 end
 
 -- Reset counters every second
-local ResetCounters = function()
+local ResetCounters
+ResetCounters = function()
 	if (not isMonitoring) then return end
 	for event, count in pairs(eventCounts) do
 		eventCountsPerSecond[event] = (eventCountsPerSecond[event] or 0) + count
 	end
 	eventCounts = {}
-	C_Timer.After(1, ResetCounters)
+	C_Timer.After(1, function() ResetCounters() end)
 end
 
 -- Start monitoring
