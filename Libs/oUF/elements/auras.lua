@@ -186,6 +186,9 @@ local function CreateButton(element, index)
 end
 
 local function SetPosition(element, from, to)
+	-- Aura buttons become tainted during combat (children of protected frame)
+	-- ClearAllPoints and SetPoint are blocked - skip positioning until after combat
+	if InCombatLockdown() then return end
 	local width = element.width or element.size or 16
 	local height = element.height or element.size or 16
 	local sizex = width + (element['spacing-x'] or element.spacing or 0)
