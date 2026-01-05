@@ -54,3 +54,22 @@ ActionBars.GetSecondaryBarOffset = function(self)
 	local Bars = self:GetModule("Bars", true)
 	return Bars and Bars:GetSecondaryBarOffset()
 end
+
+-- Returns 'true' if the third bar is currently visible.
+ActionBars.HasThirdBar = function(self)
+	local Bars = self:GetModule("Bars", true)
+	return Bars and Bars:HasThirdBar()
+end
+
+-- Returns the third action bar.
+ActionBars.GetThirdBar = function(self)
+	local Bars = self:GetModule("Bars", true)
+	return Bars and Bars:GetThirdBar()
+end
+
+-- Returns the value used in the GetBarOffset
+-- when the third bar is visible.
+ActionBars.GetThirdBarOffset = function(self)
+	local Bars = self:GetModule("Bars", true)
+	return Bars and Bars:GetThirdBarOffset()
+end
