@@ -157,9 +157,22 @@ StatusBars.CreateBars = function(self)
 			extraLabel:SetTextColor(unpack(Colors.gray))
 			bar.ExtraLabel = extraLabel
 
-			local AdjustOverlayTexCoords = function(self)
+			-- Throttle overlay updates to improve performance
+			-- XP/Reputation changes are infrequent, no need for frequent updates
+			local OVERLAY_THROTTLE = 0.3 -- 300ms = ~3 updates per second (smooth enough)
+
+			local AdjustOverlayTexCoords = function(self, elapsed)
+				-- Throttle: skip update if called too recently
+				self._overlayUpdateTime = self._overlayUpdateTime or 0
+				self._overlayUpdateTime = self._overlayUpdateTime + (elapsed or 0)
+				if self._overlayUpdateTime < OVERLAY_THROTTLE then
+					return
+				end
+				self._overlayUpdateTime = 0
+
 				local displayValue = self:GetDisplayValue()
 				if (displayValue ~= self.displayValue) then
+					self.displayValue = displayValue
 					local min,max = self:GetMinMaxValues()
 					local perc = displayValue/max
 					if (perc < 99.9) then

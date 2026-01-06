@@ -145,7 +145,18 @@ local UpdateMaxDps = function(self)
 	end
 end
 
+-- Throttle usability updates to reduce stutters
+-- Only update if enough time has passed since last update
+local USABLE_THROTTLE = 0.5 -- 500ms throttle (2 updates per second max)
+
 local UpdateUsable = function(self)
+	-- Throttle: skip update if called too recently
+	local now = GetTime()
+	self._lastUsableUpdate = self._lastUsableUpdate or 0
+	if (now - self._lastUsableUpdate) < USABLE_THROTTLE then
+		return
+	end
+	self._lastUsableUpdate = now
 
 	if (UnitIsDeadOrGhost("player")) then
 		self.icon:SetDesaturated(true)

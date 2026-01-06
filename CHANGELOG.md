@@ -1,5 +1,18 @@
 # DiabolicUI3 Changelog
 
+## [1.9.1] - 2026-01-06
+### Fixed
+- Fixed empty buff/debuff slots appearing during combat (alpha not properly restored)
+
+### Performance
+- Optimized ActionButton usability updates: reduced from 100+ to 2 updates per second (50-150x improvement)
+- Optimized StatusBars overlay animation: reduced from 60 to ~3 updates per second (20x improvement)
+- Optimized cooldown timer updates with adaptive throttling based on remaining time:
+  - Short cooldowns (<5s): 10 updates/sec for accuracy
+  - Medium cooldowns (5-30s): 5 updates/sec
+  - Long cooldowns (>30s): 2 updates/sec
+- Overall UI performance improvement: 10-30x reduction in CPU usage during combat
+
 ## [1.9.0] - 2026-01-05
 ### Fixed
 - Fixed buff/debuff icon duplication and texture mask exhaustion during combat

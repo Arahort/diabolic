@@ -42,16 +42,38 @@ local AbbreviateTime = ns.API.AbbreviateTime
 local Cooldowns, Active = {}, {}
 
 -- Local Timer Frame
+-- Adaptive throttling: update frequency depends on remaining time
 local Timer = CreateFrame("Frame"); Timer:Hide()
 Timer:SetScript("OnUpdate", function(self, elapsed)
 	self.elapsed = (self.elapsed or 0) - elapsed
 	if (self.elapsed > 0) then
 		return
 	end
-	self.elapsed = .01
+
+	-- Adaptive throttling based on shortest remaining cooldown
+	local shortestRemaining = 999
+	local now = GetTime()
+
+	for cooldown,info in next,Active do
+		local remaining = info.expiration - now
+		if remaining > 0 and remaining < shortestRemaining then
+			shortestRemaining = remaining
+		end
+	end
+
+	-- Set update frequency based on shortest cooldown:
+	-- <5s: 100ms (smooth for short cooldowns)
+	-- 5-30s: 200ms (balanced)
+	-- >30s: 500ms (infrequent updates for long cooldowns)
+	if shortestRemaining < 5 then
+		self.elapsed = 0.1
+	elseif shortestRemaining < 30 then
+		self.elapsed = 0.2
+	else
+		self.elapsed = 0.5
+	end
 
 	local timeLeft
-	local now = GetTime()
 
 	-- Parse and update the active cooldowns.
 	for cooldown,info in next,Active do

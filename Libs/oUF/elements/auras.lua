@@ -255,19 +255,10 @@ local function updateAura(element, unit, data, position)
 		button:SetPoint(anchor, element, anchor, col * sizex * growthx, row * sizey * growthy)
 	end
 
-	-- Restore alpha and clear hidden flag (button is now in use)
-	if not InCombatLockdown() then
-		button:SetAlpha(1)
-		button.hiddenDuringCombat = false
-	elseif isNewButton then
-		-- Only set alpha for NEW buttons during combat
-		button:SetAlpha(1)
-		button.hiddenDuringCombat = false
-	elseif button.hiddenDuringCombat then
-		-- Button was hidden during combat, restore it now that it's being used again
-		button:SetAlpha(1)
-		button.hiddenDuringCombat = false
-	end
+	-- CRITICAL: Always ensure button is visible when in use
+	-- This button is being used to display an aura, so it MUST be visible
+	button:SetAlpha(1)
+	button.hiddenDuringCombat = false
 
 	-- for tooltips
 	button.auraInstanceID = data.auraInstanceID
