@@ -770,10 +770,12 @@ end
 
 Bars.GetBarOffset = function(self)
 	local offset = 0
-	if self:GetSecondaryBar() then
+	-- Check settings, not current visibility (IsShown)
+	-- This ensures PetBar/StanceBar/Buffs stay at correct height even when bars are temporarily hidden
+	if ns.db.char.actionbars.enableSecondary then
 		offset = offset + self:GetSecondaryBarOffset()
 	end
-	if self:GetThirdBar() then
+	if ns.db.char.actionbars.enableThird then
 		offset = offset + self:GetThirdBarOffset()
 	end
 	return offset
