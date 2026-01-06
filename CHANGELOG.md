@@ -1,5 +1,30 @@
 # DiabolicUI3 Changelog
 
+## [1.9.2] - 2026-01-06
+### Added
+- Added full localization support for all WoW-supported languages:
+  - German (deDE)
+  - Spanish EU (esES)
+  - Spanish Mexico (esMX)
+  - French (frFR)
+  - Italian (itIT)
+  - Portuguese Brazil (ptBR)
+  - Portuguese Portugal (ptPT)
+  - Korean (koKR)
+  - Chinese Simplified (zhCN)
+  - Chinese Traditional (zhTW)
+- All 110+ settings strings now translated for each locale
+
+### Changed
+- Action bar settings are now per-character instead of shared across all characters
+- Disabled AceDB profile system to ensure independent action bar configuration for each character
+- Hidden stance bar settings from UI (settings remain in code for future use)
+- Stance bar now disabled by default
+
+### Fixed
+- Fixed issue where enabling secondary/third action bars on one character would enable them on all characters
+- Fixed action bar count being shared via "Default" profile across all characters
+
 ## [1.9.1] - 2026-01-06
 ### Fixed
 - Fixed empty buff/debuff slots appearing during combat (alpha not properly restored)
