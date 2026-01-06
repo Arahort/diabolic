@@ -830,7 +830,9 @@ PetBar.UpdatePosition = function(self)
 
 	self.Bar:ClearAllPoints()
 
-	self.Bar:SetPoint("BOTTOM", db.positionX or 4, (db.positionY or 84 + ActionBars:GetBarOffset()) / self.Bar.scale)
+	-- Always use dynamic offset calculation based on visible action bars
+	-- Don't use saved db.positionY as it won't adapt to bar configuration changes
+	self.Bar:SetPoint("BOTTOM", db.positionX or 4, (84 + ActionBars:GetBarOffset()) / self.Bar.scale)
 
 end
 
