@@ -407,10 +407,20 @@ local PostUpdateAuraPositions = function(self, event, ...)
 	local ActionBars = ns:GetModule("ActionBars")
 	local PetBar = ActionBars:GetModule("PetBar", true)
 	local StanceBar = ActionBars:GetModule("StanceBar", true)
-	-- Fixed offset for 3 action bars (64 + 64 = 128)
-	-- This ensures buffs don't move when bars temporarily hide during vehicle/quest mounts
-	local offset = 128
+	local offset = 0
 	local stanceOffset = 0
+
+	-- Check if temporary action bars are active (vehicle, override, temp shapeshift)
+	local hasTempBar = HasVehicleActionBar() or HasOverrideActionBar() or HasTempShapeshiftActionBar()
+
+	if hasTempBar then
+		-- Use saved normal offset when temp bars are active (don't move buffs)
+		offset = self.normalBarOffset or ActionBars:GetBarOffset()
+	else
+		-- Update and save normal offset when no temp bars
+		offset = ActionBars:GetBarOffset()
+		self.normalBarOffset = offset
+	end
 
 	self.hasStanceBar = StanceBar and StanceBar.Bar and StanceBar.Bar:IsShown()
 	self.hasPetBar = PetBar and PetBar.Bar and PetBar.Bar:IsShown()
@@ -916,8 +926,8 @@ UnitStyles["Player"] = function(self, unit, id)
 	self.PostUpdateAuraPositions = PostUpdateAuraPositions
 	self:PostUpdateAuraPositions()
 
-	-- Only listen to PetBar and StanceBar changes (they add +40 offset)
-	-- No need to listen to SecondaryBar/ThirdBar - offset is now fixed at 128
+	ns.RegisterCallback(self, "ActionBars_SecondaryBar_Updated", "PostUpdateAuraPositions")
+	ns.RegisterCallback(self, "ActionBars_ThirdBar_Updated", "PostUpdateAuraPositions")
 	ns.RegisterCallback(self, "ActionBars_PetBar_Updated", "PostUpdateAuraPositions")
 	ns.RegisterCallback(self, "ActionBars_StanceBar_Updated", "PostUpdateAuraPositions")
 

@@ -3,7 +3,7 @@
 ## [1.9.1] - 2026-01-06
 ### Fixed
 - Fixed empty buff/debuff slots appearing during combat (alpha not properly restored)
-- Fixed buff/debuff position jumping when mounting/dismounting vehicles or quest mounts (now uses fixed offset)
+- Fixed buff/debuff position jumping when mounting/dismounting vehicles or quest mounts (preserves normal offset during temporary bars)
 
 ### Performance
 - Optimized ActionButton usability updates: reduced from 100+ to 2 updates per second (50-150x improvement)
