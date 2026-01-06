@@ -203,20 +203,18 @@ local Cast_PostCastStart = function(element, unit)
 		self.Health.Value:Hide()
 		element.Text:Show()
 		element.Time:Show()
+		element:SetAlpha(1)
 		element:Show()
+		local _,class = UnitClass(unit)
+		if (class == "PRIEST") then
+			element:SetStatusBarColor(.3, .3, .3, .25)
+		else
+			element:SetStatusBarColor(1, 1, 1, .25)
+		end
 	else
-		local r, g, b = self.colors.offwhite[1], self.colors.offwhite[2], self.colors.offwhite[3]
-		element.Text:SetTextColor(r, g, b)
-		element.Time:SetTextColor(r, g, b)
-		element.Time:Show()
-		element:Hide()
-	end
-
-	local _,class = UnitClass(unit)
-	if (class == "PRIEST") then
-		element:SetStatusBarColor(.3, .3, .3, .25)
-	else
-		element:SetStatusBarColor(1, 1, 1, .25)
+		element.Text:Hide()
+		element.Time:Hide()
+		element:SetAlpha(0)
 	end
 end
 
@@ -226,6 +224,7 @@ local Cast_PostCastStop = function(element, unit, spellID)
 	self.Health.Value:Show()
 	self.Health.Value:UpdateTag()
 	element.Text:Hide()
+	element:SetAlpha(1)
 	element:Show()
 end
 
@@ -240,6 +239,7 @@ local Cast_PostCastFail = function(element, unit, spellID)
 	element.Text:SetTextColor(r, g, b)
 	element.Text:Hide()
 	element.Time:Hide()
+	element:SetAlpha(1)
 	element:SetValue(0)
 end
 
