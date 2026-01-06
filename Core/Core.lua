@@ -105,7 +105,7 @@ local defaults = {
 		unitframes = {
 			enableNamePlates = false,
 			useClassColorForPower = false,
-			hideTargetNameOnCast = true,
+			showTargetCastbar = false,
 			useHealthColorForTarget = true,
 			showThreatOnTarget = false,
 			targetPositionX = 0,
@@ -187,6 +187,11 @@ local SanitizeSettings = function(db)
 		else
 			db.char.actionbars.enableSecondary = false
 		end
+	end
+	local hideTargetNameOnCast = db.global.unitframes and db.global.unitframes.hideTargetNameOnCast
+	if (hideTargetNameOnCast ~= nil) then
+		db.global.unitframes.showTargetCastbar = hideTargetNameOnCast
+		db.global.unitframes.hideTargetNameOnCast = nil
 	end
 	local scale = db.global.core.relativeScale
 	if (scale) then

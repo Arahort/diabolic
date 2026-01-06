@@ -463,13 +463,13 @@ SettingsModule.OnInitialize = function(self)
 		do
 			local setting = RegisterSetting(
 				category,
-				"hideTargetNameOnCast",
+				"showTargetCastbar",
 				"global.unitframes",
-				L["HideTargetNameOnCast"],
-				true,
-				L["HideTargetNameOnCastDesc"]
+				L["ShowTargetCastbar"],
+				false,
+				L["ShowTargetCastbarDesc"]
 			)
-			CreateCheckbox(category, setting, L["HideTargetNameOnCastDesc"])
+			CreateCheckbox(category, setting, L["ShowTargetCastbarDesc"])
 		end
 		do
 			local setting = RegisterSetting(

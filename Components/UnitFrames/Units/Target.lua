@@ -196,19 +196,20 @@ end
 local Cast_PostCastStart = function(element, unit)
 	local self = element.__owner
 	local db = ns.db
-	local hideNameOnCast = db and db.global and db.global.unitframes and db.global.unitframes.hideTargetNameOnCast
+	local showCastbar = db and db.global and db.global.unitframes and db.global.unitframes.showTargetCastbar
 
-	if hideNameOnCast then
+	if showCastbar then
 		self.Name:Hide()
 		self.Health.Value:Hide()
-		element.Text:Hide()
-		element.Time:Hide()
-		element:Hide()
+		element.Text:Show()
+		element.Time:Show()
+		element:Show()
 	else
 		local r, g, b = self.colors.offwhite[1], self.colors.offwhite[2], self.colors.offwhite[3]
 		element.Text:SetTextColor(r, g, b)
 		element.Time:SetTextColor(r, g, b)
 		element.Time:Show()
+		element:Hide()
 	end
 
 	local _,class = UnitClass(unit)
@@ -224,6 +225,7 @@ local Cast_PostCastStop = function(element, unit, spellID)
 	self.Name:Show()
 	self.Health.Value:Show()
 	self.Health.Value:UpdateTag()
+	element.Text:Hide()
 	element:Show()
 end
 
@@ -236,6 +238,7 @@ local Cast_PostCastFail = function(element, unit, spellID)
 
 	local r, g, b = self.colors.normal[1], self.colors.normal[2], self.colors.normal[3]
 	element.Text:SetTextColor(r, g, b)
+	element.Text:Hide()
 	element.Time:Hide()
 	element:SetValue(0)
 end

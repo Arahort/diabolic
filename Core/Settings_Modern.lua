@@ -442,7 +442,7 @@ function ModernSettings:RegisterTabs()
 					function(val) ns.callbacks:Fire("NamePlates_Settings_Updated") end)
 				CreateCheckbox(parent, L["UseClassColorForPower"] or "Use Class Color for Power", "global.unitframes", "useClassColorForPower",
 					function(val) ns.callbacks:Fire("UnitFrames_Settings_Updated") end)
-				CreateCheckbox(parent, L["HideTargetNameOnCast"] or "Hide Target Name on Cast", "global.unitframes", "hideTargetNameOnCast",
+				CreateCheckbox(parent, L["ShowTargetCastbar"] or "Show Target Castbar?", "global.unitframes", "showTargetCastbar",
 					function(val) ns.callbacks:Fire("UnitFrames_Settings_Updated") end)
 				CreateCheckbox(parent, L["UseHealthColorForTarget"] or "Use Health Color for Target", "global.unitframes", "useHealthColorForTarget",
 					function(val) ns.callbacks:Fire("UnitFrames_Settings_Updated") end)
