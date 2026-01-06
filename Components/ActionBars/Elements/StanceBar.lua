@@ -501,6 +501,8 @@ end
 StanceBar.OnEnable = function(self)
 	if ns.callbacks and ns.callbacks.RegisterCallback then
 		ns.RegisterCallback(self, "ActionBars_Artwork_Updated", "UpdatePosition")
+		ns.RegisterCallback(self, "ActionBars_SecondaryBar_Updated", "UpdatePosition")
+		ns.RegisterCallback(self, "ActionBars_ThirdBar_Updated", "UpdatePosition")
 		ns.callbacks:RegisterCallback(self, "StanceBar_Position_Updated", "UpdatePosition")
 	end
 

@@ -4,6 +4,7 @@
 ### Fixed
 - Fixed empty buff/debuff slots appearing during combat (alpha not properly restored)
 - Fixed buff/debuff position jumping when mounting/dismounting vehicles or quest mounts (preserves normal offset during temporary bars)
+- Fixed PetBar and StanceBar not adapting position when third action bar is shown/hidden
 
 ### Performance
 - Optimized ActionButton usability updates: reduced from 100+ to 2 updates per second (50-150x improvement)

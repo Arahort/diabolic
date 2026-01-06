@@ -927,6 +927,10 @@ PetBar.OnEnable = function(self)
 
 		ns.RegisterCallback(self, "ActionBars_Artwork_Updated", "UpdatePosition")
 
+		ns.RegisterCallback(self, "ActionBars_SecondaryBar_Updated", "UpdatePosition")
+
+		ns.RegisterCallback(self, "ActionBars_ThirdBar_Updated", "UpdatePosition")
+
 		ns.callbacks:RegisterCallback(self, "PetBar_Position_Updated", "UpdatePosition")
 
 	end
