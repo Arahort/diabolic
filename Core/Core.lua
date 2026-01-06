@@ -330,15 +330,16 @@ end
 
 -- Allow other modules and addons to use this.
 ns.GetSettings = function(self)
-	return self.db or SanitizeSettings(LibStub("AceDB-3.0"):New(Addon.."_DB", defaults, true))
+	return self.db or SanitizeSettings(LibStub("AceDB-3.0"):New(Addon.."_DB", defaults))
 end
 
 ns.OnInitialize = function(self)
 
 	self.db = self:GetSettings()
-	self.db.RegisterCallback(self, "OnProfileChanged", "UpdateSettings")
-	self.db.RegisterCallback(self, "OnProfileCopied", "UpdateSettings")
-	self.db.RegisterCallback(self, "OnProfileReset", "UpdateSettings")
+	-- Profile callbacks removed - profiles disabled for per-character settings
+	-- self.db.RegisterCallback(self, "OnProfileChanged", "UpdateSettings")
+	-- self.db.RegisterCallback(self, "OnProfileCopied", "UpdateSettings")
+	-- self.db.RegisterCallback(self, "OnProfileReset", "UpdateSettings")
 
 	-- Apply user scale to all elements
 	if (self.db.global.core.relativeScale) then
