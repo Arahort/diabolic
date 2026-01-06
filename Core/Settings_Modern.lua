@@ -372,8 +372,10 @@ function ModernSettings:RegisterTabs()
 					function(val) ns.callbacks:Fire("ActionBar_Settings_Updated") end)
 				CreateCheckbox(parent, L["ShowPetBar"] or "Show Pet Bar", "char.actionbars", "showPetBar",
 					function(val) ns.callbacks:Fire("ActionBar_Settings_Updated") end)
+				--[[
 				CreateCheckbox(parent, L["ShowStanceBar"] or "Show Stance Bar", "char.actionbars", "showStanceBar",
 					function(val) ns.callbacks:Fire("ActionBar_Settings_Updated") end)
+				--]]
 				CreateSlider(parent, L["PetBarPosX"] or "Pet Bar Position X", "global.petbar", "positionX",
 					-500, 500, 5,
 					function(val) return tostring(val) end,
@@ -382,6 +384,7 @@ function ModernSettings:RegisterTabs()
 					0, 200, 5,
 					function(val) return tostring(val) end,
 					function(val) ns.callbacks:Fire("PetBar_Position_Updated") end)
+				--[[
 				CreateSlider(parent, L["StanceBarPosX"] or "Stance Bar Position X", "global.stancebar", "positionX",
 					-500, 500, 5,
 					function(val) return tostring(val) end,
@@ -390,6 +393,7 @@ function ModernSettings:RegisterTabs()
 					0, 200, 5,
 					function(val) return tostring(val) end,
 					function(val) ns.callbacks:Fire("StanceBar_Position_Updated") end)
+				--]]
 				CreateHeader(parent, L["AurasHeader"] or "Auras")
 				local alwaysShowCheckbox = CreateCheckbox(parent, L["AlwaysShowAuras"] or "Always Show Auras", "char.auras", "alwaysShowAuras",
 					function(val)

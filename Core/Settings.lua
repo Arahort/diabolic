@@ -187,6 +187,7 @@ SettingsModule.OnInitialize = function(self)
 			)
 			CreateCheckbox(category, setting, L["ShowPetBarDesc"])
 		end
+		--[[
 		do
 			local setting = RegisterSetting(
 				category,
@@ -198,6 +199,7 @@ SettingsModule.OnInitialize = function(self)
 			)
 			CreateCheckbox(category, setting, L["ShowStanceBarDesc"])
 		end
+		--]]
 		do
 			local setting = RegisterSetting(
 				category,
@@ -228,6 +230,7 @@ SettingsModule.OnInitialize = function(self)
 			end)
 			Settings.CreateSlider(category, setting, options, L["PetBarPosYDesc"])
 		end
+		--[[
 		do
 			local setting = RegisterSetting(
 				category,
@@ -258,6 +261,7 @@ SettingsModule.OnInitialize = function(self)
 			end)
 			Settings.CreateSlider(category, setting, options, L["StanceBarPosYDesc"])
 		end
+		--]]
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["AurasHeader"]))
 		local alwaysShowSetting, alwaysHideSetting
 		do
