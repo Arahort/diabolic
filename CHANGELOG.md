@@ -6,7 +6,7 @@
 - Fixed buff/debuff position jumping when mounting/dismounting vehicles or quest mounts (preserves normal offset during temporary bars)
 - Fixed PetBar and StanceBar positioning to use action bar settings instead of visibility state
 - Fixed PetBar appearing above second bar instead of third when 3 bars are enabled (removed db.positionY override)
-- Adjusted PetBar vertical position (lowered by 10 pixels for better spacing)
+- Adjusted PetBar vertical position (lowered by 15 pixels when 3 bars enabled, no offset for 2 bars)
 
 ### Performance
 - Optimized ActionButton usability updates: reduced from 100+ to 2 updates per second (50-150x improvement)
