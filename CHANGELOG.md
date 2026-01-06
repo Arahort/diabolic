@@ -1,5 +1,19 @@
 # DiabolicUI3 Changelog
 
+## [1.9.3] - 2026-01-06
+### Changed
+- Renamed "Hide Target Name on Cast" setting to "Show Target Castbar?" in all 12 locales
+- Inverted setting logic: checkbox enabled = show castbar overlay and replace name with spell name
+- Default changed to disabled (false) - castbar overlay now hidden by default
+
+### Fixed
+- Fixed spell name remaining visible after cast completion
+- Fixed castbar progress overlay showing when setting is disabled
+- Fixed cast time "0.0" remaining visible after cast completion
+
+### Removed
+- Removed unused Settings_Modern.lua file (603 lines of dead code)
+
 ## [1.9.2] - 2026-01-06
 ### Added
 - Added full localization support for all WoW-supported languages:
