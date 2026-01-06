@@ -224,6 +224,7 @@ local Cast_PostCastStop = function(element, unit, spellID)
 	self.Health.Value:Show()
 	self.Health.Value:UpdateTag()
 	element.Text:Hide()
+	element.Time:Hide()
 	element:SetAlpha(1)
 	element:Show()
 end
