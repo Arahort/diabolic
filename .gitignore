@@ -12,6 +12,7 @@ desktop.ini
 # Temporary files
 *.tmp
 *~
+tmpclaude-*
 
 # Project files
 TODO.md

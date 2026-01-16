@@ -52,12 +52,17 @@ local SetDesaturation = SetDesaturation
 
 ns.PetButtons = {}
 
-local UpdateTooltip = function(self)
-	if (GameTooltip:IsForbidden()) then
-		return
+-- Tooltip wrapper functions to preserve PetActionButtonTemplate tooltips
+local onEnter = function(self)
+	if (self.OnEnter) then
+		self:OnEnter()
 	end
-	GameTooltip_SetDefaultAnchor(GameTooltip, self)
-	GameTooltip:SetPetAction(self.id)
+end
+
+local onLeave = function(self)
+	if (self.OnLeave) then
+		self:OnLeave()
+	end
 end
 
 local PetButton = CreateFrame("CheckButton")
@@ -85,8 +90,14 @@ PetButton.Create = function(self, id, name, parent)
 
 	button:UnregisterAllEvents()
 	button:SetScript("OnEvent", nil)
-	button:SetScript("OnEnter", PetButton.OnEnter)
-	button:SetScript("OnLeave", PetButton.OnLeave)
+
+	-- Preserve original tooltip handlers from PetActionButtonTemplate
+	button.OnEnter = button:GetScript("OnEnter")
+	button.OnLeave = button:GetScript("OnLeave")
+
+	-- Set wrapper functions that call original handlers
+	button:SetScript("OnEnter", onEnter)
+	button:SetScript("OnLeave", onLeave)
 	button:SetScript("OnDragStart", PetButton.OnDragStart)
 	button:SetScript("OnReceiveDrag", PetButton.OnReceiveDrag)
 
@@ -232,18 +243,6 @@ PetButton.ClearBindings = function(self)
 	while GetBindingKey(binding) do
 		SetBinding(GetBindingKey(binding), nil)
 	end
-end
-
-PetButton.OnEnter = function(self)
-	self.UpdateTooltip = UpdateTooltip
-	self:UpdateTooltip()
-end
-
-PetButton.OnLeave = function(self)
-	if (GameTooltip:IsForbidden()) then
-		return
-	end
-	GameTooltip:Hide()
 end
 
 PetButton.OnDragStart = function(self)
