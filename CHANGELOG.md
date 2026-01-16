@@ -1,5 +1,14 @@
 # DiabolicUI3 Changelog
 
+## [1.9.4] - 2026-01-17
+### Changed
+- Updated Interface version to 120001 for WoW 12.0.1 compatibility
+- Changed addon description from "WoW 11.x" to "WoW 12.x"
+
+### Fixed
+- Fixed pet bar tooltips not showing on hover
+- Preserved original PetActionButtonTemplate tooltip handlers to maintain proper tooltip functionality
+
 ## [1.9.3] - 2026-01-06
 ### Changed
 - Renamed "Hide Target Name on Cast" setting to "Show Target Castbar?" in all 12 locales
