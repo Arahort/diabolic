@@ -306,7 +306,8 @@ Tooltips.SetHealthValue = function(self, unit)
 		end
 	else
 		local msg
-		local min,max = UnitHealth(unit, true), UnitHealthMax(unit, true)
+		-- WoW 12.0.0: Don't use true parameter - it may return secret values
+		local min,max = UnitHealth(unit), UnitHealthMax(unit)
 		-- WoW 12.0.0: Can't compare secret values, show as cur/max if secret
 		if issecretvalue(min) or issecretvalue(max) then
 			msg = string_format("%s / %s", AbbreviateNumber(min or 0), AbbreviateNumber(max or 0))

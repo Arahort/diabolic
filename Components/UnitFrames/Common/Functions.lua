@@ -51,8 +51,8 @@ API.UpdateHealth = function(self, event, unit)
 	end
 
 	local absorb
-	-- WoW 12.0.0: Pass true to bypass secret values system
-	local cur, max = UnitHealth(unit, true), UnitHealthMax(unit, true)
+	-- WoW 12.0.0: Don't use true parameter - it may return secret values
+	local cur, max = UnitHealth(unit), UnitHealthMax(unit)
 	local connected = UnitIsConnected(unit)
 
 	-- Different GUID means a different player or NPC,

@@ -123,7 +123,8 @@ Methods[ns.Prefix..":Health"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return L_DEAD
 	else
-		local health = UnitHealth(unit, true)
+		-- WoW 12.0.0: Don't use true parameter - it may return secret values
+		local health = UnitHealth(unit)
 		-- WoW 12.0.0: Can't compare secret values, skip if secret
 		if issecretvalue(health) then
 			return ""
@@ -139,7 +140,8 @@ Methods[ns.Prefix..":Health:Full"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return
 	else
-		local health, maxHealth = UnitHealth(unit, true), UnitHealthMax(unit, true)
+		-- WoW 12.0.0: Don't use true parameter - it may return secret values
+		local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
 		-- WoW 12.0.0: Can't compare secret values, skip if secret
 		if issecretvalue(health) or issecretvalue(maxHealth) then
 			return ""
@@ -155,7 +157,8 @@ Methods[ns.Prefix..":Health:Smart"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return L_DEAD
 	else
-		local health, maxHealth = UnitHealth(unit, true), UnitHealthMax(unit, true)
+		-- WoW 12.0.0: Don't use true parameter - it may return secret values
+		local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
 		-- WoW 12.0.0: Can't compare secret values, skip if secret
 		if issecretvalue(health) or issecretvalue(maxHealth) then
 			return ""
@@ -231,7 +234,8 @@ Methods[ns.Prefix..":Power:Full"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return
 	else
-		local current, total = UnitPower(unit, nil, true), UnitPowerMax(unit, nil, true)
+		-- WoW 12.0.0: Don't use true parameter - it may return secret values
+		local current, total = UnitPower(unit), UnitPowerMax(unit)
 		-- WoW 12.0.0: Can't compare secret values, skip if secret
 		if issecretvalue(current) or issecretvalue(total) then
 			return ""

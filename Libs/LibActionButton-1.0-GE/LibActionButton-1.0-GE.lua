@@ -2172,10 +2172,10 @@ function UpdateCount(self)
 	end
 	if self:IsConsumableOrStackable() then
 		local count = self:GetCount()
-		-- WoW 12.0.0: count can be secret value
+		-- WoW 12.0.0: count can be secret value, can't compare but can display
 		local issecretvalue = issecretvalue or function() return false end
 		if issecretvalue(count) then
-			self.Count:SetText("")
+			self.Count:SetText(count) -- Pass secret value directly to SetText
 		elseif count > (self.maxDisplayCount or 9999) then
 			self.Count:SetText("*")
 		else
@@ -2183,7 +2183,11 @@ function UpdateCount(self)
 		end
 	else
 		local charges, maxCharges, _chargeStart, _chargeDuration = self:GetCharges()
-		if charges and maxCharges and maxCharges > 1 then
+		-- WoW 12.0.0: charges can be secret value
+		local issecretvalue = issecretvalue or function() return false end
+		if issecretvalue(charges) or issecretvalue(maxCharges) then
+			self.Count:SetText(charges) -- Pass secret value directly
+		elseif charges and maxCharges and maxCharges > 1 then
 			self.Count:SetText(charges > 0 and charges or "") --[[-- GE Custom --]]--
 		else
 			self.Count:SetText("")
