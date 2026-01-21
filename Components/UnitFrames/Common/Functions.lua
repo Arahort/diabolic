@@ -56,12 +56,17 @@ API.UpdateHealth = function(self, event, unit)
 
 	-- Different GUID means a different player or NPC,
 	-- so we want updates to be instant, not smoothed.
+	-- WoW 12.0.0: issecretvalue may not exist in older versions
+	local issecretvalue = issecretvalue or function() return false end
 	local forced = (event == "ForceUpdate") or (event == "RefreshUnit") or (event == "GROUP_ROSTER_UPDATE")
 	if (not forced) then
 		local guid = UnitGUID(unit)
-		if (guid ~= element.guid) then
-			forced = true
-			element.guid = guid
+		-- WoW 12.0.0: GUID can be secret value, skip comparison if secret
+		if not issecretvalue(guid) and not issecretvalue(element.guid) then
+			if (guid ~= element.guid) then
+				forced = true
+				element.guid = guid
+			end
 		end
 	end
 

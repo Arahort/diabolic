@@ -47,7 +47,10 @@ local UnitReaction = UnitReaction
 
 -- Retrieve a unit's color
 local GetUnitColor = function(unit)
-	if (unit) then
+	-- WoW 12.0.0: issecretvalue may not exist in older versions
+	local issecretvalue = issecretvalue or function() return false end
+	-- WoW 12.0.0: unit can be secret value, skip if secret
+	if (unit and not issecretvalue(unit)) then
 		if ((not UnitPlayerControlled(unit)) and UnitIsTapDenied(unit) and UnitCanAttack("player", unit)) then
 			color = Colors.tapped
 		elseif (not UnitIsConnected(unit)) then

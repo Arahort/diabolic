@@ -239,15 +239,21 @@ local ClassPower_PostUpdate = function(element, cur, max, hasMaxChanged, powerTy
 end
 
 local ClassPower_PostUpdateColor = function(element, r, g, b)
-	for i = 1, #element do
-		local bar = element[i]
-		bar:SetStatusBarColor(r, g, b)
-		local fg = bar.fg
-		if (fg) then
-			local mu = fg.multiplier or 1
-			fg:SetVertexColor(r, g, b)
-		end
+	-- WoW 12.0.0: oUF now passes ColorMixin objects instead of r,g,b numbers
+	if type(r) == "table" and r.GetRGB then
+		r, g, b = r:GetRGB()
 	end
+	if r and g and b then
+		for i = 1, #element do
+			local bar = element[i]
+			bar:SetStatusBarColor(r, g, b)
+			local fg = bar.fg
+			if (fg) then
+				local mu = fg.multiplier or 1
+				fg:SetVertexColor(r, g, b)
+			end
+		end -- End of for loop
+	end -- End of if r and g and b
 end
 
 local Runes_PostUpdate = function(element, runemap, hasVehicle, allReady)

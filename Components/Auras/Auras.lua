@@ -124,6 +124,8 @@ Aura.Style = function(self)
 end
 
 Aura.Update = function(self, index)
+	-- WoW 12.0.0: issecretvalue may not exist in older versions
+	local issecretvalue = issecretvalue or function() return false end
 
 	-- Use index parameter - it's the correct buff index from SecureAuraHeaderTemplate
 	local unit = self:GetParent():GetAttribute("unit") or "player"
@@ -142,12 +144,14 @@ Aura.Update = function(self, index)
 
 		self:SetAlpha(1)
 		self.icon:SetTexture(icon)
-		self.count:SetText((count and count > 1) and count or "")
+		-- WoW 12.0.0: count can be secret value, skip comparison if secret
+		self.count:SetText((count and not issecretvalue(count) and count > 1) and count or "")
 		-- print("|cFF00FF00  Set texture:|r", icon)
-
-		if (duration and duration > 0 and expirationTime) then
-			self.cd:SetCooldown(expirationTime - duration, duration)
-			self.cd:Show()
+		-- WoW 12.0.0: duration and expirationTime can be secret values
+		if (duration and expirationTime and not issecretvalue(duration) and not issecretvalue(expirationTime)) then
+			if (duration > 0) then
+				self.cd:SetCooldown(expirationTime - duration, duration)
+				self.cd:Show()
 
 			local timeLeft = expirationTime - GetTime()
 
@@ -166,7 +170,7 @@ Aura.Update = function(self, index)
 				end
 				self.time:Hide()
 			end
-
+			end -- End of if duration > 0
 		else
 			self.cd:Hide()
 			self.time:Hide()

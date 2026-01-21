@@ -196,12 +196,19 @@ local function updateAura(element, unit, data, position)
 	button.auraInstanceID = data.auraInstanceID
 
 	if(button.Cooldown and not element.disableCooldown) then
+		-- WoW 12.0.0: issecretvalue may not exist in older versions
+		local issecretvalue = issecretvalue or function() return false end
 		-- WoW 12.0.0: Use duration and expirationTime directly from data
 		-- C_UnitAuras.GetAuraDuration may return nil, but data already contains the values
-		if data.duration and data.duration > 0 and data.expirationTime then
-			local startTime = data.expirationTime - data.duration
-			button.Cooldown:SetCooldown(startTime, data.duration)
-			button.Cooldown:Show()
+		-- Check if values are secret before comparison
+		if data.duration and data.expirationTime and not issecretvalue(data.duration) and not issecretvalue(data.expirationTime) then
+			if data.duration > 0 then
+				local startTime = data.expirationTime - data.duration
+				button.Cooldown:SetCooldown(startTime, data.duration)
+				button.Cooldown:Show()
+			else
+				button.Cooldown:Hide()
+			end
 		else
 			button.Cooldown:Hide()
 		end

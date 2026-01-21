@@ -29,6 +29,8 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE) then
 	return
 end
 ns.AuraFilters = ns.AuraFilters or {}
+-- WoW 12.0.0: issecretvalue may not exist in older versions
+local issecretvalue = issecretvalue or function() return false end
 
 ns.AuraFilters.PlayerBuffFilter = function(element, unit, data)
 	local button = {}
@@ -37,11 +39,16 @@ ns.AuraFilters.PlayerBuffFilter = function(element, unit, data)
 	button.timeLeft = data.expiration and (data.expiration - GetTime())
 	button.expiration = data.expiration
 	button.duration = data.duration
-	button.noDuration = (not data.duration or data.duration == 0)
+	-- WoW 12.0.0: Skip comparison if duration is secret value
+	button.noDuration = (not data.duration or (not issecretvalue(data.duration) and data.duration == 0))
 	button.isPlayer = data.isPlayerAura
 
 	if (data.isBossDebuff) then
 		return true
+	end
+	-- WoW 12.0.0: Skip filter comparisons if values are secret
+	if issecretvalue(data.duration) or issecretvalue(data.applications) then
+		return false
 	end
 
 	return (not button.noDuration and data.duration < 301) or (button.timeLeft and button.timeLeft > 0 and button.timeLeft < 31) or (data.applications > 1)
@@ -57,11 +64,16 @@ ns.AuraFilters.TargetAuraFilter = function(element, unit, data)
 	button.timeLeft = data.expiration and (data.expiration - GetTime())
 	button.expiration = data.expiration
 	button.duration = data.duration
-	button.noDuration = (not data.duration or data.duration == 0)
+	-- WoW 12.0.0: Skip comparison if duration is secret value
+	button.noDuration = (not data.duration or (not issecretvalue(data.duration) and data.duration == 0))
 	button.isPlayer = data.isPlayerAura
 
 	if (data.isBossDebuff) then
 		return true
+	end
+	-- WoW 12.0.0: Skip filter comparisons if values are secret
+	if issecretvalue(data.duration) or issecretvalue(data.applications) then
+		return false
 	end
 
 	return (not button.noDuration and data.duration < 301) or (data.applications > 1)

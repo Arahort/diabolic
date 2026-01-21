@@ -2242,6 +2242,8 @@ local function OnCooldownDone(self)
 end
 
 function UpdateCooldown(self)
+	-- WoW 12.0.0: issecretvalue may not exist in older versions
+	local issecretvalue = issecretvalue or function() return false end
 	local locStart, locDuration
 	local start, duration, enable, modRate
 	local charges, maxCharges, chargeStart, chargeDuration, chargeModRate
@@ -2251,8 +2253,8 @@ function UpdateCooldown(self)
 	if passiveCooldownSpellID and passiveCooldownSpellID ~= 0 then
 		auraData = C_UnitAuras.GetPlayerAuraBySpellID(passiveCooldownSpellID)
 	end
-
-	if auraData then
+	-- WoW 12.0.0: Check if auraData fields are secret before using them
+	if auraData and not issecretvalue(auraData.duration) and not issecretvalue(auraData.expirationTime) then
 		local currentTime = GetTime()
 		local timeUntilExpire = auraData.expirationTime - currentTime
 		local howMuchTimeHasPassed = auraData.duration - timeUntilExpire
@@ -2275,9 +2277,9 @@ function UpdateCooldown(self)
 	end
 
 	self.cooldown:SetDrawBling(self.cooldown:GetEffectiveAlpha() > 0.5)
-
-	local hasLocCooldown = locStart and locDuration and locStart > 0 and locDuration > 0
-	local hasCooldown = enable and start and duration and start > 0 and duration > 0
+	-- WoW 12.0.0: Check if cooldown values are secret before comparison
+	local hasLocCooldown = locStart and locDuration and not issecretvalue(locStart) and not issecretvalue(locDuration) and locStart > 0 and locDuration > 0
+	local hasCooldown = enable and start and duration and not issecretvalue(start) and not issecretvalue(duration) and start > 0 and duration > 0
 	if hasLocCooldown and ((not hasCooldown) or ((locStart + locDuration) > (start + duration))) then
 		if self.cooldown.currentCooldownType ~= COOLDOWN_TYPE_LOSS_OF_CONTROL then
 			self.cooldown:SetEdgeTexture("Interface\\Cooldown\\edge-LoC")
@@ -2745,7 +2747,13 @@ Action.IsEquipped              = function(self) return IsEquippedAction(self._st
 Action.IsCurrentlyActive       = function(self) return IsCurrentAction(self._state_action) end
 Action.IsAutoRepeat            = function(self) return IsAutoRepeatAction(self._state_action) end
 Action.IsUsable                = function(self) return IsUsableAction(self._state_action) end
-Action.IsConsumableOrStackable = function(self) return IsConsumableAction(self._state_action) or IsStackableAction(self._state_action) or (not IsItemAction(self._state_action) and GetActionCount(self._state_action) > 0) end
+Action.IsConsumableOrStackable = function(self)
+	-- WoW 12.0.0: GetActionCount can return secret value
+	local issecretvalue = issecretvalue or function() return false end
+	local count = GetActionCount(self._state_action)
+	local hasCount = count and not issecretvalue(count) and count > 0
+	return IsConsumableAction(self._state_action) or IsStackableAction(self._state_action) or (not IsItemAction(self._state_action) and hasCount)
+end
 Action.IsUnitInRange           = function(self, unit) return IsActionInRange(self._state_action, unit) end
 Action.SetTooltip              = function(self) return GameTooltip:SetAction(self._state_action) end
 Action.GetSpellId              = function(self)
