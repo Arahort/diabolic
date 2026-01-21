@@ -48,6 +48,8 @@ local unpack = unpack
 -- WoW API
 local CreateFrame = _G.CreateFrame
 local GetTime = _G.GetTime
+-- WoW 12.0.0: issecretvalue may not exist in older versions
+local issecretvalue = _G.issecretvalue or function() return false end
 
 -- Library registries
 lib.orbs = lib.orbs or {}

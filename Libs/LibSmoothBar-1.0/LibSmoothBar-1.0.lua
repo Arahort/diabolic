@@ -56,6 +56,8 @@ local type = type
 -- WoW API
 local CreateFrame = CreateFrame
 local GetTime = GetTime
+-- WoW 12.0.0: issecretvalue may not exist in older versions
+local issecretvalue = issecretvalue or function() return false end
 
 -- Library registries
 lib.bars = lib.bars or {}
