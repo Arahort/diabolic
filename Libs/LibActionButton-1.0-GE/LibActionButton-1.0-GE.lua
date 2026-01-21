@@ -2172,7 +2172,11 @@ function UpdateCount(self)
 	end
 	if self:IsConsumableOrStackable() then
 		local count = self:GetCount()
-		if count > (self.maxDisplayCount or 9999) then
+		-- WoW 12.0.0: count can be secret value
+		local issecretvalue = issecretvalue or function() return false end
+		if issecretvalue(count) then
+			self.Count:SetText("")
+		elseif count > (self.maxDisplayCount or 9999) then
 			self.Count:SetText("*")
 		else
 			self.Count:SetText(count > 1 and count or "") --[[-- GE Custom --]]--
@@ -2279,7 +2283,7 @@ function UpdateCooldown(self)
 	self.cooldown:SetDrawBling(self.cooldown:GetEffectiveAlpha() > 0.5)
 	-- WoW 12.0.0: Check if cooldown values are secret before comparison
 	local hasLocCooldown = locStart and locDuration and not issecretvalue(locStart) and not issecretvalue(locDuration) and locStart > 0 and locDuration > 0
-	local hasCooldown = enable and start and duration and not issecretvalue(start) and not issecretvalue(duration) and start > 0 and duration > 0
+	local hasCooldown = not issecretvalue(enable) and enable and start and duration and not issecretvalue(start) and not issecretvalue(duration) and start > 0 and duration > 0
 	if hasLocCooldown and ((not hasCooldown) or ((locStart + locDuration) > (start + duration))) then
 		if self.cooldown.currentCooldownType ~= COOLDOWN_TYPE_LOSS_OF_CONTROL then
 			self.cooldown:SetEdgeTexture("Interface\\Cooldown\\edge-LoC")
