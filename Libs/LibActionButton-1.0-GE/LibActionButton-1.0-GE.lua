@@ -2172,12 +2172,10 @@ function UpdateCount(self)
 	end
 	if self:IsConsumableOrStackable() then
 		local count = self:GetCount()
-		-- WoW 12.0.0: count can be secret value
+		-- WoW 12.0.0: count can be secret value, can't compare - don't display
 		local issecretvalue = issecretvalue or function() return false end
 		if issecretvalue(count) then
-			-- For secret values, try to display using tostring or show nothing
-			local countStr = tostring(count)
-			self.Count:SetText(countStr ~= "?" and countStr or "")
+			self.Count:SetText("") -- Don't display secret values
 		elseif count > (self.maxDisplayCount or 9999) then
 			self.Count:SetText("*")
 		else
@@ -2185,12 +2183,10 @@ function UpdateCount(self)
 		end
 	else
 		local charges, maxCharges, _chargeStart, _chargeDuration = self:GetCharges()
-		-- WoW 12.0.0: charges can be secret value
+		-- WoW 12.0.0: charges can be secret value, can't compare - don't display
 		local issecretvalue = issecretvalue or function() return false end
 		if issecretvalue(charges) or issecretvalue(maxCharges) then
-			-- For secret values, try to display using tostring
-			local chargesStr = tostring(charges)
-			self.Count:SetText(chargesStr ~= "?" and chargesStr or "")
+			self.Count:SetText("") -- Don't display secret values
 		elseif charges and maxCharges and maxCharges > 1 then
 			self.Count:SetText(charges > 0 and charges or "") --[[-- GE Custom --]]--
 		else
@@ -2314,7 +2310,8 @@ function UpdateCooldown(self)
 			self.cooldown:SetScript("OnCooldownDone", OnCooldownDone)
 		end
 
-		if charges and maxCharges and maxCharges > 1 and charges < maxCharges then
+		-- WoW 12.0.0: Check if charge values are secret before comparison
+		if charges and maxCharges and not issecretvalue(charges) and not issecretvalue(maxCharges) and maxCharges > 1 and charges < maxCharges then
 			StartChargeCooldown(self, chargeStart, chargeDuration, chargeModRate)
 		elseif self.chargeCooldown then
 			EndChargeCooldown(self.chargeCooldown)
