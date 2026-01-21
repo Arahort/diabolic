@@ -146,6 +146,12 @@ local Update = function(self, elapsed)
 
 	local value = data.disableSmoothing and data.barValue or data.barDisplayValue
 	local min, max = data.barMin, data.barMax
+
+	-- WoW 12.0.0: Can't do arithmetic with secret values - skip Update entirely
+	if issecretvalue(value) or issecretvalue(min) or issecretvalue(max) then
+		return
+	end
+
 	local width, height = data.statusbar:GetSize()
 	local orientation = data.barOrientation
 	local bar = data.bar

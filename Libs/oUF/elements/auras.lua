@@ -198,7 +198,17 @@ local function updateAura(element, unit, data, position)
 	if(button.Cooldown and not element.disableCooldown) then
 		local duration = C_UnitAuras.GetAuraDuration(unit, data.auraInstanceID)
 		if duration then
-			button.Cooldown:SetCooldownFromDurationObject(duration)
+			-- WoW 12.0.0: SetCooldownFromDurationObject may not exist yet, use fallback
+			if button.Cooldown.SetCooldownFromDurationObject then
+				button.Cooldown:SetCooldownFromDurationObject(duration)
+			else
+				-- Fallback for older 12.0.0 builds or if method doesn't exist
+				local startTime = duration:GetStartTime()
+				local durationSeconds = duration:GetDuration()
+				if startTime and durationSeconds then
+					button.Cooldown:SetCooldown(startTime, durationSeconds)
+				end
+			end
 			button.Cooldown:Show()
 		else
 			button.Cooldown:Hide()
