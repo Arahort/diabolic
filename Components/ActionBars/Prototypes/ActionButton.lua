@@ -33,7 +33,8 @@ local LAB_Version = LibStub.minors["LibActionButton-1.0-GE"]
 local next = next
 
 -- WoW API
-local IsSpellOverlayed = IsSpellOverlayed
+-- WoW 12.0.0: IsSpellOverlayed moved to C_Spell namespace
+local IsSpellOverlayed = (C_Spell and C_Spell.IsSpellOverlayed) or IsSpellOverlayed
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 
 -- Addon API
