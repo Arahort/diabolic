@@ -239,7 +239,10 @@ local function updateAura(element, unit, data, position)
 
 	local width = element.width or element.size or 16
 	local height = element.height or element.size or 16
-	button:SetSize(width, height)
+	-- WoW 12.0.0: Skip SetSize during combat to avoid ADDON_ACTION_BLOCKED
+	if not InCombatLockdown() then
+		button:SetSize(width, height)
+	end
 	button:EnableMouse(not element.disableMouse)
 	button:Show()
 

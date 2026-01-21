@@ -89,6 +89,8 @@ local oUF = ns.oUF
 local FALLBACK_ICON = 136243 -- Interface\ICONS\Trade_Engineering
 local FAILED = _G.FAILED or 'Failed'
 local INTERRUPTED = _G.INTERRUPTED or 'Interrupted'
+-- WoW 12.0.0: issecretvalue may not exist in older versions
+local issecretvalue = issecretvalue or function() return false end
 
 local function resetAttributes(self)
 	self.castID = nil
@@ -236,7 +238,10 @@ local function CastStart(self, event, unit)
 		end
 	end
 
-	element:SetTimerDuration(duration, element.smoothing, direction)
+	-- WoW 12.0.0: Skip if duration is secret value
+	if not issecretvalue(duration) then
+		element:SetTimerDuration(duration, element.smoothing, direction)
+	end
 
 	if(element.Icon) then element.Icon:SetTexture(texture or FALLBACK_ICON) end
 	if(element.Shield) then element.Shield:SetAlphaFromBoolean(notInterruptible, 1, 0) end
@@ -337,7 +342,10 @@ local function CastUpdate(self, event, unit, _, _, castID)
 		element.delay = element.delay + delta
 	end
 
-	element:SetTimerDuration(duration, element.smoothing, direction)
+	-- WoW 12.0.0: Skip if duration is secret value
+	if not issecretvalue(duration) then
+		element:SetTimerDuration(duration, element.smoothing, direction)
+	end
 
 	--[[ Callback: Castbar:PostCastUpdate(unit)
 	Called after the element has been updated when a spell cast or channel has been updated.
