@@ -123,11 +123,10 @@ Methods[ns.Prefix..":Health"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return L_DEAD
 	else
-		-- WoW 12.0.0: Don't use true parameter - it may return secret values
 		local health = UnitHealth(unit)
-		-- WoW 12.0.0: Can't compare secret values, skip if secret
+		-- WoW 12.0.0: Can't compare secret values, but can pass to functions
 		if issecretvalue(health) then
-			return ""
+			return health -- Return secret value directly, SetText can display it
 		end
 		if (health and health > 0) then
 			return AbbreviateNumber(health)
@@ -140,11 +139,10 @@ Methods[ns.Prefix..":Health:Full"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return
 	else
-		-- WoW 12.0.0: Don't use true parameter - it may return secret values
 		local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
-		-- WoW 12.0.0: Can't compare secret values, skip if secret
+		-- WoW 12.0.0: Can't concatenate secret values, return as is
 		if issecretvalue(health) or issecretvalue(maxHealth) then
-			return ""
+			return health -- Return current health, can't format with secret values
 		end
 		if (maxHealth and maxHealth > 0) then
 			return health..c_gray.."/"..r..maxHealth
@@ -157,11 +155,10 @@ Methods[ns.Prefix..":Health:Smart"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return L_DEAD
 	else
-		-- WoW 12.0.0: Don't use true parameter - it may return secret values
 		local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
-		-- WoW 12.0.0: Can't compare secret values, skip if secret
+		-- WoW 12.0.0: Can't do math with secret values, return as is
 		if issecretvalue(health) or issecretvalue(maxHealth) then
-			return ""
+			return health -- Return current health, can't calculate percentage
 		end
 		if (maxHealth and maxHealth > 0) then
 			if (health == maxHealth) then
@@ -234,11 +231,10 @@ Methods[ns.Prefix..":Power:Full"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return
 	else
-		-- WoW 12.0.0: Don't use true parameter - it may return secret values
 		local current, total = UnitPower(unit), UnitPowerMax(unit)
-		-- WoW 12.0.0: Can't compare secret values, skip if secret
+		-- WoW 12.0.0: Can't concatenate secret values, return as is
 		if issecretvalue(current) or issecretvalue(total) then
-			return ""
+			return current -- Return current power, can't format with secret values
 		end
 		if (total and total > 0) then
 			return current..c_gray.."/"..r..total
