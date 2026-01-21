@@ -123,8 +123,11 @@ Methods[ns.Prefix..":Health"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return L_DEAD
 	else
-		-- WoW 12.0.0: Pass true to bypass secret values system
 		local health = UnitHealth(unit, true)
+		-- WoW 12.0.0: Can't compare secret values, skip if secret
+		if issecretvalue(health) then
+			return ""
+		end
 		if (health and health > 0) then
 			return AbbreviateNumber(health)
 		end
@@ -136,8 +139,11 @@ Methods[ns.Prefix..":Health:Full"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return
 	else
-		-- WoW 12.0.0: Pass true to bypass secret values system
 		local health, maxHealth = UnitHealth(unit, true), UnitHealthMax(unit, true)
+		-- WoW 12.0.0: Can't compare secret values, skip if secret
+		if issecretvalue(health) or issecretvalue(maxHealth) then
+			return ""
+		end
 		if (maxHealth and maxHealth > 0) then
 			return health..c_gray.."/"..r..maxHealth
 		end
@@ -149,8 +155,11 @@ Methods[ns.Prefix..":Health:Smart"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return L_DEAD
 	else
-		-- WoW 12.0.0: Pass true to bypass secret values system
 		local health, maxHealth = UnitHealth(unit, true), UnitHealthMax(unit, true)
+		-- WoW 12.0.0: Can't compare secret values, skip if secret
+		if issecretvalue(health) or issecretvalue(maxHealth) then
+			return ""
+		end
 		if (maxHealth and maxHealth > 0) then
 			if (health == maxHealth) then
 				return AbbreviateNumber(health)
@@ -222,8 +231,11 @@ Methods[ns.Prefix..":Power:Full"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return
 	else
-		-- WoW 12.0.0: Pass true to bypass secret values system
 		local current, total = UnitPower(unit, nil, true), UnitPowerMax(unit, nil, true)
+		-- WoW 12.0.0: Can't compare secret values, skip if secret
+		if issecretvalue(current) or issecretvalue(total) then
+			return ""
+		end
 		if (total and total > 0) then
 			return current..c_gray.."/"..r..total
 		end
