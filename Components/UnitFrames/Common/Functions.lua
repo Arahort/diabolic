@@ -35,6 +35,10 @@ local UnitHealthMax = UnitHealthMax
 local UnitIsConnected = UnitIsConnected
 local UnitPower = UnitPower
 local UnitPowerMax = UnitPowerMax
+-- WoW 12.0.0: Calculator API to bypass secret values
+local CreateUnitHealPredictionCalculator = CreateUnitHealPredictionCalculator
+local UnitGetDetailedHealPrediction = UnitGetDetailedHealPrediction
+local issecretvalue = issecretvalue or function() return false end
 
 API.UpdateHealth = function(self, event, unit)
 	if (not unit or self.unit ~= unit) then return end
@@ -51,14 +55,28 @@ API.UpdateHealth = function(self, event, unit)
 	end
 
 	local absorb
-	-- WoW 12.0.0: Don't use true parameter - it may return secret values
 	local cur, max = UnitHealth(unit), UnitHealthMax(unit)
 	local connected = UnitIsConnected(unit)
 
+	-- WoW 12.0.0: Create calculator on first run to bypass secret values
+	if not element.calculator and CreateUnitHealPredictionCalculator then
+		element.calculator = CreateUnitHealPredictionCalculator()
+		if element.calculator and element.calculator.SetMaximumHealthMode then
+			element.calculator:SetMaximumHealthMode(Enum.UnitMaximumHealthMode.WithAbsorbs)
+		end
+	end
+
+	-- WoW 12.0.0: Use calculator if values are secret
+	if element.calculator and (issecretvalue(cur) or issecretvalue(max)) then
+		UnitGetDetailedHealPrediction(unit, nil, element.calculator)
+		if element.calculator.GetMaximumHealth then
+			max = element.calculator:GetMaximumHealth()
+		end
+		cur = UnitHealth(unit)
+	end
+
 	-- Different GUID means a different player or NPC,
 	-- so we want updates to be instant, not smoothed.
-	-- WoW 12.0.0: issecretvalue may not exist in older versions
-	local issecretvalue = issecretvalue or function() return false end
 	local forced = (event == "ForceUpdate") or (event == "RefreshUnit") or (event == "GROUP_ROSTER_UPDATE")
 	if (not forced) then
 		local guid = UnitGUID(unit)

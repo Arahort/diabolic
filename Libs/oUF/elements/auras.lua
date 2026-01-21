@@ -234,7 +234,15 @@ local function updateAura(element, unit, data, position)
 
 	if(button.Icon) then button.Icon:SetTexture(data.icon) end
 	if(button.Count) then
-		button.Count:SetText(C_UnitAuras.GetAuraApplicationDisplayCount(unit, data.auraInstanceID, element.minCount or 2, element.maxCount or 999))
+		local count = C_UnitAuras.GetAuraApplicationDisplayCount(unit, data.auraInstanceID, element.minCount or 2, element.maxCount or 999)
+		-- WoW 12.0.0: count can be secret value
+		local issecretvalue = issecretvalue or function() return false end
+		if issecretvalue(count) then
+			local countStr = tostring(count)
+			button.Count:SetText(countStr ~= "?" and countStr or "")
+		else
+			button.Count:SetText(count)
+		end
 	end
 
 	local width = element.width or element.size or 16
