@@ -123,12 +123,9 @@ Methods[ns.Prefix..":Health"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return L_DEAD
 	else
-		local health = UnitHealth(unit)
-		-- WoW 12.0.0: Return secret value as-is, oUF will handle it
-		if issecretvalue(health) then
-			return health
-		end
-		if (health > 0) then
+		-- WoW 12.0.0: Pass true to bypass secret values system
+		local health = UnitHealth(unit, true)
+		if (health and health > 0) then
 			return AbbreviateNumber(health)
 		end
 	end
@@ -139,12 +136,9 @@ Methods[ns.Prefix..":Health:Full"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return
 	else
-		local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
-		-- WoW 12.0.0: Skip operations if values are secret
-		if issecretvalue(health) or issecretvalue(maxHealth) then
-			return
-		end
-		if (maxHealth > 0) then
+		-- WoW 12.0.0: Pass true to bypass secret values system
+		local health, maxHealth = UnitHealth(unit, true), UnitHealthMax(unit, true)
+		if (maxHealth and maxHealth > 0) then
 			return health..c_gray.."/"..r..maxHealth
 		end
 	end
@@ -155,12 +149,9 @@ Methods[ns.Prefix..":Health:Smart"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return L_DEAD
 	else
-		local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
-		-- WoW 12.0.0: Skip operations if values are secret
-		if issecretvalue(health) or issecretvalue(maxHealth) then
-			return
-		end
-		if (maxHealth > 0) then
+		-- WoW 12.0.0: Pass true to bypass secret values system
+		local health, maxHealth = UnitHealth(unit, true), UnitHealthMax(unit, true)
+		if (maxHealth and maxHealth > 0) then
 			if (health == maxHealth) then
 				return AbbreviateNumber(health)
 			else
@@ -231,12 +222,9 @@ Methods[ns.Prefix..":Power:Full"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return
 	else
-		local current, total = UnitPower(unit), UnitPowerMax(unit)
-		-- WoW 12.0.0: Skip operations if values are secret
-		if issecretvalue(current) or issecretvalue(total) then
-			return
-		end
-		if (total > 0) then
+		-- WoW 12.0.0: Pass true to bypass secret values system
+		local current, total = UnitPower(unit, nil, true), UnitPowerMax(unit, nil, true)
+		if (total and total > 0) then
 			return current..c_gray.."/"..r..total
 		end
 	end

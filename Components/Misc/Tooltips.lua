@@ -306,12 +306,10 @@ Tooltips.SetHealthValue = function(self, unit)
 		end
 	else
 		local msg
-		local min,max = UnitHealth(unit), UnitHealthMax(unit)
+		-- WoW 12.0.0: Pass true to bypass secret values system
+		local min,max = UnitHealth(unit, true), UnitHealthMax(unit, true)
 		if (min and max) then
-			-- WoW 12.0.0: Skip comparison if values are secret
-			if issecretvalue(min) or issecretvalue(max) then
-				msg = string_format("%s / %s", AbbreviateNumber(min), AbbreviateNumber(max))
-			elseif (min == max) then
+			if (min == max) then
 				msg = string_format("%s", AbbreviateNumberBalanced(min))
 			else
 				msg = string_format("%s / %s", AbbreviateNumber(min), AbbreviateNumber(max))
