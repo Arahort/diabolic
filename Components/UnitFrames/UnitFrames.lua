@@ -69,6 +69,14 @@ local Spawn = function(unit, name)
 		end
 	end
 
+	-- WoW 12.0.0: Apply custom HealthPrediction override for secret values compatibility
+	if frame.HealthPrediction and ns.HealthPrediction_Update_Diabolic then
+		frame.HealthPrediction.Override = ns.HealthPrediction_Update_Diabolic
+		if not frame.HealthPrediction.calculator then
+			frame.HealthPrediction.calculator = CreateUnitHealPredictionCalculator()
+		end
+	end
+
 	-- Add to our registries.
 	ns.UnitFramesByName[name] = frame
 	ns.UnitFrames[#ns.UnitFrames + 1] = frame

@@ -322,28 +322,38 @@ end
 Orb.SetValue = function(self, value, overrideSmoothing)
 	local data = Orbs[self]
 	local min, max = data.barMin, data.barMax
-	if (value > max) then
-		value = max
-	elseif (value < min) then
-		value = min
+	-- WoW 12.0.0: Skip clamping for secret values (they will be clamped by widget internally)
+	if not issecretvalue(value) then
+		if (value > max) then
+			value = max
+		elseif (value < min) then
+			value = min
+		end
 	end
 	data.barValue = value
 	if overrideSmoothing then
 		data.barDisplayValue = value
 	end
 	if (not data.disableSmoothing) then
-		if (data.barDisplayValue > max) then
-			data.barDisplayValue = max
-		elseif (data.barDisplayValue < min) then
-			data.barDisplayValue = min
+		-- WoW 12.0.0: Skip clamping for secret display values
+		if not issecretvalue(data.barDisplayValue) then
+			if (data.barDisplayValue > max) then
+				data.barDisplayValue = max
+			elseif (data.barDisplayValue < min) then
+				data.barDisplayValue = min
+			end
 		end
 		data.smoothingInitialValue = data.barDisplayValue
 		data.smoothingStart = GetTime()
 	end
-	if (value ~= data.barDisplayValue) then
-		data.smoothing = true
+	-- WoW 12.0.0: Skip comparison if either value is secret
+	if not (issecretvalue(value) or issecretvalue(data.barDisplayValue)) then
+		if (value ~= data.barDisplayValue) then
+			data.smoothing = true
+		end
 	end
-	if (data.smoothing or (data.barDisplayValue > min) or (data.barDisplayValue < max)) then
+	-- WoW 12.0.0: Skip complex comparison if display value is secret
+	if (data.smoothing or not issecretvalue(data.barDisplayValue)) then
 		if (not Orig_GetScript(self, "OnUpdate")) then
 			Orig_SetScript(self, "OnUpdate", OnUpdate)
 		end
@@ -353,21 +363,30 @@ end
 
 Orb.SetMinMaxValues = function(self, min, max, overrideSmoothing)
 	local data = Orbs[self]
-	if (data.barMin == min) and (data.barMax == max) then
-		return
+	-- WoW 12.0.0: Skip comparison if min/max are secret values
+	if not (issecretvalue(min) or issecretvalue(max) or issecretvalue(data.barMin) or issecretvalue(data.barMax)) then
+		if (data.barMin == min) and (data.barMax == max) then
+			return
+		end
 	end
-	if (data.barValue > max) then
-		data.barValue = max
-	elseif (data.barValue < min) then
-		data.barValue = min
+	-- WoW 12.0.0: Skip clamping if values are secret
+	if not (issecretvalue(data.barValue) or issecretvalue(max) or issecretvalue(min)) then
+		if (data.barValue > max) then
+			data.barValue = max
+		elseif (data.barValue < min) then
+			data.barValue = min
+		end
 	end
 	if overrideSmoothing then
 		data.barDisplayValue = data.barValue
 	else
-		if (data.barDisplayValue > max) then
-			data.barDisplayValue = max
-		elseif (data.barDisplayValue < min) then
-			data.barDisplayValue = min
+		-- WoW 12.0.0: Skip clamping if values are secret
+		if not (issecretvalue(data.barDisplayValue) or issecretvalue(max) or issecretvalue(min)) then
+			if (data.barDisplayValue > max) then
+				data.barDisplayValue = max
+			elseif (data.barDisplayValue < min) then
+				data.barDisplayValue = min
+			end
 		end
 	end
 	data.barMin = min
