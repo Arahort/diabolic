@@ -2382,7 +2382,9 @@ function UpdateOverlayGlow(self)
 		return
 	end
 	local spellId = self:GetSpellId()
-	if spellId and IsSpellOverlayed(spellId) then
+	-- WoW 12.0.0: IsSpellOverlayed moved to C_Spell namespace
+	local isOverlayed = (C_Spell and C_Spell.IsSpellOverlayed) and C_Spell.IsSpellOverlayed(spellId) or (IsSpellOverlayed and IsSpellOverlayed(spellId))
+	if spellId and isOverlayed then
 		ShowOverlayGlow(self)
 	else
 		HideOverlayGlow(self)
