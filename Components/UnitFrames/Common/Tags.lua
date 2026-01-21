@@ -61,6 +61,9 @@ local c_rare = Colors.quality.Rare.colorCode
 local c_red = Colors.red.colorCode
 local r = "|r"
 
+-- WoW 12.0.0: issecretvalue may not exist in older versions
+local issecretvalue = issecretvalue or function() return false end
+
 -- Strings
 local L_DEAD = DEAD
 local L_RARE = ITEM_QUALITY3_DESC
