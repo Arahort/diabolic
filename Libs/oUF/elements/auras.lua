@@ -587,9 +587,13 @@ local function UpdateAuras(self, event, unit, updateInfo)
 			buffFilter = buffFilter(buffs, unit)
 		end
 
+		-- WoW 12.0.0: Initialize buffs.all and buffs.active if they don't exist
+		buffs.all = buffs.all or {}
+		buffs.active = buffs.active or {}
+
 		if(isFullUpdate) then
-			buffs.all = table.wipe(buffs.all or {})
-			buffs.active = table.wipe(buffs.active or {})
+			buffs.all = table.wipe(buffs.all)
+			buffs.active = table.wipe(buffs.active)
 			buffsChanged = true
 
 			local slots = {C_UnitAuras.GetAuraSlots(unit, buffFilter)}
@@ -696,9 +700,13 @@ local function UpdateAuras(self, event, unit, updateInfo)
 			debuffFilter = debuffFilter(debuffs, unit)
 		end
 
+		-- WoW 12.0.0: Initialize debuffs.all and debuffs.active if they don't exist
+		debuffs.all = debuffs.all or {}
+		debuffs.active = debuffs.active or {}
+
 		if(isFullUpdate) then
-			debuffs.all = table.wipe(debuffs.all or {})
-			debuffs.active = table.wipe(debuffs.active or {})
+			debuffs.all = table.wipe(debuffs.all)
+			debuffs.active = table.wipe(debuffs.active)
 			debuffsChanged = true
 
 			local slots = {C_UnitAuras.GetAuraSlots(unit, debuffFilter)}

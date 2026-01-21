@@ -38,6 +38,9 @@ local string_utf8lower = string.utf8lower
 local string_utf8sub = string.utf8sub
 local tonumber = tonumber
 
+-- WoW 12.0.0: issecretvalue may not exist in older versions
+local issecretvalue = issecretvalue or function() return false end
+
 -- Constants
 local DAY, HOUR, MINUTE = 86400, 3600, 60
 
@@ -61,6 +64,10 @@ end
 -----------------------------------------------
 -- Shorten as much as possible.
 local AbbreviateNumber = function(value)
+	-- WoW 12.0.0: Can't abbreviate secret values, return empty string
+	if issecretvalue(value) then
+		return ""
+	end
 	value = tonumber(value)
 	if (not value) then return "" end
 	if (value >= 1e9) then							return ("%.1fb"):format(value / 1e9):gsub("%.?0+([kmb])$", "%1")
@@ -68,15 +75,19 @@ local AbbreviateNumber = function(value)
 	elseif (value >= 1e3) or (value <= -1e3) then 	return ("%.1fk"):format(value / 1e3):gsub("%.?0+([kmb])$", "%1")
 	elseif (value > 0) then							return ""..math_floor(value)
 	else 											return ""
-	end	
+	end
 end
 
 -- Aim at filling 3-5 digits or letters.
 local AbbreviateNumberBalanced = function(value)
+	-- WoW 12.0.0: Can't abbreviate secret values, return empty string
+	if issecretvalue(value) then
+		return ""
+	end
 	value = tonumber(value)
 	if (not value) then return "" end
 	if (value >= 1e8) then 		return string_format("%.0fm", value/1e6) 	-- 100m, 1000m, 2300m, etc
-	elseif (value >= 1e6) then 	return string_format("%.1fm", value/1e6) 	-- 1.0m - 99.9m 
+	elseif (value >= 1e6) then 	return string_format("%.1fm", value/1e6) 	-- 1.0m - 99.9m
 	elseif (value >= 1e5) then 	return string_format("%.0fk", value/1e3) 	-- 100k - 999k
 	elseif (value >= 1e3) then 	return string_format("%.1fk", value/1e3) 	-- 1.0k - 99.9k
 	elseif (value > 0) then 	return ""..math_floor(value)				-- 1 - 999

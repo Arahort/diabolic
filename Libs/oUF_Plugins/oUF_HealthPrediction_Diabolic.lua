@@ -52,13 +52,18 @@ local function Update(self, event, unit)
 	absorb = absorb or 0
 	healAbsorb = healAbsorb or 0
 
+	-- WoW 12.0.0: issecretvalue may not exist in older versions
+	local issecretvalue = issecretvalue or function() return false end
+
 	-- Calculate hasOverAbsorb (not provided by calculator)
 	local hasOverAbsorb = false
-	if absorb > 0 and health and maxHealth then
-		-- Check if absorb would exceed max health
-		-- We can do this calculation because calculator returns non-secret values
-		if health + allIncomingHeal + absorb >= maxHealth then
-			hasOverAbsorb = true
+	-- WoW 12.0.0: Calculator may still return secret values for absorb
+	if not issecretvalue(absorb) and not issecretvalue(health) and not issecretvalue(maxHealth) then
+		if absorb > 0 and health and maxHealth then
+			-- Check if absorb would exceed max health
+			if health + allIncomingHeal + absorb >= maxHealth then
+				hasOverAbsorb = true
+			end
 		end
 	end
 
