@@ -1379,7 +1379,11 @@ function InitializeEventHandler()
 	lib.eventFrame:RegisterEvent("START_AUTOREPEAT_SPELL")
 	lib.eventFrame:RegisterEvent("STOP_AUTOREPEAT_SPELL")
 	lib.eventFrame:RegisterEvent("UNIT_INVENTORY_CHANGED")
-	lib.eventFrame:RegisterEvent("LEARNED_SPELL_IN_TAB")
+	-- WoW 12.0.0: LEARNED_SPELL_IN_TAB removed, replaced by trait system events
+	if not C_AddOns or C_AddOns.GetAddOnMetadata("Blizzard_PlayerSpells", "Version") then
+		-- Event exists in older versions
+		pcall(lib.eventFrame.RegisterEvent, lib.eventFrame, "LEARNED_SPELL_IN_TAB")
+	end
 	lib.eventFrame:RegisterEvent("PET_STABLE_UPDATE")
 	lib.eventFrame:RegisterEvent("PET_STABLE_SHOW")
 	lib.eventFrame:RegisterEvent("SPELL_UPDATE_CHARGES")

@@ -670,12 +670,20 @@ Bars.EnableSecondary = function(self)
 	if (InCombatLockdown()) then
 		return
 	end
+	-- WoW 12.0.0: Check if bar exists (may not be created if SpawnBars failed)
+	if not (self.Bars and self.Bars.SecondaryActionBar) then
+		return
+	end
 	self.Bars.SecondaryActionBar:Enable()
 	ns.db.char.actionbars.enableSecondary = true
 end
 
 Bars.DisableSecondary = function(self)
 	if (InCombatLockdown()) then
+		return
+	end
+	-- WoW 12.0.0: Check if bar exists
+	if not (self.Bars and self.Bars.SecondaryActionBar) then
 		return
 	end
 	-- Если включена третья панель, сначала отключаем её
@@ -701,6 +709,10 @@ Bars.EnableThird = function(self)
 	if (InCombatLockdown()) then
 		return
 	end
+	-- WoW 12.0.0: Check if bar exists
+	if not (self.Bars and self.Bars.ThirdActionBar) then
+		return
+	end
 	-- Третья панель требует чтобы вторая была включена
 	if (not ns.db.char.actionbars.enableSecondary) then
 		self:EnableSecondary()
@@ -711,6 +723,10 @@ end
 
 Bars.DisableThird = function(self)
 	if (InCombatLockdown()) then
+		return
+	end
+	-- WoW 12.0.0: Check if bar exists
+	if not (self.Bars and self.Bars.ThirdActionBar) then
 		return
 	end
 	self.Bars.ThirdActionBar:Disable()
