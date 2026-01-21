@@ -74,6 +74,22 @@ end
 -- based on the plugin's provided values.
 local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherIncomingHeal, absorb, healAbsorb, hasOverAbsorb, hasOverHealAbsorb, curHealth, maxHealth)
 
+	-- WoW 12.0.0: issecretvalue may not exist in older versions
+	local issecretvalue = issecretvalue or function() return false end
+
+	-- WoW 12.0.0: Calculator API may return secret values - convert to 0 if secret
+	if issecretvalue(myIncomingHeal) then myIncomingHeal = 0 end
+	if issecretvalue(otherIncomingHeal) then otherIncomingHeal = 0 end
+	if issecretvalue(absorb) then absorb = 0 end
+	if issecretvalue(healAbsorb) then healAbsorb = 0 end
+	if issecretvalue(curHealth) then curHealth = 0 end
+	if issecretvalue(maxHealth) then maxHealth = 1 end
+
+	-- Provide defaults if values are nil
+	myIncomingHeal = myIncomingHeal or 0
+	otherIncomingHeal = otherIncomingHeal or 0
+	healAbsorb = healAbsorb or 0
+
 	local allIncomingHeal = myIncomingHeal + otherIncomingHeal
 	local allNegativeHeals = healAbsorb
 	local showPrediction, change
