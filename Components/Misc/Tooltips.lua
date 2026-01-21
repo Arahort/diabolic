@@ -68,6 +68,9 @@ local UnitPVPName = UnitPVPName
 local UnitRace = UnitRace
 local UnitReaction = UnitReaction
 
+-- WoW 12.0.0: issecretvalue may not exist in older versions
+local issecretvalue = issecretvalue or function() return false end
+
 -- Addon API
 local Colors = ns.Colors
 local AbbreviateNumber = ns.API.AbbreviateNumber
@@ -305,7 +308,10 @@ Tooltips.SetHealthValue = function(self, unit)
 		local msg
 		local min,max = UnitHealth(unit), UnitHealthMax(unit)
 		if (min and max) then
-			if (min == max) then
+			-- WoW 12.0.0: Skip comparison if values are secret
+			if issecretvalue(min) or issecretvalue(max) then
+				msg = string_format("%s / %s", AbbreviateNumber(min), AbbreviateNumber(max))
+			elseif (min == max) then
 				msg = string_format("%s", AbbreviateNumberBalanced(min))
 			else
 				msg = string_format("%s / %s", AbbreviateNumber(min), AbbreviateNumber(max))

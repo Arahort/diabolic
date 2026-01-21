@@ -288,6 +288,17 @@ Colors.debuff.Disease = createColor(153/255, 102/255, 0/255)
 Colors.debuff.Poison = createColor(0/255, 153/255, 0/255)
 Colors.debuff[""] = createColor(0/255, 0/255, 0/255)
 
+-- dispel types (WoW 12.0.0: required by oUF auras element)
+-- Using DispelType enum values: None=0, Magic=1, Curse=2, Disease=3, Poison=4, Bleed=11, Enrage=9
+Colors.dispel = {}
+Colors.dispel[0] = createColor(DEBUFF_TYPE_NONE_COLOR:GetRGB()) -- None
+Colors.dispel[1] = createColor(DEBUFF_TYPE_MAGIC_COLOR:GetRGB()) -- Magic
+Colors.dispel[2] = createColor(DEBUFF_TYPE_CURSE_COLOR:GetRGB()) -- Curse
+Colors.dispel[3] = createColor(DEBUFF_TYPE_DISEASE_COLOR:GetRGB()) -- Disease
+Colors.dispel[4] = createColor(DEBUFF_TYPE_POISON_COLOR:GetRGB()) -- Poison
+Colors.dispel[11] = createColor(DEBUFF_TYPE_BLEED_COLOR:GetRGB()) -- Bleed
+Colors.dispel[9] = createColor(243/255, 95/255, 245/255) -- Enrage (no Blizzard color constant)
+
 -- faction
 Colors.faction = {}
 Colors.faction.Alliance = createColor(74/255, 84/255, 232/255)

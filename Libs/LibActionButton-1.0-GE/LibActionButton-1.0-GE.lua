@@ -2186,8 +2186,11 @@ end
 function EndChargeCooldown(self)
 	self:Hide()
 	self:SetParent(UIParent)
-	self.parent.chargeCooldown = nil
-	self.parent = nil
+	-- WoW 12.0.0: Check if parent exists before accessing
+	if self.parent then
+		self.parent.chargeCooldown = nil
+		self.parent = nil
+	end
 	tinsert(lib.ChargeCooldowns, self)
 end
 

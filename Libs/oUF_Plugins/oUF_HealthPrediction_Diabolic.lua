@@ -85,14 +85,3 @@ end
 
 -- Export the Update function so it can be used as an Override
 ns.HealthPrediction_Update_Diabolic = Update
-
--- Helper function to apply this override to a frame
-function ns.API.SetDiabolicHealthPrediction(frame)
-	if frame and frame.HealthPrediction then
-		frame.HealthPrediction.Override = Update
-		-- Initialize calculator
-		if not frame.HealthPrediction.calculator then
-			frame.HealthPrediction.calculator = CreateUnitHealPredictionCalculator()
-		end
-	end
-end

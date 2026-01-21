@@ -69,6 +69,11 @@ end
 -- based on the plugin's provided values.
 local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherIncomingHeal, absorb, healAbsorb, hasOverAbsorb, hasOverHealAbsorb, curHealth, maxHealth)
 
+	-- WoW 12.0.0: Provide defaults if values are nil
+	myIncomingHeal = myIncomingHeal or 0
+	otherIncomingHeal = otherIncomingHeal or 0
+	healAbsorb = healAbsorb or 0
+
 	local allIncomingHeal = myIncomingHeal + otherIncomingHeal
 	local allNegativeHeals = healAbsorb
 	local showPrediction, change
