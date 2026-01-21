@@ -562,8 +562,11 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				visibleChanged = auras.reanchorIfVisibleChanged -- more convenient than auras.reanchorIfVisibleChanged and visibleChanged
 			end
 
-			for i = numVisible + 1, #auras do
-				auras[i]:Hide()
+			-- WoW 12.0.0: Can't Hide() buttons during combat
+			if not InCombatLockdown() then
+				for i = numVisible + 1, #auras do
+					auras[i]:Hide()
+				end
 			end
 
 			if(visibleChanged or auras.createdButtons > auras.anchoredButtons) then

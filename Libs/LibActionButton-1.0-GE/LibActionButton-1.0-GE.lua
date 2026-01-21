@@ -2316,7 +2316,10 @@ function UpdateCooldown(self)
 		elseif self.chargeCooldown then
 			EndChargeCooldown(self.chargeCooldown)
 		end
-		CooldownFrame_Set(self.cooldown, start, duration, enable, false, modRate)
+		-- WoW 12.0.0: Don't call CooldownFrame_Set if values are secret
+		if not issecretvalue(enable) and not issecretvalue(start) and not issecretvalue(duration) then
+			CooldownFrame_Set(self.cooldown, start, duration, enable, false, modRate)
+		end
 	end
 end
 
