@@ -66,12 +66,13 @@ API.UpdateHealth = function(self, event, unit)
 		end
 	end
 
-	-- WoW 12.0.0: Use calculator if values are secret
-	if element.calculator and (issecretvalue(cur) or issecretvalue(max)) then
+	-- WoW 12.0.0: Use calculator ALWAYS if available (like Platynator does)
+	if element.calculator then
 		UnitGetDetailedHealPrediction(unit, nil, element.calculator)
 		if element.calculator.GetMaximumHealth then
 			max = element.calculator:GetMaximumHealth()
 		end
+		-- Calculator handles secret values internally, just use UnitHealth
 		cur = UnitHealth(unit)
 	end
 
