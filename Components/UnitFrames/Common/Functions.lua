@@ -35,15 +35,15 @@ local UnitHealthMax = UnitHealthMax
 local UnitIsConnected = UnitIsConnected
 local UnitPower = UnitPower
 local UnitPowerMax = UnitPowerMax
--- WoW 12.0.0: Calculator API to bypass secret values
-local CreateUnitHealPredictionCalculator = CreateUnitHealPredictionCalculator
-local UnitGetDetailedHealPrediction = UnitGetDetailedHealPrediction
+-- WoW 12.0.0: New percentage APIs to bypass secret values
+local UnitHealthPercent = UnitHealthPercent
+local UnitPowerPercent = UnitPowerPercent
+local CurveConstants = CurveConstants
 local issecretvalue = issecretvalue or function() return false end
 
 API.UpdateHealth = function(self, event, unit)
 	if (not unit or self.unit ~= unit) then return end
 	local element = self.Health
-
 	--[[ Callback: Health:PreUpdate(unit)
 	Called before the element has been updated.
 
@@ -57,24 +57,6 @@ API.UpdateHealth = function(self, event, unit)
 	local absorb
 	local cur, max = UnitHealth(unit), UnitHealthMax(unit)
 	local connected = UnitIsConnected(unit)
-
-	-- WoW 12.0.0: Create calculator on first run to bypass secret values
-	if not element.calculator and CreateUnitHealPredictionCalculator then
-		element.calculator = CreateUnitHealPredictionCalculator()
-		if element.calculator and element.calculator.SetMaximumHealthMode then
-			element.calculator:SetMaximumHealthMode(Enum.UnitMaximumHealthMode.WithAbsorbs)
-		end
-	end
-
-	-- WoW 12.0.0: Use calculator ALWAYS if available (like Platynator does)
-	if element.calculator then
-		UnitGetDetailedHealPrediction(unit, nil, element.calculator)
-		if element.calculator.GetMaximumHealth then
-			max = element.calculator:GetMaximumHealth()
-		end
-		-- Calculator handles secret values internally, just use UnitHealth
-		cur = UnitHealth(unit)
-	end
 
 	-- Different GUID means a different player or NPC,
 	-- so we want updates to be instant, not smoothed.
@@ -90,12 +72,15 @@ API.UpdateHealth = function(self, event, unit)
 		end
 	end
 
-	element:SetMinMaxValues(0, max, forced)
-
+	-- WoW 12.0.0: Use percentage API to bypass secret values
+	-- Fixed 0-100 range instead of dynamic 0-max
+	element:SetMinMaxValues(0, 100, forced)
 	if (connected) then
-		element:SetValue(cur, forced)
+		-- Use UnitHealthPercent which returns 0-100 percentage (not secret!)
+		local percent = UnitHealthPercent(unit, true, CurveConstants.ScaleTo100)
+		element:SetValue(percent, forced)
 	else
-		element:SetValue(max, true)
+		element:SetValue(100, true)
 	end
 
 	element.cur = cur
@@ -103,8 +88,13 @@ API.UpdateHealth = function(self, event, unit)
 
 	local preview = element.Preview
 	if (preview) then
-		preview:SetMinMaxValues(0, max, true)
-		preview:SetValue(connected and cur or max, true)
+		preview:SetMinMaxValues(0, 100, true)
+		if connected then
+			local percent = UnitHealthPercent(unit, true, CurveConstants.ScaleTo100)
+			preview:SetValue(percent, true)
+		else
+			preview:SetValue(100, true)
+		end
 	end
 
 	--[[ Callback: Health:PostUpdate(unit, cur, max)
@@ -143,14 +133,16 @@ API.UpdatePower = function(self, event, unit)
 	-- Показываем основной ресурс игрока (для друида - Lunar Power, не мана)
 	-- Используем UnitPower без параметра, как в теге Power:Full
 	local displayType, min = nil, 0
-
 	local cur, max = UnitPower(unit), UnitPowerMax(unit)
-	element:SetMinMaxValues(min or 0, max)
-
+	-- WoW 12.0.0: Use percentage API to bypass secret values
+	-- Fixed 0-100 range instead of dynamic 0-max
+	element:SetMinMaxValues(0, 100)
 	if (UnitIsConnected(unit)) then
-		element:SetValue(cur, forced)
+		-- Use UnitPowerPercent which returns 0-100 percentage (not secret!)
+		local percent = UnitPowerPercent(unit, nil, true, CurveConstants.ScaleTo100)
+		element:SetValue(percent, forced)
 	else
-		element:SetValue(max, forced)
+		element:SetValue(100, forced)
 	end
 
 	element.cur = cur
