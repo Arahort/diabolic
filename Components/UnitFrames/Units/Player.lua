@@ -63,6 +63,10 @@ local Health_PostUpdateColor = function(element, unit, r, g, b)
 	if type(r) == "table" and r.GetRGB then
 		r, g, b = r:GetRGB()
 	end
+	-- WoW 12.0.0: Set color for health orb itself (oUF doesn't do it for orbs)
+	if r and g and b then
+		element:SetStatusBarColor(r, g, b)
+	end
 	local preview = element.Preview
 	if (preview and r and g and b) then
 		preview:SetStatusBarColor(r * .7, g * .7, b * .7)

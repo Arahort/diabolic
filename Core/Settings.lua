@@ -389,18 +389,18 @@ SettingsModule.OnInitialize = function(self)
 			end)
 			Settings.CreateSlider(category, setting, options, L["MinimapPosYDesc"])
 		end
-		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["CastbarHeader"]))
-		do
-			local setting = RegisterSetting(
-				category,
-				"enableCastbar",
-				"global.castbar",
-				L["EnableCastbar"],
-				true,
-				L["EnableCastbarDesc"]
-			)
-			CreateCheckbox(category, setting, L["EnableCastbarDesc"])
-		end
+		--layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["CastbarHeader"]))
+		--do
+		--	local setting = RegisterSetting(
+		--		category,
+		--		"enableCastbar",
+		--		"global.castbar",
+		--		L["EnableCastbar"],
+		--		true,
+		--		L["EnableCastbarDesc"]
+		--	)
+		--	CreateCheckbox(category, setting, L["EnableCastbarDesc"])
+		--end
 		do
 			local setting = RegisterSetting(
 				category,
@@ -432,23 +432,23 @@ SettingsModule.OnInitialize = function(self)
 			Settings.CreateSlider(category, setting, options, L["CastbarPosYDesc"])
 		end
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["UnitFramesHeader"]))
-		do
-			local setting = RegisterSetting(
-				category,
-				"enableNamePlates",
-				"global.unitframes",
-				L["EnableNamePlates"],
-				false,
-				L["EnableNamePlatesDesc"]
-			)
-			local OnNamePlatesChanged = function()
-				if ns.callbacks then
-					ns.callbacks:Fire("NamePlates_Settings_Updated")
-				end
-			end
-			Settings.SetOnValueChangedCallback("global_unitframes_enableNamePlates", OnNamePlatesChanged)
-			CreateCheckbox(category, setting, L["EnableNamePlatesDesc"])
-		end
+		--do
+		--	local setting = RegisterSetting(
+		--		category,
+		--		"enableNamePlates",
+		--		"global.unitframes",
+		--		L["EnableNamePlates"],
+		--		false,
+		--		L["EnableNamePlatesDesc"]
+		--	)
+		--	local OnNamePlatesChanged = function()
+		--		if ns.callbacks then
+		--			ns.callbacks:Fire("NamePlates_Settings_Updated")
+		--		end
+		--	end
+		--	Settings.SetOnValueChangedCallback("global_unitframes_enableNamePlates", OnNamePlatesChanged)
+		--	CreateCheckbox(category, setting, L["EnableNamePlatesDesc"])
+		--end
 		do
 			local setting = RegisterSetting(
 				category,
@@ -460,39 +460,39 @@ SettingsModule.OnInitialize = function(self)
 			)
 			CreateCheckbox(category, setting, L["UseClassColorForPowerDesc"])
 		end
-		do
-			local setting = RegisterSetting(
-				category,
-				"showTargetCastbar",
-				"global.unitframes",
-				L["ShowTargetCastbar"],
-				false,
-				L["ShowTargetCastbarDesc"]
-			)
-			CreateCheckbox(category, setting, L["ShowTargetCastbarDesc"])
-		end
-		do
-			local setting = RegisterSetting(
-				category,
-				"useHealthColorForTarget",
-				"global.unitframes",
-				L["UseHealthColorForTarget"],
-				false,
-				L["UseHealthColorForTargetDesc"]
-			)
-			CreateCheckbox(category, setting, L["UseHealthColorForTargetDesc"])
-		end
-		do
-			local setting = RegisterSetting(
-				category,
-				"showThreatOnTarget",
-				"global.unitframes",
-				L["ShowThreatOnTarget"],
-				true,
-				L["ShowThreatOnTargetDesc"]
-			)
-			CreateCheckbox(category, setting, L["ShowThreatOnTargetDesc"])
-		end
+		--do
+		--	local setting = RegisterSetting(
+		--		category,
+		--		"showTargetCastbar",
+		--		"global.unitframes",
+		--		L["ShowTargetCastbar"],
+		--		false,
+		--		L["ShowTargetCastbarDesc"]
+		--	)
+		--	CreateCheckbox(category, setting, L["ShowTargetCastbarDesc"])
+		--end
+		--do
+		--	local setting = RegisterSetting(
+		--		category,
+		--		"useHealthColorForTarget",
+		--		"global.unitframes",
+		--		L["UseHealthColorForTarget"],
+		--		false,
+		--		L["UseHealthColorForTargetDesc"]
+		--	)
+		--	CreateCheckbox(category, setting, L["UseHealthColorForTargetDesc"])
+		--end
+		--do
+		--	local setting = RegisterSetting(
+		--		category,
+		--		"showThreatOnTarget",
+		--		"global.unitframes",
+		--		L["ShowThreatOnTarget"],
+		--		true,
+		--		L["ShowThreatOnTargetDesc"]
+		--	)
+		--	CreateCheckbox(category, setting, L["ShowThreatOnTargetDesc"])
+		--end
 		do
 			local setting = RegisterSetting(
 				category,

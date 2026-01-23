@@ -100,7 +100,8 @@ local Update = function(self, elapsed)
 	local value = data.disableSmoothing and data.barValue or data.barDisplayValue
 	local min, max = data.barMin, data.barMax
 
-	-- WoW 12.0.0: Can't do arithmetic with secret values - skip Update entirely
+	-- WoW 12.0.0: Values should be unwrapped by proxy StatusBar now
+	-- If they're still secret, skip Update (shouldn't happen if proxy works correctly)
 	if issecretvalue(value) or issecretvalue(min) or issecretvalue(max) then
 		return
 	end
@@ -329,6 +330,11 @@ end
 -- Sets the value the orb should move towards
 Orb.SetValue = function(self, value, overrideSmoothing)
 	local data = Orbs[self]
+	-- WoW 12.0.0: If value is secret, use proxy StatusBar to unwrap it
+	if issecretvalue(value) and data.proxyBar then
+		data.proxyBar:SetValue(value)
+		return
+	end
 	local min, max = data.barMin, data.barMax
 	-- WoW 12.0.0: Skip clamping for secret values (they will be clamped by widget internally)
 	if not issecretvalue(value) then
@@ -371,6 +377,17 @@ end
 
 Orb.SetMinMaxValues = function(self, min, max, overrideSmoothing)
 	local data = Orbs[self]
+	-- WoW 12.0.0: Save non-secret min/max for OnValueChanged to use
+	if not issecretvalue(min) then
+		data.knownMin = min
+	end
+	if not issecretvalue(max) then
+		data.knownMax = max
+	end
+	-- WoW 12.0.0: Always update proxy StatusBar too (even if min/max are secret)
+	if data.proxyBar then
+		data.proxyBar:SetMinMaxValues(min, max)
+	end
 	-- WoW 12.0.0: Skip comparison if min/max are secret values
 	if not (issecretvalue(min) or issecretvalue(max) or issecretvalue(data.barMin) or issecretvalue(data.barMax)) then
 		if (data.barMin == min) and (data.barMax == max) then
@@ -493,6 +510,11 @@ lib.CreateOrb = function(self, name, parent, template, rotateClockwise, speedMod
 	orb:SetSize(1,1)
 	Orig_SetScript(orb, "OnSizeChanged", OnSizeChanged)
 
+	-- WoW 12.0.0: Create hidden real StatusBar to unwrap secret values via OnValueChanged
+	local proxyBar = CreateFrame("StatusBar", nil, orb)
+	proxyBar:Hide()
+	proxyBar:SetAllPoints()
+
 	-- The scrollchild is where we put rotating textures that needs to be cropped.
 	local scrollchild = CreateFrame("Frame", nil, orb)
 	scrollchild:SetFrameLevel(orb:GetFrameLevel())
@@ -613,6 +635,7 @@ lib.CreateOrb = function(self, name, parent, template, rotateClockwise, speedMod
 	data.scrollchild = scrollchild
 	data.scrollframe = scrollframe
 	data.overlay = overlay
+	data.proxyBar = proxyBar
 
 	-- layers
 	data.layer1 = orbTex1
@@ -625,6 +648,9 @@ lib.CreateOrb = function(self, name, parent, template, rotateClockwise, speedMod
 	data.barMax = 1 -- max value
 	data.barValue = 0 -- real value
 	data.barDisplayValue = 0 -- displayed value while smoothing
+	-- WoW 12.0.0: Known non-secret min/max for proxy StatusBar unwrapping
+	data.knownMin = 0
+	data.knownMax = 1
 	data.barLeftCrop = 0 -- percentage of the orb cropped from the left
 	data.barRightCrop = 0 -- percentage of the orb cropped from the right
 	data.barSmoothingMode = "bezier-fast-in-slow-out"
@@ -635,6 +661,43 @@ lib.CreateOrb = function(self, name, parent, template, rotateClockwise, speedMod
 	data.sparkMaxPercent = 99/100
 
 	Orbs[orb] = data
+
+	-- WoW 12.0.0: Setup proxy StatusBar OnValueChanged to unwrap secret values
+	proxyBar:SetScript("OnValueChanged", function(pbar, value)
+		local d = Orbs[orb]
+		if d then
+			-- value here is UNWRAPPED by C++ code!
+			-- But min/max from GetMinMaxValues() are still SECRET
+			-- So we use knownMin/knownMax saved in SetMinMaxValues
+
+			-- Update data with unwrapped values
+			d.barValue = value
+			if d.knownMin then
+				d.barMin = d.knownMin
+			end
+			if d.knownMax then
+				d.barMax = d.knownMax
+			end
+
+			-- Don't touch barDisplayValue - let smoothing logic handle it
+			if not d.disableSmoothing then
+				if d.barDisplayValue ~= value then
+					d.smoothing = true
+					d.smoothingInitialValue = d.barDisplayValue
+					d.smoothingStart = GetTime()
+				end
+			else
+				d.barDisplayValue = value
+			end
+			if d.smoothing then
+				if not Orig_GetScript(orb, "OnUpdate") then
+					Orig_SetScript(orb, "OnUpdate", OnUpdate)
+				end
+			else
+				Update(orb)
+			end
+		end
+	end)
 
 	Update(orb)
 

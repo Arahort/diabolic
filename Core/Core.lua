@@ -98,7 +98,7 @@ local defaults = {
 			enableChatFrames = false
 		},
 		castbar = {
-			enableCastbar = true,
+			enableCastbar = false,
 			positionX = 0,
 			positionY = -290
 		},
@@ -106,7 +106,7 @@ local defaults = {
 			enableNamePlates = false,
 			useClassColorForPower = false,
 			showTargetCastbar = false,
-			useHealthColorForTarget = true,
+			useHealthColorForTarget = false,
 			showThreatOnTarget = false,
 			targetPositionX = 0,
 			targetPositionY = -95,

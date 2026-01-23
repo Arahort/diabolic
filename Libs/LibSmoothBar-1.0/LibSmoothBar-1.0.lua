@@ -152,6 +152,7 @@ local Update = function(self, elapsed)
 		return
 	end
 
+
 	local width, height = data.statusbar:GetSize()
 	local orientation = data.barOrientation
 	local bar = data.bar
@@ -515,6 +516,11 @@ end
 
 StatusBar.SetValue = function(self, value, overrideSmoothing)
 	local data = Bars[self]
+	-- WoW 12.0.0: If value is secret, use proxy StatusBar to unwrap it
+	if issecretvalue(value) and data.proxyBar then
+		data.proxyBar:SetValue(value)
+		return
+	end
 	local min, max = data.barMin, data.barMax
 	-- WoW 12.0.0: Skip clamping for secret values
 	if not issecretvalue(value) then
@@ -563,6 +569,16 @@ end
 
 StatusBar.SetMinMaxValues = function(self, min, max, overrideSmoothing)
 	local data = Bars[self]
+	-- WoW 12.0.0: Save non-secret min/max and pass to proxy for unwrapping
+	if not issecretvalue(min) then
+		data.knownMin = min
+	end
+	if not issecretvalue(max) then
+		data.knownMax = max
+	end
+	if data.proxyBar then
+		data.proxyBar:SetMinMaxValues(min, max)
+	end
 	-- WoW 12.0.0: Skip comparison if min/max are secret values
 	if not (issecretvalue(min) or issecretvalue(max) or issecretvalue(data.barMin) or issecretvalue(data.barMax)) then
 		if (data.barMin == min) and (data.barMax == max) then
@@ -589,8 +605,17 @@ StatusBar.SetMinMaxValues = function(self, min, max, overrideSmoothing)
 			end
 		end
 	end
-	data.barMin = min
-	data.barMax = max
+	-- WoW 12.0.0: Use saved knownMin/knownMax if incoming values are secret
+	if not issecretvalue(min) then
+		data.barMin = min
+	elseif data.knownMin then
+		data.barMin = data.knownMin
+	end
+	if not issecretvalue(max) then
+		data.barMax = max
+	elseif data.knownMax then
+		data.barMax = data.knownMax
+	end
 	Update(self)
 end
 
@@ -785,6 +810,11 @@ lib.CreateSmoothBar = function(self, name, parent, template)
 	local statusbar = setmetatable(CreateFrame("Frame", name, parent, template), StatusBar_MT)
 	statusbar:SetSize(1,1)
 
+	-- WoW 12.0.0: Create hidden real StatusBar to unwrap secret values via OnValueChanged
+	local proxyBar = CreateFrame("StatusBar", nil, statusbar)
+	proxyBar:Hide()
+	proxyBar:SetAllPoints()
+
 	local bar = setmetatable(statusbar:CreateTexture(), Texture_MT)
 	bar:SetDrawLayer("BORDER", 0)
 	bar:SetPoint("TOP")
@@ -809,11 +839,15 @@ lib.CreateSmoothBar = function(self, name, parent, template)
 	data.bar = bar
 	data.spark = spark
 	data.statusbar = statusbar
+	data.proxyBar = proxyBar
 
 	data.barMin = 0 -- min value
 	data.barMax = 1 -- max value
 	data.barValue = 0 -- real value
 	data.barDisplayValue = 0 -- displayed value while smoothing
+	-- WoW 12.0.0: Known non-secret min/max for proxy StatusBar unwrapping
+	data.knownMin = 0
+	data.knownMax = 1
 	data.barOrientation = "RIGHT" -- direction the bar is growing in
 
 	-- API compatibility
@@ -849,6 +883,36 @@ lib.CreateSmoothBar = function(self, name, parent, template)
 
 	-- Apply our custom handler
 	Orig_SetScript(statusbar, "OnUpdate", OnUpdate)
+
+	-- WoW 12.0.0: Setup proxy StatusBar OnValueChanged to unwrap secret values
+	proxyBar:SetScript("OnValueChanged", function(pbar, value)
+		local d = Bars[statusbar]
+		if d then
+			-- value here is UNWRAPPED by C++ code!
+			-- Use saved knownMin/knownMax directly - GetMinMaxValues still returns SECRET
+			local oldBarMax = d.barMax
+			d.barValue = value
+			d.barMin = d.knownMin or 0
+			d.barMax = d.knownMax or 1
+
+			-- Handle smoothing
+			if not d.disableSmoothing then
+				if d.barDisplayValue ~= value then
+					d.smoothing = true
+					d.smoothingInitialValue = d.barDisplayValue
+					d.smoothingStart = GetTime()
+				end
+			else
+				d.barDisplayValue = value
+			end
+
+			if d.smoothing then
+				d.updatesRunning = true
+			else
+				Update(statusbar)
+			end
+		end
+	end)
 
 	return statusbar
 end
