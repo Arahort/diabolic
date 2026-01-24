@@ -427,6 +427,12 @@ local function UpdateAuras(self, event, unit, updateInfo)
 						end
 					end
 				end
+				-- WoW 12.0.0: Even if aura wasn't in active list, we need to update visuals
+				-- for currently displayed auras (counter updates during combat)
+				if not buffsChanged and not debuffsChanged and next(updateInfo.updatedAuraInstanceIDs) then
+					buffsChanged = true
+					debuffsChanged = true
+				end
 			end
 
 			if(updateInfo.removedAuraInstanceIDs) then
@@ -655,9 +661,16 @@ local function UpdateAuras(self, event, unit, updateInfo)
 
 						if(buffs.active[auraInstanceID]) then
 							buffs.active[auraInstanceID] = true
+							-- WoW 12.0.0: Always trigger update when aura data changes (counters, duration)
+							-- This ensures visual updates work during combat
 							buffsChanged = true
 						end
 					end
+				end
+				-- WoW 12.0.0: Even if aura wasn't in active list, we need to update visuals
+				-- for currently displayed buffs (counter updates during combat)
+				if not buffsChanged and next(updateInfo.updatedAuraInstanceIDs) then
+					buffsChanged = true
 				end
 			end
 
@@ -770,9 +783,16 @@ local function UpdateAuras(self, event, unit, updateInfo)
 
 						if(debuffs.active[auraInstanceID]) then
 							debuffs.active[auraInstanceID] = true
+							-- WoW 12.0.0: Always trigger update when aura data changes (counters, duration)
+							-- This ensures visual updates work during combat
 							debuffsChanged = true
 						end
 					end
+				end
+				-- WoW 12.0.0: Even if aura wasn't in active list, we need to update visuals
+				-- for currently displayed debuffs (counter updates during combat)
+				if not debuffsChanged and next(updateInfo.updatedAuraInstanceIDs) then
+					debuffsChanged = true
 				end
 			end
 
