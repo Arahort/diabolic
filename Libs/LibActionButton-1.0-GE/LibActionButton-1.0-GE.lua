@@ -2334,9 +2334,19 @@ function UpdateCooldown(self)
 	end
 
 	self.cooldown:SetDrawBling(self.cooldown:GetEffectiveAlpha() > 0.5)
-	-- WoW 12.0.0: Check if cooldown values are secret before comparison
-	local hasLocCooldown = locStart and locDuration and not issecretvalue(locStart) and not issecretvalue(locDuration) and locStart > 0 and locDuration > 0
-	local hasCooldown = not issecretvalue(enable) and enable and start and duration and not issecretvalue(start) and not issecretvalue(duration) and start > 0 and duration > 0
+	-- WoW 12.0.0: Simplified logic - try to set cooldown regardless of secret values
+	-- Wrap in pcall to catch any errors from secret value operations
+	local hasLocCooldown = false
+	local hasCooldown = false
+
+	pcall(function()
+		hasLocCooldown = locStart and locDuration and locStart > 0 and locDuration > 0
+	end)
+
+	pcall(function()
+		hasCooldown = enable and start and duration and start > 0 and duration > 0
+	end)
+
 	if hasLocCooldown and ((not hasCooldown) or ((locStart + locDuration) > (start + duration))) then
 		if self.cooldown.currentCooldownType ~= COOLDOWN_TYPE_LOSS_OF_CONTROL then
 			self.cooldown:SetEdgeTexture("Interface\\Cooldown\\edge-LoC")
@@ -2359,16 +2369,18 @@ function UpdateCooldown(self)
 			self.cooldown:SetScript("OnCooldownDone", OnCooldownDone)
 		end
 
-		-- WoW 12.0.0: Check if charge values are secret before comparison
-		if charges and maxCharges and not issecretvalue(charges) and not issecretvalue(maxCharges) and maxCharges > 1 and charges < maxCharges then
-			StartChargeCooldown(self, chargeStart, chargeDuration, chargeModRate)
-		elseif self.chargeCooldown then
-			EndChargeCooldown(self.chargeCooldown)
-		end
-		-- WoW 12.0.0: Only call CooldownFrame_Set if values are not secret
-		if not issecretvalue(enable) and not issecretvalue(start) and not issecretvalue(duration) then
-			CooldownFrame_Set(self.cooldown, start, duration, enable, false, modRate)
-		end
+		-- WoW 12.0.0: Try charge cooldown with pcall protection
+		pcall(function()
+			if charges and maxCharges and maxCharges > 1 and charges < maxCharges then
+				StartChargeCooldown(self, chargeStart, chargeDuration, chargeModRate)
+			elseif self.chargeCooldown then
+				EndChargeCooldown(self.chargeCooldown)
+			end
+		end)
+
+		-- WoW 12.0.0: Always try to set cooldown, even with secret values
+		-- Wrap in pcall to catch errors but allow cooldown to work if Blizzard handles secrets internally
+		pcall(CooldownFrame_Set, self.cooldown, start, duration, enable, false, modRate)
 	end
 end
 
