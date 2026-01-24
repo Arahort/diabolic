@@ -124,18 +124,6 @@ lib.FlyoutButtons = lib.FlyoutButtons or {}
 
 lib.callbacks = lib.callbacks or CBH:New(lib)
 
--- WoW 12.0.0: Debug helper
-local function DebugLog(msg)
-	if DEFAULT_CHAT_FRAME then
-		DEFAULT_CHAT_FRAME:AddMessage("|cFFFF0000[LAB-DEBUG]|r " .. tostring(msg), 1, 1, 0)
-	end
-end
-
--- WoW 12.0.0: Store API check result to show later when chat is ready
-local hasActionBarAPI = C_ActionBar and C_ActionBar.GetActionCooldown
-local hasApplyCooldownFunc = ActionButton_ApplyCooldown ~= nil
-local apiCheckLogged = false
-
 -- WoW 12.0.0: Fallback functions to wrap secret values in tables
 -- Secret values become normal values when placed in a table!
 local GetActionCooldownInfoFallback
@@ -171,21 +159,11 @@ end
 
 -- WoW 12.0.0: Wrapper that uses C_ActionBar API if available, otherwise fallback
 -- IMPORTANT: C_ActionBar methods can return nil, so we must check and use fallback
-local debugOnce = false
 local GetActionCooldownInfo = function(action)
 	if C_ActionBar and C_ActionBar.GetActionCooldown then
 		local result = C_ActionBar.GetActionCooldown(action)
 		if result then
-			if not debugOnce then
-				debugOnce = true
-				DebugLog("C_ActionBar.GetActionCooldown returned table")
-			end
 			return result
-		else
-			if not debugOnce then
-				debugOnce = true
-				DebugLog("C_ActionBar.GetActionCooldown returned NIL - using fallback")
-			end
 		end
 	end
 	return GetActionCooldownInfoFallback(action)
@@ -2336,20 +2314,6 @@ local defaultChargeInfo = { currentCharges = 0; maxCharges = 0; cooldownStartTim
 local defaultLossOfControlInfo = { startTime = 0; duration = 0; modRate = 0 }
 
 function UpdateCooldown(self)
-	-- WoW 12.0.0: Log API check on first UpdateCooldown call
-	if not apiCheckLogged then
-		apiCheckLogged = true
-		if hasActionBarAPI then
-			DebugLog("C_ActionBar.GetActionCooldown EXISTS")
-		else
-			DebugLog("C_ActionBar.GetActionCooldown MISSING - will use fallback")
-		end
-		if hasApplyCooldownFunc then
-			DebugLog("ActionButton_ApplyCooldown EXISTS")
-		else
-			DebugLog("ActionButton_ApplyCooldown MISSING - need to handle cooldowns manually")
-		end
-	end
 	local chargeInfo
 	local cooldownInfo
 	local lossOfControlInfo = {}
@@ -2388,16 +2352,7 @@ function UpdateCooldown(self)
 	self.cooldown:SetDrawBling(self.cooldown:GetEffectiveAlpha() > 0.5)
 	-- WoW 12.0.0: Use ActionButton_ApplyCooldown which works with Blizzard's built-in countdown
 	if ActionButton_ApplyCooldown then
-		if not debugOnce then
-			DebugLog("CALLING ActionButton_ApplyCooldown")
-			debugOnce = true
-		end
-		-- CRITICAL: ActionButton_ApplyCooldown expects lossOfControlCooldown to be a cooldown frame
-		-- but our buttons might not have this element! Need to check Bartender's button structure
-		local success, err = pcall(ActionButton_ApplyCooldown, self.cooldown, cooldownInfo, self.chargeCooldown, chargeInfo, self.lossOfControlCooldown, lossOfControlInfo)
-		if not success then
-			DebugLog("ActionButton_ApplyCooldown FAILED: " .. tostring(err))
-		end
+		ActionButton_ApplyCooldown(self.cooldown, cooldownInfo, self.chargeCooldown, chargeInfo, self.lossOfControlCooldown, lossOfControlInfo)
 	else
 		-- Fallback: Extract values from tables and check if they are secret
 		-- CRITICAL: Secret values REMAIN secret even when stored in tables!
@@ -2413,12 +2368,7 @@ function UpdateCooldown(self)
 		local locIsSecret = issecretvalue(locStart) or issecretvalue(locDuration)
 		local cooldownIsSecret = issecretvalue(start) or issecretvalue(duration) or issecretvalue(enable)
 
-		if not debugOnce and cooldownIsSecret then
-			DebugLog("SECRET VALUES detected in cooldown - CooldownFrame_Set will be skipped")
-			debugOnce = true
-		end
-
-		-- Only process if values are NOT secret
+		-- Only process if values are NOT secret (skip CooldownFrame_Set if secret)
 		if not locIsSecret and not cooldownIsSecret then
 			local hasLocCooldown = locStart and locDuration and locStart > 0 and locDuration > 0
 			local hasCooldown = enable and start and duration and start > 0 and duration > 0
