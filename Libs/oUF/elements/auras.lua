@@ -166,8 +166,11 @@ local function SetPosition(element, from, to)
 		local col = (i - 1) % cols
 		local row = math.floor((i - 1) / cols)
 
-		button:ClearAllPoints()
-		button:SetPoint(anchor, element, anchor, col * sizeX * growthX, row * sizeY * growthY)
+		-- WoW 12.0.0: Skip positioning during combat to avoid ADDON_ACTION_BLOCKED
+		if not InCombatLockdown() then
+			button:ClearAllPoints()
+			button:SetPoint(anchor, element, anchor, col * sizeX * growthX, row * sizeY * growthY)
+		end
 	end
 end
 
