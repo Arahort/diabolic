@@ -1,5 +1,19 @@
 # DiabolicUI3 Changelog
 
+## [1.9.5-RC1] - 2026-01-24
+### Fixed
+- Fixed action bar cooldowns not working in combat for WoW 12.0.0 Midnight
+- Fixed cooldown spiral animation not showing in combat
+- Fixed cooldown countdown numbers not displaying in combat
+- Fixed action bars not updating when dismounting in combat
+- Implemented support for WoW 12.0.0 secret values system in LibActionButton-1.0-GE
+
+### Changed
+- Switched to Blizzard's built-in cooldown countdown (native WoW API)
+- Updated LibActionButton to use ActionButton_ApplyCooldown when available
+- Updated LibActionButton to use C_ActionBar.GetActionCooldown API for WoW 12.0+
+- Added fallback support for older WoW versions without C_ActionBar API
+
 ## [1.9.4] - 2026-01-17
 ### Changed
 - Updated Interface version to 120001 for WoW 12.0.1 compatibility
