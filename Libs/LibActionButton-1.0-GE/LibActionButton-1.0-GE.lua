@@ -2319,6 +2319,8 @@ function UpdateCooldown(self)
 		DebugLog(string.format("  start=%s (isSecret:%s)", tostring(start), tostring(issecretvalue(start))))
 		DebugLog(string.format("  duration=%s (isSecret:%s)", tostring(duration), tostring(issecretvalue(duration))))
 		DebugLog(string.format("  enable=%s (isSecret:%s)", tostring(enable), tostring(issecretvalue(enable))))
+		DebugLog(string.format("  charges=%s (isSecret:%s)", tostring(charges), tostring(issecretvalue(charges))))
+		DebugLog(string.format("  maxCharges=%s (isSecret:%s)", tostring(maxCharges), tostring(issecretvalue(maxCharges))))
 		DebugLog(string.format("  locStart=%s (isSecret:%s)", tostring(locStart), tostring(issecretvalue(locStart))))
 		DebugLog(string.format("  locDuration=%s (isSecret:%s)", tostring(locDuration), tostring(issecretvalue(locDuration))))
 	end
@@ -2396,7 +2398,9 @@ function UpdateCooldown(self)
 			self.cooldown:SetScript("OnCooldownDone", OnCooldownDone)
 		end
 
-		if charges and maxCharges and maxCharges > 1 and charges < maxCharges then
+		-- WoW 12.0.0: Handle charges - GetCharges() also returns secret values in combat
+		-- Can't compare secret values, so skip charge cooldown if any values are secret
+		if charges and maxCharges and not issecretvalue(charges) and not issecretvalue(maxCharges) and maxCharges > 1 and charges < maxCharges then
 			StartChargeCooldown(self, chargeStart, chargeDuration, chargeModRate)
 		elseif self.chargeCooldown then
 			EndChargeCooldown(self.chargeCooldown)
