@@ -255,6 +255,17 @@ Aura.OnUpdate = function(self, elapsed)
 	end
 	self.elapsed = .01
 
+	-- WoW 12.0.0: Update counter from cache (works in combat!)
+	if (self.auraInstanceID) then
+		local header = self:GetParent()
+		if (header and header.auraDataCache) then
+			local cached = header.auraDataCache[self.auraInstanceID]
+			if (cached and cached.applicationsString and self.count) then
+				self.count:SetText(cached.applicationsString)
+			end
+		end
+	end
+
 	local timeLeft
 	if (self.enchant) then
 		local expiration = select(self.enchant, GetWeaponEnchantInfo())
@@ -522,6 +533,9 @@ Auras.SpawnAuras = function(self)
 		-- Add a vehicle switcher
 		RegisterAttributeDriver(buffs, "unit", "[vehicleui] vehicle; player")
 
+		-- WoW 12.0.0: Initialize aura data cache for combat updates
+		buffs.auraDataCache = {}
+
 		self.buffs = buffs
 
 		-----------------------------------------
@@ -663,12 +677,17 @@ Auras.UpdateAuraData = function(self, unit, refreshData)
 	-- WoW 12.0.0: issecretvalue may not exist in older versions
 	local issecretvalue = issecretvalue or function() return false end
 
-	-- Initialize cache if needed
-	self.auraData = self.auraData or {}
+	-- Get aura header cache
+	local buffs = self.buffs
+	if (not buffs or not buffs.auraDataCache) then
+		return
+	end
+	local cache = buffs.auraDataCache
 
 	-- Full update - rebuild cache
 	if (refreshData.isFullUpdate) then
-		self.auraData = {}
+		buffs.auraDataCache = {}
+		cache = buffs.auraDataCache
 		-- SecureAuraHeaderTemplate will handle full refresh
 		return
 	end
@@ -693,7 +712,7 @@ Auras.UpdateAuraData = function(self, unit, refreshData)
 					aura.durationSecret = C_UnitAuras.GetAuraDuration(unit, aura.auraInstanceID)
 				end
 
-				self.auraData[aura.auraInstanceID] = aura
+				cache[aura.auraInstanceID] = aura
 			end
 		end
 	end
@@ -701,7 +720,7 @@ Auras.UpdateAuraData = function(self, unit, refreshData)
 	-- Process updated auras
 	if (refreshData.updatedAuraInstanceIDs) then
 		for _, auraInstanceID in ipairs(refreshData.updatedAuraInstanceIDs) do
-			local stored = self.auraData[auraInstanceID]
+			local stored = cache[auraInstanceID]
 			if (stored) then
 				-- Refresh aura data
 				local aura = C_UnitAuras.GetAuraDataByAuraInstanceID(unit, auraInstanceID)
@@ -722,10 +741,8 @@ Auras.UpdateAuraData = function(self, unit, refreshData)
 						aura.durationSecret = C_UnitAuras.GetAuraDuration(unit, auraInstanceID)
 					end
 
-					self.auraData[auraInstanceID] = aura
-
-					-- Update button visuals (works in combat!)
-					self:UpdateButtonByAuraInstanceID(auraInstanceID, aura)
+					cache[auraInstanceID] = aura
+					-- Note: Button will update from cache via OnUpdate script
 				end
 			end
 		end
@@ -734,36 +751,8 @@ Auras.UpdateAuraData = function(self, unit, refreshData)
 	-- Process removed auras
 	if (refreshData.removedAuraInstanceIDs) then
 		for _, auraInstanceID in ipairs(refreshData.removedAuraInstanceIDs) do
-			self.auraData[auraInstanceID] = nil
+			cache[auraInstanceID] = nil
 		end
-	end
-end
-
--- WoW 12.0.0: Update button visuals by auraInstanceID (works in combat!)
-Auras.UpdateButtonByAuraInstanceID = function(self, auraInstanceID, aura)
-	local buffs = self.buffs
-	if (not buffs) then
-		return
-	end
-
-	-- Find button with this auraInstanceID
-	local child = buffs:GetAttribute("child1")
-	local i = 1
-	while (child) do
-		-- Check if this button displays this aura
-		local buttonAuraID = child.auraInstanceID
-		if (buttonAuraID == auraInstanceID and aura) then
-			-- Update counter (this is the KEY for combat updates!)
-			if (child.count and aura.applicationsString) then
-				child.count:SetText(aura.applicationsString)
-			end
-
-			-- Note: duration/cooldown updates are handled by OnUpdate script
-			-- We only update the COUNTER here since that's what freezes in combat
-			break
-		end
-		i = i + 1
-		child = buffs:GetAttribute("child"..i)
 	end
 end
 
@@ -811,8 +800,10 @@ Auras.OnEvent = function(self, event, ...)
 	if (event == "PLAYER_ENTERING_WORLD") then
 		local isInitialLogin, isReloadingUi = ...
 		if (isInitialLogin or isReloadingUi) then
-			-- Initialize aura data cache
-			self.auraData = self.auraData or {}
+			-- Initialize aura data cache in header
+			if (self.buffs) then
+				self.buffs.auraDataCache = self.buffs.auraDataCache or {}
+			end
 		end
 		self:ForAll("Update")
 		self:UpdateAlpha()
