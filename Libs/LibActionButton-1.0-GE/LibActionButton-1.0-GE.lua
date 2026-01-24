@@ -2815,10 +2815,10 @@ Action.HasAction               = function(self) return HasAction(self._state_act
 Action.GetActionText           = function(self) return GetActionText(self._state_action) end
 Action.GetTexture              = function(self) return GetActionTexture(self._state_action) end
 Action.GetCharges              = function(self)
-	-- WoW 12.0.0: Use new GetActionChargeInfo() API if available (returns table, not secret values)
+	-- WoW 12.0.0: Use new C_ActionBar.GetActionCharges() API if available (returns table, not secret values)
 	-- Otherwise fallback to old GetActionCharges() (may return secret values in combat)
-	if GetActionChargeInfo then
-		local chargeInfo = GetActionChargeInfo(self._state_action)
+	if C_ActionBar and C_ActionBar.GetActionCharges then
+		local chargeInfo = C_ActionBar.GetActionCharges(self._state_action)
 		if chargeInfo then
 			return chargeInfo.currentCharges, chargeInfo.maxCharges, chargeInfo.cooldownStartTime, chargeInfo.cooldownDuration, chargeInfo.chargeModRate
 		end
@@ -2827,10 +2827,10 @@ Action.GetCharges              = function(self)
 end
 Action.GetCount                = function(self) return GetActionCount(self._state_action) end
 Action.GetCooldown             = function(self)
-	-- WoW 12.0.0: Use new GetActionCooldownInfo() API if available (returns table, not secret values)
+	-- WoW 12.0.0: Use new C_ActionBar.GetActionCooldown() API if available (returns table, not secret values)
 	-- Otherwise fallback to old GetActionCooldown() (may return secret values in combat)
-	if GetActionCooldownInfo then
-		local cooldownInfo = GetActionCooldownInfo(self._state_action)
+	if C_ActionBar and C_ActionBar.GetActionCooldown then
+		local cooldownInfo = C_ActionBar.GetActionCooldown(self._state_action)
 		if cooldownInfo then
 			return cooldownInfo.startTime, cooldownInfo.duration, cooldownInfo.isEnabled, cooldownInfo.modRate
 		end
