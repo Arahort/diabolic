@@ -131,12 +131,10 @@ local function DebugLog(msg)
 	end
 end
 
--- WoW 12.0.0: Check if C_ActionBar API exists on load
-if C_ActionBar and C_ActionBar.GetActionCooldown then
-	DebugLog("C_ActionBar.GetActionCooldown EXISTS")
-else
-	DebugLog("C_ActionBar.GetActionCooldown MISSING - will use fallback")
-end
+-- WoW 12.0.0: Store API check result to show later when chat is ready
+local hasActionBarAPI = C_ActionBar and C_ActionBar.GetActionCooldown
+local hasApplyCooldownFunc = ActionButton_ApplyCooldown ~= nil
+local apiCheckLogged = false
 
 -- WoW 12.0.0: Fallback functions to wrap secret values in tables
 -- Secret values become normal values when placed in a table!
@@ -1784,11 +1782,9 @@ function OnEvent(frame, event, arg1, ...)
 		for button in next, ButtonRegistry do
 			button._debugLogged = nil
 		end
-		DebugLog("===== ENTERING COMBAT =====")
 		ForAllButtons(UpdateUsable)
 	elseif event == "PLAYER_REGEN_ENABLED" then
 		lib.incombat = false
-		DebugLog("===== LEAVING COMBAT =====")
 		ForAllButtons(UpdateUsable)
 	elseif event == "PLAYER_UPDATE_RESTING" then
 		lib.isresting = IsResting()
@@ -2340,6 +2336,20 @@ local defaultChargeInfo = { currentCharges = 0; maxCharges = 0; cooldownStartTim
 local defaultLossOfControlInfo = { startTime = 0; duration = 0; modRate = 0 }
 
 function UpdateCooldown(self)
+	-- WoW 12.0.0: Log API check on first UpdateCooldown call
+	if not apiCheckLogged then
+		apiCheckLogged = true
+		if hasActionBarAPI then
+			DebugLog("C_ActionBar.GetActionCooldown EXISTS")
+		else
+			DebugLog("C_ActionBar.GetActionCooldown MISSING - will use fallback")
+		end
+		if hasApplyCooldownFunc then
+			DebugLog("ActionButton_ApplyCooldown EXISTS")
+		else
+			DebugLog("ActionButton_ApplyCooldown MISSING - need to handle cooldowns manually")
+		end
+	end
 	local chargeInfo
 	local cooldownInfo
 	local lossOfControlInfo = {}
@@ -2376,9 +2386,18 @@ function UpdateCooldown(self)
 		lossOfControlInfo.modRate = cooldownInfo.modRate
 	end
 	self.cooldown:SetDrawBling(self.cooldown:GetEffectiveAlpha() > 0.5)
-	-- WoW 12.0.0: Use new ActionButton_ApplyCooldown if available (handles secret values in WoW 12.0+)
+	-- WoW 12.0.0: Use ActionButton_ApplyCooldown which works with Blizzard's built-in countdown
 	if ActionButton_ApplyCooldown then
-		ActionButton_ApplyCooldown(self.cooldown, cooldownInfo, self.chargeCooldown, chargeInfo, self.lossOfControlCooldown, lossOfControlInfo)
+		if not debugOnce then
+			DebugLog("CALLING ActionButton_ApplyCooldown")
+			debugOnce = true
+		end
+		-- CRITICAL: ActionButton_ApplyCooldown expects lossOfControlCooldown to be a cooldown frame
+		-- but our buttons might not have this element! Need to check Bartender's button structure
+		local success, err = pcall(ActionButton_ApplyCooldown, self.cooldown, cooldownInfo, self.chargeCooldown, chargeInfo, self.lossOfControlCooldown, lossOfControlInfo)
+		if not success then
+			DebugLog("ActionButton_ApplyCooldown FAILED: " .. tostring(err))
+		end
 	else
 		-- Fallback: Extract values from tables and check if they are secret
 		-- CRITICAL: Secret values REMAIN secret even when stored in tables!

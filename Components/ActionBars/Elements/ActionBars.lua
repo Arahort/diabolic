@@ -171,7 +171,8 @@ local style = function(button)
 	cooldown:SetDrawBling(false)
 	cooldown:SetEdgeTexture(b)
 	cooldown:SetDrawEdge(false)
-	cooldown:SetHideCountdownNumbers(true)
+	-- WoW 12.0.0: Show built-in countdown numbers (Blizzard's native countdown)
+	cooldown:SetHideCountdownNumbers(false)
 
 	-- Custom overlay frame
 	local overlay = CreateFrame("Frame", nil, button)
@@ -224,7 +225,8 @@ local style = function(button)
 	hotkey:SetFontObject(GetFont(12,true))
 	hotkey:SetTextColor(.75, .75, .75)
 
-	RegisterCooldown(button.cooldown, button.cooldownCount)
+	-- WoW 12.0.0: Use Blizzard's built-in countdown instead of custom widget
+	-- RegisterCooldown(button.cooldown, button.cooldownCount)
 
 	hooksecurefunc(cooldown, "SetSwipeTexture", function(c,t) if t ~= m then c:SetSwipeTexture(m) end end)
 	hooksecurefunc(cooldown, "SetBlingTexture", function(c,t) if t ~= b then c:SetBlingTexture(b,0,0,0,0) end end)
@@ -233,7 +235,8 @@ local style = function(button)
 	hooksecurefunc(cooldown, "SetDrawSwipe", function(c,h) if not h then c:SetDrawSwipe(true) end end)
 	hooksecurefunc(cooldown, "SetDrawBling", function(c,h) if h then c:SetDrawBling(false) end end)
 	hooksecurefunc(cooldown, "SetDrawEdge", function(c,h) if h then c:SetDrawEdge(false) end end)
-	hooksecurefunc(cooldown, "SetHideCountdownNumbers", function(c,h) if not h then c:SetHideCountdownNumbers(true) end end)
+	-- WoW 12.0.0: Allow Blizzard's built-in countdown numbers to show
+	-- hooksecurefunc(cooldown, "SetHideCountdownNumbers", function(c,h) if not h then c:SetHideCountdownNumbers(true) end end)
 	hooksecurefunc(cooldown, "SetCooldown", function(c) c:SetAlpha(.75) end)
 
 	if (not ns.IsRetail) then
