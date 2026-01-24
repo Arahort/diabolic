@@ -496,6 +496,17 @@ SettingsModule.OnInitialize = function(self)
 		do
 			local setting = RegisterSetting(
 				category,
+				"showPlayerInToT",
+				"global.unitframes",
+				L["ShowPlayerInToT"],
+				true,
+				L["ShowPlayerInToTDesc"]
+			)
+			CreateCheckbox(category, setting, L["ShowPlayerInToTDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
 				"targetPositionX",
 				"global.unitframes",
 				L["TargetPosX"],

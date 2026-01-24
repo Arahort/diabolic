@@ -238,9 +238,12 @@ local function CastStart(self, event, unit)
 		end
 	end
 
-	-- WoW 12.0.0: Skip if duration is secret value
-	if not issecretvalue(duration) then
-		element:SetTimerDuration(duration, element.smoothing, direction)
+	-- WoW 12.0.0: SetTimerDuration cannot handle secret duration objects
+	-- Wrap in pcall to prevent errors with secret values
+	if duration then
+		pcall(function()
+			element:SetTimerDuration(duration, element.smoothing, direction)
+		end)
 	end
 
 	if(element.Icon) then element.Icon:SetTexture(texture or FALLBACK_ICON) end
@@ -342,9 +345,12 @@ local function CastUpdate(self, event, unit, _, _, castID)
 		element.delay = element.delay + delta
 	end
 
-	-- WoW 12.0.0: Skip if duration is secret value
-	if not issecretvalue(duration) then
-		element:SetTimerDuration(duration, element.smoothing, direction)
+	-- WoW 12.0.0: SetTimerDuration cannot handle secret duration objects
+	-- Wrap in pcall to prevent errors with secret values
+	if duration then
+		pcall(function()
+			element:SetTimerDuration(duration, element.smoothing, direction)
+		end)
 	end
 
 	--[[ Callback: Castbar:PostCastUpdate(unit)
@@ -491,8 +497,9 @@ end
 local function onUpdate(self, elapsed)
 	if(self.casting or self.channeling or self.empowering) then
 		if(self.Time) then
-			local durationObject = self:GetTimerDuration() -- can be nil
-			if durationObject then
+			-- WoW 12.0.0: GetTimerDuration can error with secret values, wrap in pcall
+			local success, durationObject = pcall(function() return self:GetTimerDuration() end)
+			if success and durationObject then
 				if(self.delay ~= 0) then
 					--[[ Override: Castbar:CustomDelayText(duration)
 					Used to completely override the updating of the .Time sub-widget when there is a delay to adjust for.

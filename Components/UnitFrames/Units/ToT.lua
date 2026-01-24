@@ -47,10 +47,28 @@ local PostUpdate = function(self)
 	if (not unit) then
 		return
 	end
-	-- Avoid double units.
-	-- We don't need to see somebody targeting themselves,
-	-- nor is it very interesting to have a duplicate of our own unit frame.
-	self:SetAlpha((UnitIsUnit(unit, "target") or UnitIsUnit(unit, "player")) and 0 or 1)
+	-- Avoid double units based on settings
+	local db = ns.db
+	local showPlayerInToT = true
+	if db and db.global and db.global.unitframes then
+		showPlayerInToT = db.global.unitframes.showPlayerInToT
+		if showPlayerInToT == nil then
+			showPlayerInToT = true -- default to showing player
+		end
+	end
+
+	-- WoW 12.0.0: UnitIsUnit can return secret values, wrap in pcall
+	local success, isTarget = pcall(UnitIsUnit, unit, "target")
+	local success2, isPlayer = pcall(UnitIsUnit, unit, "player")
+	local alpha = 1
+	if success and success2 then
+		-- Hide if target targets themselves (always)
+		-- Hide if target targets player (based on setting)
+		if isTarget or (isPlayer and not showPlayerInToT) then
+			alpha = 0
+		end
+	end
+	self:SetAlpha(alpha)
 end
 
 -- Forceupdate health prediction on health updates,

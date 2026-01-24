@@ -250,8 +250,8 @@ local function updateAura(element, unit, data, position)
 	-- WoW 12.0.0: Skip SetSize during combat to avoid ADDON_ACTION_BLOCKED
 	if not InCombatLockdown() then
 		button:SetSize(width, height)
+		button:EnableMouse(not element.disableMouse)
 	end
-	button:EnableMouse(not element.disableMouse)
 	button:Show()
 
 	--[[ Callback: Auras:PostUpdateButton(unit, button, data, position)
