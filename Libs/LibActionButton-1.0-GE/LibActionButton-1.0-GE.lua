@@ -2818,11 +2818,11 @@ Action.GetCharges              = function(self)
 	-- WoW 12.0.0 CRITICAL FIX: GetActionCharges returns SECRET VALUES in combat!
 	-- Solution: If action contains a spell, use C_Spell.GetSpellCharges instead
 	local spellID = self:GetSpellId()
-	if spellID then
-		-- This is a spell action - use C_Spell API (already wrapped above)
-		local currentCharges, maxCharges, cooldownStartTime, cooldownDuration, chargeModRate = GetSpellCharges(spellID)
-		if currentCharges then
-			return currentCharges, maxCharges, cooldownStartTime, cooldownDuration, chargeModRate
+	if spellID and C_Spell and C_Spell.GetSpellCharges then
+		-- This is a spell action - use C_Spell API directly
+		local chargeInfo = C_Spell.GetSpellCharges(spellID)
+		if chargeInfo then
+			return chargeInfo.currentCharges, chargeInfo.maxCharges, chargeInfo.cooldownStartTime, chargeInfo.cooldownDuration, chargeInfo.chargeModRate
 		end
 	end
 	-- Fallback: for non-spell actions use GetActionCharges (may return secret values)
@@ -2834,12 +2834,11 @@ Action.GetCooldown             = function(self)
 	-- Solution: If action contains a spell, use C_Spell.GetSpellCooldown instead
 	-- C_Spell.GetSpellCooldown does NOT return secret values
 	local spellID = self:GetSpellId()
-	if spellID then
-		-- This is a spell action - use C_Spell API (already wrapped above)
-		-- GetSpellCooldown wrapper handles both old and new API
-		local start, duration, enable, modRate = GetSpellCooldown(spellID)
-		if start then
-			return start, duration, enable, modRate
+	if spellID and C_Spell and C_Spell.GetSpellCooldown then
+		-- This is a spell action - use C_Spell API directly
+		local cooldownInfo = C_Spell.GetSpellCooldown(spellID)
+		if cooldownInfo then
+			return cooldownInfo.startTime, cooldownInfo.duration, cooldownInfo.isEnabled, cooldownInfo.modRate
 		end
 	end
 	-- Fallback: for non-spell actions (items, empty macros) use GetActionCooldown
