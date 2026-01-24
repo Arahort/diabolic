@@ -50,9 +50,10 @@ Timer:SetScript("OnUpdate", function(self, elapsed)
 		return
 	end
 
-	-- Adaptive throttling based on shortest remaining cooldown
+	-- Adaptive throttling based on shortest remaining cooldown and combat state
 	local shortestRemaining = 999
 	local now = GetTime()
+	local inCombat = InCombatLockdown()
 
 	for cooldown,info in next,Active do
 		local remaining = info.expiration - now
@@ -61,16 +62,27 @@ Timer:SetScript("OnUpdate", function(self, elapsed)
 		end
 	end
 
-	-- Set update frequency based on shortest cooldown:
-	-- <5s: 100ms (smooth for short cooldowns)
-	-- 5-30s: 200ms (balanced)
-	-- >30s: 500ms (infrequent updates for long cooldowns)
-	if shortestRemaining < 5 then
-		self.elapsed = 0.1
-	elseif shortestRemaining < 30 then
-		self.elapsed = 0.2
+	-- WoW 12.0.0: Set update frequency based on combat state and shortest cooldown
+	-- In combat: faster updates for better responsiveness
+	-- Out of combat: slower updates to reduce overhead
+	if inCombat then
+		-- In combat: very responsive
+		if shortestRemaining < 5 then
+			self.elapsed = 0.05  -- 50ms (20 fps) for short cooldowns
+		elseif shortestRemaining < 30 then
+			self.elapsed = 0.1   -- 100ms (10 fps) for medium cooldowns
+		else
+			self.elapsed = 0.2   -- 200ms (5 fps) for long cooldowns
+		end
 	else
-		self.elapsed = 0.5
+		-- Out of combat: balanced
+		if shortestRemaining < 5 then
+			self.elapsed = 0.1   -- 100ms (10 fps)
+		elseif shortestRemaining < 30 then
+			self.elapsed = 0.2   -- 200ms (5 fps)
+		else
+			self.elapsed = 0.5   -- 500ms (2 fps)
+		end
 	end
 
 	local timeLeft

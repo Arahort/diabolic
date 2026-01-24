@@ -146,23 +146,8 @@ local UpdateMaxDps = function(self)
 	end
 end
 
--- Throttle usability updates to reduce stutters
--- Only update if enough time has passed since last update
--- WoW 12.0.0: Adaptive throttle - faster in combat for better responsiveness
-local USABLE_THROTTLE_COMBAT = 0.05    -- 50ms in combat (20 updates per second)
-local USABLE_THROTTLE_NOCOMBAT = 0.2   -- 200ms out of combat (5 updates per second)
-
+-- WoW 12.0.0: UpdateUsable function to handle spell availability visual feedback
 local UpdateUsable = function(self)
-	-- WoW 12.0.0: Use adaptive throttle based on combat state
-	local throttle = InCombatLockdown() and USABLE_THROTTLE_COMBAT or USABLE_THROTTLE_NOCOMBAT
-
-	-- Throttle: skip update if called too recently
-	local now = GetTime()
-	self._lastUsableUpdate = self._lastUsableUpdate or 0
-	if (now - self._lastUsableUpdate) < throttle then
-		return
-	end
-	self._lastUsableUpdate = now
 
 	if (UnitIsDeadOrGhost("player")) then
 		self.icon:SetDesaturated(true)
