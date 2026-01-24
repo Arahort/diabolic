@@ -124,6 +124,20 @@ lib.FlyoutButtons = lib.FlyoutButtons or {}
 
 lib.callbacks = lib.callbacks or CBH:New(lib)
 
+-- WoW 12.0.0: Debug helper
+local function DebugLog(msg)
+	if DEFAULT_CHAT_FRAME then
+		DEFAULT_CHAT_FRAME:AddMessage("|cFFFF0000[LAB-DEBUG]|r " .. tostring(msg), 1, 1, 0)
+	end
+end
+
+-- WoW 12.0.0: Check if C_ActionBar API exists on load
+if C_ActionBar and C_ActionBar.GetActionCooldown then
+	DebugLog("C_ActionBar.GetActionCooldown EXISTS")
+else
+	DebugLog("C_ActionBar.GetActionCooldown MISSING - will use fallback")
+end
+
 -- WoW 12.0.0: Fallback functions to wrap secret values in tables
 -- Secret values become normal values when placed in a table!
 local GetActionCooldownInfoFallback
@@ -157,8 +171,37 @@ else
 	GetActionChargeInfoFallback = function() end
 end
 
-local GetActionCooldownInfo = C_ActionBar and C_ActionBar.GetActionCooldown or GetActionCooldownInfoFallback
-local GetActionChargeInfo = C_ActionBar and C_ActionBar.GetActionCharges or GetActionChargeInfoFallback
+-- WoW 12.0.0: Wrapper that uses C_ActionBar API if available, otherwise fallback
+-- IMPORTANT: C_ActionBar methods can return nil, so we must check and use fallback
+local debugOnce = false
+local GetActionCooldownInfo = function(action)
+	if C_ActionBar and C_ActionBar.GetActionCooldown then
+		local result = C_ActionBar.GetActionCooldown(action)
+		if result then
+			if not debugOnce then
+				debugOnce = true
+				DebugLog("C_ActionBar.GetActionCooldown returned table")
+			end
+			return result
+		else
+			if not debugOnce then
+				debugOnce = true
+				DebugLog("C_ActionBar.GetActionCooldown returned NIL - using fallback")
+			end
+		end
+	end
+	return GetActionCooldownInfoFallback(action)
+end
+
+local GetActionChargeInfo = function(action)
+	if C_ActionBar and C_ActionBar.GetActionCharges then
+		local result = C_ActionBar.GetActionCharges(action)
+		if result then
+			return result
+		end
+	end
+	return GetActionChargeInfoFallback(action)
+end
 
 local Generic = CreateFrame("CheckButton")
 local Generic_MT = {__index = Generic}
@@ -2334,43 +2377,60 @@ function UpdateCooldown(self)
 	end
 	self.cooldown:SetDrawBling(self.cooldown:GetEffectiveAlpha() > 0.5)
 	-- WoW 12.0.0: Use new ActionButton_ApplyCooldown if available (handles secret values in WoW 12.0+)
-	-- Otherwise extract values from tables and use CooldownFrame_Set
-	-- Values from tables are NO LONGER SECRET - this is the key trick!
 	if ActionButton_ApplyCooldown then
 		ActionButton_ApplyCooldown(self.cooldown, cooldownInfo, self.chargeCooldown, chargeInfo, self.lossOfControlCooldown, lossOfControlInfo)
 	else
-		-- Extract values from info tables (values are no longer secret!)
+		-- Fallback: Extract values from tables and check if they are secret
+		-- CRITICAL: Secret values REMAIN secret even when stored in tables!
+		-- We must check AFTER extraction and skip CooldownFrame_Set if secret
+		local issecretvalue = issecretvalue or function() return false end
 		local locStart, locDuration = lossOfControlInfo.startTime, lossOfControlInfo.duration
 		local start, duration, enable, modRate = cooldownInfo.startTime, cooldownInfo.duration, cooldownInfo.isEnabled, cooldownInfo.modRate
 		local charges, maxCharges, chargeStart, chargeDuration, chargeModRate = chargeInfo.currentCharges, chargeInfo.maxCharges, chargeInfo.cooldownStartTime, chargeInfo.cooldownDuration, chargeInfo.chargeModRate
-		-- Now we can safely compare without issecretvalue checks!
-		local hasLocCooldown = locStart and locDuration and locStart > 0 and locDuration > 0
-		local hasCooldown = enable and start and duration and start > 0 and duration > 0
-		if hasLocCooldown and ((not hasCooldown) or ((locStart + locDuration) > (start + duration))) then
-			if self.cooldown.currentCooldownType ~= COOLDOWN_TYPE_LOSS_OF_CONTROL then
-				self.cooldown:SetEdgeTexture("Interface\\Cooldown\\edge-LoC")
-				self.cooldown:SetSwipeColor(0.17, 0, 0)
-				self.cooldown.currentCooldownType = COOLDOWN_TYPE_LOSS_OF_CONTROL
-			end
-			CooldownFrame_Set(self.cooldown, locStart, locDuration, true, true, modRate)
-			self.cooldown:SetScript("OnCooldownDone", OnCooldownDone, false)
-			if self.chargeCooldown then
-				EndChargeCooldown(self.chargeCooldown)
-			end
-		else
-			if self.cooldown.currentCooldownType ~= COOLDOWN_TYPE_NORMAL then
-				self.cooldown:SetEdgeTexture("Interface\\Cooldown\\edge")
-				self.cooldown:SetSwipeColor(0, 0, 0)
-				self.cooldown.currentCooldownType = COOLDOWN_TYPE_NORMAL
-			end
-			self.cooldown:SetScript("OnCooldownDone", OnCooldownDone, hasLocCooldown)
-			if charges and maxCharges and maxCharges > 1 and charges < maxCharges then
-				StartChargeCooldown(self, chargeStart, chargeDuration, chargeModRate)
-			elseif self.chargeCooldown then
-				EndChargeCooldown(self.chargeCooldown)
-			end
-			CooldownFrame_Set(self.cooldown, start, duration, enable, false, modRate)
+
+		-- WoW 12.0.0: Check if extracted values are secret
+		-- If C_ActionBar API is missing/returns nil, fallback wraps GetActionCooldown results
+		-- which are SECRET in combat, and they STAY secret even in tables!
+		local locIsSecret = issecretvalue(locStart) or issecretvalue(locDuration)
+		local cooldownIsSecret = issecretvalue(start) or issecretvalue(duration) or issecretvalue(enable)
+
+		if not debugOnce and cooldownIsSecret then
+			DebugLog("SECRET VALUES detected in cooldown - CooldownFrame_Set will be skipped")
+			debugOnce = true
 		end
+
+		-- Only process if values are NOT secret
+		if not locIsSecret and not cooldownIsSecret then
+			local hasLocCooldown = locStart and locDuration and locStart > 0 and locDuration > 0
+			local hasCooldown = enable and start and duration and start > 0 and duration > 0
+			if hasLocCooldown and ((not hasCooldown) or ((locStart + locDuration) > (start + duration))) then
+				if self.cooldown.currentCooldownType ~= COOLDOWN_TYPE_LOSS_OF_CONTROL then
+					self.cooldown:SetEdgeTexture("Interface\\Cooldown\\edge-LoC")
+					self.cooldown:SetSwipeColor(0.17, 0, 0)
+					self.cooldown.currentCooldownType = COOLDOWN_TYPE_LOSS_OF_CONTROL
+				end
+				CooldownFrame_Set(self.cooldown, locStart, locDuration, true, true, modRate)
+				self.cooldown:SetScript("OnCooldownDone", OnCooldownDone, false)
+				if self.chargeCooldown then
+					EndChargeCooldown(self.chargeCooldown)
+				end
+			elseif hasCooldown then
+				if self.cooldown.currentCooldownType ~= COOLDOWN_TYPE_NORMAL then
+					self.cooldown:SetEdgeTexture("Interface\\Cooldown\\edge")
+					self.cooldown:SetSwipeColor(0, 0, 0)
+					self.cooldown.currentCooldownType = COOLDOWN_TYPE_NORMAL
+				end
+				self.cooldown:SetScript("OnCooldownDone", OnCooldownDone, hasLocCooldown)
+				if charges and maxCharges and maxCharges > 1 and charges < maxCharges then
+					StartChargeCooldown(self, chargeStart, chargeDuration, chargeModRate)
+				elseif self.chargeCooldown then
+					EndChargeCooldown(self.chargeCooldown)
+				end
+				CooldownFrame_Set(self.cooldown, start, duration, enable, false, modRate)
+			end
+		end
+		-- If values are secret, we skip CooldownFrame_Set entirely
+		-- Blizzard's internal cooldown spiral should still work
 	end
 end
 
