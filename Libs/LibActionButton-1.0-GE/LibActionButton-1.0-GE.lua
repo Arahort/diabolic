@@ -2316,9 +2316,13 @@ function UpdateCooldown(self)
 		elseif self.chargeCooldown then
 			EndChargeCooldown(self.chargeCooldown)
 		end
-		-- WoW 12.0.0: Don't call CooldownFrame_Set if values are secret
-		if not issecretvalue(enable) and not issecretvalue(start) and not issecretvalue(duration) then
-			CooldownFrame_Set(self.cooldown, start, duration, enable, false, modRate)
+		-- WoW 12.0.0: TEMPORARY FIX - try calling CooldownFrame_Set even with secret values
+		-- This might cause errors but will help confirm if this is the issue
+		if enable and start and duration then
+			local pcallSuccess, pcallError = pcall(CooldownFrame_Set, self.cooldown, start, duration, enable, false, modRate)
+			if not pcallSuccess then
+				-- If it errors due to secret values, silently ignore
+			end
 		end
 	end
 end
