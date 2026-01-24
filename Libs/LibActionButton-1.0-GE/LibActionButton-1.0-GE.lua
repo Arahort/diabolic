@@ -1597,8 +1597,10 @@ function OnEvent(frame, event, arg1, ...)
 			UpdateUsable(button)
 		end
 	elseif event == "ACTIONBAR_UPDATE_COOLDOWN" then
-		-- WoW 12.0.0: DEBUG - Log when event fires
-		DebugLog("Event: ACTIONBAR_UPDATE_COOLDOWN (combat=" .. tostring(InCombatLockdown()) .. ")")
+		-- WoW 12.0.0: DEBUG - Log when event fires IN COMBAT
+		if InCombatLockdown() then
+			DebugLog(">>> Event: ACTIONBAR_UPDATE_COOLDOWN (in COMBAT)")
+		end
 		for button in next, ActionButtons do
 			UpdateCooldown(button)
 			if GameTooltip_GetOwnerForbidden() == button then
@@ -1606,8 +1608,10 @@ function OnEvent(frame, event, arg1, ...)
 			end
 		end
 	elseif event == "SPELL_UPDATE_COOLDOWN" then
-		-- WoW 12.0.0: DEBUG - Log when event fires
-		DebugLog("Event: SPELL_UPDATE_COOLDOWN (combat=" .. tostring(InCombatLockdown()) .. ")")
+		-- WoW 12.0.0: DEBUG - Log when event fires IN COMBAT
+		if InCombatLockdown() then
+			DebugLog(">>> Event: SPELL_UPDATE_COOLDOWN (in COMBAT)")
+		end
 		for button in next, NonActionButtons do
 			UpdateCooldown(button)
 			if GameTooltip_GetOwnerForbidden() == button then
@@ -2275,15 +2279,11 @@ function UpdateCooldown(self)
 	-- WoW 12.0.0: issecretvalue check only where needed for comparisons
 	local issecretvalue = issecretvalue or function() return false end
 
-	-- WoW 12.0.0: DEBUG LOGGING - ALWAYS log to see if function is called
-	local buttonName = self:GetName() or "unknown"
-	local inCombat = InCombatLockdown() and "COMBAT" or "out of combat"
-	DebugLog(string.format("UpdateCooldown called (%s) for %s (id=%s)", inCombat, buttonName, tostring(self.id)))
-
 	local locStart, locDuration
 	local start, duration, enable, modRate
 	local charges, maxCharges, chargeStart, chargeDuration, chargeModRate
 	local auraData
+	local buttonName = self:GetName() or "unknown"
 
 	local passiveCooldownSpellID = self:GetPassiveCooldownSpellID()
 	if passiveCooldownSpellID and passiveCooldownSpellID ~= 0 then
@@ -2310,15 +2310,17 @@ function UpdateCooldown(self)
 		locStart, locDuration = self:GetLossOfControlCooldown()
 		start, duration, enable, modRate = self:GetCooldown()
 		charges, maxCharges, chargeStart, chargeDuration, chargeModRate = self:GetCharges()
+	end
 
-		-- WoW 12.0.0: DEBUG LOGGING - log values (once per combat for each button)
-		if not self._debugLogged then
-			self._debugLogged = true
-			DebugLog(string.format("Cooldown values for %s:", buttonName))
-			DebugLog(string.format("  start=%s (isSecret:%s)", tostring(start), tostring(issecretvalue(start))))
-			DebugLog(string.format("  duration=%s (isSecret:%s)", tostring(duration), tostring(issecretvalue(duration))))
-			DebugLog(string.format("  enable=%s (isSecret:%s)", tostring(enable), tostring(issecretvalue(enable))))
-		end
+	-- WoW 12.0.0: DEBUG LOGGING - log values ONLY in combat (once per button)
+	if InCombatLockdown() and not self._debugLogged then
+		self._debugLogged = true
+		DebugLog(string.format("=== COOLDOWN DATA: %s ===", buttonName))
+		DebugLog(string.format("  start=%s (isSecret:%s)", tostring(start), tostring(issecretvalue(start))))
+		DebugLog(string.format("  duration=%s (isSecret:%s)", tostring(duration), tostring(issecretvalue(duration))))
+		DebugLog(string.format("  enable=%s (isSecret:%s)", tostring(enable), tostring(issecretvalue(enable))))
+		DebugLog(string.format("  locStart=%s (isSecret:%s)", tostring(locStart), tostring(issecretvalue(locStart))))
+		DebugLog(string.format("  locDuration=%s (isSecret:%s)", tostring(locDuration), tostring(issecretvalue(locDuration))))
 	end
 
 	self.cooldown:SetDrawBling(self.cooldown:GetEffectiveAlpha() > 0.5)
