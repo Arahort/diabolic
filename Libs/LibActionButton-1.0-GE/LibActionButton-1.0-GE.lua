@@ -1587,6 +1587,10 @@ function OnEvent(frame, event, arg1, ...)
 			UpdateUsable(button)
 		end
 	elseif event == "ACTIONBAR_UPDATE_COOLDOWN" then
+		-- WoW 12.0.0: DEBUG - Log when event fires in combat
+		if InCombatLockdown() then
+			print("[EVENT DEBUG] ACTIONBAR_UPDATE_COOLDOWN fired in COMBAT")
+		end
 		for button in next, ActionButtons do
 			UpdateCooldown(button)
 			if GameTooltip_GetOwnerForbidden() == button then
@@ -1594,6 +1598,10 @@ function OnEvent(frame, event, arg1, ...)
 			end
 		end
 	elseif event == "SPELL_UPDATE_COOLDOWN" then
+		-- WoW 12.0.0: DEBUG - Log when event fires in combat
+		if InCombatLockdown() then
+			print("[EVENT DEBUG] SPELL_UPDATE_COOLDOWN fired in COMBAT")
+		end
 		for button in next, NonActionButtons do
 			UpdateCooldown(button)
 			if GameTooltip_GetOwnerForbidden() == button then
@@ -1701,9 +1709,15 @@ function OnEvent(frame, event, arg1, ...)
 	--[[ GE Custom Start ]]--
 	elseif event == "PLAYER_REGEN_DISABLED" then
 		lib.incombat = true
+		-- WoW 12.0.0: DEBUG - Reset debug log flags on entering combat
+		for button in next, ButtonRegistry do
+			button._debugLogged = nil
+		end
+		print("[COMBAT DEBUG] ===== ENTERING COMBAT - Debug logging enabled =====")
 		ForAllButtons(UpdateUsable)
 	elseif event == "PLAYER_REGEN_ENABLED" then
 		lib.incombat = false
+		print("[COMBAT DEBUG] ===== LEAVING COMBAT - Debug logging disabled =====")
 		ForAllButtons(UpdateUsable)
 	elseif event == "PLAYER_UPDATE_RESTING" then
 		lib.isresting = IsResting()
@@ -2253,9 +2267,10 @@ function UpdateCooldown(self)
 	-- WoW 12.0.0: issecretvalue check only where needed for comparisons
 	local issecretvalue = issecretvalue or function() return false end
 
-	-- WoW 12.0.0: DEBUG LOGGING (only in combat, only for button 1)
-	if InCombatLockdown() and self.id == 1 then
-		print("\n=== UpdateCooldown CALLED for Button 1 in COMBAT ===")
+	-- WoW 12.0.0: DEBUG LOGGING - unconditional to see if function is called at all
+	if InCombatLockdown() then
+		local buttonName = self:GetName() or "unknown"
+		print(string.format("[COOLDOWN DEBUG] UpdateCooldown called in COMBAT for %s (id=%s)", buttonName, tostring(self.id)))
 	end
 
 	local locStart, locDuration
@@ -2289,13 +2304,14 @@ function UpdateCooldown(self)
 		start, duration, enable, modRate = self:GetCooldown()
 		charges, maxCharges, chargeStart, chargeDuration, chargeModRate = self:GetCharges()
 
-		-- WoW 12.0.0: DEBUG LOGGING (only in combat, only for button 1)
-		if InCombatLockdown() and self.id == 1 then
-			print("=== UpdateCooldown DEBUG (Button 1) ===")
-			print("start:", start, "| isSecret:", issecretvalue(start))
-			print("duration:", duration, "| isSecret:", issecretvalue(duration))
-			print("enable:", enable, "| isSecret:", issecretvalue(enable))
-			print("modRate:", modRate, "| isSecret:", issecretvalue(modRate))
+		-- WoW 12.0.0: DEBUG LOGGING - log once per combat for first button that updates
+		if InCombatLockdown() and not self._debugLogged then
+			self._debugLogged = true
+			local buttonName = self:GetName() or "unknown"
+			print(string.format("[COOLDOWN VALUES] Button: %s", buttonName))
+			print(string.format("  start: %s | isSecret: %s", tostring(start), tostring(issecretvalue(start))))
+			print(string.format("  duration: %s | isSecret: %s", tostring(duration), tostring(issecretvalue(duration))))
+			print(string.format("  enable: %s | isSecret: %s", tostring(enable), tostring(issecretvalue(enable))))
 		end
 	end
 
@@ -2306,12 +2322,11 @@ function UpdateCooldown(self)
 	local hasLocCooldown = locStart and locDuration and not issecretvalue(locStart) and not issecretvalue(locDuration) and locStart > 0 and locDuration > 0
 	local hasCooldown = enable and start and duration and not issecretvalue(enable) and not issecretvalue(start) and not issecretvalue(duration) and start > 0 and duration > 0
 
-	-- WoW 12.0.0: DEBUG LOGGING (only in combat, only for button 1)
-	if InCombatLockdown() and self.id == 1 then
-		print("hasLocCooldown:", hasLocCooldown)
-		print("hasCooldown:", hasCooldown)
+	-- WoW 12.0.0: DEBUG LOGGING - once per combat
+	if InCombatLockdown() and not self._debugLogged then
+		print(string.format("  hasLocCooldown: %s | hasCooldown: %s", tostring(hasLocCooldown), tostring(hasCooldown)))
 		if not hasCooldown then
-			print(">>> hasCooldown is FALSE - CooldownFrame_Set will NOT be called!")
+			print("  >>> hasCooldown is FALSE - CooldownFrame_Set will NOT be called!")
 		end
 	end
 	if hasLocCooldown and ((not hasCooldown) or ((locStart + locDuration) > (start + duration))) then
@@ -2326,9 +2341,9 @@ function UpdateCooldown(self)
 			EndChargeCooldown(self.chargeCooldown)
 		end
 	else
-		-- WoW 12.0.0: DEBUG LOGGING (only in combat, only for button 1)
-		if InCombatLockdown() and self.id == 1 then
-			print(">>> Entering NORMAL cooldown branch (not LoC)")
+		-- WoW 12.0.0: DEBUG LOGGING - once per combat
+		if InCombatLockdown() and not self._debugLogged then
+			print("  >>> Entering NORMAL cooldown branch")
 		end
 
 		if self.cooldown.currentCooldownType ~= COOLDOWN_TYPE_NORMAL then
@@ -2347,20 +2362,17 @@ function UpdateCooldown(self)
 			EndChargeCooldown(self.chargeCooldown)
 		end
 
-		-- WoW 12.0.0: DEBUG LOGGING (only in combat, only for button 1)
-		if InCombatLockdown() and self.id == 1 then
-			print("Calling CooldownFrame_Set with:")
-			print("  start:", start)
-			print("  duration:", duration)
-			print("  enable:", enable)
+		-- WoW 12.0.0: DEBUG LOGGING - once per combat
+		if InCombatLockdown() and not self._debugLogged then
+			print(string.format("  Calling CooldownFrame_Set(start=%s, duration=%s, enable=%s)", tostring(start), tostring(duration), tostring(enable)))
 		end
 
 		CooldownFrame_Set(self.cooldown, start, duration, enable, false, modRate)
 
-		-- WoW 12.0.0: DEBUG LOGGING (only in combat, only for button 1)
-		if InCombatLockdown() and self.id == 1 then
-			print("CooldownFrame_Set called successfully!")
-			print("======================================")
+		-- WoW 12.0.0: DEBUG LOGGING - once per combat
+		if InCombatLockdown() and not self._debugLogged then
+			print("  CooldownFrame_Set completed!")
+			print("==========================================")
 		end
 	end
 end
