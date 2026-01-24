@@ -2250,6 +2250,14 @@ local function OnCooldownDone(self)
 end
 
 function UpdateCooldown(self)
+	-- WoW 12.0.0: issecretvalue check only where needed for comparisons
+	local issecretvalue = issecretvalue or function() return false end
+
+	-- WoW 12.0.0: DEBUG LOGGING (only in combat, only for button 1)
+	if InCombatLockdown() and self.id == 1 then
+		print("\n=== UpdateCooldown CALLED for Button 1 in COMBAT ===")
+	end
+
 	local locStart, locDuration
 	local start, duration, enable, modRate
 	local charges, maxCharges, chargeStart, chargeDuration, chargeModRate
@@ -2280,12 +2288,32 @@ function UpdateCooldown(self)
 		locStart, locDuration = self:GetLossOfControlCooldown()
 		start, duration, enable, modRate = self:GetCooldown()
 		charges, maxCharges, chargeStart, chargeDuration, chargeModRate = self:GetCharges()
+
+		-- WoW 12.0.0: DEBUG LOGGING (only in combat, only for button 1)
+		if InCombatLockdown() and self.id == 1 then
+			print("=== UpdateCooldown DEBUG (Button 1) ===")
+			print("start:", start, "| isSecret:", issecretvalue(start))
+			print("duration:", duration, "| isSecret:", issecretvalue(duration))
+			print("enable:", enable, "| isSecret:", issecretvalue(enable))
+			print("modRate:", modRate, "| isSecret:", issecretvalue(modRate))
+		end
 	end
 
 	self.cooldown:SetDrawBling(self.cooldown:GetEffectiveAlpha() > 0.5)
 
-	local hasLocCooldown = locStart and locDuration and locStart > 0 and locDuration > 0
-	local hasCooldown = enable and start and duration and start > 0 and duration > 0
+	-- WoW 12.0.0: Check secret values ONLY before comparisons (> 0)
+	-- This is MINIMAL fix - only preventing comparison errors, nothing else
+	local hasLocCooldown = locStart and locDuration and not issecretvalue(locStart) and not issecretvalue(locDuration) and locStart > 0 and locDuration > 0
+	local hasCooldown = enable and start and duration and not issecretvalue(enable) and not issecretvalue(start) and not issecretvalue(duration) and start > 0 and duration > 0
+
+	-- WoW 12.0.0: DEBUG LOGGING (only in combat, only for button 1)
+	if InCombatLockdown() and self.id == 1 then
+		print("hasLocCooldown:", hasLocCooldown)
+		print("hasCooldown:", hasCooldown)
+		if not hasCooldown then
+			print(">>> hasCooldown is FALSE - CooldownFrame_Set will NOT be called!")
+		end
+	end
 	if hasLocCooldown and ((not hasCooldown) or ((locStart + locDuration) > (start + duration))) then
 		if self.cooldown.currentCooldownType ~= COOLDOWN_TYPE_LOSS_OF_CONTROL then
 			self.cooldown:SetEdgeTexture("Interface\\Cooldown\\edge-LoC")
@@ -2298,6 +2326,11 @@ function UpdateCooldown(self)
 			EndChargeCooldown(self.chargeCooldown)
 		end
 	else
+		-- WoW 12.0.0: DEBUG LOGGING (only in combat, only for button 1)
+		if InCombatLockdown() and self.id == 1 then
+			print(">>> Entering NORMAL cooldown branch (not LoC)")
+		end
+
 		if self.cooldown.currentCooldownType ~= COOLDOWN_TYPE_NORMAL then
 			self.cooldown:SetEdgeTexture("Interface\\Cooldown\\edge")
 			self.cooldown:SetSwipeColor(0, 0, 0)
@@ -2313,7 +2346,22 @@ function UpdateCooldown(self)
 		elseif self.chargeCooldown then
 			EndChargeCooldown(self.chargeCooldown)
 		end
+
+		-- WoW 12.0.0: DEBUG LOGGING (only in combat, only for button 1)
+		if InCombatLockdown() and self.id == 1 then
+			print("Calling CooldownFrame_Set with:")
+			print("  start:", start)
+			print("  duration:", duration)
+			print("  enable:", enable)
+		end
+
 		CooldownFrame_Set(self.cooldown, start, duration, enable, false, modRate)
+
+		-- WoW 12.0.0: DEBUG LOGGING (only in combat, only for button 1)
+		if InCombatLockdown() and self.id == 1 then
+			print("CooldownFrame_Set called successfully!")
+			print("======================================")
+		end
 	end
 end
 
