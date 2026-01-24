@@ -1597,10 +1597,6 @@ function OnEvent(frame, event, arg1, ...)
 			UpdateUsable(button)
 		end
 	elseif event == "ACTIONBAR_UPDATE_COOLDOWN" then
-		-- WoW 12.0.0: DEBUG - Log when event fires IN COMBAT
-		if InCombatLockdown() then
-			DebugLog(">>> Event: ACTIONBAR_UPDATE_COOLDOWN (in COMBAT)")
-		end
 		for button in next, ActionButtons do
 			UpdateCooldown(button)
 			if GameTooltip_GetOwnerForbidden() == button then
@@ -1608,10 +1604,6 @@ function OnEvent(frame, event, arg1, ...)
 			end
 		end
 	elseif event == "SPELL_UPDATE_COOLDOWN" then
-		-- WoW 12.0.0: DEBUG - Log when event fires IN COMBAT
-		if InCombatLockdown() then
-			DebugLog(">>> Event: SPELL_UPDATE_COOLDOWN (in COMBAT)")
-		end
 		for button in next, NonActionButtons do
 			UpdateCooldown(button)
 			if GameTooltip_GetOwnerForbidden() == button then
@@ -1719,11 +1711,9 @@ function OnEvent(frame, event, arg1, ...)
 	--[[ GE Custom Start ]]--
 	elseif event == "PLAYER_REGEN_DISABLED" then
 		lib.incombat = true
-		-- WoW 12.0.0: DEBUG - Reset debug log flags on entering combat
+		-- WoW 12.0.0: DEBUG - Reset debug log flag on entering combat
 		for button in next, ButtonRegistry do
 			button._debugLogged = nil
-			button._debugValueLogged = nil
-			button._debugCooldownSet = nil
 		end
 		DebugLog("===== ENTERING COMBAT =====")
 		ForAllButtons(UpdateUsable)
@@ -2350,14 +2340,6 @@ function UpdateCooldown(self)
 		hasCooldown = enable and start and duration and start > 0 and duration > 0
 	end
 
-	-- WoW 12.0.0: DEBUG LOGGING - show calculated values
-	if not self._debugValueLogged then
-		self._debugValueLogged = true
-		DebugLog(string.format("  hasLocCooldown=%s, hasCooldown=%s", tostring(hasLocCooldown), tostring(hasCooldown)))
-		if not hasCooldown then
-			DebugLog("  >>> hasCooldown is FALSE - might not show cooldown!")
-		end
-	end
 	-- WoW 12.0.0: Check for LoC cooldown priority
 	-- Can't compare secret values, so skip comparison if any values are secret
 	local useLocCooldown = false
@@ -2382,12 +2364,6 @@ function UpdateCooldown(self)
 			EndChargeCooldown(self.chargeCooldown)
 		end
 	else
-		-- WoW 12.0.0: DEBUG LOGGING
-		if not self._debugCooldownSet then
-			self._debugCooldownSet = true
-			DebugLog(string.format("  Setting NORMAL cooldown: start=%s, duration=%s, enable=%s", tostring(start), tostring(duration), tostring(enable)))
-		end
-
 		if self.cooldown.currentCooldownType ~= COOLDOWN_TYPE_NORMAL then
 			self.cooldown:SetEdgeTexture("Interface\\Cooldown\\edge")
 			self.cooldown:SetSwipeColor(0, 0, 0)
