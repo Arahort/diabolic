@@ -1721,9 +1721,23 @@ end
 
 local flashTime = 0
 local rangeTimer = -1
+-- WoW 12.0.0: Combat cooldown timer for forcing updates when events might be suppressed
+local combatCooldownTimer = 0
+local COMBAT_COOLDOWN_UPDATE_INTERVAL = 0.1  -- Update every 100ms in combat
+
 function OnUpdate(_, elapsed)
 	flashTime = flashTime - elapsed
 	rangeTimer = rangeTimer - elapsed
+	combatCooldownTimer = combatCooldownTimer - elapsed
+
+	-- WoW 12.0.0: Force cooldown updates in combat to work around secret values
+	if InCombatLockdown() and combatCooldownTimer <= 0 then
+		for button in next, ActionButtons do
+			UpdateCooldown(button)
+		end
+		combatCooldownTimer = COMBAT_COOLDOWN_UPDATE_INTERVAL
+	end
+
 	-- Run the loop only when there is something to update
 	if rangeTimer <= 0 or flashTime <= 0 then
 		for button in next, ActiveButtons do
@@ -2279,10 +2293,22 @@ function UpdateCooldown(self)
 		chargeModRate = modRate
 		enable = 1
 	else
-		-- WoW 12.0.0: Try to get cooldown via spellID first to avoid secret values
-		local spellID = self:GetSpellId()
+		-- WoW 12.0.0: Cache spellID when not in combat, use cache in combat
+		local spellID
+		if not InCombatLockdown() then
+			spellID = self:GetSpellId()
+			-- Cache the spell ID if it's valid and not secret
+			if spellID and not issecretvalue(spellID) then
+				self._cachedSpellID = spellID
+			end
+		else
+			-- In combat, use cached spell ID
+			spellID = self._cachedSpellID
+		end
+
 		local gotCooldownFromSpell = false
 
+		-- Try spell-based cooldown API if we have a valid spellID
 		if spellID and C_Spell and C_Spell.GetSpellCooldown then
 			local spellCooldownInfo = C_Spell.GetSpellCooldown(spellID)
 			if spellCooldownInfo then
