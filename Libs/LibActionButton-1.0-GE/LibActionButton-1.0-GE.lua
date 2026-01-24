@@ -2279,8 +2279,31 @@ function UpdateCooldown(self)
 		chargeModRate = modRate
 		enable = 1
 	else
+		-- WoW 12.0.0: Try to get cooldown via spellID first to avoid secret values
+		local spellID = self:GetSpellId()
+		local gotCooldownFromSpell = false
+
+		if spellID and C_Spell and C_Spell.GetSpellCooldown then
+			local spellCooldownInfo = C_Spell.GetSpellCooldown(spellID)
+			if spellCooldownInfo then
+				start = spellCooldownInfo.startTime
+				duration = spellCooldownInfo.duration
+				enable = spellCooldownInfo.isEnabled
+				modRate = spellCooldownInfo.modRate
+
+				-- Check if we got non-secret values
+				if not issecretvalue(start) and not issecretvalue(duration) and not issecretvalue(enable) then
+					gotCooldownFromSpell = true
+				end
+			end
+		end
+
+		-- Fallback to action-based cooldown if spell method didn't work
+		if not gotCooldownFromSpell then
+			start, duration, enable, modRate = self:GetCooldown()
+		end
+
 		locStart, locDuration = self:GetLossOfControlCooldown()
-		start, duration, enable, modRate = self:GetCooldown()
 		charges, maxCharges, chargeStart, chargeDuration, chargeModRate = self:GetCharges()
 	end
 
@@ -2316,13 +2339,9 @@ function UpdateCooldown(self)
 		elseif self.chargeCooldown then
 			EndChargeCooldown(self.chargeCooldown)
 		end
-		-- WoW 12.0.0: TEMPORARY FIX - try calling CooldownFrame_Set even with secret values
-		-- This might cause errors but will help confirm if this is the issue
-		if enable and start and duration then
-			local pcallSuccess, pcallError = pcall(CooldownFrame_Set, self.cooldown, start, duration, enable, false, modRate)
-			if not pcallSuccess then
-				-- If it errors due to secret values, silently ignore
-			end
+		-- WoW 12.0.0: Only call CooldownFrame_Set if values are not secret
+		if not issecretvalue(enable) and not issecretvalue(start) and not issecretvalue(duration) then
+			CooldownFrame_Set(self.cooldown, start, duration, enable, false, modRate)
 		end
 	end
 end
