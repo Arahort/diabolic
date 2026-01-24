@@ -36,6 +36,16 @@ if not LibStub then error(MAJOR_VERSION .. " requires LibStub.") end
 local lib, oldversion = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 
+-- WoW 12.0.0: DEBUG - Reliable logging function that always works
+local function DebugLog(msg)
+	if DEFAULT_CHAT_FRAME then
+		DEFAULT_CHAT_FRAME:AddMessage("|cFFFF0000[LAB-DEBUG]|r " .. tostring(msg), 1, 1, 0)
+	end
+end
+
+-- WoW 12.0.0: DEBUG - Log library load
+DebugLog("LibActionButton-1.0-GE loaded! Version: " .. MINOR_VERSION)
+
 -- Lua functions
 local type, error, tostring, tonumber, assert, select = type, error, tostring, tonumber, assert, select
 local setmetatable, wipe, unpack, pairs, next = setmetatable, wipe, unpack, pairs, next
@@ -1587,10 +1597,8 @@ function OnEvent(frame, event, arg1, ...)
 			UpdateUsable(button)
 		end
 	elseif event == "ACTIONBAR_UPDATE_COOLDOWN" then
-		-- WoW 12.0.0: DEBUG - Log when event fires in combat
-		if InCombatLockdown() then
-			print("[EVENT DEBUG] ACTIONBAR_UPDATE_COOLDOWN fired in COMBAT")
-		end
+		-- WoW 12.0.0: DEBUG - Log when event fires
+		DebugLog("Event: ACTIONBAR_UPDATE_COOLDOWN (combat=" .. tostring(InCombatLockdown()) .. ")")
 		for button in next, ActionButtons do
 			UpdateCooldown(button)
 			if GameTooltip_GetOwnerForbidden() == button then
@@ -1598,10 +1606,8 @@ function OnEvent(frame, event, arg1, ...)
 			end
 		end
 	elseif event == "SPELL_UPDATE_COOLDOWN" then
-		-- WoW 12.0.0: DEBUG - Log when event fires in combat
-		if InCombatLockdown() then
-			print("[EVENT DEBUG] SPELL_UPDATE_COOLDOWN fired in COMBAT")
-		end
+		-- WoW 12.0.0: DEBUG - Log when event fires
+		DebugLog("Event: SPELL_UPDATE_COOLDOWN (combat=" .. tostring(InCombatLockdown()) .. ")")
 		for button in next, NonActionButtons do
 			UpdateCooldown(button)
 			if GameTooltip_GetOwnerForbidden() == button then
@@ -1712,12 +1718,14 @@ function OnEvent(frame, event, arg1, ...)
 		-- WoW 12.0.0: DEBUG - Reset debug log flags on entering combat
 		for button in next, ButtonRegistry do
 			button._debugLogged = nil
+			button._debugValueLogged = nil
+			button._debugCooldownSet = nil
 		end
-		print("[COMBAT DEBUG] ===== ENTERING COMBAT - Debug logging enabled =====")
+		DebugLog("===== ENTERING COMBAT =====")
 		ForAllButtons(UpdateUsable)
 	elseif event == "PLAYER_REGEN_ENABLED" then
 		lib.incombat = false
-		print("[COMBAT DEBUG] ===== LEAVING COMBAT - Debug logging disabled =====")
+		DebugLog("===== LEAVING COMBAT =====")
 		ForAllButtons(UpdateUsable)
 	elseif event == "PLAYER_UPDATE_RESTING" then
 		lib.isresting = IsResting()
@@ -2267,11 +2275,10 @@ function UpdateCooldown(self)
 	-- WoW 12.0.0: issecretvalue check only where needed for comparisons
 	local issecretvalue = issecretvalue or function() return false end
 
-	-- WoW 12.0.0: DEBUG LOGGING - unconditional to see if function is called at all
-	if InCombatLockdown() then
-		local buttonName = self:GetName() or "unknown"
-		print(string.format("[COOLDOWN DEBUG] UpdateCooldown called in COMBAT for %s (id=%s)", buttonName, tostring(self.id)))
-	end
+	-- WoW 12.0.0: DEBUG LOGGING - ALWAYS log to see if function is called
+	local buttonName = self:GetName() or "unknown"
+	local inCombat = InCombatLockdown() and "COMBAT" or "out of combat"
+	DebugLog(string.format("UpdateCooldown called (%s) for %s (id=%s)", inCombat, buttonName, tostring(self.id)))
 
 	local locStart, locDuration
 	local start, duration, enable, modRate
@@ -2304,14 +2311,13 @@ function UpdateCooldown(self)
 		start, duration, enable, modRate = self:GetCooldown()
 		charges, maxCharges, chargeStart, chargeDuration, chargeModRate = self:GetCharges()
 
-		-- WoW 12.0.0: DEBUG LOGGING - log once per combat for first button that updates
-		if InCombatLockdown() and not self._debugLogged then
+		-- WoW 12.0.0: DEBUG LOGGING - log values (once per combat for each button)
+		if not self._debugLogged then
 			self._debugLogged = true
-			local buttonName = self:GetName() or "unknown"
-			print(string.format("[COOLDOWN VALUES] Button: %s", buttonName))
-			print(string.format("  start: %s | isSecret: %s", tostring(start), tostring(issecretvalue(start))))
-			print(string.format("  duration: %s | isSecret: %s", tostring(duration), tostring(issecretvalue(duration))))
-			print(string.format("  enable: %s | isSecret: %s", tostring(enable), tostring(issecretvalue(enable))))
+			DebugLog(string.format("Cooldown values for %s:", buttonName))
+			DebugLog(string.format("  start=%s (isSecret:%s)", tostring(start), tostring(issecretvalue(start))))
+			DebugLog(string.format("  duration=%s (isSecret:%s)", tostring(duration), tostring(issecretvalue(duration))))
+			DebugLog(string.format("  enable=%s (isSecret:%s)", tostring(enable), tostring(issecretvalue(enable))))
 		end
 	end
 
@@ -2322,11 +2328,12 @@ function UpdateCooldown(self)
 	local hasLocCooldown = locStart and locDuration and not issecretvalue(locStart) and not issecretvalue(locDuration) and locStart > 0 and locDuration > 0
 	local hasCooldown = enable and start and duration and not issecretvalue(enable) and not issecretvalue(start) and not issecretvalue(duration) and start > 0 and duration > 0
 
-	-- WoW 12.0.0: DEBUG LOGGING - once per combat
-	if InCombatLockdown() and not self._debugLogged then
-		print(string.format("  hasLocCooldown: %s | hasCooldown: %s", tostring(hasLocCooldown), tostring(hasCooldown)))
+	-- WoW 12.0.0: DEBUG LOGGING - show calculated values
+	if not self._debugValueLogged then
+		self._debugValueLogged = true
+		DebugLog(string.format("  hasLocCooldown=%s, hasCooldown=%s", tostring(hasLocCooldown), tostring(hasCooldown)))
 		if not hasCooldown then
-			print("  >>> hasCooldown is FALSE - CooldownFrame_Set will NOT be called!")
+			DebugLog("  >>> hasCooldown is FALSE - might not show cooldown!")
 		end
 	end
 	if hasLocCooldown and ((not hasCooldown) or ((locStart + locDuration) > (start + duration))) then
@@ -2341,9 +2348,10 @@ function UpdateCooldown(self)
 			EndChargeCooldown(self.chargeCooldown)
 		end
 	else
-		-- WoW 12.0.0: DEBUG LOGGING - once per combat
-		if InCombatLockdown() and not self._debugLogged then
-			print("  >>> Entering NORMAL cooldown branch")
+		-- WoW 12.0.0: DEBUG LOGGING
+		if not self._debugCooldownSet then
+			self._debugCooldownSet = true
+			DebugLog(string.format("  Setting NORMAL cooldown: start=%s, duration=%s, enable=%s", tostring(start), tostring(duration), tostring(enable)))
 		end
 
 		if self.cooldown.currentCooldownType ~= COOLDOWN_TYPE_NORMAL then
@@ -2362,18 +2370,7 @@ function UpdateCooldown(self)
 			EndChargeCooldown(self.chargeCooldown)
 		end
 
-		-- WoW 12.0.0: DEBUG LOGGING - once per combat
-		if InCombatLockdown() and not self._debugLogged then
-			print(string.format("  Calling CooldownFrame_Set(start=%s, duration=%s, enable=%s)", tostring(start), tostring(duration), tostring(enable)))
-		end
-
 		CooldownFrame_Set(self.cooldown, start, duration, enable, false, modRate)
-
-		-- WoW 12.0.0: DEBUG LOGGING - once per combat
-		if InCombatLockdown() and not self._debugLogged then
-			print("  CooldownFrame_Set completed!")
-			print("==========================================")
-		end
 	end
 end
 
