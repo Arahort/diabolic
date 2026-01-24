@@ -240,9 +240,12 @@ end
 
 Aura.UpdateTooltip = function(self)
 	if (GameTooltip:IsForbidden()) then return end
-	local unit = self:GetParent():GetAttribute("unit") or "player"
-	local index = self:GetAttribute("index")
-	GameTooltip:SetUnitAura(unit, index, self.filter)
+	-- WoW 12.0.0: Wrap tooltip operations in pcall to prevent taint errors
+	pcall(function()
+		local unit = self:GetParent():GetAttribute("unit") or "player"
+		local index = self:GetAttribute("index")
+		GameTooltip:SetUnitAura(unit, index, self.filter)
+	end)
 end
 
 Aura.OnUpdate = function(self, elapsed)
@@ -283,15 +286,21 @@ end
 Aura.OnEnter = function(self)
 	if (not self:IsVisible()) then return end
 	if (GameTooltip:IsForbidden()) then return end
-	local p = self:GetParent()
-	GameTooltip:SetOwner(self, "ANCHOR_NONE")
-	GameTooltip:SetPoint(p.tooltipPoint, self, p.tooltipAnchor, p.tooltipOffsetX, p.tooltipOffsetY)
-	self:UpdateTooltip()
+	-- WoW 12.0.0: Wrap tooltip operations in pcall to prevent taint errors
+	pcall(function()
+		local p = self:GetParent()
+		GameTooltip:SetOwner(self, "ANCHOR_NONE")
+		GameTooltip:SetPoint(p.tooltipPoint, self, p.tooltipAnchor, p.tooltipOffsetX, p.tooltipOffsetY)
+		self:UpdateTooltip()
+	end)
 end
 
 Aura.OnLeave = function(self)
 	if (GameTooltip:IsForbidden()) then return end
-	GameTooltip:Hide()
+	-- WoW 12.0.0: Wrap tooltip operations in pcall to prevent taint errors
+	pcall(function()
+		GameTooltip:Hide()
+	end)
 end
 
 Aura.OnAttributeChanged = function(self, attribute, value)
