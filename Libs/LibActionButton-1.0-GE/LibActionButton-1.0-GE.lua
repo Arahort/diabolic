@@ -2815,34 +2815,26 @@ Action.HasAction               = function(self) return HasAction(self._state_act
 Action.GetActionText           = function(self) return GetActionText(self._state_action) end
 Action.GetTexture              = function(self) return GetActionTexture(self._state_action) end
 Action.GetCharges              = function(self)
-	-- WoW 12.0.0 CRITICAL FIX: GetActionCharges returns SECRET VALUES in combat!
-	-- Solution: If action contains a spell, use C_Spell.GetSpellCharges instead
-	local spellID = self:GetSpellId()
-	if spellID and C_Spell and C_Spell.GetSpellCharges then
-		-- This is a spell action - use C_Spell API directly
-		local chargeInfo = C_Spell.GetSpellCharges(spellID)
+	-- WoW 12.0.0: Use new GetActionChargeInfo() API if available (returns table, not secret values)
+	-- Otherwise fallback to old GetActionCharges() (may return secret values in combat)
+	if GetActionChargeInfo then
+		local chargeInfo = GetActionChargeInfo(self._state_action)
 		if chargeInfo then
 			return chargeInfo.currentCharges, chargeInfo.maxCharges, chargeInfo.cooldownStartTime, chargeInfo.cooldownDuration, chargeInfo.chargeModRate
 		end
 	end
-	-- Fallback: for non-spell actions use GetActionCharges (may return secret values)
 	return GetActionCharges(self._state_action)
 end
 Action.GetCount                = function(self) return GetActionCount(self._state_action) end
 Action.GetCooldown             = function(self)
-	-- WoW 12.0.0 CRITICAL FIX: GetActionCooldown returns SECRET VALUES in combat!
-	-- Solution: If action contains a spell, use C_Spell.GetSpellCooldown instead
-	-- C_Spell.GetSpellCooldown does NOT return secret values
-	local spellID = self:GetSpellId()
-	if spellID and C_Spell and C_Spell.GetSpellCooldown then
-		-- This is a spell action - use C_Spell API directly
-		local cooldownInfo = C_Spell.GetSpellCooldown(spellID)
+	-- WoW 12.0.0: Use new GetActionCooldownInfo() API if available (returns table, not secret values)
+	-- Otherwise fallback to old GetActionCooldown() (may return secret values in combat)
+	if GetActionCooldownInfo then
+		local cooldownInfo = GetActionCooldownInfo(self._state_action)
 		if cooldownInfo then
 			return cooldownInfo.startTime, cooldownInfo.duration, cooldownInfo.isEnabled, cooldownInfo.modRate
 		end
 	end
-	-- Fallback: for non-spell actions (items, empty macros) use GetActionCooldown
-	-- This may return secret values in combat, but handled in UpdateCooldown
 	return GetActionCooldown(self._state_action)
 end
 Action.IsAttack                = function(self) return IsAttackAction(self._state_action) end
