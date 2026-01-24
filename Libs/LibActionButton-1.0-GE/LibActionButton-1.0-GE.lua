@@ -2814,9 +2814,38 @@ Generic.GetPassiveCooldownSpellID = function(self) return nil end
 Action.HasAction               = function(self) return HasAction(self._state_action) end
 Action.GetActionText           = function(self) return GetActionText(self._state_action) end
 Action.GetTexture              = function(self) return GetActionTexture(self._state_action) end
-Action.GetCharges              = function(self) return GetActionCharges(self._state_action) end
+Action.GetCharges              = function(self)
+	-- WoW 12.0.0 CRITICAL FIX: GetActionCharges returns SECRET VALUES in combat!
+	-- Solution: If action contains a spell, use C_Spell.GetSpellCharges instead
+	local spellID = self:GetSpellId()
+	if spellID then
+		-- This is a spell action - use C_Spell API (already wrapped above)
+		local currentCharges, maxCharges, cooldownStartTime, cooldownDuration, chargeModRate = GetSpellCharges(spellID)
+		if currentCharges then
+			return currentCharges, maxCharges, cooldownStartTime, cooldownDuration, chargeModRate
+		end
+	end
+	-- Fallback: for non-spell actions use GetActionCharges (may return secret values)
+	return GetActionCharges(self._state_action)
+end
 Action.GetCount                = function(self) return GetActionCount(self._state_action) end
-Action.GetCooldown             = function(self) return GetActionCooldown(self._state_action) end
+Action.GetCooldown             = function(self)
+	-- WoW 12.0.0 CRITICAL FIX: GetActionCooldown returns SECRET VALUES in combat!
+	-- Solution: If action contains a spell, use C_Spell.GetSpellCooldown instead
+	-- C_Spell.GetSpellCooldown does NOT return secret values
+	local spellID = self:GetSpellId()
+	if spellID then
+		-- This is a spell action - use C_Spell API (already wrapped above)
+		-- GetSpellCooldown wrapper handles both old and new API
+		local start, duration, enable, modRate = GetSpellCooldown(spellID)
+		if start then
+			return start, duration, enable, modRate
+		end
+	end
+	-- Fallback: for non-spell actions (items, empty macros) use GetActionCooldown
+	-- This may return secret values in combat, but handled in UpdateCooldown
+	return GetActionCooldown(self._state_action)
+end
 Action.IsAttack                = function(self) return IsAttackAction(self._state_action) end
 Action.IsEquipped              = function(self) return IsEquippedAction(self._state_action) end
 Action.IsCurrentlyActive       = function(self) return IsCurrentAction(self._state_action) end
