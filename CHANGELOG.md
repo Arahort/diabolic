@@ -13,6 +13,11 @@
 - Updated LibActionButton to use ActionButton_ApplyCooldown when available
 - Updated LibActionButton to use C_ActionBar.GetActionCooldown API for WoW 12.0+
 - Added fallback support for older WoW versions without C_ActionBar API
+- Dropped support for WoW 11.x (The War Within) - addon now requires WoW 12.x Midnight
+
+### Known Issues
+- Buffs and debuffs may not display correctly in combat due to WoW 12.0 secret values system
+- Unit auras require additional work to handle secret values properly
 
 ## [1.9.4] - 2026-01-17
 ### Changed
