@@ -2325,10 +2325,28 @@ function UpdateCooldown(self)
 
 	self.cooldown:SetDrawBling(self.cooldown:GetEffectiveAlpha() > 0.5)
 
-	-- WoW 12.0.0: Check secret values ONLY before comparisons (> 0)
-	-- This is MINIMAL fix - only preventing comparison errors, nothing else
-	local hasLocCooldown = locStart and locDuration and not issecretvalue(locStart) and not issecretvalue(locDuration) and locStart > 0 and locDuration > 0
-	local hasCooldown = enable and start and duration and not issecretvalue(enable) and not issecretvalue(start) and not issecretvalue(duration) and start > 0 and duration > 0
+	-- WoW 12.0.0: CRITICAL FIX - Handle secret values properly
+	-- In v1.9.4, GetCooldown() returned normal values
+	-- In 12.0.0 Midnight, GetCooldown() returns SECRET VALUES in combat!
+	-- We can't check/compare secret values, but we CAN pass them to CooldownFrame_Set
+	-- Solution: Skip checks if values are secret, and always call CooldownFrame_Set
+
+	local hasLocCooldown
+	if issecretvalue(locStart) or issecretvalue(locDuration) then
+		-- Secret values - can't check them, assume no LoC cooldown
+		hasLocCooldown = false
+	else
+		hasLocCooldown = locStart and locDuration and locStart > 0 and locDuration > 0
+	end
+
+	local hasCooldown
+	if issecretvalue(enable) or issecretvalue(start) or issecretvalue(duration) then
+		-- Secret values - can't check them, but assume cooldown exists
+		-- We'll call CooldownFrame_Set anyway and let it handle secret values
+		hasCooldown = true
+	else
+		hasCooldown = enable and start and duration and start > 0 and duration > 0
+	end
 
 	-- WoW 12.0.0: DEBUG LOGGING - show calculated values
 	if not self._debugValueLogged then
@@ -2338,7 +2356,19 @@ function UpdateCooldown(self)
 			DebugLog("  >>> hasCooldown is FALSE - might not show cooldown!")
 		end
 	end
-	if hasLocCooldown and ((not hasCooldown) or ((locStart + locDuration) > (start + duration))) then
+	-- WoW 12.0.0: Check for LoC cooldown priority
+	-- Can't compare secret values, so skip comparison if any values are secret
+	local useLocCooldown = false
+	if hasLocCooldown then
+		if not hasCooldown then
+			useLocCooldown = true
+		elseif not issecretvalue(locStart) and not issecretvalue(locDuration) and not issecretvalue(start) and not issecretvalue(duration) then
+			-- Safe to compare - no secret values
+			useLocCooldown = (locStart + locDuration) > (start + duration)
+		end
+	end
+
+	if useLocCooldown then
 		if self.cooldown.currentCooldownType ~= COOLDOWN_TYPE_LOSS_OF_CONTROL then
 			self.cooldown:SetEdgeTexture("Interface\\Cooldown\\edge-LoC")
 			self.cooldown:SetSwipeColor(0.17, 0, 0)
