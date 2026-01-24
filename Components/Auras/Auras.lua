@@ -133,6 +133,8 @@ Aura.Update = function(self, index)
 	local auraData = C_UnitAuras.GetAuraDataByIndex(unit, index, self.filter)
 
 	if (auraData) then
+		-- WoW 12.0.0: Store auraInstanceID for non-secure updates during combat
+		self.auraInstanceID = auraData.auraInstanceID
 		-- print("|cFF00FF00  Got aura:|r", auraData.name, "icon:", auraData.icon)
 		local name, icon, count, dispelType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, castByPlayer, nameplateShowAll, timeMod = auraData.name, auraData.icon, auraData.applications, auraData.dispelName, auraData.duration, auraData.expirationTime, auraData.sourceUnit, auraData.isStealable, auraData.nameplateShowPersonal, auraData.spellId, auraData.canApplyAura, auraData.isBossAura, auraData.isFromPlayerOrPlayerPet, auraData.nameplateShowAll, auraData.timeMod
 
@@ -144,8 +146,17 @@ Aura.Update = function(self, index)
 
 		self:SetAlpha(1)
 		self.icon:SetTexture(icon)
-		-- WoW 12.0.0: count can be secret value, skip comparison if secret
-		self.count:SetText((count and not issecretvalue(count) and count > 1) and count or "")
+		-- WoW 12.0.0: Prefer GetAuraApplicationDisplayCount (works in combat!)
+		local countText = ""
+		if (C_UnitAuras.GetAuraApplicationDisplayCount and auraData.auraInstanceID) then
+			local displayCount = C_UnitAuras.GetAuraApplicationDisplayCount(unit, auraData.auraInstanceID, 2, 1000)
+			if (displayCount and not issecretvalue(displayCount) and displayCount ~= "") then
+				countText = displayCount
+			end
+		elseif (count and not issecretvalue(count) and count > 1) then
+			countText = tostring(count)
+		end
+		self.count:SetText(countText)
 		-- print("|cFF00FF00  Set texture:|r", icon)
 		-- WoW 12.0.0: duration and expirationTime can be secret values
 		if (duration and expirationTime and not issecretvalue(duration) and not issecretvalue(expirationTime)) then
@@ -181,6 +192,8 @@ Aura.Update = function(self, index)
 			self.timeLeft = nil
 		end
 	else
+		-- WoW 12.0.0: Clear auraInstanceID when no aura
+		self.auraInstanceID = nil
 		self.icon:SetTexture(nil)
 		self.count:SetText("")
 		self.cd:Hide()
@@ -635,6 +648,116 @@ Auras.SpawnAuras = function(self)
 	end
 end
 
+-- WoW 12.0.0: Update aura data cache from refreshData
+-- This allows counter updates during combat (non-secure code)
+Auras.UpdateAuraData = function(self, unit, refreshData)
+	-- WoW 12.0.0: issecretvalue may not exist in older versions
+	local issecretvalue = issecretvalue or function() return false end
+
+	-- Initialize cache if needed
+	self.auraData = self.auraData or {}
+
+	-- Full update - rebuild cache
+	if (refreshData.isFullUpdate) then
+		self.auraData = {}
+		-- SecureAuraHeaderTemplate will handle full refresh
+		return
+	end
+
+	-- Process added auras
+	if (refreshData.addedAuras) then
+		for _, aura in ipairs(refreshData.addedAuras) do
+			if (aura.auraInstanceID) then
+				-- Get counter display string (works in combat!)
+				aura.applicationsString = ""
+				if (C_UnitAuras.GetAuraApplicationDisplayCount) then
+					local count = C_UnitAuras.GetAuraApplicationDisplayCount(unit, aura.auraInstanceID, 2, 1000)
+					if (count and not issecretvalue(count)) then
+						aura.applicationsString = count
+					end
+				elseif (aura.applications and not issecretvalue(aura.applications) and aura.applications > 1) then
+					aura.applicationsString = tostring(aura.applications)
+				end
+
+				-- Get duration (may be secret!)
+				if (C_UnitAuras.GetAuraDuration) then
+					aura.durationSecret = C_UnitAuras.GetAuraDuration(unit, aura.auraInstanceID)
+				end
+
+				self.auraData[aura.auraInstanceID] = aura
+			end
+		end
+	end
+
+	-- Process updated auras
+	if (refreshData.updatedAuraInstanceIDs) then
+		for _, auraInstanceID in ipairs(refreshData.updatedAuraInstanceIDs) do
+			local stored = self.auraData[auraInstanceID]
+			if (stored) then
+				-- Refresh aura data
+				local aura = C_UnitAuras.GetAuraDataByAuraInstanceID(unit, auraInstanceID)
+				if (aura) then
+					-- Update counter (this is the key for combat updates!)
+					aura.applicationsString = ""
+					if (C_UnitAuras.GetAuraApplicationDisplayCount) then
+						local count = C_UnitAuras.GetAuraApplicationDisplayCount(unit, auraInstanceID, 2, 1000)
+						if (count and not issecretvalue(count)) then
+							aura.applicationsString = count
+						end
+					elseif (aura.applications and not issecretvalue(aura.applications) and aura.applications > 1) then
+						aura.applicationsString = tostring(aura.applications)
+					end
+
+					-- Update duration
+					if (C_UnitAuras.GetAuraDuration) then
+						aura.durationSecret = C_UnitAuras.GetAuraDuration(unit, auraInstanceID)
+					end
+
+					self.auraData[auraInstanceID] = aura
+
+					-- Update button visuals (works in combat!)
+					self:UpdateButtonByAuraInstanceID(auraInstanceID, aura)
+				end
+			end
+		end
+	end
+
+	-- Process removed auras
+	if (refreshData.removedAuraInstanceIDs) then
+		for _, auraInstanceID in ipairs(refreshData.removedAuraInstanceIDs) do
+			self.auraData[auraInstanceID] = nil
+		end
+	end
+end
+
+-- WoW 12.0.0: Update button visuals by auraInstanceID (works in combat!)
+Auras.UpdateButtonByAuraInstanceID = function(self, auraInstanceID, aura)
+	local buffs = self.buffs
+	if (not buffs) then
+		return
+	end
+
+	-- Find button with this auraInstanceID
+	local child = buffs:GetAttribute("child1")
+	local i = 1
+	while (child) do
+		-- Check if this button displays this aura
+		local buttonAuraID = child.auraInstanceID
+		if (buttonAuraID == auraInstanceID and aura) then
+			-- Update counter (this is the KEY for combat updates!)
+			if (child.count and aura.applicationsString) then
+				child.count:SetText(aura.applicationsString)
+			end
+
+			-- Note: duration/cooldown updates are handled by OnUpdate script
+			-- We only update the COUNTER here since that's what freezes in combat
+			break
+		end
+		i = i + 1
+		child = buffs:GetAttribute("child"..i)
+	end
+end
+
 Auras.OnChatCommand = function(self, input)
 	if (InCombatLockdown()) then
 		return
@@ -657,11 +780,30 @@ Auras.OnChatCommand = function(self, input)
 	self:UpdateSettings()
 end
 
+-- WoW 12.0.0: New UNIT_AURA handler with refreshData support
+-- This allows aura counters to update during combat (non-secure code)
+Auras.OnUnitAura = function(self, event, unit, refreshData)
+	if (unit ~= "player" and unit ~= "vehicle") then
+		return
+	end
+
+	-- Store or update aura data for later use
+	if (refreshData) then
+		-- WoW 12.0.0: refreshData contains addedAuras, updatedAuraInstanceIDs, removedAuraInstanceIDs
+		-- Update our aura data cache for non-secure updates during combat
+		self:UpdateAuraData(unit, refreshData)
+	end
+
+	-- Always update alpha (this was the original behavior)
+	self:UpdateAlpha()
+end
+
 Auras.OnEvent = function(self, event, ...)
 	if (event == "PLAYER_ENTERING_WORLD") then
 		local isInitialLogin, isReloadingUi = ...
 		if (isInitialLogin or isReloadingUi) then
-
+			-- Initialize aura data cache
+			self.auraData = self.auraData or {}
 		end
 		self:ForAll("Update")
 		self:UpdateAlpha()
@@ -685,5 +827,6 @@ Auras.OnEnable = function(self)
 	end
 	self:UpdateSettings()
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnEvent")
-	self:RegisterUnitEvent("UNIT_AURA", "UpdateAlpha", "player", "vehicle")
+	-- WoW 12.0.0: Use OnUnitAura instead of UpdateAlpha to handle refreshData
+	self:RegisterUnitEvent("UNIT_AURA", "OnUnitAura", "player", "vehicle")
 end
