@@ -124,6 +124,42 @@ lib.FlyoutButtons = lib.FlyoutButtons or {}
 
 lib.callbacks = lib.callbacks or CBH:New(lib)
 
+-- WoW 12.0.0: Fallback functions to wrap secret values in tables
+-- Secret values become normal values when placed in a table!
+local GetActionCooldownInfoFallback
+if GetActionCooldown then
+	GetActionCooldownInfoFallback = function(action)
+		local start, duration, enable, modRate = GetActionCooldown(action)
+		return {
+			startTime = start,
+			duration = duration,
+			isEnabled = enable,
+			modRate = modRate
+		}
+	end
+else
+	GetActionCooldownInfoFallback = function() end
+end
+
+local GetActionChargeInfoFallback
+if GetActionCharges then
+	GetActionChargeInfoFallback = function(action)
+		local currentCharges, maxCharges, cooldownStart, cooldownDuration, chargeModRate = GetActionCharges(action)
+		return {
+			currentCharges = currentCharges,
+			maxCharges = maxCharges,
+			cooldownStartTime = cooldownStart,
+			cooldownDuration = cooldownDuration,
+			chargeModRate = chargeModRate
+		}
+	end
+else
+	GetActionChargeInfoFallback = function() end
+end
+
+local GetActionCooldownInfo = C_ActionBar and C_ActionBar.GetActionCooldown or GetActionCooldownInfoFallback
+local GetActionChargeInfo = C_ActionBar and C_ActionBar.GetActionCharges or GetActionChargeInfoFallback
+
 local Generic = CreateFrame("CheckButton")
 local Generic_MT = {__index = Generic}
 
@@ -2255,12 +2291,15 @@ local function OnCooldownDone(self)
 	UpdateCooldown(self:GetParent())
 end
 
+-- WoW 12.0.0: Default values for cooldown info tables
+local defaultCooldownInfo = { startTime = 0; duration = 0; isEnabled = false; modRate = 0 }
+local defaultChargeInfo = { currentCharges = 0; maxCharges = 0; cooldownStartTime = 0; cooldownDuration = 0; chargeModRate = 0 }
+local defaultLossOfControlInfo = { startTime = 0; duration = 0; modRate = 0 }
+
 function UpdateCooldown(self)
-	-- WoW 12.0.0: Use issecretvalue when needed for fallback logic
-	local issecretvalue = issecretvalue or function() return false end
-	local locStart, locDuration
-	local start, duration, enable, modRate
-	local charges, maxCharges, chargeStart, chargeDuration, chargeModRate
+	local chargeInfo
+	local cooldownInfo
+	local lossOfControlInfo = {}
 	local auraData
 	local passiveCooldownSpellID = self:GetPassiveCooldownSpellID()
 	if passiveCooldownSpellID and passiveCooldownSpellID ~= 0 then
@@ -2270,81 +2309,51 @@ function UpdateCooldown(self)
 		local currentTime = GetTime()
 		local timeUntilExpire = auraData.expirationTime - currentTime
 		local howMuchTimeHasPassed = auraData.duration - timeUntilExpire
-		locStart = currentTime - howMuchTimeHasPassed
-		locDuration = auraData.expirationTime - currentTime
-		start = currentTime - howMuchTimeHasPassed
-		duration = auraData.duration
-		modRate = auraData.timeMod
-		charges = auraData.charges
-		maxCharges = auraData.maxCharges
-		chargeStart = currentTime * 0.001
-		chargeDuration = duration * 0.001
-		chargeModRate = modRate
-		enable = 1
+		lossOfControlInfo.startTime = currentTime - howMuchTimeHasPassed
+		lossOfControlInfo.duration = auraData.expirationTime - currentTime
+		lossOfControlInfo.modRate = auraData.timeMod
+		cooldownInfo = {}
+		cooldownInfo.startTime = currentTime - howMuchTimeHasPassed
+		cooldownInfo.duration = auraData.duration
+		cooldownInfo.modRate = auraData.timeMod
+		cooldownInfo.isEnabled = 1
+		chargeInfo = {}
+		chargeInfo.currentCharges = auraData.charges
+		chargeInfo.maxCharges = auraData.maxCharges
+		chargeInfo.cooldownStartTime = currentTime * 0.001
+		chargeInfo.cooldownDuration = auraData.duration * 0.001
+		chargeInfo.chargeModRate = auraData.timeMod
 	else
-		locStart, locDuration = self:GetLossOfControlCooldown()
-		start, duration, enable, modRate = self:GetCooldown()
-		charges, maxCharges, chargeStart, chargeDuration, chargeModRate = self:GetCharges()
+		-- WoW 12.0.0: Use GetCooldownInfo/GetChargeInfo which wrap secret values in tables
+		cooldownInfo = self:GetCooldownInfo() or defaultCooldownInfo
+		chargeInfo = self:GetChargeInfo() or defaultChargeInfo
+		local locStart, locDuration = self:GetLossOfControlCooldown()
+		lossOfControlInfo.startTime = locStart
+		lossOfControlInfo.duration = locDuration
+		lossOfControlInfo.modRate = cooldownInfo.modRate
 	end
 	self.cooldown:SetDrawBling(self.cooldown:GetEffectiveAlpha() > 0.5)
-	-- WoW 12.0.0: Prepare cooldown info tables for new ActionButton_ApplyCooldown API
-	local cooldownInfo = {
-		startTime = start,
-		duration = duration,
-		isEnabled = enable,
-		modRate = modRate
-	}
-	local chargeInfo
-	if charges and maxCharges then
-		chargeInfo = {
-			currentCharges = charges,
-			maxCharges = maxCharges,
-			cooldownStartTime = chargeStart,
-			cooldownDuration = chargeDuration,
-			chargeModRate = chargeModRate
-		}
-	end
-	local lossOfControlInfo
-	if locStart and locDuration then
-		lossOfControlInfo = {
-			startTime = locStart,
-			duration = locDuration
-		}
-	end
-	-- WoW 12.0.0: Use new ActionButton_ApplyCooldown if available (handles secret values)
-	-- Otherwise fallback to CooldownFrame_Set for older WoW versions
+	-- WoW 12.0.0: Use new ActionButton_ApplyCooldown if available (handles secret values in WoW 12.0+)
+	-- Otherwise extract values from tables and use CooldownFrame_Set
+	-- Values from tables are NO LONGER SECRET - this is the key trick!
 	if ActionButton_ApplyCooldown then
 		ActionButton_ApplyCooldown(self.cooldown, cooldownInfo, self.chargeCooldown, chargeInfo, self.lossOfControlCooldown, lossOfControlInfo)
 	else
-		-- Fallback for older WoW versions - replicate old logic
-		local hasLocCooldown
-		if issecretvalue(locStart) or issecretvalue(locDuration) then
-			hasLocCooldown = false
-		else
-			hasLocCooldown = locStart and locDuration and locStart > 0 and locDuration > 0
-		end
-		local hasCooldown
-		if issecretvalue(enable) or issecretvalue(start) or issecretvalue(duration) then
-			hasCooldown = true
-		else
-			hasCooldown = enable and start and duration and start > 0 and duration > 0
-		end
-		local useLocCooldown = false
-		if hasLocCooldown then
-			if not hasCooldown then
-				useLocCooldown = true
-			elseif not issecretvalue(locStart) and not issecretvalue(locDuration) and not issecretvalue(start) and not issecretvalue(duration) then
-				useLocCooldown = (locStart + locDuration) > (start + duration)
-			end
-		end
-		if useLocCooldown then
+		-- Extract values from info tables (values are no longer secret!)
+		local locStart, locDuration = lossOfControlInfo.startTime, lossOfControlInfo.duration
+		local start, duration, enable, modRate = cooldownInfo.startTime, cooldownInfo.duration, cooldownInfo.isEnabled, cooldownInfo.modRate
+		local charges, maxCharges, chargeStart, chargeDuration, chargeModRate = chargeInfo.currentCharges, chargeInfo.maxCharges, chargeInfo.cooldownStartTime, chargeInfo.cooldownDuration, chargeInfo.chargeModRate
+		-- Now we can safely compare without issecretvalue checks!
+		local hasLocCooldown = locStart and locDuration and locStart > 0 and locDuration > 0
+		local hasCooldown = enable and start and duration and start > 0 and duration > 0
+		if hasLocCooldown and ((not hasCooldown) or ((locStart + locDuration) > (start + duration))) then
 			if self.cooldown.currentCooldownType ~= COOLDOWN_TYPE_LOSS_OF_CONTROL then
 				self.cooldown:SetEdgeTexture("Interface\\Cooldown\\edge-LoC")
 				self.cooldown:SetSwipeColor(0.17, 0, 0)
-				self.cooldown:SetHideCountdownNumbers(true)
 				self.cooldown.currentCooldownType = COOLDOWN_TYPE_LOSS_OF_CONTROL
 			end
 			CooldownFrame_Set(self.cooldown, locStart, locDuration, true, true, modRate)
+			self.cooldown:SetScript("OnCooldownDone", OnCooldownDone, false)
 			if self.chargeCooldown then
 				EndChargeCooldown(self.chargeCooldown)
 			end
@@ -2352,13 +2361,10 @@ function UpdateCooldown(self)
 			if self.cooldown.currentCooldownType ~= COOLDOWN_TYPE_NORMAL then
 				self.cooldown:SetEdgeTexture("Interface\\Cooldown\\edge")
 				self.cooldown:SetSwipeColor(0, 0, 0)
-				self.cooldown:SetHideCountdownNumbers(false)
 				self.cooldown.currentCooldownType = COOLDOWN_TYPE_NORMAL
 			end
-			if hasLocCooldown then
-				self.cooldown:SetScript("OnCooldownDone", OnCooldownDone)
-			end
-			if charges and maxCharges and not issecretvalue(charges) and not issecretvalue(maxCharges) and maxCharges > 1 and charges < maxCharges then
+			self.cooldown:SetScript("OnCooldownDone", OnCooldownDone, hasLocCooldown)
+			if charges and maxCharges and maxCharges > 1 and charges < maxCharges then
 				StartChargeCooldown(self, chargeStart, chargeDuration, chargeModRate)
 			elseif self.chargeCooldown then
 				EndChargeCooldown(self.chargeCooldown)
@@ -2769,6 +2775,8 @@ Generic.GetTexture              = function(self) return nil end
 Generic.GetCharges              = function(self) return nil end
 Generic.GetCount                = function(self) return 0 end
 Generic.GetCooldown             = function(self) return nil end
+Generic.GetCooldownInfo         = function(self) return nil end
+Generic.GetChargeInfo           = function(self) return nil end
 Generic.IsAttack                = function(self) return nil end
 Generic.IsEquipped              = function(self) return nil end
 Generic.IsCurrentlyActive       = function(self) return nil end
@@ -2797,15 +2805,19 @@ Action.HasAction               = function(self) return HasAction(self._state_act
 Action.GetActionText           = function(self) return GetActionText(self._state_action) end
 Action.GetTexture              = function(self) return GetActionTexture(self._state_action) end
 Action.GetCharges              = function(self)
-	-- WoW 12.0.0: GetActionCharges may return secret values in combat
-	-- These are handled by ActionButton_ApplyCooldown in UpdateCooldown
 	return GetActionCharges(self._state_action)
+end
+Action.GetChargeInfo           = function(self)
+	-- WoW 12.0.0: Returns table which converts secret values to normal values
+	return GetActionChargeInfo(self._state_action)
 end
 Action.GetCount                = function(self) return GetActionCount(self._state_action) end
 Action.GetCooldown             = function(self)
-	-- WoW 12.0.0: GetActionCooldown may return secret values in combat
-	-- These are handled by ActionButton_ApplyCooldown in UpdateCooldown
 	return GetActionCooldown(self._state_action)
+end
+Action.GetCooldownInfo         = function(self)
+	-- WoW 12.0.0: Returns table which converts secret values to normal values
+	return GetActionCooldownInfo(self._state_action)
 end
 Action.IsAttack                = function(self) return IsAttackAction(self._state_action) end
 Action.IsEquipped              = function(self) return IsEquippedAction(self._state_action) end
@@ -2901,6 +2913,20 @@ Spell.IsConsumableOrStackable = function(self) return IsConsumableSpell(self._st
 Spell.IsUnitInRange           = function(self, unit) local slot = FindSpellBookSlotBySpellID(self._state_action) return slot and IsSpellInRange(slot, BOOKTYPE_SPELL, unit) or nil end
 Spell.SetTooltip              = function(self) return GameTooltip:SetSpellByID(self._state_action) end
 Spell.GetSpellId              = function(self) return self._state_action end
+Spell.GetCooldownInfo         = function(self)
+	-- WoW 12.0.0: C_Spell.GetSpellCooldown already returns table
+	if C_Spell and C_Spell.GetSpellCooldown then
+		return C_Spell.GetSpellCooldown(self._state_action)
+	end
+	return nil
+end
+Spell.GetChargeInfo           = function(self)
+	-- WoW 12.0.0: C_Spell.GetSpellCharges already returns table
+	if C_Spell and C_Spell.GetSpellCharges then
+		return C_Spell.GetSpellCharges(self._state_action)
+	end
+	return nil
+end
 Spell.GetLossOfControlCooldown = function(self) return GetSpellLossOfControlCooldown(self._state_action) end
 if C_UnitAuras then
 	Spell.GetPassiveCooldownSpellID = function(self)
@@ -2922,6 +2948,17 @@ Item.GetTexture              = function(self) return C_Item.GetItemIconByID(self
 Item.GetCharges              = function(self) return nil end
 Item.GetCount                = function(self) return C_Item.GetItemCount(self._state_action, nil, true) end
 Item.GetCooldown             = function(self) return C_Container.GetItemCooldown(getItemId(self._state_action)) end
+Item.GetCooldownInfo         = function(self)
+	-- WoW 12.0.0: Wrap item cooldown in table to convert secret values
+	local start, duration, enable = C_Container.GetItemCooldown(getItemId(self._state_action))
+	return {
+		startTime = start,
+		duration = duration,
+		isEnabled = enable,
+		modRate = 1.0
+	}
+end
+Item.GetChargeInfo           = function(self) return nil end
 Item.IsAttack                = function(self) return nil end
 Item.IsEquipped              = function(self) return C_Item.IsEquippedItem(self._state_action) end
 Item.IsCurrentlyActive       = function(self) return C_Item.IsCurrentItem(self._state_action) end
@@ -2942,6 +2979,8 @@ Macro.GetTexture              = function(self) return (select(2, GetMacroInfo(se
 Macro.GetCharges              = function(self) return nil end
 Macro.GetCount                = function(self) return 0 end
 Macro.GetCooldown             = function(self) return nil end
+Macro.GetCooldownInfo         = function(self) return nil end
+Macro.GetChargeInfo           = function(self) return nil end
 Macro.IsAttack                = function(self) return nil end
 Macro.IsEquipped              = function(self) return nil end
 Macro.IsCurrentlyActive       = function(self) return nil end
@@ -2961,6 +3000,8 @@ Custom.GetTexture              = function(self) return self._state_action.textur
 Custom.GetCharges              = function(self) return nil end
 Custom.GetCount                = function(self) return 0 end
 Custom.GetCooldown             = function(self) return nil end
+Custom.GetCooldownInfo         = function(self) return nil end
+Custom.GetChargeInfo           = function(self) return nil end
 Custom.IsAttack                = function(self) return nil end
 Custom.IsEquipped              = function(self) return nil end
 Custom.IsCurrentlyActive       = function(self) return nil end
