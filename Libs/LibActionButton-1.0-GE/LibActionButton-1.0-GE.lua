@@ -1721,23 +1721,9 @@ end
 
 local flashTime = 0
 local rangeTimer = -1
--- WoW 12.0.0: Combat cooldown timer for forcing updates when events might be suppressed
-local combatCooldownTimer = 0
-local COMBAT_COOLDOWN_UPDATE_INTERVAL = 0.1  -- Update every 100ms in combat
-
 function OnUpdate(_, elapsed)
 	flashTime = flashTime - elapsed
 	rangeTimer = rangeTimer - elapsed
-	combatCooldownTimer = combatCooldownTimer - elapsed
-
-	-- WoW 12.0.0: Force cooldown updates in combat to work around secret values
-	if InCombatLockdown() and combatCooldownTimer <= 0 then
-		for button in next, ActionButtons do
-			UpdateCooldown(button)
-		end
-		combatCooldownTimer = COMBAT_COOLDOWN_UPDATE_INTERVAL
-	end
-
 	-- Run the loop only when there is something to update
 	if rangeTimer <= 0 or flashTime <= 0 then
 		for button in next, ActiveButtons do
@@ -2264,8 +2250,6 @@ local function OnCooldownDone(self)
 end
 
 function UpdateCooldown(self)
-	-- WoW 12.0.0: issecretvalue may not exist in older versions
-	local issecretvalue = issecretvalue or function() return false end
 	local locStart, locDuration
 	local start, duration, enable, modRate
 	local charges, maxCharges, chargeStart, chargeDuration, chargeModRate
@@ -2275,8 +2259,8 @@ function UpdateCooldown(self)
 	if passiveCooldownSpellID and passiveCooldownSpellID ~= 0 then
 		auraData = C_UnitAuras.GetPlayerAuraBySpellID(passiveCooldownSpellID)
 	end
-	-- WoW 12.0.0: Check if auraData fields are secret before using them
-	if auraData and not issecretvalue(auraData.duration) and not issecretvalue(auraData.expirationTime) then
+
+	if auraData then
 		local currentTime = GetTime()
 		local timeUntilExpire = auraData.expirationTime - currentTime
 		local howMuchTimeHasPassed = auraData.duration - timeUntilExpire
@@ -2293,60 +2277,15 @@ function UpdateCooldown(self)
 		chargeModRate = modRate
 		enable = 1
 	else
-		-- WoW 12.0.0: Cache spellID when not in combat, use cache in combat
-		local spellID
-		if not InCombatLockdown() then
-			spellID = self:GetSpellId()
-			-- Cache the spell ID if it's valid and not secret
-			if spellID and not issecretvalue(spellID) then
-				self._cachedSpellID = spellID
-			end
-		else
-			-- In combat, use cached spell ID
-			spellID = self._cachedSpellID
-		end
-
-		local gotCooldownFromSpell = false
-
-		-- Try spell-based cooldown API if we have a valid spellID
-		if spellID and C_Spell and C_Spell.GetSpellCooldown then
-			local spellCooldownInfo = C_Spell.GetSpellCooldown(spellID)
-			if spellCooldownInfo then
-				start = spellCooldownInfo.startTime
-				duration = spellCooldownInfo.duration
-				enable = spellCooldownInfo.isEnabled
-				modRate = spellCooldownInfo.modRate
-
-				-- Check if we got non-secret values
-				if not issecretvalue(start) and not issecretvalue(duration) and not issecretvalue(enable) then
-					gotCooldownFromSpell = true
-				end
-			end
-		end
-
-		-- Fallback to action-based cooldown if spell method didn't work
-		if not gotCooldownFromSpell then
-			start, duration, enable, modRate = self:GetCooldown()
-		end
-
 		locStart, locDuration = self:GetLossOfControlCooldown()
+		start, duration, enable, modRate = self:GetCooldown()
 		charges, maxCharges, chargeStart, chargeDuration, chargeModRate = self:GetCharges()
 	end
 
 	self.cooldown:SetDrawBling(self.cooldown:GetEffectiveAlpha() > 0.5)
-	-- WoW 12.0.0: Simplified logic - try to set cooldown regardless of secret values
-	-- Wrap in pcall to catch any errors from secret value operations
-	local hasLocCooldown = false
-	local hasCooldown = false
 
-	pcall(function()
-		hasLocCooldown = locStart and locDuration and locStart > 0 and locDuration > 0
-	end)
-
-	pcall(function()
-		hasCooldown = enable and start and duration and start > 0 and duration > 0
-	end)
-
+	local hasLocCooldown = locStart and locDuration and locStart > 0 and locDuration > 0
+	local hasCooldown = enable and start and duration and start > 0 and duration > 0
 	if hasLocCooldown and ((not hasCooldown) or ((locStart + locDuration) > (start + duration))) then
 		if self.cooldown.currentCooldownType ~= COOLDOWN_TYPE_LOSS_OF_CONTROL then
 			self.cooldown:SetEdgeTexture("Interface\\Cooldown\\edge-LoC")
@@ -2369,18 +2308,12 @@ function UpdateCooldown(self)
 			self.cooldown:SetScript("OnCooldownDone", OnCooldownDone)
 		end
 
-		-- WoW 12.0.0: Try charge cooldown with pcall protection
-		pcall(function()
-			if charges and maxCharges and maxCharges > 1 and charges < maxCharges then
-				StartChargeCooldown(self, chargeStart, chargeDuration, chargeModRate)
-			elseif self.chargeCooldown then
-				EndChargeCooldown(self.chargeCooldown)
-			end
-		end)
-
-		-- WoW 12.0.0: Always try to set cooldown, even with secret values
-		-- Wrap in pcall to catch errors but allow cooldown to work if Blizzard handles secrets internally
-		pcall(CooldownFrame_Set, self.cooldown, start, duration, enable, false, modRate)
+		if charges and maxCharges and maxCharges > 1 and charges < maxCharges then
+			StartChargeCooldown(self, chargeStart, chargeDuration, chargeModRate)
+		elseif self.chargeCooldown then
+			EndChargeCooldown(self.chargeCooldown)
+		end
+		CooldownFrame_Set(self.cooldown, start, duration, enable, false, modRate)
 	end
 end
 
