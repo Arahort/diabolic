@@ -36,16 +36,6 @@ if not LibStub then error(MAJOR_VERSION .. " requires LibStub.") end
 local lib, oldversion = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 
--- WoW 12.0.0: DEBUG - Reliable logging function that always works
-local function DebugLog(msg)
-	if DEFAULT_CHAT_FRAME then
-		DEFAULT_CHAT_FRAME:AddMessage("|cFFFF0000[LAB-DEBUG]|r " .. tostring(msg), 1, 1, 0)
-	end
-end
-
--- WoW 12.0.0: DEBUG - Log library load
-DebugLog("LibActionButton-1.0-GE loaded! Version: " .. MINOR_VERSION)
-
 -- Lua functions
 local type, error, tostring, tonumber, assert, select = type, error, tostring, tonumber, assert, select
 local setmetatable, wipe, unpack, pairs, next = setmetatable, wipe, unpack, pairs, next
@@ -2266,29 +2256,24 @@ local function OnCooldownDone(self)
 end
 
 function UpdateCooldown(self)
-	-- WoW 12.0.0: issecretvalue check only where needed for comparisons
+	-- WoW 12.0.0: Use issecretvalue when needed for fallback logic
 	local issecretvalue = issecretvalue or function() return false end
-
 	local locStart, locDuration
 	local start, duration, enable, modRate
 	local charges, maxCharges, chargeStart, chargeDuration, chargeModRate
 	local auraData
-	local buttonName = self:GetName() or "unknown"
-
 	local passiveCooldownSpellID = self:GetPassiveCooldownSpellID()
 	if passiveCooldownSpellID and passiveCooldownSpellID ~= 0 then
 		auraData = C_UnitAuras.GetPlayerAuraBySpellID(passiveCooldownSpellID)
 	end
-
 	if auraData then
 		local currentTime = GetTime()
 		local timeUntilExpire = auraData.expirationTime - currentTime
 		local howMuchTimeHasPassed = auraData.duration - timeUntilExpire
-
-		locStart =  currentTime - howMuchTimeHasPassed
+		locStart = currentTime - howMuchTimeHasPassed
 		locDuration = auraData.expirationTime - currentTime
 		start = currentTime - howMuchTimeHasPassed
-		duration =  auraData.duration
+		duration = auraData.duration
 		modRate = auraData.timeMod
 		charges = auraData.charges
 		maxCharges = auraData.maxCharges
@@ -2301,88 +2286,85 @@ function UpdateCooldown(self)
 		start, duration, enable, modRate = self:GetCooldown()
 		charges, maxCharges, chargeStart, chargeDuration, chargeModRate = self:GetCharges()
 	end
-
-	-- WoW 12.0.0: DEBUG LOGGING - log values ONLY in combat (once per button)
-	if InCombatLockdown() and not self._debugLogged then
-		self._debugLogged = true
-		DebugLog(string.format("=== COOLDOWN DATA: %s ===", buttonName))
-		DebugLog(string.format("  start=%s (isSecret:%s)", tostring(start), tostring(issecretvalue(start))))
-		DebugLog(string.format("  duration=%s (isSecret:%s)", tostring(duration), tostring(issecretvalue(duration))))
-		DebugLog(string.format("  enable=%s (isSecret:%s)", tostring(enable), tostring(issecretvalue(enable))))
-		DebugLog(string.format("  charges=%s (isSecret:%s)", tostring(charges), tostring(issecretvalue(charges))))
-		DebugLog(string.format("  maxCharges=%s (isSecret:%s)", tostring(maxCharges), tostring(issecretvalue(maxCharges))))
-		DebugLog(string.format("  locStart=%s (isSecret:%s)", tostring(locStart), tostring(issecretvalue(locStart))))
-		DebugLog(string.format("  locDuration=%s (isSecret:%s)", tostring(locDuration), tostring(issecretvalue(locDuration))))
-	end
-
 	self.cooldown:SetDrawBling(self.cooldown:GetEffectiveAlpha() > 0.5)
-
-	-- WoW 12.0.0: CRITICAL FIX - Handle secret values properly
-	-- In v1.9.4, GetCooldown() returned normal values
-	-- In 12.0.0 Midnight, GetCooldown() returns SECRET VALUES in combat!
-	-- We can't check/compare secret values, but we CAN pass them to CooldownFrame_Set
-	-- Solution: Skip checks if values are secret, and always call CooldownFrame_Set
-
-	local hasLocCooldown
-	if issecretvalue(locStart) or issecretvalue(locDuration) then
-		-- Secret values - can't check them, assume no LoC cooldown
-		hasLocCooldown = false
-	else
-		hasLocCooldown = locStart and locDuration and locStart > 0 and locDuration > 0
+	-- WoW 12.0.0: Prepare cooldown info tables for new ActionButton_ApplyCooldown API
+	local cooldownInfo = {
+		startTime = start,
+		duration = duration,
+		isEnabled = enable,
+		modRate = modRate
+	}
+	local chargeInfo
+	if charges and maxCharges then
+		chargeInfo = {
+			currentCharges = charges,
+			maxCharges = maxCharges,
+			cooldownStartTime = chargeStart,
+			cooldownDuration = chargeDuration,
+			chargeModRate = chargeModRate
+		}
 	end
-
-	local hasCooldown
-	if issecretvalue(enable) or issecretvalue(start) or issecretvalue(duration) then
-		-- Secret values - can't check them, but assume cooldown exists
-		-- We'll call CooldownFrame_Set anyway and let it handle secret values
-		hasCooldown = true
-	else
-		hasCooldown = enable and start and duration and start > 0 and duration > 0
+	local lossOfControlInfo
+	if locStart and locDuration then
+		lossOfControlInfo = {
+			startTime = locStart,
+			duration = locDuration
+		}
 	end
-
-	-- WoW 12.0.0: Check for LoC cooldown priority
-	-- Can't compare secret values, so skip comparison if any values are secret
-	local useLocCooldown = false
-	if hasLocCooldown then
-		if not hasCooldown then
-			useLocCooldown = true
-		elseif not issecretvalue(locStart) and not issecretvalue(locDuration) and not issecretvalue(start) and not issecretvalue(duration) then
-			-- Safe to compare - no secret values
-			useLocCooldown = (locStart + locDuration) > (start + duration)
-		end
-	end
-
-	if useLocCooldown then
-		if self.cooldown.currentCooldownType ~= COOLDOWN_TYPE_LOSS_OF_CONTROL then
-			self.cooldown:SetEdgeTexture("Interface\\Cooldown\\edge-LoC")
-			self.cooldown:SetSwipeColor(0.17, 0, 0)
-			self.cooldown:SetHideCountdownNumbers(true)
-			self.cooldown.currentCooldownType = COOLDOWN_TYPE_LOSS_OF_CONTROL
-		end
-		CooldownFrame_Set(self.cooldown, locStart, locDuration, true, true, modRate)
-		if self.chargeCooldown then
-			EndChargeCooldown(self.chargeCooldown)
-		end
+	-- WoW 12.0.0: Use new ActionButton_ApplyCooldown if available (handles secret values)
+	-- Otherwise fallback to CooldownFrame_Set for older WoW versions
+	if ActionButton_ApplyCooldown then
+		ActionButton_ApplyCooldown(self.cooldown, cooldownInfo, self.chargeCooldown, chargeInfo, self.lossOfControlCooldown, lossOfControlInfo)
 	else
-		if self.cooldown.currentCooldownType ~= COOLDOWN_TYPE_NORMAL then
-			self.cooldown:SetEdgeTexture("Interface\\Cooldown\\edge")
-			self.cooldown:SetSwipeColor(0, 0, 0)
-			self.cooldown:SetHideCountdownNumbers(false)
-			self.cooldown.currentCooldownType = COOLDOWN_TYPE_NORMAL
+		-- Fallback for older WoW versions - replicate old logic
+		local hasLocCooldown
+		if issecretvalue(locStart) or issecretvalue(locDuration) then
+			hasLocCooldown = false
+		else
+			hasLocCooldown = locStart and locDuration and locStart > 0 and locDuration > 0
 		end
+		local hasCooldown
+		if issecretvalue(enable) or issecretvalue(start) or issecretvalue(duration) then
+			hasCooldown = true
+		else
+			hasCooldown = enable and start and duration and start > 0 and duration > 0
+		end
+		local useLocCooldown = false
 		if hasLocCooldown then
-			self.cooldown:SetScript("OnCooldownDone", OnCooldownDone)
+			if not hasCooldown then
+				useLocCooldown = true
+			elseif not issecretvalue(locStart) and not issecretvalue(locDuration) and not issecretvalue(start) and not issecretvalue(duration) then
+				useLocCooldown = (locStart + locDuration) > (start + duration)
+			end
 		end
-
-		-- WoW 12.0.0: Handle charges - GetCharges() also returns secret values in combat
-		-- Can't compare secret values, so skip charge cooldown if any values are secret
-		if charges and maxCharges and not issecretvalue(charges) and not issecretvalue(maxCharges) and maxCharges > 1 and charges < maxCharges then
-			StartChargeCooldown(self, chargeStart, chargeDuration, chargeModRate)
-		elseif self.chargeCooldown then
-			EndChargeCooldown(self.chargeCooldown)
+		if useLocCooldown then
+			if self.cooldown.currentCooldownType ~= COOLDOWN_TYPE_LOSS_OF_CONTROL then
+				self.cooldown:SetEdgeTexture("Interface\\Cooldown\\edge-LoC")
+				self.cooldown:SetSwipeColor(0.17, 0, 0)
+				self.cooldown:SetHideCountdownNumbers(true)
+				self.cooldown.currentCooldownType = COOLDOWN_TYPE_LOSS_OF_CONTROL
+			end
+			CooldownFrame_Set(self.cooldown, locStart, locDuration, true, true, modRate)
+			if self.chargeCooldown then
+				EndChargeCooldown(self.chargeCooldown)
+			end
+		else
+			if self.cooldown.currentCooldownType ~= COOLDOWN_TYPE_NORMAL then
+				self.cooldown:SetEdgeTexture("Interface\\Cooldown\\edge")
+				self.cooldown:SetSwipeColor(0, 0, 0)
+				self.cooldown:SetHideCountdownNumbers(false)
+				self.cooldown.currentCooldownType = COOLDOWN_TYPE_NORMAL
+			end
+			if hasLocCooldown then
+				self.cooldown:SetScript("OnCooldownDone", OnCooldownDone)
+			end
+			if charges and maxCharges and not issecretvalue(charges) and not issecretvalue(maxCharges) and maxCharges > 1 and charges < maxCharges then
+				StartChargeCooldown(self, chargeStart, chargeDuration, chargeModRate)
+			elseif self.chargeCooldown then
+				EndChargeCooldown(self.chargeCooldown)
+			end
+			CooldownFrame_Set(self.cooldown, start, duration, enable, false, modRate)
 		end
-
-		CooldownFrame_Set(self.cooldown, start, duration, enable, false, modRate)
 	end
 end
 
@@ -2815,26 +2797,14 @@ Action.HasAction               = function(self) return HasAction(self._state_act
 Action.GetActionText           = function(self) return GetActionText(self._state_action) end
 Action.GetTexture              = function(self) return GetActionTexture(self._state_action) end
 Action.GetCharges              = function(self)
-	-- WoW 12.0.0: Use new C_ActionBar.GetActionCharges() API if available (returns table, not secret values)
-	-- Otherwise fallback to old GetActionCharges() (may return secret values in combat)
-	if C_ActionBar and C_ActionBar.GetActionCharges then
-		local chargeInfo = C_ActionBar.GetActionCharges(self._state_action)
-		if chargeInfo then
-			return chargeInfo.currentCharges, chargeInfo.maxCharges, chargeInfo.cooldownStartTime, chargeInfo.cooldownDuration, chargeInfo.chargeModRate
-		end
-	end
+	-- WoW 12.0.0: GetActionCharges may return secret values in combat
+	-- These are handled by ActionButton_ApplyCooldown in UpdateCooldown
 	return GetActionCharges(self._state_action)
 end
 Action.GetCount                = function(self) return GetActionCount(self._state_action) end
 Action.GetCooldown             = function(self)
-	-- WoW 12.0.0: Use new C_ActionBar.GetActionCooldown() API if available (returns table, not secret values)
-	-- Otherwise fallback to old GetActionCooldown() (may return secret values in combat)
-	if C_ActionBar and C_ActionBar.GetActionCooldown then
-		local cooldownInfo = C_ActionBar.GetActionCooldown(self._state_action)
-		if cooldownInfo then
-			return cooldownInfo.startTime, cooldownInfo.duration, cooldownInfo.isEnabled, cooldownInfo.modRate
-		end
-	end
+	-- WoW 12.0.0: GetActionCooldown may return secret values in combat
+	-- These are handled by ActionButton_ApplyCooldown in UpdateCooldown
 	return GetActionCooldown(self._state_action)
 end
 Action.IsAttack                = function(self) return IsAttackAction(self._state_action) end
