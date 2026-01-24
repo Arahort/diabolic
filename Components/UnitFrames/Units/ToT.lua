@@ -57,9 +57,15 @@ local PostUpdate = function(self)
 		end
 	end
 
-	-- WoW 12.0.0: UnitIsUnit can return secret values, wrap in pcall
+	-- WoW 12.0.0: UnitIsUnit can return secret values
+	-- pcall prevents errors but results can still be secret - check them!
 	local success, isTarget = pcall(UnitIsUnit, unit, "target")
 	local success2, isPlayer = pcall(UnitIsUnit, unit, "player")
+
+	-- Convert secret values to false to avoid boolean test errors
+	if issecretvalue(isTarget) then isTarget = false end
+	if issecretvalue(isPlayer) then isPlayer = false end
+
 	local alpha = 1
 	if success and success2 then
 		-- Hide if target targets themselves (always)

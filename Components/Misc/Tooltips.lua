@@ -615,28 +615,34 @@ end
 
 Tooltips.SetDefaultAnchor = function(self, tooltip, parent)
 	if (not tooltip) or (tooltip:IsForbidden()) then return end
+	-- WoW 12.0.0: Check if parent is also forbidden to avoid taint errors
+	if parent and type(parent.IsForbidden) == "function" and parent:IsForbidden() then return end
 
-	if ns.db and ns.db.char and ns.db.char.tooltips and ns.db.char.tooltips.enabled then
-		if parent.unit then
-			tooltip:SetOwner(parent, "ANCHOR_PRESERVE")
+	-- WoW 12.0.0: Wrap all tooltip operations in pcall to prevent taint errors
+	local success = pcall(function()
+		if ns.db and ns.db.char and ns.db.char.tooltips and ns.db.char.tooltips.enabled then
+			if parent.unit then
+				tooltip:SetOwner(parent, "ANCHOR_PRESERVE")
+			else
+				tooltip:SetOwner(parent, "ANCHOR_CURSOR")
+			end
+
+			updateTooltip(tooltip)
+			tooltip.update = true
+
+			if not trackedTooltips[tostring(tooltip)] then
+				trackedTooltips[tostring(tooltip)] = true
+				tooltip:HookScript("OnUpdate", updateTooltip)
+				tooltip:HookScript("OnHide", function()
+					tooltip.update = false
+				end)
+			end
 		else
-			tooltip:SetOwner(parent, "ANCHOR_CURSOR")
+			tooltip:SetOwner(parent, "ANCHOR_NONE")
+			tooltip:SetPoint("BOTTOMRIGHT", -40, 40)
 		end
-
-		updateTooltip(tooltip)
-		tooltip.update = true
-
-		if not trackedTooltips[tostring(tooltip)] then
-			trackedTooltips[tostring(tooltip)] = true
-			tooltip:HookScript("OnUpdate", updateTooltip)
-			tooltip:HookScript("OnHide", function()
-				tooltip.update = false
-			end)
-		end
-	else
-		tooltip:SetOwner(parent, "ANCHOR_NONE")
-		tooltip:SetPoint("BOTTOMRIGHT", -40, 40)
-	end
+	end)
+	-- If pcall failed, silently ignore - tooltip will use default positioning
 end
 
 Tooltips.SetUnitColor = function(self, unit)

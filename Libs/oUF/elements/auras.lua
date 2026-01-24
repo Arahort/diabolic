@@ -247,12 +247,15 @@ local function updateAura(element, unit, data, position)
 
 	local width = element.width or element.size or 16
 	local height = element.height or element.size or 16
-	-- WoW 12.0.0: Skip SetSize during combat to avoid ADDON_ACTION_BLOCKED
+	-- WoW 12.0.0: Skip protected frame operations during combat to avoid ADDON_ACTION_BLOCKED
 	if not InCombatLockdown() then
 		button:SetSize(width, height)
 		button:EnableMouse(not element.disableMouse)
+		button:Show()
+	elseif not button:IsShown() then
+		-- In combat but button not visible - try to show it safely
+		pcall(function() button:Show() end)
 	end
-	button:Show()
 
 	--[[ Callback: Auras:PostUpdateButton(unit, button, data, position)
 	Called after the aura button has been updated.
