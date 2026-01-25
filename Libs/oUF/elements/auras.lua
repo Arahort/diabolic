@@ -212,7 +212,10 @@ local function updateAura(element, unit, data, position)
 		if data.duration and data.expirationTime then
 			-- WoW 12.0.0: If values are secret, use GetAuraDuration API
 			if issecretvalue(data.duration) or issecretvalue(data.expirationTime) then
-				if C_UnitAuras and C_UnitAuras.GetAuraDuration then
+				-- Can't safely use GetAuraDuration in combat (causes taint on action buttons)
+				if InCombatLockdown() then
+					button.Cooldown:Hide()
+				elseif C_UnitAuras and C_UnitAuras.GetAuraDuration then
 					local durationSecret = C_UnitAuras.GetAuraDuration(unit, data.auraInstanceID)
 					if durationSecret and button.Cooldown.SetCooldownFromDurationObject then
 						button.Cooldown:SetCooldownFromDurationObject(durationSecret)

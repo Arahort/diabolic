@@ -1,5 +1,18 @@
 # DiabolicUI3 Changelog
 
+## [1.9.6-alpha3] - 2026-01-25
+### Fixed
+- Fixed action buttons becoming grayed out after entering combat caused by taint propagation
+- Prevented C_UnitAuras.GetAuraDuration calls during combat to avoid tainting action buttons
+
+### Changed
+- Secret value aura cooldowns now only update outside of combat to prevent taint
+- Regular (non-secret) aura cooldowns continue to work normally in and out of combat
+
+### Known Issues
+- Auras with secret values (duration/expiration) will not show cooldown spirals during combat
+- Cooldown display will resume after leaving combat
+
 ## [1.9.6-alpha2] - 2026-01-25
 ### Fixed
 - Fixed aura cooldowns not displaying in combat for unit frames (near orbs)
@@ -11,9 +24,6 @@
 - Updated aura system to use C_UnitAuras.GetAuraDuration() for secret values
 - Updated aura buttons to use SetCooldownFromDurationObject() method
 - Added countdown numbers display on aura cooldowns
-
-### Known Issues
-- Action buttons may become grayed out after entering combat (investigating)
 
 ## [1.9.5-RC1] - 2026-01-24
 ### Fixed
