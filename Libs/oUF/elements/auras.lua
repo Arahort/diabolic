@@ -107,6 +107,14 @@ local function CreateButton(element, index)
 
 	local cd = CreateFrame('Cooldown', '$parentCooldown', button, 'CooldownFrameTemplate')
 	cd:SetAllPoints()
+	-- WoW 12.0.0: Hide cooldown spiral, show built-in countdown numbers
+	cd:SetDrawEdge(false)
+	cd:SetDrawSwipe(false)
+	cd:SetHideCountdownNumbers(false)
+	-- Set countdown font - required for countdown to show!
+	if cd.SetCountdownFont then
+		cd:SetCountdownFont('NumberFontNormal')
+	end
 	button.Cooldown = cd
 
 	local icon = button:CreateTexture(nil, 'BORDER')
@@ -202,17 +210,26 @@ local function updateAura(element, unit, data, position)
 		-- WoW 12.0.0: issecretvalue may not exist in older versions
 		local issecretvalue = issecretvalue or function() return false end
 		if data.duration and data.expirationTime then
-			-- Can't do math with secret values, skip cooldown display if secret
-			if not issecretvalue(data.duration) and not issecretvalue(data.expirationTime) then
-				if data.duration > 0 then
-					local startTime = data.expirationTime - data.duration
-					button.Cooldown:SetCooldown(startTime, data.duration)
-					button.Cooldown:Show()
+			-- WoW 12.0.0: If values are secret, use GetAuraDuration API
+			if issecretvalue(data.duration) or issecretvalue(data.expirationTime) then
+				if C_UnitAuras and C_UnitAuras.GetAuraDuration then
+					local durationSecret = C_UnitAuras.GetAuraDuration(unit, data.auraInstanceID)
+					if durationSecret and button.Cooldown.SetCooldownFromDurationObject then
+						button.Cooldown:SetCooldownFromDurationObject(durationSecret)
+						button.Cooldown:Show()
+					else
+						button.Cooldown:Hide()
+					end
 				else
+					-- No API available, hide cooldown
 					button.Cooldown:Hide()
 				end
+			-- Not secret, use traditional method
+			elseif data.duration > 0 then
+				local startTime = data.expirationTime - data.duration
+				button.Cooldown:SetCooldown(startTime, data.duration)
+				button.Cooldown:Show()
 			else
-				-- Secret values - can't calculate startTime, hide cooldown
 				button.Cooldown:Hide()
 			end
 		end
@@ -575,11 +592,8 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				visibleChanged = auras.reanchorIfVisibleChanged -- more convenient than auras.reanchorIfVisibleChanged and visibleChanged
 			end
 
-			-- WoW 12.0.0: Can't Hide() buttons during combat
-			if not InCombatLockdown() then
-				for i = numVisible + 1, #auras do
-					auras[i]:Hide()
-				end
+			for i = numVisible + 1, #auras do
+				auras[i]:Hide()
 			end
 
 			if(visibleChanged or auras.createdButtons > auras.anchoredButtons) then
@@ -714,10 +728,9 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				visibleChanged = buffs.reanchorIfVisibleChanged
 			end
 
-			if not InCombatLockdown() then
-				for i = numVisible + 1, #buffs do
-					buffs[i]:Hide()
-				end
+			for i = numVisible + 1, #buffs do
+				-- WoW 12.0.0: Aura buttons are SecureActionButtonTemplate, safe to hide
+				buffs[i]:Hide()
 			end
 
 			if(visibleChanged or buffs.createdButtons > buffs.anchoredButtons) then
@@ -836,10 +849,9 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				visibleChanged = debuffs.reanchorIfVisibleChanged
 			end
 
-			if not InCombatLockdown() then
-				for i = numVisible + 1, #debuffs do
-					debuffs[i]:Hide()
-				end
+			for i = numVisible + 1, #debuffs do
+				-- WoW 12.0.0: Aura buttons are SecureActionButtonTemplate, safe to hide
+				debuffs[i]:Hide()
 			end
 
 			if(visibleChanged or debuffs.createdButtons > debuffs.anchoredButtons) then
@@ -966,11 +978,9 @@ local function Disable(self)
 	if(self.Auras or self.Buffs or self.Debuffs) then
 		self:UnregisterEvent('UNIT_AURA', UpdateAuras)
 
-		if not InCombatLockdown() then
-			if(self.Auras) then self.Auras:Hide() end
-			if(self.Buffs) then self.Buffs:Hide() end
-			if(self.Debuffs) then self.Debuffs:Hide() end
-		end
+		if(self.Auras) then self.Auras:Hide() end
+		if(self.Buffs) then self.Buffs:Hide() end
+		if(self.Debuffs) then self.Debuffs:Hide() end
 	end
 end
 

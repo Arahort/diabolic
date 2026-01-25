@@ -92,11 +92,17 @@ ns.AuraStyles.CreateButtonWithBar = function(element, position)
 	count:SetPoint("BOTTOMRIGHT", aura, "BOTTOMRIGHT", -2, 3)
 	aura.Count = count
 
-	local time = aura.Border:CreateFontString(nil, "OVERLAY")
-	time:SetFontObject(GetFont(14,true))
-	time:SetTextColor(Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3])
-	time:SetPoint("TOPLEFT", aura, "TOPLEFT", -4, 4)
-	aura.Time = time
+	-- WoW 12.0.0: Create real CooldownFrame for SetCooldownFromDurationObject support
+	local cd = CreateFrame("Cooldown", nil, aura, "CooldownFrameTemplate")
+	cd:SetAllPoints()
+	cd:SetDrawEdge(false)
+	cd:SetDrawSwipe(false)
+	cd:SetHideCountdownNumbers(false)
+	-- Set countdown font - required for countdown to show!
+	if cd.SetCountdownFont then
+		cd:SetCountdownFont("NumberFontNormal")
+	end
+	aura.Cooldown = cd
 
 	local bar = element.__owner:CreateBar(nil, aura)
 	bar:SetPoint("TOP", aura, "BOTTOM", 0, 0)
@@ -110,9 +116,8 @@ ns.AuraStyles.CreateButtonWithBar = function(element, position)
 	bar.bg:SetColorTexture(.05, .05, .05, .85)
 	aura.Bar = bar
 
-	-- Using a virtual cooldown element with the bar and timer attached,
-	-- allowing them to piggyback on oUF's cooldown updates.
-	aura.Cooldown = ns.Widgets.RegisterCooldown(bar, time)
+	-- WoW 12.0.0: Hook real cooldown to update bar
+	ns.Widgets.RegisterCooldown(cd, bar)
 
 	-- Replacing oUF's aura tooltips, as they are not secure.
 	if (not element.disableMouse) then
@@ -149,15 +154,17 @@ ns.AuraStyles.CreateButton = function(element, position)
 	count:SetPoint("BOTTOMRIGHT", aura, "BOTTOMRIGHT", -2, 3)
 	aura.Count = count
 
-	local time = aura.Border:CreateFontString(nil, "OVERLAY")
-	time:SetFontObject(GetFont(12,true))
-	time:SetTextColor(Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3])
-	time:SetPoint("TOPLEFT", aura, "TOPLEFT", -3, 3)
-	aura.Time = time
-
-	-- Using a virtual cooldown element with the timer attached,
-	-- allowing them to piggyback on the back-end's cooldown updates.
-	aura.Cooldown = ns.Widgets.RegisterCooldown(time)
+	-- WoW 12.0.0: Create real CooldownFrame for SetCooldownFromDurationObject support
+	local cd = CreateFrame("Cooldown", nil, aura, "CooldownFrameTemplate")
+	cd:SetAllPoints()
+	cd:SetDrawEdge(false)
+	cd:SetDrawSwipe(false)
+	cd:SetHideCountdownNumbers(false)
+	-- Set countdown font - required for countdown to show!
+	if cd.SetCountdownFont then
+		cd:SetCountdownFont("NumberFontNormal")
+	end
+	aura.Cooldown = cd
 
 	-- Replacing oUF's aura tooltips, as they are not secure.
 	if (not element.disableMouse) then

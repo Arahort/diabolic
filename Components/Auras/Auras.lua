@@ -117,9 +117,20 @@ Aura.Style = function(self)
 
 	self.fadeAnimation = fadeAnimation
 
-	-- Using a virtual cooldown element with the bar and timer attached,
-	-- allowing them to piggyback on oUF's cooldown updates.
-	self.cd = RegisterCooldown(bar, time)
+	-- WoW 12.0.0: Create real CooldownFrame for SetCooldownFromDurationObject support
+	local cd = CreateFrame("Cooldown", nil, self, "CooldownFrameTemplate")
+	cd:SetAllPoints()
+	cd:SetDrawEdge(false)
+	cd:SetDrawSwipe(false)
+	cd:SetHideCountdownNumbers(false)
+	-- Set countdown font - required for countdown to show!
+	if cd.SetCountdownFont then
+		cd:SetCountdownFont("NumberFontNormal")
+	end
+	self.cd = cd
+
+	-- Hook cooldown to update bar
+	RegisterCooldown(cd, bar)
 
 end
 
@@ -157,31 +168,59 @@ Aura.Update = function(self, index)
 			countText = tostring(count)
 		end
 		self.count:SetText(countText)
-		-- print("|cFF00FF00  Set texture:|r", icon)
+
 		-- WoW 12.0.0: duration and expirationTime can be secret values
-		if (duration and expirationTime and not issecretvalue(duration) and not issecretvalue(expirationTime)) then
-			if (duration > 0) then
-				self.cd:SetCooldown(expirationTime - duration, duration)
-				self.cd:Show()
-
-			local timeLeft = expirationTime - GetTime()
-
-			self.timeLeft = timeLeft
-			self:SetScript("OnUpdate", self.OnUpdate)
-
-			-- Fade short duration auras in and out
-			if (timeLeft < 10) then
-				if (not self.fadeAnimation:IsPlaying()) then
-					self.fadeAnimation:Play()
+		if (duration and expirationTime) then
+			-- If values are secret, use GetAuraDuration API
+			if issecretvalue(duration) or issecretvalue(expirationTime) then
+				if C_UnitAuras and C_UnitAuras.GetAuraDuration and auraData.auraInstanceID then
+					local durationSecret = C_UnitAuras.GetAuraDuration(unit, auraData.auraInstanceID)
+					if durationSecret and self.cd.SetCooldownFromDurationObject then
+						self.cd:SetCooldownFromDurationObject(durationSecret)
+						self.cd:Show()
+					else
+						self.cd:Hide()
+					end
+				else
+					self.cd:Hide()
 				end
-				self.time:Show()
-			else
+				-- Cannot calculate timeLeft with secret values
+				self.time:Hide()
 				if (self.fadeAnimation:IsPlaying()) then
 					self.fadeAnimation:Stop()
 				end
+				self:SetScript("OnUpdate", nil)
+				self.timeLeft = nil
+			-- Not secret, use traditional method
+			elseif (duration > 0) then
+				self.cd:SetCooldown(expirationTime - duration, duration)
+				self.cd:Show()
+
+				local timeLeft = expirationTime - GetTime()
+				self.timeLeft = timeLeft
+				self:SetScript("OnUpdate", self.OnUpdate)
+
+				-- Fade short duration auras in and out
+				if (timeLeft < 10) then
+					if (not self.fadeAnimation:IsPlaying()) then
+						self.fadeAnimation:Play()
+					end
+					self.time:Show()
+				else
+					if (self.fadeAnimation:IsPlaying()) then
+						self.fadeAnimation:Stop()
+					end
+					self.time:Hide()
+				end
+			else
+				self.cd:Hide()
 				self.time:Hide()
+				if (self.fadeAnimation:IsPlaying()) then
+					self.fadeAnimation:Stop()
+				end
+				self:SetScript("OnUpdate", nil)
+				self.timeLeft = nil
 			end
-			end -- End of if duration > 0
 		else
 			self.cd:Hide()
 			self.time:Hide()

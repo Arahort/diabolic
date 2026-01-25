@@ -119,12 +119,15 @@ local function Update(self, event, unit, powerType)
 
 		local numActive = cur + 0.9
 		for i = 1, max do
-			if(i > numActive) then
-				element[i]:Hide()
-				element[i]:SetValue(0)
-			else
-				element[i]:Show()
-				element[i]:SetValue(cur - i + 1)
+			-- WoW 12.0.0: Check if element exists before accessing it
+			if element[i] then
+				if(i > numActive) then
+					element[i]:Hide()
+					element[i]:SetValue(0)
+				else
+					element[i]:Show()
+					element[i]:SetValue(cur - i + 1)
+				end
 			end
 		end
 
@@ -132,8 +135,11 @@ local function Update(self, event, unit, powerType)
 		if(max ~= oldMax) then
 			if(max < oldMax) then
 				for i = max + 1, oldMax do
-					element[i]:Hide()
-					element[i]:SetValue(0)
+					-- WoW 12.0.0: Check if element exists before accessing it
+					if element[i] then
+						element[i]:Hide()
+						element[i]:SetValue(0)
+					end
 				end
 			end
 
