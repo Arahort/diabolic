@@ -36,8 +36,9 @@ ns.AuraFilters.PlayerBuffFilter = function(element, unit, data)
 	local button = {}
 	--button.unitIsCaster = unit and caster and UnitIsUnit(unit, caster)
 	button.spell = data.name
-	button.timeLeft = data.expiration and (data.expiration - GetTime())
-	button.expiration = data.expiration
+	-- WoW 12.0.0: Use expirationTime and protect from secret values
+	button.timeLeft = data.expirationTime and not issecretvalue(data.expirationTime) and (data.expirationTime - GetTime()) or nil
+	button.expiration = data.expirationTime
 	button.duration = data.duration
 	-- WoW 12.0.0: Skip comparison if duration is secret value
 	button.noDuration = (not data.duration or (not issecretvalue(data.duration) and data.duration == 0))
@@ -67,8 +68,9 @@ end
 ns.AuraFilters.TargetAuraFilter = function(element, unit, data)
 	local button = {}
 	button.spell = data.name
-	button.timeLeft = data.expiration and (data.expiration - GetTime())
-	button.expiration = data.expiration
+	-- WoW 12.0.0: Use expirationTime and protect from secret values
+	button.timeLeft = data.expirationTime and not issecretvalue(data.expirationTime) and (data.expirationTime - GetTime()) or nil
+	button.expiration = data.expirationTime
 	button.duration = data.duration
 	-- WoW 12.0.0: Skip comparison if duration is secret value
 	button.noDuration = (not data.duration or (not issecretvalue(data.duration) and data.duration == 0))
@@ -77,21 +79,27 @@ ns.AuraFilters.TargetAuraFilter = function(element, unit, data)
 	if (data.isBossDebuff) then
 		return true
 	end
-	-- WoW 12.0.0: Skip filter comparisons if values are secret
+
+	-- WoW 12.0.0: In combat, duration/applications may be secret
 	if issecretvalue(data.duration) or issecretvalue(data.applications) then
-		return false
+		-- Can't check exact values, but can show if it has expiration (temporary aura)
+		-- NOTE: Target uses secure buttons, so updates will be deferred until combat ends
+		return data.expirationTime ~= nil
 	end
 
+	-- Out of combat - show: (duration < 301) OR (stacks > 1)
 	return (not button.noDuration and data.duration < 301) or (data.applications > 1)
 end
 
 ns.AuraFilters.NameplateAuraFilter = function(element, unit, data)
 	local button = {}
 	button.spell = data.name
-	button.timeLeft = data.expiration and (data.expiration - GetTime())
-	button.expiration = data.expiration
+	-- WoW 12.0.0: Use expirationTime and protect from secret values
+	button.timeLeft = data.expirationTime and not issecretvalue(data.expirationTime) and (data.expirationTime - GetTime()) or nil
+	button.expiration = data.expirationTime
 	button.duration = data.duration
-	button.noDuration = (not data.duration or data.duration == 0)
+	-- WoW 12.0.0: Skip comparison if duration is secret value
+	button.noDuration = (not data.duration or (not issecretvalue(data.duration) and data.duration == 0))
 	button.isPlayer = data.isPlayerAura
 	button.isDebuff = data.isHarmful
 
@@ -104,6 +112,11 @@ ns.AuraFilters.NameplateAuraFilter = function(element, unit, data)
 	elseif (data.nameplateShowSelf and button.isPlayer) then
 		return true
 	elseif (button.isPlayer) then
+		-- WoW 12.0.0: In combat, duration/applications may be secret
+		if issecretvalue(data.duration) or issecretvalue(data.applications) then
+			-- Can't check exact values, but can show if it has expiration (temporary aura)
+			return data.expirationTime ~= nil
+		end
 		if (button.isDebuff) then
 			return (not button.noDuration and data.duration < 61) or (data.applications > 1)
 		else

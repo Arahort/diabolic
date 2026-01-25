@@ -1,19 +1,23 @@
 # DiabolicUI3 Changelog
 
-## [1.9.6-alpha4] - 2026-01-25
+## [1.9.6] - 2026-01-25
 ### Fixed
 - Fixed player unit frame buffs/debuffs not updating count in combat
-- Created non-secure version of aura buttons for player unit to allow combat updates
-- Added allowCombatUpdates flag to enable oUF updates for non-secure buttons in combat
-- Fixed action buttons becoming grayed out caused by target auras using secure buttons
+- Fixed action buttons becoming grayed out in combat
+- Fixed aura filters using incorrect field (expiration instead of expirationTime)
+- Fixed arithmetic on secret value errors when calculating aura time remaining
+- Fixed target/nameplate auras not showing in combat
 
 ### Changed
-- Player buffs/debuffs now use regular Button frames instead of SecureActionButtonTemplate
-- Target/Focus auras remain secure but skip updates in combat to prevent ADDON_ACTION_BLOCKED
-- Removed stack count condition from player buff filter (was showing stackable buffs without timer)
+- Player buffs/debuffs now use non-secure buttons to allow combat updates
+- Target/Focus/Nameplate auras remain secure (updates deferred until combat ends)
+- All aura filters now use data.expirationTime with secret value protection
+- Removed stack count condition from player buff filter
+- In combat, auras show if expirationTime exists (temporary auras only)
 
 ### Known Issues
-- Player aura filter still showing all buffs instead of only timed buffs (investigating)
+- Target frame auras do not update count during combat (secure button limitation)
+- Some permanent buffs may show in combat if their values become secret
 
 ## [1.9.6-alpha3] - 2026-01-25
 ### Fixed
