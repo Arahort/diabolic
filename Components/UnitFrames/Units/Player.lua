@@ -907,7 +907,9 @@ UnitStyles["Player"] = function(self, unit, id)
 	buffs.sortMethod = "TIME_REMAINING"
 	buffs.sortDirection = "ASCENDING"
 	buffs.reanchorIfVisibleChanged = true
-	buffs.CreateButton = ns.AuraStyles.CreateButtonWithBar
+	-- WoW 12.0.0: Use non-secure buttons for player to avoid ADDON_ACTION_BLOCKED in combat
+	buffs.CreateButton = ns.AuraStyles.CreateButtonWithBar_NonSecure
+	buffs.allowCombatUpdates = true -- Allow oUF to update non-secure buttons in combat
 	buffs.PostUpdateButton = ns.AuraStyles.PlayerPostUpdateButton
 	buffs.FilterAura = ns.AuraFilters.PlayerBuffFilter
 	buffs.SortAuras = ns.AuraSorts.DefaultFunction
@@ -932,7 +934,9 @@ UnitStyles["Player"] = function(self, unit, id)
 	debuffs["growth-y"] = "UP"
 	debuffs.tooltipAnchor = "ANCHOR_TOPRIGHT"
 	debuffs.reanchorIfVisibleChanged = true
-	debuffs.CreateButton = ns.AuraStyles.CreateButtonWithBar
+	-- WoW 12.0.0: Use non-secure buttons for player to avoid ADDON_ACTION_BLOCKED in combat
+	debuffs.CreateButton = ns.AuraStyles.CreateButtonWithBar_NonSecure
+	debuffs.allowCombatUpdates = true -- Allow oUF to update non-secure buttons in combat
 	debuffs.PostUpdateButton = ns.AuraStyles.PlayerPostUpdateButton
 	debuffs.FilterAura = ns.AuraFilters.PlayerDebuffFilter
 	debuffs.SortAuras = ns.AuraSorts.DefaultFunction

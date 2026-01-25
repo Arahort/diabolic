@@ -174,8 +174,9 @@ local function SetPosition(element, from, to)
 		local col = (i - 1) % cols
 		local row = math.floor((i - 1) / cols)
 
-		-- WoW 12.0.0: Skip positioning during combat to avoid ADDON_ACTION_BLOCKED
-		if not InCombatLockdown() then
+		-- WoW 12.0.0: Skip positioning in combat to avoid ADDON_ACTION_BLOCKED for secure buttons
+		-- Allow positioning for non-secure buttons (element.allowCombatUpdates = true)
+		if element.allowCombatUpdates or not InCombatLockdown() then
 			button:ClearAllPoints()
 			button:SetPoint(anchor, element, anchor, col * sizeX * growthX, row * sizeY * growthY)
 		end
@@ -270,13 +271,14 @@ local function updateAura(element, unit, data, position)
 
 	local width = element.width or element.size or 16
 	local height = element.height or element.size or 16
-	-- WoW 12.0.0: Skip protected frame operations during combat to avoid ADDON_ACTION_BLOCKED
-	if not InCombatLockdown() then
+	-- WoW 12.0.0: Skip protected operations in combat to avoid ADDON_ACTION_BLOCKED for secure buttons
+	-- Allow operations for non-secure buttons (element.allowCombatUpdates = true)
+	if element.allowCombatUpdates or not InCombatLockdown() then
 		button:SetSize(width, height)
 		button:EnableMouse(not element.disableMouse)
 		button:Show()
 	elseif not button:IsShown() then
-		-- In combat but button not visible - try to show it safely
+		-- Button exists but hidden - try to show it (size already set during creation)
 		pcall(function() button:Show() end)
 	end
 

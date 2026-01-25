@@ -67,6 +67,71 @@ local OnClick = function(self, button, down)
 	end
 end
 
+-- WoW 12.0.0: Non-secure version for player buffs/debuffs to avoid ADDON_ACTION_BLOCKED in combat
+-- Player can't cancel buffs in combat anyway, so no need for SecureActionButton
+ns.AuraStyles.CreateButtonWithBar_NonSecure = function(element, position)
+	-- Regular Button instead of SecureActionButtonTemplate
+	local aura = CreateFrame("Button", element:GetDebugName() .. "Button" .. position, element)
+	aura:RegisterForClicks("RightButtonUp")
+	-- Use OnClick handler instead of secure attributes
+	aura:SetScript("OnClick", OnClick)
+
+	local icon = aura:CreateTexture(nil, "BACKGROUND", nil, 1)
+	icon:SetAllPoints()
+	icon:SetMask(GetMedia("actionbutton-mask-square"))
+	aura.Icon = icon
+
+	local border = CreateFrame("Frame", nil, aura, ns.BackdropTemplate)
+	border:SetBackdrop({ edgeFile = GetMedia("border-aura"), edgeSize = 12 })
+	border:SetBackdropBorderColor(Colors.xp[1], Colors.xp[2], Colors.xp[3])
+	border:SetPoint("TOPLEFT", -6, 6)
+	border:SetPoint("BOTTOMRIGHT", 6, -6)
+	border:SetFrameLevel(aura:GetFrameLevel() + 2)
+	aura.Border = border
+
+	local count = aura.Border:CreateFontString(nil, "OVERLAY")
+	count:SetFontObject(GetFont(14,true))
+	count:SetTextColor(Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3])
+	count:SetPoint("BOTTOMRIGHT", aura, "BOTTOMRIGHT", -2, 3)
+	aura.Count = count
+
+	-- WoW 12.0.0: Create real CooldownFrame for SetCooldownFromDurationObject support
+	local cd = CreateFrame("Cooldown", nil, aura, "CooldownFrameTemplate")
+	cd:SetAllPoints()
+	cd:SetDrawEdge(false)
+	cd:SetDrawSwipe(false)
+	cd:SetHideCountdownNumbers(false)
+	-- Set countdown font - required for countdown to show!
+	if cd.SetCountdownFont then
+		cd:SetCountdownFont("NumberFontNormal")
+	end
+	aura.Cooldown = cd
+
+	local bar = element.__owner:CreateBar(nil, aura)
+	bar:SetPoint("TOP", aura, "BOTTOM", 0, 0)
+	bar:SetPoint("LEFT", aura, "LEFT", 1, 0)
+	bar:SetPoint("RIGHT", aura, "RIGHT", -1, 0)
+	bar:SetHeight(6)
+	bar:SetStatusBarTexture(GetMedia("bar-small"))
+	bar.bg = bar:CreateTexture(nil, "BACKGROUND", nil, -7)
+	bar.bg:SetPoint("TOPLEFT", -1, 1)
+	bar.bg:SetPoint("BOTTOMRIGHT", 1, -1)
+	bar.bg:SetColorTexture(.05, .05, .05, .85)
+	aura.Bar = bar
+
+	-- WoW 12.0.0: Hook real cooldown to update bar
+	ns.Widgets.RegisterCooldown(cd, bar)
+
+	-- Replacing oUF's aura tooltips, as they are not secure.
+	if (not element.disableMouse) then
+		aura.UpdateTooltip = UpdateTooltip
+		aura:SetScript("OnEnter", OnEnter)
+		aura:SetScript("OnLeave", OnLeave)
+	end
+
+	return aura
+end
+
 ns.AuraStyles.CreateButtonWithBar = function(element, position)
 	local aura = CreateFrame("Button", element:GetDebugName() .. "Button" .. position, element, "SecureActionButtonTemplate")
 	aura:RegisterForClicks("RightButtonUp")

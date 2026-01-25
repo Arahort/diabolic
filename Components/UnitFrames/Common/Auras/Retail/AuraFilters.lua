@@ -46,12 +46,18 @@ ns.AuraFilters.PlayerBuffFilter = function(element, unit, data)
 	if (data.isBossDebuff) then
 		return true
 	end
-	-- WoW 12.0.0: Skip filter comparisons if values are secret
-	if issecretvalue(data.duration) or issecretvalue(data.applications) then
-		return false
+
+	-- WoW 12.0.0: Original filter but without stack count condition
+	-- Show buffs with duration < 301 seconds OR short remaining time
+	-- Removed: or (data.applications > 1) - don't show stackable buffs without timer
+	if issecretvalue(data.duration) then
+		-- In combat - can't check exact duration
+		-- Show if it has expiration (temporary buff with timer)
+		return data.expirationTime ~= nil
 	end
 
-	return (not button.noDuration and data.duration < 301) or (button.timeLeft and button.timeLeft > 0 and button.timeLeft < 31) or (data.applications > 1)
+	-- Out of combat - original filter without stack count
+	return (not button.noDuration and data.duration < 301) or (button.timeLeft and button.timeLeft > 0 and button.timeLeft < 31)
 end
 
 ns.AuraFilters.PlayerDebuffFilter = function(element, unit, data)
