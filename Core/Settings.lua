@@ -26,6 +26,8 @@ local function OnSettingChanged(_, setting, value)
 		ns.callbacks:Fire("Tooltips_Settings_Updated")
 	elseif variable:match("^char_qol_") then
 		ns.callbacks:Fire("QoL_Settings_Updated")
+	elseif variable:match("^char_unitframes_") then
+		ns.callbacks:Fire("UnitFrames_Settings_Updated")
 	elseif variable:match("^global_core_") then
 		if variable:match("relativeScale$") then
 			ns:SetScale(tostring(value))
@@ -464,7 +466,7 @@ SettingsModule.OnInitialize = function(self)
 			local setting = RegisterSetting(
 				category,
 				"useClassColorForPower",
-				"global.unitframes",
+				"char.unitframes",
 				L["UseClassColorForPower"],
 				false,
 				L["UseClassColorForPowerDesc"]

@@ -415,7 +415,7 @@ end
 
 local Power_PostUpdate = function(element, unit, cur, min, max)
 	local db = ns:GetSettings()
-	if db.global.unitframes.useClassColorForPower then
+	if db.char.unitframes.useClassColorForPower then
 		local _, class = UnitClass(unit)
 		if class then
 			local color = element.__owner.colors.class[class]

@@ -63,6 +63,9 @@ local defaults = {
 		qol = {
 			movableFrames = true
 		},
+		unitframes = {
+			useClassColorForPower = false
+		},
 		mapcoords = {
 			worldmapCursor = true,
 			worldmapPlayer = true,
@@ -104,7 +107,6 @@ local defaults = {
 		},
 		unitframes = {
 			enableNamePlates = false,
-			useClassColorForPower = false,
 			showTargetCastbar = false,
 			useHealthColorForTarget = false,
 			showThreatOnTarget = false,
