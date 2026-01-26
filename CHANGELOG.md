@@ -1,5 +1,27 @@
 # DiabolicUI3 Changelog
 
+## [1.9.7-alpha1] - 2026-01-25
+### Added
+- Added "Show Buffs Near Health Orb" setting (default: enabled) to toggle player buffs display
+- Added "Disable DiabolicUI Minimap" setting (default: disabled) to completely disable custom minimap
+- Added custom Arial Narrow font for aura cooldown timers (size 9 with outline)
+- Added full localization for new settings (12 languages: en, de, es, fr, it, ko, pt, ru, zh)
+- Added localization guidelines to project documentation
+
+### Changed
+- Reduced aura cooldown timer font size for better text fitting (45 мин now fits properly)
+- Changed "Class Color for Power Orb" setting from global to per-character
+- Each character can now have different power orb color preference
+- Aura timer font changed to Arial Narrow for Cyrillic support
+
+### Fixed
+- Fixed Buffs frame nil error when showPlayerBuffs setting is disabled
+- Fixed Cyrillic characters displaying as squares in aura timers
+
+### Development
+- Added .psd files in Assets folder to .gitignore
+- Removed tracked .psd file from repository (kept on disk for local use)
+
 ## [1.9.6] - 2026-01-25
 ### Fixed
 - Fixed player unit frame buffs/debuffs not updating count in combat
