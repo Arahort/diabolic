@@ -32,8 +32,8 @@ local Colors = ns.Colors
 -- Create custom font object for aura cooldown timers with small size
 if not DiabolicAuraCooldownFont then
 	DiabolicAuraCooldownFont = CreateFont("DiabolicAuraCooldownFont")
-	-- Use Morpheus font (compact and readable) with size 9
-	DiabolicAuraCooldownFont:SetFont("Fonts\\MORPHEUS.ttf", 9, "OUTLINE")
+	-- Use Arial Narrow (compact and supports Cyrillic) with size 9
+	DiabolicAuraCooldownFont:SetFont("Fonts\\ARIALN.ttf", 9, "OUTLINE")
 	DiabolicAuraCooldownFont:SetShadowColor(0, 0, 0, 1)
 	DiabolicAuraCooldownFont:SetShadowOffset(1, -1)
 end
