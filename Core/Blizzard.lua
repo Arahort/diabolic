@@ -464,11 +464,12 @@ end
 
 BlizzKill.KillFloaters = function(self)
 
-	if (AlertFrame) then
-		AlertFrame:UnregisterAllEvents()
-		AlertFrame:SetScript("OnEvent", nil)
-		AlertFrame:SetParent(UIHider)
-	end
+	-- AlertFrame disabled - allows achievements, loot toasts, bonus rolls to show
+	--if (AlertFrame) then
+	--	AlertFrame:UnregisterAllEvents()
+	--	AlertFrame:SetScript("OnEvent", nil)
+	--	AlertFrame:SetParent(UIHider)
+	--end
 
 	-- Regular minimap buffs and debuffs.
 	if (BuffFrame) then

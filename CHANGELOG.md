@@ -1,5 +1,10 @@
 # DiabolicUI3 Changelog
 
+## [1.9.7-alpha3] - 2026-01-26
+### Fixed
+- Fixed achievement toasts, loot popups, and bonus roll windows not showing
+- Disabled AlertFrame killing to restore Blizzard popup notifications
+
 ## [1.9.7-alpha2] - 2026-01-26
 ### Added
 - Added "Aura Icon Size" setting to control buff icon size near minimap (20-64 pixels, default: 36)
