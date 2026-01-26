@@ -741,17 +741,23 @@ SettingsModule.OnInitialize = function(self)
 		do
 			local setting = RegisterSetting(
 				category,
-				"mainButtonScale",
+				"mainButtonSize",
 				"char.minimapbuttons",
-				L["MainButtonScale"],
-				1,
-				L["MainButtonScaleDesc"]
+				L["MainButtonSize"],
+				40,
+				L["MainButtonSizeDesc"]
 			)
-			local options = Settings.CreateSliderOptions(0.75, 1.25, 0.05)
+			local options = Settings.CreateSliderOptions(24, 64, 2)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return string.format("%.2f", value)
+				return string.format("%d px", value)
 			end)
-			Settings.CreateSlider(category, setting, options, L["MainButtonScaleDesc"])
+			local OnMainButtonSizeChanged = function()
+				if ns.callbacks then
+					ns.callbacks:Fire("MinimapButtons_MainButtonSize_Updated")
+				end
+			end
+			Settings.SetOnValueChangedCallback("char_minimapbuttons_mainButtonSize", OnMainButtonSizeChanged)
+			Settings.CreateSlider(category, setting, options, L["MainButtonSizeDesc"])
 		end
 		do
 			local setting = RegisterSetting(

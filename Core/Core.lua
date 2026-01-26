@@ -77,7 +77,7 @@ local defaults = {
 			direction = "leftdown",
 			buttonsPerRow = 5,
 			autohide = 2,
-			mainButtonScale = 1,
+			mainButtonSize = 40,
 			buttonScale = 0.9,
 			blacklist = {}
 		}

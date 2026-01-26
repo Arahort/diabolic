@@ -39,7 +39,7 @@ local GetMedia = ns.API.GetMedia
 local L = ns.L
 -- Constants
 local BUTTON_SIZE = 32
-local MAIN_BUTTON_SIZE = 40
+local DEFAULT_MAIN_BUTTON_SIZE = 40
 local FRAME_STRATA = "MEDIUM"
 local FRAME_LEVEL = 7
 local BUTTON_SPACING = 4
@@ -285,22 +285,42 @@ MinimapButtons.CollectButtons = function(self)
 	collectMinimapChildren()
 	self:UpdateLayout()
 end
+-- Update main button size
+MinimapButtons.UpdateMainButtonSize = function(self)
+	if not mainButton then return end
+	local buttonSize = DEFAULT_MAIN_BUTTON_SIZE
+	if ns.db and ns.db.char and ns.db.char.minimapbuttons then
+		buttonSize = ns.db.char.minimapbuttons.mainButtonSize or DEFAULT_MAIN_BUTTON_SIZE
+	end
+	mainButton:SetSize(buttonSize, buttonSize)
+	-- Update border size (35% bigger than button)
+	if mainButton.border then
+		local borderSize = buttonSize * 1.35
+		mainButton.border:SetSize(borderSize, borderSize)
+	end
+end
 -- Create main button
 MinimapButtons.CreateMainButton = function(self)
 	if mainButton then return end
+	-- Get button size from settings
+	local buttonSize = DEFAULT_MAIN_BUTTON_SIZE
+	if ns.db and ns.db.char and ns.db.char.minimapbuttons then
+		buttonSize = ns.db.char.minimapbuttons.mainButtonSize or DEFAULT_MAIN_BUTTON_SIZE
+	end
 	-- Create button frame
 	mainButton = CreateFrame("Button", "DiabolicUI3MinimapButtonsButton", UIParent)
-	mainButton:SetSize(MAIN_BUTTON_SIZE, MAIN_BUTTON_SIZE)
+	mainButton:SetSize(buttonSize, buttonSize)
 	mainButton:SetPoint("BOTTOMLEFT", Minimap, "BOTTOMLEFT", 10, 10)
 	mainButton:SetFrameStrata("HIGH")
 	mainButton:SetFrameLevel(20)
 	mainButton:SetClampedToScreen(true)
-	-- Circular border (bigger than button for visibility)
+	-- Circular border (35% bigger than button for visibility)
+	local borderSize = buttonSize * 1.35
 	local border = mainButton:CreateTexture(nil, "OVERLAY", nil, 2)
 	border:SetTexture(GetMedia("button-big-circular"))
 	border:SetVertexColor(.8, .76, .72)
 	border:SetPoint("CENTER")
-	border:SetSize(54, 54)
+	border:SetSize(borderSize, borderSize)
 	mainButton.border = border
 	-- Background shade
 	local shade = mainButton:CreateTexture(nil, "BACKGROUND", nil, -7)
@@ -394,5 +414,6 @@ MinimapButtons.OnEnable = function(self)
 	-- Register callback for settings updates
 	if ns.callbacks and ns.callbacks.RegisterCallback then
 		ns.callbacks:RegisterCallback(self, "MinimapButtons_Settings_Updated", "UpdateVisibility")
+		ns.callbacks:RegisterCallback(self, "MinimapButtons_MainButtonSize_Updated", "UpdateMainButtonSize")
 	end
 end

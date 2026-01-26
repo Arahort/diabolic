@@ -1,5 +1,21 @@
 # DiabolicUI3 Changelog
 
+## [1.9.7-RC3] - 2026-01-26
+### Added
+- Added "Main Button Size" setting for MinimapButtons (24-64 pixels, default: 40)
+- Full localization for main button size setting (12 languages)
+- Dynamic button size update - changes apply immediately without reload
+
+### Changed
+- MinimapButtons main button border now scales proportionally with button size (135% of button size)
+
+### Fixed
+- Fixed achievement toasts, loot popups, and bonus roll windows not showing
+- Disabled AlertFrame killing to restore Blizzard popup notifications
+
+### Removed
+- Removed unused "Main Button Scale" setting that had no effect
+
 ## [1.9.7-alpha3] - 2026-01-26
 ### Fixed
 - Fixed achievement toasts, loot popups, and bonus roll windows not showing
