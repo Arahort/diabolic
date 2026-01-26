@@ -461,7 +461,10 @@ local PostUpdateAuraPositions = function(self, event, ...)
 		stanceOffset = 40
 	end
 
-	self.Buffs:SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", -316, 100 + offset)
+	-- Check if buffs frame exists (depends on showPlayerBuffs setting)
+	if self.Buffs then
+		self.Buffs:SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", -316, 100 + offset)
+	end
 	self.Debuffs:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOM", 316, 100 + offset + stanceOffset)
 
 	ns:Fire("UnitFrame_Position_Updated", self:GetName())
