@@ -123,9 +123,10 @@ Aura.Style = function(self)
 	cd:SetDrawEdge(false)
 	cd:SetDrawSwipe(false)
 	cd:SetHideCountdownNumbers(false)
-	-- Set countdown font - required for countdown to show!
+	-- Set countdown font - use custom Morpheus font for compact display
+	-- Font is created in AuraStyles.lua
 	if cd.SetCountdownFont then
-		cd:SetCountdownFont("NumberFontNormalSmall")
+		cd:SetCountdownFont("DiabolicAuraCooldownFont")
 	end
 	self.cd = cd
 

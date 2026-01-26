@@ -28,6 +28,15 @@ ns.AuraStyles = ns.AuraStyles or {}
 
 -- Addon API
 local Colors = ns.Colors
+
+-- Create custom font object for aura cooldown timers with small size
+if not DiabolicAuraCooldownFont then
+	DiabolicAuraCooldownFont = CreateFont("DiabolicAuraCooldownFont")
+	-- Use Morpheus font (compact and readable) with size 9
+	DiabolicAuraCooldownFont:SetFont("Fonts\\MORPHEUS.ttf", 9, "OUTLINE")
+	DiabolicAuraCooldownFont:SetShadowColor(0, 0, 0, 1)
+	DiabolicAuraCooldownFont:SetShadowOffset(1, -1)
+end
 local GetFont = ns.API.GetFont
 local GetMedia = ns.API.GetMedia
 
@@ -101,9 +110,9 @@ ns.AuraStyles.CreateButtonWithBar_NonSecure = function(element, position)
 	cd:SetDrawEdge(false)
 	cd:SetDrawSwipe(false)
 	cd:SetHideCountdownNumbers(false)
-	-- Set countdown font - required for countdown to show!
+	-- Set countdown font - use custom Morpheus font for compact display
 	if cd.SetCountdownFont then
-		cd:SetCountdownFont("NumberFontNormalSmall")
+		cd:SetCountdownFont("DiabolicAuraCooldownFont")
 	end
 	aura.Cooldown = cd
 
@@ -163,9 +172,9 @@ ns.AuraStyles.CreateButtonWithBar = function(element, position)
 	cd:SetDrawEdge(false)
 	cd:SetDrawSwipe(false)
 	cd:SetHideCountdownNumbers(false)
-	-- Set countdown font - required for countdown to show!
+	-- Set countdown font - use custom Morpheus font for compact display
 	if cd.SetCountdownFont then
-		cd:SetCountdownFont("NumberFontNormalSmall")
+		cd:SetCountdownFont("DiabolicAuraCooldownFont")
 	end
 	aura.Cooldown = cd
 
@@ -225,9 +234,9 @@ ns.AuraStyles.CreateButton = function(element, position)
 	cd:SetDrawEdge(false)
 	cd:SetDrawSwipe(false)
 	cd:SetHideCountdownNumbers(false)
-	-- Set countdown font - required for countdown to show!
+	-- Set countdown font - use custom Morpheus font for compact display
 	if cd.SetCountdownFont then
-		cd:SetCountdownFont("NumberFontNormalSmall")
+		cd:SetCountdownFont("DiabolicAuraCooldownFont")
 	end
 	aura.Cooldown = cd
 
