@@ -125,7 +125,7 @@ Aura.Style = function(self)
 	cd:SetHideCountdownNumbers(false)
 	-- Set countdown font - required for countdown to show!
 	if cd.SetCountdownFont then
-		cd:SetCountdownFont("NumberFontNormal")
+		cd:SetCountdownFont("NumberFontNormalSmall")
 	end
 	self.cd = cd
 

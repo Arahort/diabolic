@@ -103,7 +103,7 @@ ns.AuraStyles.CreateButtonWithBar_NonSecure = function(element, position)
 	cd:SetHideCountdownNumbers(false)
 	-- Set countdown font - required for countdown to show!
 	if cd.SetCountdownFont then
-		cd:SetCountdownFont("NumberFontNormal")
+		cd:SetCountdownFont("NumberFontNormalSmall")
 	end
 	aura.Cooldown = cd
 
@@ -165,7 +165,7 @@ ns.AuraStyles.CreateButtonWithBar = function(element, position)
 	cd:SetHideCountdownNumbers(false)
 	-- Set countdown font - required for countdown to show!
 	if cd.SetCountdownFont then
-		cd:SetCountdownFont("NumberFontNormal")
+		cd:SetCountdownFont("NumberFontNormalSmall")
 	end
 	aura.Cooldown = cd
 
@@ -227,7 +227,7 @@ ns.AuraStyles.CreateButton = function(element, position)
 	cd:SetHideCountdownNumbers(false)
 	-- Set countdown font - required for countdown to show!
 	if cd.SetCountdownFont then
-		cd:SetCountdownFont("NumberFontNormal")
+		cd:SetCountdownFont("NumberFontNormalSmall")
 	end
 	aura.Cooldown = cd
 
