@@ -338,6 +338,21 @@ SettingsModule.OnInitialize = function(self)
 			end)
 			Settings.CreateSlider(category, setting, options, L["AurasPosYDesc"])
 		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"iconSize",
+				"global.auras",
+				L["AurasIconSize"],
+				36,
+				L["AurasIconSizeDesc"]
+			)
+			local options = Settings.CreateSliderOptions(20, 64, 1)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return tostring(value)
+			end)
+			Settings.CreateSlider(category, setting, options, L["AurasIconSizeDesc"])
+		end
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["MinimapHeader"]))
 		do
 			local setting = RegisterSetting(
@@ -753,6 +768,8 @@ SettingsModule.OnInitialize = function(self)
 			end)
 			Settings.CreateSlider(category, setting, options, L["CollectedButtonScaleDesc"])
 		end
+		--[[
+		-- Reset, Import/Export section (disabled for now, may be restored later)
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["ResetHeader"]))
 		do
 			local function OnButtonClick()
@@ -799,7 +816,6 @@ SettingsModule.OnInitialize = function(self)
 			)
 			layout:AddInitializer(initializer)
 		end
-		Settings.RegisterAddOnCategory(category)
 		StaticPopupDialogs["DIABOLICUI3_RESET_SETTINGS"] = {
 			text = L["ResetConfirmation"],
 			button1 = YES,
@@ -812,6 +828,8 @@ SettingsModule.OnInitialize = function(self)
 			whileDead = true,
 			hideOnEscape = true,
 		}
+		--]]
+		Settings.RegisterAddOnCategory(category)
 	end)
 end
 function DiabolicUI3_OnAddonCompartmentClick(addonName, buttonName)

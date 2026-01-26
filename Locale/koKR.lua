@@ -6,9 +6,12 @@ end
 -- Settings Panel
 L["ReloadButton"] = "설정 적용 및 UI 새로고침"
 L["ReloadButtonDesc"] = "모든 설정을 적용하고 사용자 인터페이스를 새로고침합니다"
+--[[
+-- Reset, Import/Export (disabled for now, may be restored later)
 L["ResetButton"] = "모든 설정 초기화"
 L["ResetButtonDesc"] = "모든 설정을 기본값으로 초기화합니다"
 L["ResetConfirmation"] = "Diabolic UI의 모든 설정을 기본값으로 초기화하시겠습니까?"
+--]]
 -- Core
 L["CoreHeader"] = "핵심"
 L["UIScale"] = "UI 크기"
@@ -47,6 +50,8 @@ L["AurasPosX"] = "효과 가로 위치"
 L["AurasPosXDesc"] = "가로 위치 조정 (-1000 ~ 0)"
 L["AurasPosY"] = "효과 세로 위치"
 L["AurasPosYDesc"] = "세로 위치 조정 (-500 ~ 0)"
+L["AurasIconSize"] = "오라 아이콘 크기"
+L["AurasIconSizeDesc"] = "미니맵 근처 오라 아이콘 크기 조정 (20-64 픽셀)"
 -- Minimap
 L["MinimapHeader"] = "미니맵"
 L["UseServerTime"] = "서버 시간 사용"
@@ -87,6 +92,8 @@ L["TargetRelativeScale"] = "대상 프레임 상대 크기"
 L["TargetRelativeScaleDesc"] = "하단 UI 크기 대비 대상 프레임 크기 배율 (0.5 - 1.5, /reload 필요)"
 --L["EnableNamePlates"] = "DiabolicUI 이름표 활성화"
 --L["EnableNamePlatesDesc"] = "기본 블리자드 이름표를 DiabolicUI 사용자 정의 이름표로 교체 (/reload 필요)"
+--[[
+-- Reset, Import/Export (disabled for now, may be restored later)
 -- Reset
 L["ResetHeader"] = "초기화"
 -- Import/Export
@@ -97,6 +104,7 @@ L["ImportButton"] = "가져오기"
 L["ImportSettingsButton"] = "설정 가져오기"
 L["ImportSettingsButtonDesc"] = "문자열에서 설정 가져오기"
 L["SelectAll"] = "모두 선택"
+--]]
 -- Tooltips
 L["TooltipsHeader"] = "툴팁"
 L["EnableTooltipsOnMouse"] = "마우스에 툴팁 고정"

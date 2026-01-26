@@ -1,5 +1,14 @@
 # DiabolicUI3 Changelog
 
+## [1.9.7-alpha2] - 2026-01-26
+### Added
+- Added "Aura Icon Size" setting to control buff icon size near minimap (20-64 pixels, default: 36)
+- Added full localization for aura icon size setting (12 languages)
+
+### Changed
+- Aura icon size now dynamically adjusts based on settings
+- Disabled Reset/Import/Export section in settings (commented out, may be restored later)
+
 ## [1.9.7-alpha1] - 2026-01-25
 ### Added
 - Added "Show Buffs Near Health Orb" setting (default: enabled) to toggle player buffs display

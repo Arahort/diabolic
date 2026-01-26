@@ -55,7 +55,10 @@ local SetObjectScale = ns.API.SetObjectScale
 local Aura = {}
 
 Aura.Style = function(self)
-
+	-- Apply dynamic icon size from settings
+	local db = ns.db.global.auras
+	local iconSize = db.iconSize or 36
+	self:SetSize(iconSize, iconSize)
 	local icon = self:CreateTexture(nil, "BACKGROUND", nil, 1)
 	icon:SetAllPoints()
 	icon:SetMask(GetMedia("actionbutton-mask-square"))
@@ -530,19 +533,20 @@ Auras.SpawnAuras = function(self)
 		-- The primary buff window.
 		local buffs = SetObjectScale(CreateFrame("Frame", ns.Prefix.."BuffHeader", UIParent, "SecureAuraHeaderTemplate"))
 		buffs:SetFrameLevel(10)
-		buffs:SetSize(36,36)
 		local db = ns.db.global.auras
+		local iconSize = db.iconSize or 36
+		buffs:SetSize(iconSize, iconSize)
 		buffs:SetPoint("TOPRIGHT", db.positionX or -380, db.positionY or -66)
 		buffs:SetAttribute("weaponTemplate", "DiabolicAuraTemplate")
 		buffs:SetAttribute("template", "DiabolicAuraTemplate")
-		buffs:SetAttribute("minHeight", 36)
-		buffs:SetAttribute("minWidth", 36)
+		buffs:SetAttribute("minHeight", iconSize)
+		buffs:SetAttribute("minWidth", iconSize)
 		buffs:SetAttribute("point", "TOPRIGHT")
-		buffs:SetAttribute("xOffset", -42)
+		buffs:SetAttribute("xOffset", -(iconSize + 6))
 		buffs:SetAttribute("yOffset", 0)
 		buffs:SetAttribute("wrapAfter", 6)
 		buffs:SetAttribute("wrapXOffset", 0)
-		buffs:SetAttribute("wrapYOffset", -48)
+		buffs:SetAttribute("wrapYOffset", -(iconSize + 12))
 		buffs:SetAttribute("filter", "HELPFUL")
 		buffs:SetAttribute("includeWeapons", 1)
 		buffs:SetAttribute("sortMethod", "TIME")
@@ -585,7 +589,7 @@ Auras.SpawnAuras = function(self)
 		-- representing the existence of consolidated auras.
 		local proxy = CreateFrame("Button", buffs:GetName().."ProxyButton", buffs, "SecureUnitButtonTemplate, SecureHandlerEnterLeaveTemplate")
 		proxy:Hide()
-		proxy:SetSize(36,36)
+		proxy:SetSize(iconSize, iconSize)
 		proxy:SetIgnoreParentAlpha(true)
 		buffs.proxy = proxy
 
@@ -613,7 +617,7 @@ Auras.SpawnAuras = function(self)
 		local consolidation = CreateFrame("Frame", buffs:GetName().."Consolidation", buffs.proxy, "SecureFrameTemplate")
 		consolidation:Hide()
 		consolidation:SetIgnoreParentAlpha(true)
-		consolidation:SetSize(36, 36)
+		consolidation:SetSize(iconSize, iconSize)
 		consolidation:SetPoint("TOPLEFT", proxy, "TOPRIGHT", 6, 0)
 		consolidation:SetAttribute("minHeight", nil)
 		consolidation:SetAttribute("minWidth", nil)

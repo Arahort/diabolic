@@ -6,9 +6,12 @@ end
 -- Settings Panel
 L["ReloadButton"] = "Einstellungen anwenden & UI neu laden"
 L["ReloadButtonDesc"] = "Alle Einstellungen anwenden und die Benutzeroberfläche neu laden"
+--[[
+-- Reset, Import/Export (disabled for now, may be restored later)
 L["ResetButton"] = "Alle Einstellungen zurücksetzen"
 L["ResetButtonDesc"] = "Alle Einstellungen auf Standardwerte zurücksetzen"
 L["ResetConfirmation"] = "Möchten Sie wirklich alle Diabolic UI-Einstellungen auf Standardwerte zurücksetzen?"
+--]]
 -- Core
 L["CoreHeader"] = "Kern"
 L["UIScale"] = "UI-Skalierung"
@@ -47,6 +50,8 @@ L["AurasPosX"] = "Auren horizontale Position"
 L["AurasPosXDesc"] = "Horizontale Position anpassen (-1000 bis 0)"
 L["AurasPosY"] = "Auren vertikale Position"
 L["AurasPosYDesc"] = "Vertikale Position anpassen (-500 bis 0)"
+L["AurasIconSize"] = "Aura-Symbol-Größe"
+L["AurasIconSizeDesc"] = "Größe der Aura-Symbole bei der Minikarte anpassen (20-64 Pixel)"
 -- Minimap
 L["MinimapHeader"] = "Minikarte"
 L["UseServerTime"] = "Serverzeit verwenden"
@@ -87,6 +92,8 @@ L["TargetRelativeScale"] = "Zielfenster relative Skalierung"
 L["TargetRelativeScaleDesc"] = "Zielfenster-Skalierungsmultiplikator relativ zur unteren UI-Skalierung (0.5 - 1.5, erfordert /reload)"
 --L["EnableNamePlates"] = "DiabolicUI-Namensplaketten aktivieren"
 --L["EnableNamePlatesDesc"] = "Standard-Blizzard-Namensplaketten durch benutzerdefinierte DiabolicUI-Namensplaketten ersetzen (erfordert /reload)"
+--[[
+-- Reset, Import/Export (disabled for now, may be restored later)
 -- Reset
 L["ResetHeader"] = "Zurücksetzen"
 -- Import/Export
@@ -97,6 +104,7 @@ L["ImportButton"] = "Importieren"
 L["ImportSettingsButton"] = "Einstellungen importieren"
 L["ImportSettingsButtonDesc"] = "Einstellungen aus einer Zeichenfolge importieren"
 L["SelectAll"] = "Alle auswählen"
+--]]
 -- Tooltips
 L["TooltipsHeader"] = "Tooltips"
 L["EnableTooltipsOnMouse"] = "Tooltip an Maus anhängen"

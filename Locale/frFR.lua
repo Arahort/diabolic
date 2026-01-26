@@ -6,9 +6,12 @@ end
 -- Settings Panel
 L["ReloadButton"] = "Appliquer les param. et recharger l'IU"
 L["ReloadButtonDesc"] = "Appliquer tous les paramètres et recharger l'interface utilisateur"
+--[[
+-- Reset, Import/Export (disabled for now, may be restored later)
 L["ResetButton"] = "Réinitialiser tous les paramètres"
 L["ResetButtonDesc"] = "Réinitialiser tous les paramètres aux valeurs par défaut"
 L["ResetConfirmation"] = "Voulez-vous vraiment réinitialiser tous les paramètres de Diabolic UI aux valeurs par défaut ?"
+--]]
 -- Core
 L["CoreHeader"] = "Noyau"
 L["UIScale"] = "Échelle de l'IU"
@@ -47,6 +50,8 @@ L["AurasPosX"] = "Position horizontale des auras"
 L["AurasPosXDesc"] = "Ajuster la position horizontale (-1000 à 0)"
 L["AurasPosY"] = "Position verticale des auras"
 L["AurasPosYDesc"] = "Ajuster la position verticale (-500 à 0)"
+L["AurasIconSize"] = "Taille des icônes d'aura"
+L["AurasIconSizeDesc"] = "Ajuster la taille des icônes d'aura près de la minicarte (20-64 pixels)"
 -- Minimap
 L["MinimapHeader"] = "Minicarte"
 L["UseServerTime"] = "Utiliser l'heure du serveur"
@@ -87,6 +92,8 @@ L["TargetRelativeScale"] = "Échelle relative du cadre de la cible"
 L["TargetRelativeScaleDesc"] = "Multiplicateur d'échelle du cadre de la cible par rapport à l'échelle de l'IU inférieure (0.5 - 1.5, nécessite /reload)"
 --L["EnableNamePlates"] = "Activer les plaques signalétiques DiabolicUI"
 --L["EnableNamePlatesDesc"] = "Remplacer les plaques signalétiques Blizzard par défaut par des plaques signalétiques DiabolicUI personnalisées (nécessite /reload)"
+--[[
+-- Reset, Import/Export (disabled for now, may be restored later)
 -- Reset
 L["ResetHeader"] = "Réinitialiser"
 -- Import/Export
@@ -97,6 +104,7 @@ L["ImportButton"] = "Importer"
 L["ImportSettingsButton"] = "Importer les paramètres"
 L["ImportSettingsButtonDesc"] = "Importer les paramètres à partir d'une chaîne"
 L["SelectAll"] = "Tout sélectionner"
+--]]
 -- Tooltips
 L["TooltipsHeader"] = "Info-bulles"
 L["EnableTooltipsOnMouse"] = "Attacher l'info-bulle à la souris"

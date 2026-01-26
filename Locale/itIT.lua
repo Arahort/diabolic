@@ -6,9 +6,12 @@ end
 -- Settings Panel
 L["ReloadButton"] = "Applica impostazioni e ricarica UI"
 L["ReloadButtonDesc"] = "Applica tutte le impostazioni e ricarica l'interfaccia utente"
+--[[
+-- Reset, Import/Export (disabled for now, may be restored later)
 L["ResetButton"] = "Ripristina tutte le impostazioni"
 L["ResetButtonDesc"] = "Ripristina tutte le impostazioni ai valori predefiniti"
 L["ResetConfirmation"] = "Sei sicuro di voler ripristinare tutte le impostazioni di Diabolic UI ai valori predefiniti?"
+--]]
 -- Core
 L["CoreHeader"] = "Nucleo"
 L["UIScale"] = "Scala UI"
@@ -47,6 +50,8 @@ L["AurasPosX"] = "Posizione orizzontale aure"
 L["AurasPosXDesc"] = "Regola la posizione orizzontale (-1000 a 0)"
 L["AurasPosY"] = "Posizione verticale aure"
 L["AurasPosYDesc"] = "Regola la posizione verticale (-500 a 0)"
+L["AurasIconSize"] = "Dimensione icone aura"
+L["AurasIconSizeDesc"] = "Regola la dimensione delle icone aura vicino alla minimappa (20-64 pixel)"
 -- Minimap
 L["MinimapHeader"] = "Minimappa"
 L["UseServerTime"] = "Usa ora del server"
@@ -87,6 +92,8 @@ L["TargetRelativeScale"] = "Scala relativa riquadro bersaglio"
 L["TargetRelativeScaleDesc"] = "Moltiplicatore scala riquadro bersaglio relativo alla scala UI inferiore (0.5 - 1.5, richiede /reload)"
 --L["EnableNamePlates"] = "Abilita targhe nome DiabolicUI"
 --L["EnableNamePlatesDesc"] = "Sostituisci le targhe nome predefinite di Blizzard con targhe nome personalizzate DiabolicUI (richiede /reload)"
+--[[
+-- Reset, Import/Export (disabled for now, may be restored later)
 -- Reset
 L["ResetHeader"] = "Ripristina"
 -- Import/Export
@@ -97,6 +104,7 @@ L["ImportButton"] = "Importa"
 L["ImportSettingsButton"] = "Importa impostazioni"
 L["ImportSettingsButtonDesc"] = "Importa impostazioni da una stringa"
 L["SelectAll"] = "Seleziona tutto"
+--]]
 -- Tooltips
 L["TooltipsHeader"] = "Descrizioni comandi"
 L["EnableTooltipsOnMouse"] = "Ancora descrizione al mouse"

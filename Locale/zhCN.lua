@@ -6,9 +6,12 @@ end
 -- Settings Panel
 L["ReloadButton"] = "应用设置并重载界面"
 L["ReloadButtonDesc"] = "应用所有设置并重新加载用户界面"
+--[[
+-- Reset, Import/Export (disabled for now, may be restored later)
 L["ResetButton"] = "重置所有设置"
 L["ResetButtonDesc"] = "将所有设置重置为默认值"
 L["ResetConfirmation"] = "确定要将 Diabolic UI 的所有设置重置为默认值吗?"
+--]]
 -- Core
 L["CoreHeader"] = "核心"
 L["UIScale"] = "界面缩放"
@@ -47,6 +50,8 @@ L["AurasPosX"] = "光环水平位置"
 L["AurasPosXDesc"] = "调整水平位置(-1000 到 0)"
 L["AurasPosY"] = "光环垂直位置"
 L["AurasPosYDesc"] = "调整垂直位置(-500 到 0)"
+L["AurasIconSize"] = "光环图标大小"
+L["AurasIconSizeDesc"] = "调整小地图附近光环图标大小 (20-64像素)"
 -- Minimap
 L["MinimapHeader"] = "小地图"
 L["UseServerTime"] = "使用服务器时间"
@@ -87,6 +92,8 @@ L["TargetRelativeScale"] = "目标框体相对缩放"
 L["TargetRelativeScaleDesc"] = "目标框体相对于底部界面缩放的缩放倍数(0.5 - 1.5,需要 /reload)"
 --L["EnableNamePlates"] = "启用 DiabolicUI 姓名板"
 --L["EnableNamePlatesDesc"] = "用 DiabolicUI 自定义姓名板替换暴雪默认姓名板(需要 /reload)"
+--[[
+-- Reset, Import/Export (disabled for now, may be restored later)
 -- Reset
 L["ResetHeader"] = "重置"
 -- Import/Export
@@ -97,6 +104,7 @@ L["ImportButton"] = "导入"
 L["ImportSettingsButton"] = "导入设置"
 L["ImportSettingsButtonDesc"] = "从字符串导入设置"
 L["SelectAll"] = "全选"
+--]]
 -- Tooltips
 L["TooltipsHeader"] = "鼠标提示"
 L["EnableTooltipsOnMouse"] = "提示附着于鼠标"

@@ -6,9 +6,12 @@ end
 -- Settings Panel
 L["ReloadButton"] = "Aplicar config. e recarregar IU"
 L["ReloadButtonDesc"] = "Aplicar todas as configurações e recarregar a interface do usuário"
+--[[
+-- Reset, Import/Export (disabled for now, may be restored later)
 L["ResetButton"] = "Redefinir todas as configurações"
 L["ResetButtonDesc"] = "Redefinir todas as configurações para os valores padrão"
 L["ResetConfirmation"] = "Tem certeza de que deseja redefinir todas as configurações do Diabolic UI para os valores padrão?"
+--]]
 -- Core
 L["CoreHeader"] = "Núcleo"
 L["UIScale"] = "Escala da IU"
@@ -47,6 +50,8 @@ L["AurasPosX"] = "Posição horizontal das auras"
 L["AurasPosXDesc"] = "Ajustar a posição horizontal (-1000 a 0)"
 L["AurasPosY"] = "Posição vertical das auras"
 L["AurasPosYDesc"] = "Ajustar a posição vertical (-500 a 0)"
+L["AurasIconSize"] = "Tamanho dos ícones de aura"
+L["AurasIconSizeDesc"] = "Ajustar o tamanho dos ícones de aura perto do minimapa (20-64 pixels)"
 -- Minimap
 L["MinimapHeader"] = "Minimapa"
 L["UseServerTime"] = "Usar horário do servidor"
@@ -87,6 +92,8 @@ L["TargetRelativeScale"] = "Escala relativa do quadro do alvo"
 L["TargetRelativeScaleDesc"] = "Multiplicador de escala do quadro do alvo relativo à escala da IU inferior (0.5 - 1.5, requer /reload)"
 --L["EnableNamePlates"] = "Ativar placas de nome DiabolicUI"
 --L["EnableNamePlatesDesc"] = "Substituir as placas de nome padrão da Blizzard por placas de nome personalizadas do DiabolicUI (requer /reload)"
+--[[
+-- Reset, Import/Export (disabled for now, may be restored later)
 -- Reset
 L["ResetHeader"] = "Redefinir"
 -- Import/Export
@@ -97,6 +104,7 @@ L["ImportButton"] = "Importar"
 L["ImportSettingsButton"] = "Importar configurações"
 L["ImportSettingsButtonDesc"] = "Importar configurações de uma string"
 L["SelectAll"] = "Selecionar tudo"
+--]]
 -- Tooltips
 L["TooltipsHeader"] = "Dicas de ferramentas"
 L["EnableTooltipsOnMouse"] = "Anexar dica ao mouse"

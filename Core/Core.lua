@@ -135,7 +135,8 @@ local defaults = {
 		},
 		auras = {
 			positionX = -290,
-			positionY = -5
+			positionY = -5,
+			iconSize = 36
 		},
 		petbar = {
 			positionX = 4,

@@ -6,9 +6,12 @@ end
 -- Settings Panel
 L["ReloadButton"] = "Apply Settings & Reload UI"
 L["ReloadButtonDesc"] = "Apply all settings and reload the user interface"
+--[[
+-- Reset, Import/Export (disabled for now, may be restored later)
 L["ResetButton"] = "Reset All Settings"
 L["ResetButtonDesc"] = "Reset all settings to default values"
 L["ResetConfirmation"] = "Are you sure you want to reset all Diabolic UI settings to default values?"
+--]]
 -- Core
 L["CoreHeader"] = "Core"
 L["UIScale"] = "UI Scale"
@@ -47,6 +50,8 @@ L["AurasPosX"] = "Auras Horizontal Position"
 L["AurasPosXDesc"] = "Adjust horizontal position (-1000 to 0)"
 L["AurasPosY"] = "Auras Vertical Position"
 L["AurasPosYDesc"] = "Adjust vertical position (-500 to 0)"
+L["AurasIconSize"] = "Aura Icon Size"
+L["AurasIconSizeDesc"] = "Adjust aura icon size near minimap (20-64 pixels)"
 -- Minimap
 L["MinimapHeader"] = "Minimap"
 L["UseServerTime"] = "Use Server Time"
@@ -87,6 +92,8 @@ L["TargetRelativeScale"] = "Target Frame Relative Scale"
 L["TargetRelativeScaleDesc"] = "Target frame scale multiplier relative to bottom UI scale (0.5 - 1.5, requires /reload)"
 --L["EnableNamePlates"] = "Enable DiabolicUI NamePlates"
 --L["EnableNamePlatesDesc"] = "Replace default Blizzard nameplates with DiabolicUI custom nameplates (requires /reload)"
+--[[
+-- Reset, Import/Export (disabled for now, may be restored later)
 -- Reset
 L["ResetHeader"] = "Reset"
 -- Import/Export
@@ -97,6 +104,7 @@ L["ImportButton"] = "Import"
 L["ImportSettingsButton"] = "Import Settings"
 L["ImportSettingsButtonDesc"] = "Import settings from a string"
 L["SelectAll"] = "Select All"
+--]]
 -- Tooltips
 L["TooltipsHeader"] = "Tooltips"
 L["EnableTooltipsOnMouse"] = "Attach Tooltip to Mouse"
