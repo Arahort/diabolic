@@ -772,6 +772,10 @@ MinimapMod.OnEvent = function(self, event)
 end
 
 MinimapMod.OnInitialize = function(self)
+	-- Check if minimap is disabled in settings
+	if ns.db.global.minimap.disabled then
+		return
+	end
 
 	self:DisableBlizzard()
 	self:StyleMinimap()

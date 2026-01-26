@@ -367,6 +367,10 @@ MinimapButtons.UpdateVisibility = function(self)
 	end
 end
 MinimapButtons.OnInitialize = function(self)
+	-- Check if minimap is disabled in settings
+	if ns.db.global.minimap.disabled then
+		return
+	end
 	-- Create UI elements
 	self:CreateMainButton()
 	self:CreateContainer()

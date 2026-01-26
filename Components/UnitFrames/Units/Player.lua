@@ -888,33 +888,36 @@ UnitStyles["Player"] = function(self, unit, id)
 	-- с основным buff header (Components/Auras/Auras.lua)
 	-- который отображается в правом верхнем углу
 	-- Но фреймы должны существовать для PostUpdateAuraPositions
-	local buffs = CreateFrame("Frame", self:GetName().."BuffFrame", self)
-	buffs:SetSize(300, 110)
-	buffs.num = 40
-	buffs.size = 40
-	buffs.spacing = 4
-	buffs.filter = "HELPFUL"
-	buffs.disableMouse = false
-	buffs.disableCooldown = false
-	buffs.onlyShowPlayer = false
-	buffs.showStealableBuffs = false
-	buffs.initialAnchor = "BOTTOMLEFT"
-	buffs["spacing-x"] = 4
-	buffs["spacing-y"] = 11
-	buffs["growth-x"] = "RIGHT"
-	buffs["growth-y"] = "UP"
-	buffs.tooltipAnchor = "ANCHOR_TOPLEFT"
-	buffs.sortMethod = "TIME_REMAINING"
-	buffs.sortDirection = "ASCENDING"
-	buffs.reanchorIfVisibleChanged = true
-	-- WoW 12.0.0: Use non-secure buttons for player to avoid ADDON_ACTION_BLOCKED in combat
-	buffs.CreateButton = ns.AuraStyles.CreateButtonWithBar_NonSecure
-	buffs.allowCombatUpdates = true -- Allow oUF to update non-secure buttons in combat
-	buffs.PostUpdateButton = ns.AuraStyles.PlayerPostUpdateButton
-	buffs.FilterAura = ns.AuraFilters.PlayerBuffFilter
-	buffs.SortAuras = ns.AuraSorts.DefaultFunction
+	-- Check setting to show/hide buffs near health orb
+	if ns.db.global.unitframes.showPlayerBuffs then
+		local buffs = CreateFrame("Frame", self:GetName().."BuffFrame", self)
+		buffs:SetSize(300, 110)
+		buffs.num = 40
+		buffs.size = 40
+		buffs.spacing = 4
+		buffs.filter = "HELPFUL"
+		buffs.disableMouse = false
+		buffs.disableCooldown = false
+		buffs.onlyShowPlayer = false
+		buffs.showStealableBuffs = false
+		buffs.initialAnchor = "BOTTOMLEFT"
+		buffs["spacing-x"] = 4
+		buffs["spacing-y"] = 11
+		buffs["growth-x"] = "RIGHT"
+		buffs["growth-y"] = "UP"
+		buffs.tooltipAnchor = "ANCHOR_TOPLEFT"
+		buffs.sortMethod = "TIME_REMAINING"
+		buffs.sortDirection = "ASCENDING"
+		buffs.reanchorIfVisibleChanged = true
+		-- WoW 12.0.0: Use non-secure buttons for player to avoid ADDON_ACTION_BLOCKED in combat
+		buffs.CreateButton = ns.AuraStyles.CreateButtonWithBar_NonSecure
+		buffs.allowCombatUpdates = true -- Allow oUF to update non-secure buttons in combat
+		buffs.PostUpdateButton = ns.AuraStyles.PlayerPostUpdateButton
+		buffs.FilterAura = ns.AuraFilters.PlayerBuffFilter
+		buffs.SortAuras = ns.AuraSorts.DefaultFunction
 
-	self.Buffs = buffs
+		self.Buffs = buffs
+	end
 
 	local debuffs = CreateFrame("Frame", self:GetName().."DebuffFrame", self)
 	debuffs:SetSize(300, 110)

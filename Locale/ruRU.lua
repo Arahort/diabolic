@@ -23,6 +23,8 @@ L["EnableSecondary"] = "Включить вторичную панель дей�
 L["EnableSecondaryDesc"] = "Показать вторичную панель действий (требуется перезагрузка)"
 L["EnableThird"] = "Включить третью панель действий"
 L["EnableThirdDesc"] = "Показать третью панель действий (требуется перезагрузка)"
+L["ShowPlayerBuffs"] = "Show Buffs Near Health Orb"
+L["ShowPlayerBuffsDesc"] = "Toggle buffs display near health orb. Buffs will still be shown above minimap."
 L["ShowPetBar"] = "Показать панель питомца"
 L["ShowPetBarDesc"] = "Отображать панель действий питомца (требуется перезагрузка)"
 L["ShowStanceBar"] = "Показать панель стоек"
@@ -55,6 +57,8 @@ L["MinimapPosX"] = "Горизонтальная позиция миникарт
 L["MinimapPosXDesc"] = "Настройка горизонтальной позиции (-500 до 0)"
 L["MinimapPosY"] = "Вертикальная позиция миникарты"
 L["MinimapPosYDesc"] = "Настройка вертикальной позиции (-500 до 0)"
+L["DisableMinimap"] = "Disable DiabolicUI Minimap"
+L["DisableMinimapDesc"] = "Completely disable custom DiabolicUI minimap functionality (requires reload)"
 -- Полоса заклинаний
 L["CastbarHeader"] = "Полоса заклинаний"
 --L["EnableCastbar"] = "Включить полосу заклинаний игрока"

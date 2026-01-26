@@ -340,6 +340,17 @@ SettingsModule.OnInitialize = function(self)
 		do
 			local setting = RegisterSetting(
 				category,
+				"disabled",
+				"global.minimap",
+				L["DisableMinimap"],
+				false,
+				L["DisableMinimapDesc"]
+			)
+			CreateCheckbox(category, setting, L["DisableMinimapDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
 				"useServerTime",
 				"global.minimap",
 				L["UseServerTime"],
@@ -459,6 +470,17 @@ SettingsModule.OnInitialize = function(self)
 				L["UseClassColorForPowerDesc"]
 			)
 			CreateCheckbox(category, setting, L["UseClassColorForPowerDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"showPlayerBuffs",
+				"global.unitframes",
+				L["ShowPlayerBuffs"],
+				true,
+				L["ShowPlayerBuffsDesc"]
+			)
+			CreateCheckbox(category, setting, L["ShowPlayerBuffsDesc"])
 		end
 		--do
 		--	local setting = RegisterSetting(
