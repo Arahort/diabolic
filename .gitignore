@@ -26,6 +26,9 @@ API_CHANGES_12.0.0.md
 *.rar
 *.zip
 
+# Assets source files
+Assets/**/*.psd
+
 #Other
 DiabolicUI3_Wrath.toc
 
