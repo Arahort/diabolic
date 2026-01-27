@@ -1,5 +1,15 @@
 # DiabolicUI3 Changelog
 
+## [1.9.7.1] - 2026-01-27
+### Fixed
+- Fixed achievement toasts, loot popups, and bonus rolls not showing
+- Disabled custom AlertFrames positioning module to use Blizzard default behavior
+- Alert notifications now appear at default Blizzard position (top center of screen)
+
+### Technical
+- Commented out AlertFrames.lua module in Components/Misc/Misc.xml
+- Removed conflicts between Core/Blizzard.lua and Components/Misc/AlertFrames.lua
+
 ## [1.9.7-RC3] - 2026-01-26
 ### Added
 - Added "Main Button Size" setting for MinimapButtons (24-64 pixels, default: 40)

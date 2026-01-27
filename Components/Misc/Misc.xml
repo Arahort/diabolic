@@ -1,6 +1,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
 
-	<Script file="AlertFrames.lua"/>
+	<!-- AlertFrames.lua disabled - using default Blizzard positioning for now -->
+	<!-- <Script file="AlertFrames.lua"/> -->
 	<Script file="ChatFrames.lua"/>
 	<Script file="ChatBubbles.lua"/>
 	<Script file="Clutter.lua"/>
