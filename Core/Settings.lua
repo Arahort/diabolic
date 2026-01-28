@@ -109,6 +109,24 @@ SettingsModule.OnInitialize = function(self)
 			)
 			layout:AddInitializer(initializer)
 		end
+		-- Orb Style
+		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["OrbStyleHeader"]))
+		do
+			local setting = RegisterSetting(
+				category,
+				"useD2RStyle",
+				"global.orbs",
+				L["UseD2ROrbStyle"],
+				false,
+				L["UseD2ROrbStyleDesc"]
+			)
+			local OnOrbStyleChanged = function()
+				-- Reload UI to apply orb style changes
+				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
+			end
+			Settings.SetOnValueChangedCallback("global_orbs_useD2RStyle", OnOrbStyleChanged)
+			CreateCheckbox(category, setting, L["UseD2ROrbStyleDesc"])
+		end
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["CoreHeader"]))
 		do
 			local setting = RegisterSetting(
@@ -835,6 +853,18 @@ SettingsModule.OnInitialize = function(self)
 			hideOnEscape = true,
 		}
 		--]]
+		-- Reload UI popup for orb style changes
+		StaticPopupDialogs["DIABOLICUI3_RELOAD_UI"] = {
+			text = L["OrbStyleReloadConfirmation"] or "Changing orb style requires a UI reload. Reload now?",
+			button1 = YES,
+			button2 = NO,
+			OnAccept = function()
+				ReloadUI()
+			end,
+			timeout = 0,
+			whileDead = true,
+			hideOnEscape = true,
+		}
 		Settings.RegisterAddOnCategory(category)
 	end)
 end

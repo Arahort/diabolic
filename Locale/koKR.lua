@@ -13,6 +13,12 @@ L["ResetButtonDesc"] = "모든 설정을 기본값으로 초기화합니다"
 L["ResetConfirmation"] = "Diabolic UI의 모든 설정을 기본값으로 초기화하시겠습니까?"
 --]]
 -- Core
+-- Orb Style
+L["OrbStyleHeader"] = "오브 스타일"
+L["UseD2ROrbStyle"] = "디아블로 2 레저렉션 오브 스타일 사용"
+L["UseD2ROrbStyleDesc"] = "클래식 디아블로 3 스타일 대신 디아블로 2 레저렉션 스타일의 생명력 및 마나 구슬 사용 (인터페이스 새로고침 필요)"
+L["OrbStyleReloadConfirmation"] = "오브 스타일 변경은 인터페이스 새로고침이 필요합니다. 지금 새로고침하시겠습니까?"
+-- Core
 L["CoreHeader"] = "핵심"
 L["UIScale"] = "UI 크기"
 L["UIScaleDesc"] = "전체 UI 크기 조정 (0.75 - 1.25)"

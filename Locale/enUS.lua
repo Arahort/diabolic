@@ -12,6 +12,11 @@ L["ResetButton"] = "Reset All Settings"
 L["ResetButtonDesc"] = "Reset all settings to default values"
 L["ResetConfirmation"] = "Are you sure you want to reset all Diabolic UI settings to default values?"
 --]]
+-- Orb Style
+L["OrbStyleHeader"] = "Orb Style"
+L["UseD2ROrbStyle"] = "Use Diablo 2 Resurrected Orb Style"
+L["UseD2ROrbStyleDesc"] = "Use Diablo 2 Resurrected style health and mana orbs instead of classic Diablo 3 style (requires UI reload)"
+L["OrbStyleReloadConfirmation"] = "Changing orb style requires a UI reload. Reload now?"
 -- Core
 L["CoreHeader"] = "Core"
 L["UIScale"] = "UI Scale"

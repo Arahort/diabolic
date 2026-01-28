@@ -13,6 +13,12 @@ L["ResetButtonDesc"] = "将所有设置重置为默认值"
 L["ResetConfirmation"] = "确定要将 Diabolic UI 的所有设置重置为默认值吗?"
 --]]
 -- Core
+-- Orb Style
+L["OrbStyleHeader"] = "法球样式"
+L["UseD2ROrbStyle"] = "使用暗黑破坏神2重制版法球样式"
+L["UseD2ROrbStyleDesc"] = "使用暗黑破坏神2重制版风格的生命和法力球体，而不是经典的暗黑破坏神3样式（需要重载界面）"
+L["OrbStyleReloadConfirmation"] = "更改法球样式需要重载界面。现在重载？"
+-- Core
 L["CoreHeader"] = "核心"
 L["UIScale"] = "界面缩放"
 L["UIScaleDesc"] = "调整整体界面缩放 (0.75 - 1.25)"

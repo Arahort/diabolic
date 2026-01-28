@@ -599,7 +599,9 @@ UnitStyles["Player"] = function(self, unit, id)
 	local healthArt = artworkOverlay:CreateTexture(health:GetName().."Artwork", "OVERLAY", nil, 1)
 	healthArt:SetSize(healthBackdrop:GetSize())
 	healthArt:SetPoint("BOTTOMRIGHT", health, "BOTTOM", 29, -25)
-	healthArt:SetTexture(GetMedia("orb-art1"))
+	-- Use D2R style orb art if enabled in settings
+	local orbTexture = (ns.db.global.orbs and ns.db.global.orbs.useD2RStyle) and "orb-art1-d2r" or "orb-art1"
+	healthArt:SetTexture(GetMedia(orbTexture))
 
 	self.Health.Artwork = healthArt
 
@@ -719,7 +721,9 @@ UnitStyles["Player"] = function(self, unit, id)
 	local powerArt = artworkOverlay:CreateTexture(power:GetName().."Artwork", "OVERLAY", nil, 1)
 	powerArt:SetSize(powerBackdrop:GetSize())
 	powerArt:SetPoint("BOTTOMLEFT", power, "BOTTOM", -29, -25)
-	powerArt:SetTexture(GetMedia("orb-art2"))
+	-- Use D2R style orb art if enabled in settings
+	local orbTexture = (ns.db.global.orbs and ns.db.global.orbs.useD2RStyle) and "orb-art2-d2r" or "orb-art2"
+	powerArt:SetTexture(GetMedia(orbTexture))
 
 	self.Power.Artwork = powerArt
 

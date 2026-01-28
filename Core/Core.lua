@@ -88,6 +88,9 @@ local defaults = {
 			minimapRelativeScale = 0.9,
 			unitframesRelativeScale = 0.85
 		},
+		orbs = {
+			useD2RStyle = false
+		},
 		chatbubbles = {
 			enableChatBubbles = true,
 			visibility = {

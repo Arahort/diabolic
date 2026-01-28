@@ -13,6 +13,12 @@ L["ResetButtonDesc"] = "Repor todas as definições para os valores predefinidos
 L["ResetConfirmation"] = "Tem a certeza de que deseja repor todas as definições do Diabolic UI para os valores predefinidos?"
 --]]
 -- Core
+-- Orb Style
+L["OrbStyleHeader"] = "Estilo de Esferas"
+L["UseD2ROrbStyle"] = "Usar estilo de esferas do Diablo 2 Resurrected"
+L["UseD2ROrbStyleDesc"] = "Usar o estilo de esferas de saúde e mana do Diablo 2 Resurrected em vez do estilo clássico do Diablo 3 (requer recarregamento da IU)"
+L["OrbStyleReloadConfirmation"] = "Mudar o estilo de esferas requer recarregamento da IU. Recarregar agora?"
+-- Core
 L["CoreHeader"] = "Núcleo"
 L["UIScale"] = "Escala da IU"
 L["UIScaleDesc"] = "Ajustar a escala geral da IU (0.75 - 1.25)"
