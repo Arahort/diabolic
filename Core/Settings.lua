@@ -146,16 +146,7 @@ SettingsModule.OnInitialize = function(self)
 		end
 		do
 			local function CreateColorButton(key, labelKey, descKey, defaultColor)
-				local data = {
-					name = L[labelKey],
-					buttonText = L[labelKey],
-					tooltip = L[descKey]
-				}
-				local initializer = CreateFromMixins(SettingsListButtonInitializer)
-				initializer:Init(data.buttonText)
-				initializer:SetButtonText(data.buttonText)
-				initializer:AddSearchTags(data.name)
-				initializer:SetOnClick(function()
+				local function OnColorClick()
 					local color = ns.db.char.orbs[key] or defaultColor
 					local info = {
 						r = color.r,
@@ -175,7 +166,14 @@ SettingsModule.OnInitialize = function(self)
 						end
 					}
 					ColorPickerFrame:SetupColorPickerAndShow(info)
-				end)
+				end
+				local initializer = CreateSettingsButtonInitializer(
+					L[labelKey],
+					key,
+					OnColorClick,
+					L[descKey],
+					false
+				)
 				layout:AddInitializer(initializer)
 			end
 			CreateColorButton("healthColor", "CustomHealthOrbColor", "CustomHealthOrbColorDesc", {r = 1, g = 0, b = 0})
