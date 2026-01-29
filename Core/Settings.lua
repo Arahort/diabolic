@@ -117,7 +117,7 @@ SettingsModule.OnInitialize = function(self)
 				"useD2RStyle",
 				"global.orbs",
 				L["UseD2ROrbStyle"],
-				false,
+				true,
 				L["UseD2ROrbStyleDesc"]
 			)
 			local OnOrbStyleChanged = function()

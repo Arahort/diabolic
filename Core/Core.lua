@@ -89,7 +89,7 @@ local defaults = {
 			unitframesRelativeScale = 0.85
 		},
 		orbs = {
-			useD2RStyle = false
+			useD2RStyle = true
 		},
 		chatbubbles = {
 			enableChatBubbles = true,
