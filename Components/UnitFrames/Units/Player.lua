@@ -1012,14 +1012,21 @@ UnitStyles["Player"] = function(self, unit, id)
 			power:SetStatusBarColor(powerColor.r, powerColor.g, powerColor.b)
 		else
 			health.colorHealth = true
-			health:ForceUpdate()
+			local r, g, b = health:GetStatusBarColor()
+			health:SetStatusBarColor(r, g, b)
 			if ns.db.char.unitframes.useClassColorForPower then
 				power.colorPower = true
+				local _, class = UnitClass("player")
+				if class then
+					local color = self.colors.class[class]
+					if color then
+						power:SetStatusBarColor(color[1], color[2], color[3])
+					end
+				end
 			else
 				power.colorPower = false
 				power:SetStatusBarColor(0.3, 0.52, 0.9)
 			end
-			power:ForceUpdate()
 		end
 	end
 	ns.RegisterCallback(self, "OrbColors_Updated", "UpdateOrbColors")
