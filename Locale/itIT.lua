@@ -103,6 +103,8 @@ L["TargetPosY"] = "Posizione verticale riquadro bersaglio"
 L["TargetPosYDesc"] = "Regola la posizione verticale (-500 a 500)"
 L["TargetRelativeScale"] = "Scala relativa riquadro bersaglio"
 L["TargetRelativeScaleDesc"] = "Moltiplicatore scala riquadro bersaglio relativo alla scala UI inferiore (0.5 - 1.5, richiede /reload)"
+L["TargetFrameScale"] = "Scala riquadro bersaglio"
+L["TargetFrameScaleDesc"] = "Scala indipendente riquadro bersaglio (0.5 - 2.0, richiede /reload)"
 --L["EnableNamePlates"] = "Abilita targhe nome DiabolicUI"
 --L["EnableNamePlatesDesc"] = "Sostituisci le targhe nome predefinite di Blizzard con targhe nome personalizzate DiabolicUI (richiede /reload)"
 --[[

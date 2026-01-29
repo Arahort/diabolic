@@ -104,6 +104,8 @@ L["TargetPosY"] = "대상 프레임 세로 위치"
 L["TargetPosYDesc"] = "세로 위치 조정 (-500 ~ 500)"
 L["TargetRelativeScale"] = "대상 프레임 상대 크기"
 L["TargetRelativeScaleDesc"] = "하단 UI 크기 대비 대상 프레임 크기 배율 (0.5 - 1.5, /reload 필요)"
+L["TargetFrameScale"] = "대상 프레임 크기"
+L["TargetFrameScaleDesc"] = "독립적인 대상 프레임 크기 (0.5 - 2.0, /reload 필요)"
 --L["EnableNamePlates"] = "DiabolicUI 이름표 활성화"
 --L["EnableNamePlatesDesc"] = "기본 블리자드 이름표를 DiabolicUI 사용자 정의 이름표로 교체 (/reload 필요)"
 --[[

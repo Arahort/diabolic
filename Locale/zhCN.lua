@@ -104,6 +104,8 @@ L["TargetPosY"] = "目标框体垂直位置"
 L["TargetPosYDesc"] = "调整垂直位置(-500 到 500)"
 L["TargetRelativeScale"] = "目标框体相对缩放"
 L["TargetRelativeScaleDesc"] = "目标框体相对于底部界面缩放的缩放倍数(0.5 - 1.5,需要 /reload)"
+L["TargetFrameScale"] = "目标框体缩放"
+L["TargetFrameScaleDesc"] = "独立的目标框体缩放(0.5 - 2.0,需要 /reload)"
 --L["EnableNamePlates"] = "启用 DiabolicUI 姓名板"
 --L["EnableNamePlatesDesc"] = "用 DiabolicUI 自定义姓名板替换暴雪默认姓名板(需要 /reload)"
 --[[

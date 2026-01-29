@@ -103,6 +103,8 @@ L["TargetPosY"] = "Zielfenster vertikale Position"
 L["TargetPosYDesc"] = "Vertikale Position anpassen (-500 bis 500)"
 L["TargetRelativeScale"] = "Zielfenster relative Skalierung"
 L["TargetRelativeScaleDesc"] = "Zielfenster-Skalierungsmultiplikator relativ zur unteren UI-Skalierung (0.5 - 1.5, erfordert /reload)"
+L["TargetFrameScale"] = "Zielfenster Skalierung"
+L["TargetFrameScaleDesc"] = "Unabhängige Zielfenster-Skalierung (0.5 - 2.0, erfordert /reload)"
 --L["EnableNamePlates"] = "DiabolicUI-Namensplaketten aktivieren"
 --L["EnableNamePlatesDesc"] = "Standard-Blizzard-Namensplaketten durch benutzerdefinierte DiabolicUI-Namensplaketten ersetzen (erfordert /reload)"
 --[[

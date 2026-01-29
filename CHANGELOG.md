@@ -1,5 +1,26 @@
 # DiabolicUI3 Changelog
 
+## [2.0.0-alpha3] - 2026-01-29
+### Added
+- Added independent target frame scale setting (0.5-2.0, default 1.0)
+- Target frame scale now completely independent from "Bottom UI Scale" setting
+- New "Target Frame Scale" slider in Core settings section (next to "Bottom UI Scale")
+- Real-time target frame scaling without UI reload
+- Full localization support for new setting (12 languages)
+
+### Changed
+- Target frame moved to separate scaling system (TargetFrameScaled)
+- Target frame no longer affected by unitframesRelativeScale changes
+- Unified scaling architecture - all scales work through UpdateObjectScales()
+
+### Technical
+- Added global.core.targetFrameScale database setting (default: 1.0)
+- Created TargetFrameScaled[] cache in Scale.lua for independent target scaling
+- Added API.SetTargetFrameObjectScale() method for target frame registration
+- Added ns.UpdateTargetFrameScale() for real-time updates
+- Target frame uses base UI scale (GetScale()) instead of unitframes scale (GetUnitFramesScale())
+- Updated UpdateObjectScales() to handle both UnitFramesScaled and TargetFrameScaled arrays
+
 ## [2.0.0-alpha2] - 2026-01-29
 ### Added
 - Added custom orb colors feature with per-character settings

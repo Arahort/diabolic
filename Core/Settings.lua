@@ -35,6 +35,8 @@ local function OnSettingChanged(_, setting, value)
 			ns:SetMinimapScale(tostring(value))
 		elseif variable:match("unitframesRelativeScale$") then
 			ns:SetUnitFramesScale(tostring(value))
+		elseif variable:match("targetFrameScale$") then
+			ns.UpdateTargetFrameScale()
 		end
 		ns.callbacks:Fire("Core_Settings_Updated")
 	elseif variable:match("^global_minimap_") then
@@ -223,6 +225,21 @@ SettingsModule.OnInitialize = function(self)
 				return string.format("%.2f", value)
 			end)
 			Settings.CreateSlider(category, setting, options, L["UnitFramesScaleDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"targetFrameScale",
+				"global.core",
+				L["TargetFrameScale"],
+				1,
+				L["TargetFrameScaleDesc"]
+			)
+			local options = Settings.CreateSliderOptions(0.5, 2.0, 0.05)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return string.format("%.2f", value)
+			end)
+			Settings.CreateSlider(category, setting, options, L["TargetFrameScaleDesc"])
 		end
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["ActionBarsHeader"]))
 		do

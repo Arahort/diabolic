@@ -104,6 +104,8 @@ L["TargetPosY"] = "Posição vertical do quadro do alvo"
 L["TargetPosYDesc"] = "Ajustar a posição vertical (-500 a 500)"
 L["TargetRelativeScale"] = "Escala relativa do quadro do alvo"
 L["TargetRelativeScaleDesc"] = "Multiplicador de escala do quadro do alvo relativo à escala da IU inferior (0.5 - 1.5, requer /reload)"
+L["TargetFrameScale"] = "Escala do quadro do alvo"
+L["TargetFrameScaleDesc"] = "Escala independente do quadro do alvo (0.5 - 2.0, requer /reload)"
 --L["EnableNamePlates"] = "Ativar placas de nome DiabolicUI"
 --L["EnableNamePlatesDesc"] = "Substituir as placas de nome padrão da Blizzard por placas de nome personalizadas do DiabolicUI (requer /reload)"
 --[[

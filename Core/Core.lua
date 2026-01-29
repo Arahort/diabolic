@@ -91,7 +91,8 @@ local defaults = {
 		core = {
 			relativeScale = 1.1,
 			minimapRelativeScale = 0.9,
-			unitframesRelativeScale = 0.85
+			unitframesRelativeScale = 0.85,
+			targetFrameScale = 1.0
 		},
 		orbs = {
 			useD2RStyle = true
@@ -286,6 +287,20 @@ ns.SetUnitFramesScale = function(self, input)
 			SetUnitFramesRelativeScale(scale)
 			UpdateObjectScales()
 			ns.callbacks:Fire("UnitFrames_Scale_Updated", db.global.core.unitframesRelativeScale)
+		end
+	end
+end
+
+ns.UpdateTargetFrameScale = function()
+	if (InCombatLockdown()) then
+		return
+	end
+	local targetFrame = ns.UnitFramesByName and ns.UnitFramesByName["Target"]
+	if (targetFrame) then
+		local db = ns.db
+		if (db and db.global and db.global.core) then
+			local targetScale = db.global.core.targetFrameScale or 1
+			ns.API.SetTargetFrameObjectScale(targetFrame, targetScale)
 		end
 	end
 end

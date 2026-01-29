@@ -39,6 +39,7 @@ local Scaled = {}
 local ScaledToUIParent = {}
 local MinimapScaled = {}
 local UnitFramesScaled = {}
+local TargetFrameScaled = {}
 
 -- Scaling Functions
 ---------------------------------------------------------
@@ -129,6 +130,17 @@ API.SetUnitFramesObjectScale = function(object, factor)
 	return object
 end
 
+-- Register target frame with independent scaling (uses base UI scale, not unitframes scale)
+API.SetTargetFrameObjectScale = function(object, factor)
+	if (object and object.SetScale) then
+		UnitFramesScaled[object] = nil
+		TargetFrameScaled[object] = factor or 1
+		object:SetIgnoreParentScale(true)
+		object:SetScale(API.GetScale() * (factor or 1))
+	end
+	return object
+end
+
 -- Updates the scale of all objects
 -- registered with the above commands.
 API.UpdateObjectScales = function()
@@ -154,5 +166,11 @@ API.UpdateObjectScales = function()
 	for object, factor in next,UnitFramesScaled do
 		object:SetIgnoreParentScale(true)
 		object:SetScale(unitframesScale * factor)
+	end
+	-- Update target frame objects (independent from unitframes scale)
+	local baseScale = API.GetScale()
+	for object, factor in next,TargetFrameScaled do
+		object:SetIgnoreParentScale(true)
+		object:SetScale(baseScale * factor)
 	end
 end

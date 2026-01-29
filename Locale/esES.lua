@@ -103,6 +103,8 @@ L["TargetPosY"] = "Posición vertical del marco de objetivo"
 L["TargetPosYDesc"] = "Ajustar la posición vertical (-500 a 500)"
 L["TargetRelativeScale"] = "Escala relativa del marco de objetivo"
 L["TargetRelativeScaleDesc"] = "Multiplicador de escala del marco de objetivo relativo a la escala de la IU inferior (0.5 - 1.5, requiere /reload)"
+L["TargetFrameScale"] = "Escala del marco de objetivo"
+L["TargetFrameScaleDesc"] = "Escala independiente del marco de objetivo (0.5 - 2.0, requiere /reload)"
 --L["EnableNamePlates"] = "Activar placas de nombre DiabolicUI"
 --L["EnableNamePlatesDesc"] = "Reemplazar las placas de nombre predeterminadas de Blizzard con placas de nombre personalizadas de DiabolicUI (requiere /reload)"
 --[[

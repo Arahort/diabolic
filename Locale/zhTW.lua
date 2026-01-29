@@ -104,6 +104,8 @@ L["TargetPosY"] = "目標框架垂直位置"
 L["TargetPosYDesc"] = "調整垂直位置(-500 到 500)"
 L["TargetRelativeScale"] = "目標框架相對縮放"
 L["TargetRelativeScaleDesc"] = "目標框架相對於底部介面縮放的縮放倍數(0.5 - 1.5,需要 /reload)"
+L["TargetFrameScale"] = "目標框架縮放"
+L["TargetFrameScaleDesc"] = "獨立的目標框架縮放(0.5 - 2.0,需要 /reload)"
 --L["EnableNamePlates"] = "啟用 DiabolicUI 名條"
 --L["EnableNamePlatesDesc"] = "用 DiabolicUI 自訂名條取代暴雪預設名條(需要 /reload)"
 --[[

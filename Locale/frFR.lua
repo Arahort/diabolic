@@ -103,6 +103,8 @@ L["TargetPosY"] = "Position verticale du cadre de la cible"
 L["TargetPosYDesc"] = "Ajuster la position verticale (-500 à 500)"
 L["TargetRelativeScale"] = "Échelle relative du cadre de la cible"
 L["TargetRelativeScaleDesc"] = "Multiplicateur d'échelle du cadre de la cible par rapport à l'échelle de l'IU inférieure (0.5 - 1.5, nécessite /reload)"
+L["TargetFrameScale"] = "Échelle du cadre de la cible"
+L["TargetFrameScaleDesc"] = "Échelle indépendante du cadre de la cible (0.5 - 2.0, nécessite /reload)"
 --L["EnableNamePlates"] = "Activer les plaques signalétiques DiabolicUI"
 --L["EnableNamePlatesDesc"] = "Remplacer les plaques signalétiques Blizzard par défaut par des plaques signalétiques DiabolicUI personnalisées (nécessite /reload)"
 --[[
