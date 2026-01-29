@@ -1015,5 +1015,6 @@ UnitStyles["Player"] = function(self, unit, id)
 		end
 	end
 	ns.RegisterCallback(self, "OrbColors_Updated", "UpdateOrbColors")
+	self:UpdateOrbColors()
 
 end
