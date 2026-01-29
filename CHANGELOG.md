@@ -1,5 +1,22 @@
 # DiabolicUI3 Changelog
 
+## [2.0.0-alpha1] - 2026-01-29
+### Added
+- Added Diablo 2 Resurrected orb style setting with full localization (12 languages)
+- Added D2R style orb textures (orb-art1-d2r.tga, orb-art2-d2r.tga)
+- D2R orb style is now enabled by default (can be disabled in settings)
+- Added UI reload confirmation dialog when changing orb style
+
+### Fixed
+- Fixed ADDON_ACTION_BLOCKED error when hiding player aura buttons during combat
+- Fixed ADDON_ACTION_BLOCKED error when EditMode tries to change frame parent during combat
+- Fixed ADDON_ACTION_BLOCKED error when making protected frames movable during combat
+
+### Technical
+- Added global.orbs.useD2RStyle setting to database (default: true)
+- Added conditional texture loading in Player.lua based on orb style setting
+- Added InCombatLockdown checks to prevent taint in three critical locations
+
 ## [1.9.7.1] - 2026-01-27
 ### Fixed
 - Fixed achievement toasts, loot popups, and bonus rolls not showing
