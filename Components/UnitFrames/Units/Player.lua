@@ -59,6 +59,10 @@ end
 
 -- Update the health preview color on health color updates.
 local Health_PostUpdateColor = function(element, unit, r, g, b)
+	-- Don't override custom colors
+	if ns.db.char.orbs and ns.db.char.orbs.useCustomColors then
+		return
+	end
 	-- WoW 12.0.0: oUF now passes ColorMixin objects instead of r,g,b numbers
 	if type(r) == "table" and r.GetRGB then
 		r, g, b = r:GetRGB()
@@ -414,6 +418,10 @@ local Power_OnMouseOver = function(element)
 end
 
 local Power_PostUpdate = function(element, unit, cur, min, max)
+	-- Don't override custom colors
+	if ns.db.char.orbs and ns.db.char.orbs.useCustomColors then
+		return
+	end
 	local db = ns:GetSettings()
 	if db.char.unitframes.useClassColorForPower then
 		local _, class = UnitClass(unit)
