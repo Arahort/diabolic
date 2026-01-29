@@ -149,30 +149,33 @@ SettingsModule.OnInitialize = function(self)
 				local data = {
 					name = L[labelKey],
 					buttonText = L[labelKey],
-					tooltip = L[descKey],
-					buttonClick = function()
-						local color = ns.db.char.orbs[key] or defaultColor
-						local info = {
-							r = color.r,
-							g = color.g,
-							b = color.b,
-							hasOpacity = false,
-							swatchFunc = function()
-								local r, g, b = ColorPickerFrame:GetColorRGB()
-								ns.db.char.orbs[key] = {r = r, g = g, b = b}
-								ns.callbacks:Fire("OrbColors_Updated")
-							end,
-							cancelFunc = function(previousValues)
-								if previousValues then
-									ns.db.char.orbs[key] = {r = previousValues.r, g = previousValues.g, b = previousValues.b}
-									ns.callbacks:Fire("OrbColors_Updated")
-								end
-							end
-						}
-						ColorPickerFrame:SetupColorPickerAndShow(info)
-					end
+					tooltip = L[descKey]
 				}
-				local initializer = Settings.CreateButtonInitializer(key, data.buttonText, data.buttonClick, data.tooltip)
+				local initializer = CreateFromMixins(SettingsListButtonInitializer)
+				initializer:Init(data.buttonText)
+				initializer:SetButtonText(data.buttonText)
+				initializer:AddSearchTags(data.name)
+				initializer:SetOnClick(function()
+					local color = ns.db.char.orbs[key] or defaultColor
+					local info = {
+						r = color.r,
+						g = color.g,
+						b = color.b,
+						hasOpacity = false,
+						swatchFunc = function()
+							local r, g, b = ColorPickerFrame:GetColorRGB()
+							ns.db.char.orbs[key] = {r = r, g = g, b = b}
+							ns.callbacks:Fire("OrbColors_Updated")
+						end,
+						cancelFunc = function(previousValues)
+							if previousValues then
+								ns.db.char.orbs[key] = {r = previousValues.r, g = previousValues.g, b = previousValues.b}
+								ns.callbacks:Fire("OrbColors_Updated")
+							end
+						end
+					}
+					ColorPickerFrame:SetupColorPickerAndShow(info)
+				end)
 				layout:AddInitializer(initializer)
 			end
 			CreateColorButton("healthColor", "CustomHealthOrbColor", "CustomHealthOrbColorDesc", {r = 1, g = 0, b = 0})
