@@ -1,5 +1,28 @@
 # DiabolicUI3 Changelog
 
+## [2.0.0-alpha2] - 2026-01-29
+### Added
+- Added custom orb colors feature with per-character settings
+- Color picker for Health orb color (ColorPickerFrame integration)
+- Color picker for Power orb color (ColorPickerFrame integration)
+- "Use Custom Orb Colors" checkbox (per-character, disabled by default)
+- Full localization support for color settings (12 languages)
+- Real-time color updates without UI reload
+
+### Fixed
+- Fixed custom orb colors being overridden by PostUpdate functions
+- Fixed color picker cancelFunc to properly restore colors on cancel
+- Fixed custom colors not applying on addon load
+- Fixed ForceUpdate() errors when disabling custom colors (method doesn't exist on orbs)
+- Fixed Settings API integration (CreateSettingsButtonInitializer)
+
+### Technical
+- Added char.orbs.useCustomColors, healthColor, powerColor to database
+- Created UpdateOrbColors() callback for real-time updates
+- Added early returns in Health_PostUpdateColor and Power_PostUpdate to preserve custom colors
+- Used closure pattern in cancelFunc for proper color restoration
+- Custom colors override automatic coloring (colorHealth/colorPower flags)
+
 ## [2.0.0-alpha1] - 2026-01-29
 ### Added
 - Added Diablo 2 Resurrected orb style setting with full localization (12 languages)
