@@ -148,6 +148,7 @@ SettingsModule.OnInitialize = function(self)
 			local function CreateColorButton(key, labelKey, descKey, defaultColor)
 				local function OnColorClick()
 					local color = ns.db.char.orbs[key] or defaultColor
+					local originalColor = {r = color.r, g = color.g, b = color.b}
 					local info = {
 						r = color.r,
 						g = color.g,
@@ -158,11 +159,9 @@ SettingsModule.OnInitialize = function(self)
 							ns.db.char.orbs[key] = {r = r, g = g, b = b}
 							ns.callbacks:Fire("OrbColors_Updated")
 						end,
-						cancelFunc = function(previousValues)
-							if previousValues then
-								ns.db.char.orbs[key] = {r = previousValues.r, g = previousValues.g, b = previousValues.b}
-								ns.callbacks:Fire("OrbColors_Updated")
-							end
+						cancelFunc = function()
+							ns.db.char.orbs[key] = originalColor
+							ns.callbacks:Fire("OrbColors_Updated")
 						end
 					}
 					ColorPickerFrame:SetupColorPickerAndShow(info)
