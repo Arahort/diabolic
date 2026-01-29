@@ -17,6 +17,14 @@ L["ResetConfirmation"] = "Diabolic UI의 모든 설정을 기본값으로 초기
 L["OrbStyleHeader"] = "오브 스타일"
 L["UseD2ROrbStyle"] = "디아블로 2 레저렉션 오브 스타일 사용"
 L["UseD2ROrbStyleDesc"] = "클래식 디아블로 3 스타일 대신 디아블로 2 레저렉션 스타일의 생명력 및 마나 구슬 사용 (인터페이스 새로고침 필요)"
+-- 오브 색상
+L["OrbColorsHeader"] = "오브 색상"
+L["UseCustomOrbColors"] = "사용자 정의 오브 색상 사용"
+L["UseCustomOrbColorsDesc"] = "생명력 및 자원 오브의 사용자 정의 색상 활성화 (캐릭터별 설정)"
+L["CustomHealthOrbColor"] = "생명력 오브 색상"
+L["CustomHealthOrbColorDesc"] = "생명력 오브의 색상 선택"
+L["CustomPowerOrbColor"] = "자원 오브 색상"
+L["CustomPowerOrbColorDesc"] = "마나/자원 오브의 색상 선택"
 L["OrbStyleReloadConfirmation"] = "오브 스타일 변경은 인터페이스 새로고침이 필요합니다. 지금 새로고침하시겠습니까?"
 -- Core
 L["CoreHeader"] = "핵심"

@@ -17,6 +17,14 @@ L["ResetConfirmation"] = "確定要將 Diabolic UI 的所有設定重置為預�
 L["OrbStyleHeader"] = "法球樣式"
 L["UseD2ROrbStyle"] = "使用暗黑破壞神2重製版法球樣式"
 L["UseD2ROrbStyleDesc"] = "使用暗黑破壞神2重製版風格的生命和法力球體，而不是經典的暗黑破壞神3樣式（需要重載介面）"
+-- 法球顏色
+L["OrbColorsHeader"] = "法球顏色"
+L["UseCustomOrbColors"] = "使用自訂法球顏色"
+L["UseCustomOrbColorsDesc"] = "啟用生命值和資源法球的自訂顏色（角色專屬設定）"
+L["CustomHealthOrbColor"] = "生命值法球顏色"
+L["CustomHealthOrbColorDesc"] = "選擇生命值法球的顏色"
+L["CustomPowerOrbColor"] = "資源法球顏色"
+L["CustomPowerOrbColorDesc"] = "選擇法力/資源法球的顏色"
 L["OrbStyleReloadConfirmation"] = "更改法球樣式需要重載介面。現在重載？"
 -- Core
 L["CoreHeader"] = "核心"

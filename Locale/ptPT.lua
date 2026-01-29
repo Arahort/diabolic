@@ -17,6 +17,14 @@ L["ResetConfirmation"] = "Tem a certeza de que deseja repor todas as definiçõe
 L["OrbStyleHeader"] = "Estilo de Esferas"
 L["UseD2ROrbStyle"] = "Usar estilo de esferas do Diablo 2 Resurrected"
 L["UseD2ROrbStyleDesc"] = "Usar o estilo de esferas de saúde e mana do Diablo 2 Resurrected em vez do estilo clássico do Diablo 3 (requer recarregamento da IU)"
+-- Cores dos orbes
+L["OrbColorsHeader"] = "Cores dos orbes"
+L["UseCustomOrbColors"] = "Usar cores personalizadas dos orbes"
+L["UseCustomOrbColorsDesc"] = "Ativar cores personalizadas para orbes de saúde e recurso (configuração por personagem)"
+L["CustomHealthOrbColor"] = "Cor do orbe de saúde"
+L["CustomHealthOrbColorDesc"] = "Escolha a cor do orbe de saúde"
+L["CustomPowerOrbColor"] = "Cor do orbe de recurso"
+L["CustomPowerOrbColorDesc"] = "Escolha a cor do orbe de mana/recurso"
 L["OrbStyleReloadConfirmation"] = "Mudar o estilo de esferas requer recarregamento da IU. Recarregar agora?"
 -- Core
 L["CoreHeader"] = "Núcleo"

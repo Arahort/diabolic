@@ -555,7 +555,13 @@ UnitStyles["Player"] = function(self, unit, id)
 	health:SetSize(200,200)
 	health:SetPoint("BOTTOM")
 	health:SetStatusBarTexture(GetMedia("orb2"), GetMedia("orb2"))
-	health.colorHealth = true
+	if ns.db.char.orbs and ns.db.char.orbs.useCustomColors then
+		health.colorHealth = false
+		local color = ns.db.char.orbs.healthColor or {r = 1, g = 0, b = 0}
+		health:SetStatusBarColor(color.r, color.g, color.b)
+	else
+		health.colorHealth = true
+	end
 
 	select(2, health:GetStatusBarTexture()):SetTexCoord(1,0,1,0) -- flip 2nd texture horizontally
 
@@ -669,7 +675,16 @@ UnitStyles["Player"] = function(self, unit, id)
 	power:SetSize(200,200)
 	power:SetPoint("BOTTOM", 882, 0)
 	power:SetStatusBarTexture(GetMedia("orb2"), GetMedia("orb2"))
-	power:SetStatusBarColor(0.3, 0.52, 0.9)
+	if ns.db.char.orbs and ns.db.char.orbs.useCustomColors then
+		local color = ns.db.char.orbs.powerColor or {r = 0, g = 0, b = 1}
+		power:SetStatusBarColor(color.r, color.g, color.b)
+		power.colorPower = false
+	elseif ns.db.char.unitframes.useClassColorForPower then
+		power.colorPower = true
+	else
+		power:SetStatusBarColor(0.3, 0.52, 0.9)
+		power.colorPower = false
+	end
 	power:EnableMouse(true)
 	power:SetScript("OnEnter", Power_OnEnter)
 	power:SetScript("OnLeave", Power_OnLeave)
@@ -678,7 +693,6 @@ UnitStyles["Player"] = function(self, unit, id)
 	power.OnLeave = Power_OnMouseOver
 	power.frequentUpdates = true
 	power.displayAltPower = true
-	power.colorPower = false
 	power.PostUpdate = Power_PostUpdate
 
 	select(2, power:GetStatusBarTexture()):SetTexCoord(1,0,1,0) -- flip 2nd texture horizontally
@@ -977,5 +991,29 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	self.UpdateCastbarPosition = UpdateCastbarPosition
 	ns.RegisterCallback(self, "Castbar_Settings_Updated", "UpdateCastbarPosition")
+
+	self.UpdateOrbColors = function(self)
+		local health = self.Health
+		local power = self.Power
+		if ns.db.char.orbs and ns.db.char.orbs.useCustomColors then
+			health.colorHealth = false
+			local healthColor = ns.db.char.orbs.healthColor or {r = 1, g = 0, b = 0}
+			health:SetStatusBarColor(healthColor.r, healthColor.g, healthColor.b)
+			power.colorPower = false
+			local powerColor = ns.db.char.orbs.powerColor or {r = 0, g = 0, b = 1}
+			power:SetStatusBarColor(powerColor.r, powerColor.g, powerColor.b)
+		else
+			health.colorHealth = true
+			health:ForceUpdate()
+			if ns.db.char.unitframes.useClassColorForPower then
+				power.colorPower = true
+			else
+				power.colorPower = false
+				power:SetStatusBarColor(0.3, 0.52, 0.9)
+			end
+			power:ForceUpdate()
+		end
+	end
+	ns.RegisterCallback(self, "OrbColors_Updated", "UpdateOrbColors")
 
 end

@@ -66,6 +66,11 @@ local defaults = {
 		unitframes = {
 			useClassColorForPower = false
 		},
+		orbs = {
+			useCustomColors = false,
+			healthColor = {r = 1, g = 0, b = 0},
+			powerColor = {r = 0, g = 0, b = 1}
+		},
 		mapcoords = {
 			worldmapCursor = true,
 			worldmapPlayer = true,

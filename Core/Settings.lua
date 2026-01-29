@@ -127,6 +127,57 @@ SettingsModule.OnInitialize = function(self)
 			Settings.SetOnValueChangedCallback("global_orbs_useD2RStyle", OnOrbStyleChanged)
 			CreateCheckbox(category, setting, L["UseD2ROrbStyleDesc"])
 		end
+		-- Orb Colors
+		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["OrbColorsHeader"]))
+		do
+			local setting = RegisterSetting(
+				category,
+				"useCustomColors",
+				"char.orbs",
+				L["UseCustomOrbColors"],
+				false,
+				L["UseCustomOrbColorsDesc"]
+			)
+			local OnCustomColorsChanged = function()
+				ns.callbacks:Fire("OrbColors_Updated")
+			end
+			Settings.SetOnValueChangedCallback("char_orbs_useCustomColors", OnCustomColorsChanged)
+			CreateCheckbox(category, setting, L["UseCustomOrbColorsDesc"])
+		end
+		do
+			local function CreateColorButton(key, labelKey, descKey, defaultColor)
+				local data = {
+					name = L[labelKey],
+					buttonText = L[labelKey],
+					tooltip = L[descKey],
+					buttonClick = function()
+						local color = ns.db.char.orbs[key] or defaultColor
+						local info = {
+							r = color.r,
+							g = color.g,
+							b = color.b,
+							hasOpacity = false,
+							swatchFunc = function()
+								local r, g, b = ColorPickerFrame:GetColorRGB()
+								ns.db.char.orbs[key] = {r = r, g = g, b = b}
+								ns.callbacks:Fire("OrbColors_Updated")
+							end,
+							cancelFunc = function(previousValues)
+								if previousValues then
+									ns.db.char.orbs[key] = {r = previousValues.r, g = previousValues.g, b = previousValues.b}
+									ns.callbacks:Fire("OrbColors_Updated")
+								end
+							end
+						}
+						ColorPickerFrame:SetupColorPickerAndShow(info)
+					end
+				}
+				local initializer = Settings.CreateButtonInitializer(key, data.buttonText, data.buttonClick, data.tooltip)
+				layout:AddInitializer(initializer)
+			end
+			CreateColorButton("healthColor", "CustomHealthOrbColor", "CustomHealthOrbColorDesc", {r = 1, g = 0, b = 0})
+			CreateColorButton("powerColor", "CustomPowerOrbColor", "CustomPowerOrbColorDesc", {r = 0, g = 0, b = 1})
+		end
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["CoreHeader"]))
 		do
 			local setting = RegisterSetting(
