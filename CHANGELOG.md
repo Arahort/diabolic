@@ -1,5 +1,13 @@
 # DiabolicUI3 Changelog
 
+## [2.0.0-alpha5] - 2026-01-31
+### Fixed
+- Fixed border appearing on action bar 2-3 after /reload
+- Root cause: bar:Hide() was called before button creation, causing styling issues on reload
+- Moved bar:Hide() to after button creation for SecondaryActionBar and ThirdActionBar
+- Applied SetNormalTexture/SetHighlightTexture/SetCheckedTexture hooks for all WoW versions (was only Classic)
+- Added NormalTexture hiding to OnButtonUpdate callback for extra safety
+
 ## [2.0.0-alpha4] - 2026-01-30
 ### Fixed
 - Fixed SmallActionBar1,4 duplicating buttons with ThirdActionBar
