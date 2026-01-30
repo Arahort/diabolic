@@ -1,5 +1,16 @@
 # DiabolicUI3 Changelog
 
+## [2.0.0-alpha4] - 2026-01-30
+### Fixed
+- Fixed SmallActionBar1,4 duplicating buttons with ThirdActionBar
+- Moved SmallActionBar1,4 from page 5 (BOTTOMRIGHT) to page 2 (free page)
+- Side panels now use independent action bar page without conflicts
+
+### Technical
+- SmallActionBar1 (left side, bottom) now uses barID 2 instead of BOTTOMRIGHT_ACTIONBAR_PAGE
+- SmallActionBar4 (right side, bottom) now uses barID 2 instead of BOTTOMRIGHT_ACTIONBAR_PAGE
+- Page 5 is now exclusively used by ThirdActionBar
+
 ## [2.0.0-alpha3] - 2026-01-29
 ### Added
 - Added independent target frame scale setting (0.5-2.0, default 1.0)

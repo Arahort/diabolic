@@ -403,7 +403,9 @@ Bars.SpawnBars = function(self)
 		local name = "SmallActionBar"..i
 		local barID
 		if (i == 1 or i == 4) then
-			barID = BOTTOMRIGHT_ACTIONBAR_PAGE
+			-- Page 2 (free page, not used by main bars)
+			-- Previously BOTTOMRIGHT_ACTIONBAR_PAGE (5) which conflicts with ThirdActionBar
+			barID = 2
 		elseif (i == 2 or i == 3) then
 			barID = LEFT_ACTIONBAR_PAGE
 		elseif (i == 5 or i == 6) then
