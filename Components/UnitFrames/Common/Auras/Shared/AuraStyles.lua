@@ -249,3 +249,49 @@ ns.AuraStyles.CreateButton = function(element, position)
 
 	return aura
 end
+
+-- WoW 12.0.0: Non-secure version of CreateButton for Target auras
+-- Target auras can't be cancelled anyway, so no need for SecureActionButton
+ns.AuraStyles.CreateButton_NonSecure = function(element, position)
+	local aura = CreateFrame("Button", element:GetDebugName() .. "Button" .. position, element)
+	aura:RegisterForClicks("RightButtonUp")
+
+	local icon = aura:CreateTexture(nil, "BACKGROUND", nil, 1)
+	icon:SetAllPoints()
+	icon:SetMask(GetMedia("actionbutton-mask-square"))
+	aura.Icon = icon
+
+	local border = CreateFrame("Frame", nil, aura, ns.BackdropTemplate)
+	border:SetBackdrop({ edgeFile = GetMedia("border-aura"), edgeSize = 12 })
+	border:SetBackdropBorderColor(Colors.xp[1], Colors.xp[2], Colors.xp[3])
+	border:SetPoint("TOPLEFT", -6, 6)
+	border:SetPoint("BOTTOMRIGHT", 6, -6)
+	border:SetFrameLevel(aura:GetFrameLevel() + 2)
+	aura.Border = border
+
+	local count = aura.Border:CreateFontString(nil, "OVERLAY")
+	count:SetFontObject(GetFont(12,true))
+	count:SetTextColor(Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3])
+	count:SetPoint("BOTTOMRIGHT", aura, "BOTTOMRIGHT", -2, 3)
+	aura.Count = count
+
+	-- WoW 12.0.0: Create real CooldownFrame for SetCooldownFromDurationObject support
+	local cd = CreateFrame("Cooldown", nil, aura, "CooldownFrameTemplate")
+	cd:SetAllPoints()
+	cd:SetDrawEdge(false)
+	cd:SetDrawSwipe(false)
+	cd:SetHideCountdownNumbers(false)
+	if cd.SetCountdownFont then
+		cd:SetCountdownFont("DiabolicAuraCooldownFont")
+	end
+	aura.Cooldown = cd
+
+	-- Replacing oUF's aura tooltips
+	if (not element.disableMouse) then
+		aura.UpdateTooltip = UpdateTooltip
+		aura:SetScript("OnEnter", OnEnter)
+		aura:SetScript("OnLeave", OnLeave)
+	end
+
+	return aura
+end

@@ -64,7 +64,8 @@ local defaults = {
 			movableFrames = true
 		},
 		unitframes = {
-			useClassColorForPower = false
+			useClassColorForPower = false,
+			showOnlyMyDebuffs = true
 		},
 		orbs = {
 			useCustomColors = false,

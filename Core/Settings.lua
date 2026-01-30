@@ -632,6 +632,17 @@ SettingsModule.OnInitialize = function(self)
 		do
 			local setting = RegisterSetting(
 				category,
+				"showOnlyMyDebuffs",
+				"char.unitframes",
+				L["ShowOnlyMyDebuffs"],
+				true,
+				L["ShowOnlyMyDebuffsDesc"]
+			)
+			CreateCheckbox(category, setting, L["ShowOnlyMyDebuffsDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
 				"targetPositionX",
 				"global.unitframes",
 				L["TargetPosX"],

@@ -66,29 +66,27 @@ ns.AuraFilters.PlayerDebuffFilter = function(element, unit, data)
 end
 
 ns.AuraFilters.TargetAuraFilter = function(element, unit, data)
-	local button = {}
-	button.spell = data.name
-	-- WoW 12.0.0: Use expirationTime and protect from secret values
-	button.timeLeft = data.expirationTime and not issecretvalue(data.expirationTime) and (data.expirationTime - GetTime()) or nil
-	button.expiration = data.expirationTime
-	button.duration = data.duration
-	-- WoW 12.0.0: Skip comparison if duration is secret value
-	button.noDuration = (not data.duration or (not issecretvalue(data.duration) and data.duration == 0))
-	button.isPlayer = data.isPlayerAura
-
-	if (data.isBossDebuff) then
-		return true
+	-- WoW 12.0.0: isHarmful - use isHarmfulAura as safe fallback (always available)
+	local isHarmful = data.isHarmfulAura or false
+	if not issecretvalue(data.isHarmful) and data.isHarmful then
+		isHarmful = data.isHarmful
 	end
-
-	-- WoW 12.0.0: In combat, duration/applications may be secret
-	if issecretvalue(data.duration) or issecretvalue(data.applications) then
-		-- Can't check exact values, but can show if it has expiration (temporary aura)
-		-- NOTE: Target uses secure buttons, so updates will be deferred until combat ends
-		return data.expirationTime ~= nil
+	-- Filter: Show only my debuffs on target (if enabled)
+	if isHarmful then
+		local db = ns.db
+		if db and db.char and db.char.unitframes and db.char.unitframes.showOnlyMyDebuffs then
+			-- Use C_UnitAuras.IsAuraFilteredOutByInstanceID - works in combat!
+			-- Returns true if aura would be filtered out by "HARMFUL|PLAYER"
+			if C_UnitAuras.IsAuraFilteredOutByInstanceID and data.auraInstanceID then
+				local isFilteredOut = C_UnitAuras.IsAuraFilteredOutByInstanceID(unit, data.auraInstanceID, "HARMFUL|PLAYER")
+				if isFilteredOut then
+					return false -- Not from player
+				end
+			end
+		end
 	end
-
-	-- Out of combat - show: (duration < 301) OR (stacks > 1)
-	return (not button.noDuration and data.duration < 301) or (data.applications > 1)
+	-- Show all auras
+	return true
 end
 
 ns.AuraFilters.NameplateAuraFilter = function(element, unit, data)
