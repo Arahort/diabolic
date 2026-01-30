@@ -107,6 +107,18 @@ local hideActionButton = function(button)
 	button:UnregisterAllEvents()
 	button:SetAttribute("statehidden", true)
 	button:EnableMouse(false)
+
+	-- WoW 12.0: Explicitly hide NormalTexture (the border that appears after /reload)
+	if button.NormalTexture then
+		button.NormalTexture:SetAlpha(0)
+		button.NormalTexture:Hide()
+	end
+	-- Also try legacy naming convention
+	local normalTex = _G[button:GetName() and (button:GetName() .. "NormalTexture")]
+	if normalTex then
+		normalTex:SetAlpha(0)
+		normalTex:Hide()
+	end
 end
 
 -- Wrath, Classic
@@ -202,6 +214,10 @@ BlizzKill.KillActionBars = function(self)
 			if not ns.db.char.actionbars.showBlizzardBar7 then
 				hideActionButton(_G["MultiBar7Button" .. i])
 			end
+			-- WoW 12.0: New PTR action bars (if they exist)
+			hideActionButton(_G["PTR4ActionBarButton" .. i])
+			hideActionButton(_G["PTR5ActionBarButton" .. i])
+			hideActionButton(_G["PTR6ActionBarButton" .. i])
 		end
 
 		hideActionBarFrame(MicroButtonAndBagsBar, false)
@@ -730,6 +746,22 @@ BlizzKill.KillHelpTip = function(self)
 	end
 end
 
+-- WoW 12.0: Delayed re-hide for buttons that Blizzard shows after /reload
+BlizzKill.ReHideActionButtons = function(self)
+	if not ns.IsRetail then return end
+
+	for i=1,12 do
+		hideActionButton(_G["ActionButton" .. i])
+		hideActionButton(_G["MultiBarBottomLeftButton" .. i])
+		hideActionButton(_G["MultiBarBottomRightButton" .. i])
+		hideActionButton(_G["MultiBarRightButton" .. i])
+		hideActionButton(_G["MultiBarLeftButton" .. i])
+		hideActionButton(_G["PTR4ActionBarButton" .. i])
+		hideActionButton(_G["PTR5ActionBarButton" .. i])
+		hideActionButton(_G["PTR6ActionBarButton" .. i])
+	end
+end
+
 BlizzKill.OnInitialize = function(self)
 	self:KillActionBars()
 	self:KillFloaters()
@@ -738,4 +770,7 @@ BlizzKill.OnInitialize = function(self)
 	self:KillTutorials()
 	self:KillNPE()
 	self:KillHelpTip()
+
+	-- WoW 12.0: Delayed re-hide to catch buttons shown after /reload
+	C_Timer_After(0.5, function() self:ReHideActionButtons() end)
 end

@@ -239,11 +239,11 @@ local style = function(button)
 	-- hooksecurefunc(cooldown, "SetHideCountdownNumbers", function(c,h) if not h then c:SetHideCountdownNumbers(true) end end)
 	hooksecurefunc(cooldown, "SetCooldown", function(c) c:SetAlpha(.75) end)
 
-	if (not ns.IsRetail) then
-		hooksecurefunc(button, "SetNormalTexture", function(b,...) if(...~="")then b:SetNormalTexture("") end end)
-		hooksecurefunc(button, "SetHighlightTexture", function(b,...) if(...~="")then b:SetHighlightTexture("") end end)
-		hooksecurefunc(button, "SetCheckedTexture", function(b,...) if(...~="")then b:SetCheckedTexture("") end end)
-	end
+	-- WoW 12.0: Apply hooks for ALL versions (was only Classic before)
+	-- This prevents NormalTexture from reappearing after /reload
+	hooksecurefunc(button, "SetNormalTexture", function(b,...) if(...~="")then b:SetNormalTexture("") end end)
+	hooksecurefunc(button, "SetHighlightTexture", function(b,...) if(...~="")then b:SetHighlightTexture("") end end)
+	hooksecurefunc(button, "SetCheckedTexture", function(b,...) if(...~="")then b:SetCheckedTexture("") end end)
 
 	-- Disable masque for our buttons,
 	-- they are not compatible.
@@ -345,7 +345,8 @@ Bars.SpawnBars = function(self)
 	local bar = SetObjectScale(ns.ActionBar:Create(BOTTOMLEFT_ACTIONBAR_PAGE, ns.Prefix.."ActionBar2", UIParent))
 	bar:SetPoint("BOTTOM", -1, 11 + self:GetSecondaryBarOffset())
 	bar:SetSize(647, 53)
-	bar:Hide()
+	-- WoW 12.0: Don't hide bar before creating buttons - create buttons first, then hide
+	-- bar:Hide() moved after button creation
 	--bar:SetAttribute("userhidden", true)
 
 	for i = 1,12 do
@@ -355,6 +356,7 @@ Bars.SpawnBars = function(self)
 	end
 
 	bar:UpdateStateDriver()
+	bar:Hide() -- Hide after buttons are styled
 
 	local onVisibility = function(self)
 		ns:Fire("ActionBars_SecondaryBar_Updated", self:IsShown() and true or false)
@@ -370,7 +372,8 @@ Bars.SpawnBars = function(self)
 	local bar = SetObjectScale(ns.ActionBar:Create(BOTTOMRIGHT_ACTIONBAR_PAGE, ns.Prefix.."ActionBar3", UIParent))
 	bar:SetPoint("BOTTOM", -1, 7 + self:GetSecondaryBarOffset() + self:GetThirdBarOffset())
 	bar:SetSize(647, 53)
-	bar:Hide()
+	-- WoW 12.0: Don't hide bar before creating buttons - create buttons first, then hide
+	-- bar:Hide() moved after button creation
 
 	for i = 1,12 do
 		local button = bar:CreateButton(i)
@@ -379,6 +382,7 @@ Bars.SpawnBars = function(self)
 	end
 
 	bar:UpdateStateDriver()
+	bar:Hide() -- Hide after buttons are styled
 
 	local onVisibility = function(self)
 		ns:Fire("ActionBars_ThirdBar_Updated", self:IsShown() and true or false)
@@ -879,6 +883,12 @@ Bars.OnEvent = function(self, event, ...)
 		button.cooldown:SetAllPoints(button.icon)
 		button.icon:RemoveMaskTexture(button.IconMask)
 		button.icon:SetMask(GetMedia("actionbutton-mask-square-rounded"))
+		-- WoW 12.0: Re-hide NormalTexture after button update (fixes border after /reload)
+		button:SetNormalTexture("")
+		if button.NormalTexture then
+			button.NormalTexture:SetAlpha(0)
+			button.NormalTexture:Hide()
+		end
 	end
 end
 
