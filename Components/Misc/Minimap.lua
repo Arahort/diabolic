@@ -288,7 +288,38 @@ MinimapMod.UpdateClock = function(self)
 	end
 end
 
+MinimapMod.RepositionMailFrame = function(self)
+	-- WoW 12.0: MailFrame is at MinimapCluster.IndicatorFrame.MailFrame
+	local blizzardMail = MinimapCluster and MinimapCluster.IndicatorFrame and MinimapCluster.IndicatorFrame.MailFrame
+	if blizzardMail then
+		blizzardMail:SetParent(Minimap)
+		blizzardMail:ClearAllPoints()
+		blizzardMail:SetPoint("TOP", Minimap, "BOTTOM", 0, 7)
+		blizzardMail:SetFrameLevel(Minimap:GetFrameLevel() + 10)
+		blizzardMail:SetScale(1.4)
+		blizzardMail.layoutIndex = nil
+	end
+end
+
+MinimapMod.RepositionTracking = function(self)
+	-- WoW 12.0: Tracking is at MinimapCluster.Tracking
+	local tracking = MinimapCluster and MinimapCluster.Tracking
+	if tracking then
+		tracking:SetParent(Minimap)
+		tracking:ClearAllPoints()
+		tracking:SetPoint("BOTTOM", Minimap, "TOP", 0, -5) -- 12 o'clock position
+		tracking:SetFrameLevel(Minimap:GetFrameLevel() + 10)
+		tracking:SetScale(1.1)
+		tracking.layoutIndex = nil
+	end
+end
+
 MinimapMod.UpdateMail = function(self)
+	-- For Retail, Blizzard MailFrame manages its own visibility
+	-- We only need to handle custom mail indicator for Classic
+	if (ns.IsRetail) then
+		return
+	end
 	local mail = self.mail
 	if (not mail) then
 		return
@@ -385,13 +416,16 @@ MinimapMod.DisableBlizzard = function(self)
 	GameTimeFrame:SetParent(UIHider)
 	GameTimeFrame:UnregisterAllEvents()
 
+	-- Hide AddonCompartmentFrame (works regardless of IsRetail)
+	if AddonCompartmentFrame then AddonCompartmentFrame:SetParent(UIHider) end
+
 	if (ns.IsRetail) then
 		if MinimapCluster.BorderTop then
 			MinimapCluster.BorderTop:SetParent(UIHider)
 		end
 		if MinimapCluster.InstanceDifficulty then MinimapCluster.InstanceDifficulty:SetParent(UIHider) end
-		if MinimapCluster.MailFrame then MinimapCluster.MailFrame:SetParent(UIHider) end
-		if MinimapCluster.Tracking then MinimapCluster.Tracking:SetParent(UIHider) end
+		-- MailFrame repositioned in PLAYER_ENTERING_WORLD instead of hiding
+		-- Tracking repositioned in PLAYER_ENTERING_WORLD instead of hiding
 		if MinimapCluster.ZoneTextButton then
 			MinimapCluster.ZoneTextButton:SetParent(UIHider)
 		end
@@ -510,24 +544,28 @@ MinimapMod.StyleMinimap = function(self)
 	coordinates:SetFontObject(GetFont(12,true))
 	self.coordinates = coordinates
 
-	-- Mail
-	local mailFrame = CreateFrame("Button", nil, Minimap)
-	mailFrame:SetFrameLevel(mailFrame:GetFrameLevel() + 5)
-	mailFrame:SetScript("OnEnter", Mail_OnEnter)
-	mailFrame:SetScript("OnLeave", Mail_OnLeave)
-	mailFrame:Hide()
-
-	local mail = mailFrame:CreateFontString()
-	mail:SetDrawLayer("OVERLAY", 1)
-	mail:SetJustifyH("CENTER")
-	mail:SetJustifyV("BOTTOM")
-	mail:SetFontObject(GetFont(16,true))
-	mail:SetTextColor(unpack(Colors.offwhite))
-	mail:SetAlpha(.85)
-	mail:SetFormattedText("%s %s", L_NEW, L_MAIL)
-	mail:SetPoint("BOTTOM", Minimap, "BOTTOM", 0, 30)
-	mailFrame:SetAllPoints(mail)
-	self.mail = mail
+	-- Mail - WoW 12.0 uses MinimapCluster.IndicatorFrame.MailFrame
+	-- Classic uses custom mail indicator (fallback)
+	-- MailFrame is repositioned in PLAYER_ENTERING_WORLD event via RepositionMailFrame()
+	if not (MinimapCluster and MinimapCluster.IndicatorFrame and MinimapCluster.IndicatorFrame.MailFrame) then
+		-- Fallback: create custom mail indicator for Classic
+		local mailFrame = CreateFrame("Button", nil, Minimap)
+		mailFrame:SetFrameLevel(mailFrame:GetFrameLevel() + 5)
+		mailFrame:SetScript("OnEnter", Mail_OnEnter)
+		mailFrame:SetScript("OnLeave", Mail_OnLeave)
+		mailFrame:Hide()
+		local mail = mailFrame:CreateFontString()
+		mail:SetDrawLayer("OVERLAY", 1)
+		mail:SetJustifyH("CENTER")
+		mail:SetJustifyV("BOTTOM")
+		mail:SetFontObject(GetFont(16,true))
+		mail:SetTextColor(unpack(Colors.offwhite))
+		mail:SetAlpha(.85)
+		mail:SetFormattedText("%s %s", L_NEW, L_MAIL)
+		mail:SetPoint("BOTTOM", Minimap, "BOTTOM", 0, 30)
+		mailFrame:SetAllPoints(mail)
+		self.mail = mail
+	end
 
 	-- Minimap Highlight
 	local highlight = Minimap:CreateTexture(nil, "OVERLAY", nil, -1)
@@ -757,6 +795,9 @@ MinimapMod.OnEvent = function(self, event)
 		self:UpdateZone()
 		self:UpdateMail()
 		self:UpdateTimers()
+		-- WoW 12.0: Reposition MailFrame and Tracking
+		self:RepositionMailFrame()
+		self:RepositionTracking()
 
 	elseif (event == "VARIABLES_LOADED") then
 		self:UpdateTimers()
