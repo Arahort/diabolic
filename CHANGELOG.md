@@ -1,5 +1,18 @@
 # DiabolicUI3 Changelog
 
+## [2.0.0-alpha6] - 2026-01-31
+### Improved
+- Minimap: Mail icon repositioned to bottom (6 o'clock)
+- Minimap: Tracking button repositioned to right side (3 o'clock)
+- Minimap: Instance difficulty repositioned to top (12 o'clock)
+- Minimap: Hidden AddonCompartmentFrame
+- Minimap: Hidden MinimapCluster from EditMode (no more empty frame)
+- Minimap: Default position changed to X=-30, Y=-40
+
+### Fixed
+- Fixed "attempt to call method 'Layout' (a nil value)" error on UPDATE_PENDING_MAIL
+- Added Layout stub to Minimap for Blizzard MailFrame compatibility
+
 ## [2.0.0-alpha5] - 2026-01-31
 ### Fixed
 - Fixed border appearing on action bar 2-3 after /reload

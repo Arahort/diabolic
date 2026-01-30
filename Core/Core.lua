@@ -130,8 +130,8 @@ local defaults = {
 		minimap = {
 			useServerTime = false,
 			useHalfClock = false,
-			positionX = -20,
-			positionY = -20
+			positionX = -30,
+			positionY = -40
 		},
 		talkinghead = {
 			positionX = 0,

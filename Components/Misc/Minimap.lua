@@ -292,6 +292,11 @@ MinimapMod.RepositionMailFrame = function(self)
 	-- WoW 12.0: MailFrame is at MinimapCluster.IndicatorFrame.MailFrame
 	local blizzardMail = MinimapCluster and MinimapCluster.IndicatorFrame and MinimapCluster.IndicatorFrame.MailFrame
 	if blizzardMail then
+		-- Add Layout stub to Minimap to prevent taint errors
+		-- Blizzard code calls :Layout() on parent, but Minimap doesn't have it
+		if not Minimap.Layout then
+			Minimap.Layout = function() end
+		end
 		blizzardMail:SetParent(Minimap)
 		blizzardMail:ClearAllPoints()
 		blizzardMail:SetPoint("TOP", Minimap, "BOTTOM", 0, 7)
@@ -307,10 +312,24 @@ MinimapMod.RepositionTracking = function(self)
 	if tracking then
 		tracking:SetParent(Minimap)
 		tracking:ClearAllPoints()
-		tracking:SetPoint("BOTTOM", Minimap, "TOP", 0, -5) -- 12 o'clock position
+		tracking:SetPoint("LEFT", Minimap, "RIGHT", -6, 0) -- 3 o'clock position
 		tracking:SetFrameLevel(Minimap:GetFrameLevel() + 10)
 		tracking:SetScale(1.1)
 		tracking.layoutIndex = nil
+	end
+end
+
+MinimapMod.RepositionInstanceDifficulty = function(self)
+	-- WoW 12.0: InstanceDifficulty is at MinimapCluster.InstanceDifficulty
+	local difficulty = MinimapCluster and MinimapCluster.InstanceDifficulty
+	if difficulty then
+		difficulty:SetParent(Minimap)
+		difficulty:ClearAllPoints()
+		difficulty:SetPoint("BOTTOM", Minimap, "TOP", 0, -15) -- 12 o'clock position
+		difficulty:SetFrameStrata("HIGH")
+		difficulty:SetFrameLevel(100)
+		difficulty:SetScale(1.0)
+		difficulty.layoutIndex = nil
 	end
 end
 
@@ -795,9 +814,15 @@ MinimapMod.OnEvent = function(self, event)
 		self:UpdateZone()
 		self:UpdateMail()
 		self:UpdateTimers()
-		-- WoW 12.0: Reposition MailFrame and Tracking
+		-- WoW 12.0: Reposition MailFrame, Tracking, and InstanceDifficulty
 		self:RepositionMailFrame()
 		self:RepositionTracking()
+		self:RepositionInstanceDifficulty()
+		-- Hide MinimapCluster completely after repositioning elements
+		-- This removes it from EditMode system frames
+		if MinimapCluster then
+			MinimapCluster:SetParent(UIHider)
+		end
 
 	elseif (event == "VARIABLES_LOADED") then
 		self:UpdateTimers()
