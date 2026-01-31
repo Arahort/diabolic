@@ -285,6 +285,9 @@ MinimapMod.RepositionQueueStatus = function(self)
 	-- WoW 12.0: QueueStatusButton is the LFG eye
 	local queueButton = QueueStatusButton
 	if not queueButton then return end
+	-- Use flag to prevent recursion
+	if queueButton.__GP_Repositioning then return end
+	queueButton.__GP_Repositioning = true
 	if not self.queueHolder then
 		-- Create a holder frame parented to UIParent to avoid MBB
 		local holder = CreateFrame("Frame", nil, UIParent)
@@ -300,6 +303,22 @@ MinimapMod.RepositionQueueStatus = function(self)
 		eyeTexture:SetTexture(GetMedia("group-finder-eye-orange"))
 		eyeTexture:SetVertexColor(.85, .8, .75)
 		self.queueEyeTexture = eyeTexture
+		-- Create pulse glow animation for the eye using OnUpdate
+		local glow = queueButton:CreateTexture(nil, "OVERLAY", nil, 2)
+		glow:SetPoint("CENTER", 0, 0)
+		glow:SetSize(95, 95)
+		glow:SetTexture(GetMedia("group-finder-eye-orange"))
+		glow:SetVertexColor(1, 0.85, 0.5)
+		glow:SetBlendMode("ADD")
+		self.queueEyeGlow = glow
+		-- Use OnUpdate for reliable pulsing
+		local pulseTime = 0
+		local pulseSpeed = 0.8 -- cycles per second (slower = more gentle)
+		holder:SetScript("OnUpdate", function(self, elapsed)
+			pulseTime = pulseTime + elapsed
+			local alpha = 0.3 + 0.3 * math_sin(pulseTime * pulseSpeed * math_pi)
+			glow:SetAlpha(alpha)
+		end)
 		-- Hide default eye texture
 		if queueButton.Eye then
 			queueButton.Eye:SetAlpha(0)
@@ -308,11 +327,25 @@ MinimapMod.RepositionQueueStatus = function(self)
 			queueButton.Highlight:SetAlpha(0)
 		end
 	end
-	-- Always reposition (called multiple times with delay)
+	-- Always reposition
 	queueButton:SetParent(self.queueHolder)
 	queueButton:ClearAllPoints()
 	queueButton:SetPoint("CENTER", self.queueHolder, "CENTER", 0, 0)
 	queueButton.layoutIndex = nil
+	queueButton.__GP_Repositioning = nil
+	-- Hook SetPoint to prevent Blizzard from resetting position
+	if not queueButton.__GP_Hooked then
+		local module = self
+		hooksecurefunc(queueButton, "SetPoint", function(frame, point, relativeTo, ...)
+			if frame.__GP_Repositioning then return end
+			if relativeTo ~= module.queueHolder then
+				C_Timer.After(0.01, function()
+					module:RepositionQueueStatus()
+				end)
+			end
+		end)
+		queueButton.__GP_Hooked = true
+	end
 end
 
 MinimapMod.RepositionTracking = function(self)
@@ -329,7 +362,6 @@ MinimapMod.RepositionTracking = function(self)
 		tracking:SetScale(1.1)
 		tracking.layoutIndex = nil
 		tracking.__GP_Repositioning = nil
-		-- TODO: Add pulse animation for tracking icon (needs investigation)
 		-- Hook SetPoint to prevent Blizzard from resetting position
 		if not tracking.__GP_Hooked then
 			local module = self

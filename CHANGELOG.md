@@ -1,5 +1,18 @@
 # DiabolicUI3 Changelog
 
+## [2.0.0-alpha9] - 2026-01-31
+### Added
+- Castbar: Added ToT-style border texture to PlayerCastingBarFrame and PetCastingBarFrame
+- QueueStatus (LFG eye): Added pulsing glow animation when in queue
+
+### Improved
+- Tracking icon: Now survives zone changes, NPC interactions, and reloads (hooked SetPoint)
+- QueueStatus (LFG eye): Now survives NPC interactions (hooked SetPoint)
+
+### Fixed
+- Fixed tracking icon resetting to default position on zone change
+- Fixed LFG eye resetting position when talking to NPCs
+
 ## [2.0.0-alpha8] - 2026-01-31
 ### Improved
 - ExtraButtons: Added D2R orb style positions for ZoneAbilityFrame (500, 250) and ExtraActionButton (-495, 240)
