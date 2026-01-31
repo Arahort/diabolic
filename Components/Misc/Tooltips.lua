@@ -263,46 +263,64 @@ Tooltips.StyleTooltips = function(self, event, ...)
 end
 
 Tooltips.StyleStatusBar = function(self)
-
-	GameTooltip.StatusBar = GameTooltipStatusBar
-	GameTooltip.StatusBar:SetScript("OnValueChanged", nil)
-	GameTooltip.StatusBar:SetStatusBarTexture(GetMedia("bar-progress"))
-	GameTooltip.StatusBar:ClearAllPoints()
-	GameTooltip.StatusBar:SetPoint("BOTTOMLEFT", GameTooltip.StatusBar:GetParent(), "BOTTOMLEFT", -1, -4)
-	GameTooltip.StatusBar:SetPoint("BOTTOMRIGHT", GameTooltip.StatusBar:GetParent(), "BOTTOMRIGHT", 1, -4)
-	GameTooltip.StatusBar:SetHeight(4)
-
-	GameTooltip.StatusBar:HookScript("OnShow", function(self)
-		local tooltip = self:GetParent()
-		if (tooltip) then
-			local backdrop = Backdrops[tooltip]
-			if (backdrop) then
-				backdrop:SetPoint("BOTTOM", 0, backdrop.offsetBottom + backdrop.offsetBarBottom)
-			end
+	-- IMPORTANT: Don't modify GameTooltipStatusBar directly to avoid taint!
+	-- Blizzard code calls SetWatch/ClearWatch on GameTooltip.StatusBar, so we can't replace it.
+	-- Instead, hide it visually and create our own custom StatusBar overlay.
+	-- Hide original StatusBar visually (don't use SetScript or modify structure!)
+	GameTooltipStatusBar:SetAlpha(0)
+	-- Create our custom StatusBar (use separate reference, don't replace GameTooltip.StatusBar!)
+	local customBar = CreateFrame("StatusBar", "DiabolicTooltipStatusBar", GameTooltip)
+	customBar:SetStatusBarTexture(GetMedia("bar-progress"))
+	customBar:SetPoint("BOTTOMLEFT", GameTooltip, "BOTTOMLEFT", -1, -4)
+	customBar:SetPoint("BOTTOMRIGHT", GameTooltip, "BOTTOMRIGHT", 1, -4)
+	customBar:SetHeight(4)
+	customBar:Hide()
+	-- Create text overlay for HP values
+	customBar.Text = customBar:CreateFontString(nil, "OVERLAY")
+	customBar.Text:SetFontObject(GetFont(13,true))
+	customBar.Text:SetTextColor(ns.Colors.offwhite[1], ns.Colors.offwhite[2], ns.Colors.offwhite[3])
+	customBar.Text:SetPoint("CENTER", customBar, "CENTER", 0, 0)
+	-- Sync values from original using SAFE hooks (hooksecurefunc doesn't taint)
+	hooksecurefunc(GameTooltipStatusBar, "SetValue", function(bar, value)
+		customBar:SetValue(value)
+	end)
+	hooksecurefunc(GameTooltipStatusBar, "SetMinMaxValues", function(bar, min, max)
+		customBar:SetMinMaxValues(min, max)
+	end)
+	hooksecurefunc(GameTooltipStatusBar, "SetStatusBarColor", function(bar, r, g, b, a)
+		customBar:SetStatusBarColor(r, g, b, a or 1)
+	end)
+	hooksecurefunc(GameTooltipStatusBar, "Show", function()
+		customBar:Show()
+		local backdrop = Backdrops[GameTooltip]
+		if (backdrop) then
+			backdrop:SetPoint("BOTTOM", 0, backdrop.offsetBottom + backdrop.offsetBarBottom)
 		end
 	end)
-
-	GameTooltip.StatusBar:HookScript("OnHide", function(self)
-		local tooltip = self:GetParent()
-		if (tooltip) then
-			local backdrop = Backdrops[tooltip]
-			if (backdrop) then
-				backdrop:SetPoint("BOTTOM", 0, backdrop.offsetBottom)
-			end
+	hooksecurefunc(GameTooltipStatusBar, "Hide", function()
+		customBar:Hide()
+		local backdrop = Backdrops[GameTooltip]
+		if (backdrop) then
+			backdrop:SetPoint("BOTTOM", 0, backdrop.offsetBottom)
 		end
 	end)
-
-	GameTooltip.StatusBar.Text = GameTooltip.StatusBar:CreateFontString(nil, "OVERLAY")
-	GameTooltip.StatusBar.Text:SetFontObject(GetFont(13,true))
-	GameTooltip.StatusBar.Text:SetTextColor(ns.Colors.offwhite[1], ns.Colors.offwhite[2], ns.Colors.offwhite[3])
-	GameTooltip.StatusBar.Text:SetPoint("CENTER", GameTooltip.StatusBar, "CENTER", 0, 0)
-
+	-- Store reference for our functions (DON'T replace GameTooltip.StatusBar!)
+	self.CustomStatusBar = customBar
 end
 
 Tooltips.SetHealthValue = function(self, unit)
+	local customBar = self.CustomStatusBar
+	if (not customBar) then return end
+	-- WoW 12.0: unit can be nil or secret value, validate before using
+	if (not unit) or (type(unit) ~= "string") or issecretvalue(unit) then
+		if (customBar:IsShown()) then
+			customBar:Hide()
+		end
+		return
+	end
 	if (UnitIsDeadOrGhost(unit)) then
-		if (GameTooltip.StatusBar:IsShown()) then
-			GameTooltip.StatusBar:Hide()
+		if (customBar:IsShown()) then
+			customBar:Hide()
 		end
 	else
 		local msg
@@ -319,27 +337,30 @@ Tooltips.SetHealthValue = function(self, unit)
 		else
 			msg = NOT_APPLICABLE
 		end
-		GameTooltip.StatusBar.Text:SetText(msg)
-		if (not GameTooltip.StatusBar.Text:IsShown()) then
-			GameTooltip.StatusBar.Text:Show()
+		customBar.Text:SetText(msg)
+		if (not customBar.Text:IsShown()) then
+			customBar.Text:Show()
 		end
-		if (not GameTooltip.StatusBar:IsShown()) then
-			GameTooltip.StatusBar:Show()
+		if (not customBar:IsShown()) then
+			customBar:Show()
 		end
 	end
 end
 
 Tooltips.OnValueChanged = function(self)
-	local unit = select(2, GameTooltip.StatusBar:GetParent():GetUnit())
-	if (not unit) then
+	-- Get unit from GameTooltip (parent of both original and custom bar)
+	local unit = select(2, GameTooltip:GetUnit())
+	if (not unit) or issecretvalue(unit) then
 		local GMF = GetMouseFocus()
 		if (GMF and GMF.GetAttribute and GMF:GetAttribute("unit")) then
 			unit = GMF:GetAttribute("unit")
 		end
 	end
-	if (not unit) then
-		if (GameTooltip.StatusBar:IsShown()) then
-			GameTooltip.StatusBar:Hide()
+	-- WoW 12.0: unit can be nil or secret value
+	if (not unit) or (type(unit) ~= "string") or issecretvalue(unit) then
+		local customBar = self.CustomStatusBar
+		if (customBar) and (customBar:IsShown()) then
+			customBar:Hide()
 		end
 		return
 	end
@@ -348,8 +369,9 @@ end
 
 Tooltips.OnTooltipCleared = function(self, tooltip)
 	if (not tooltip) or (tooltip:IsForbidden()) then return end
-	if (GameTooltip.StatusBar:IsShown()) then
-		GameTooltip.StatusBar:Hide()
+	local customBar = self.CustomStatusBar
+	if (customBar) and (customBar:IsShown()) then
+		customBar:Hide()
 	end
 end
 
@@ -646,9 +668,11 @@ Tooltips.SetDefaultAnchor = function(self, tooltip, parent)
 end
 
 Tooltips.SetUnitColor = function(self, unit)
+	local customBar = self.CustomStatusBar
+	if (not customBar) then return end
 	local color = GetUnitColor(unit) or Colors.reaction[5]
 	if (color) then
-		GameTooltip.StatusBar:SetStatusBarColor(color[1], color[2], color[3])
+		customBar:SetStatusBarColor(color[1], color[2], color[3])
 	end
 end
 
@@ -719,8 +743,10 @@ Tooltips.SetHooks = function(self)
 		pcall(function() self:SecureHookScript(GameTooltip, "OnTooltipSetUnit", "OnTooltipSetUnit") end)
 	end
 
-	if GameTooltip.StatusBar then
-		self:SecureHookScript(GameTooltip.StatusBar, "OnValueChanged", "OnValueChanged")
+	-- Hook the ORIGINAL GameTooltipStatusBar (not our custom one)
+	-- to intercept Blizzard value updates
+	if GameTooltipStatusBar then
+		self:SecureHookScript(GameTooltipStatusBar, "OnValueChanged", "OnValueChanged")
 	end
 
 end
