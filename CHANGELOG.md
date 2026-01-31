@@ -1,5 +1,11 @@
 # DiabolicUI3 Changelog
 
+## [2.0.0-alpha12] - 2026-01-31
+### Performance
+- ActionBars: Removed SetCooldown hook, set alpha once at creation (major optimization)
+- PetBar: Same optimization for pet action buttons
+- StanceBar: Same optimization for stance buttons
+
 ## [2.0.0-alpha11] - 2026-01-31
 ### Performance
 - Tooltip OnUpdate: Added throttle (~30 fps instead of every frame)
