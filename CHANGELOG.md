@@ -1,5 +1,10 @@
 # DiabolicUI3 Changelog
 
+## [2.0.0-alpha8] - 2026-01-31
+### Improved
+- ExtraButtons: Added D2R orb style positions for ZoneAbilityFrame (500, 250) and ExtraActionButton (-495, 240)
+- These buttons now appear near the orbs when D2R style is enabled
+
 ## [2.0.0-alpha7] - 2026-01-31
 ### Improved
 - Minimap: Mail icon repositioned to 9 o'clock (left side)

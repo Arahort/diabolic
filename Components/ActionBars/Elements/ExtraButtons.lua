@@ -237,11 +237,21 @@ ExtraButtons.UpdatePosition = function(self)
 	local db = ns.db.global.extrabuttons
 	if self.ExtraScaffold then
 		self.ExtraScaffold:ClearAllPoints()
-		self.ExtraScaffold:SetPoint("BOTTOM", db.extraPositionX or -546, db.extraPositionY or 156)
+		-- Different position for D2R orb style (fixed position, ignores saved)
+		if ns.db.global.orbs.useD2RStyle then
+			self.ExtraScaffold:SetPoint("CENTER", UIParent, "BOTTOM", -495, 240)
+		else
+			self.ExtraScaffold:SetPoint("BOTTOM", db.extraPositionX or -546, db.extraPositionY or 156)
+		end
 	end
 	if self.ZoneScaffold then
 		self.ZoneScaffold:ClearAllPoints()
-		self.ZoneScaffold:SetPoint("BOTTOM", db.zonePositionX or 558, db.zonePositionY or 162)
+		-- Different position for D2R orb style (fixed position, ignores saved)
+		if ns.db.global.orbs.useD2RStyle then
+			self.ZoneScaffold:SetPoint("CENTER", UIParent, "BOTTOM", 500, 250)
+		else
+			self.ZoneScaffold:SetPoint("BOTTOM", db.zonePositionX or 558, db.zonePositionY or 162)
+		end
 	end
 end
 
