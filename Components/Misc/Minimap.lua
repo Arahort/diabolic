@@ -299,11 +299,45 @@ MinimapMod.RepositionMailFrame = function(self)
 		end
 		blizzardMail:SetParent(Minimap)
 		blizzardMail:ClearAllPoints()
-		blizzardMail:SetPoint("TOP", Minimap, "BOTTOM", 0, 7)
+		blizzardMail:SetPoint("RIGHT", Minimap, "LEFT", 8, 0) -- 9 o'clock position
 		blizzardMail:SetFrameLevel(Minimap:GetFrameLevel() + 10)
 		blizzardMail:SetScale(1.4)
 		blizzardMail.layoutIndex = nil
 	end
+end
+
+MinimapMod.RepositionQueueStatus = function(self)
+	-- WoW 12.0: QueueStatusButton is the LFG eye
+	local queueButton = QueueStatusButton
+	if not queueButton then return end
+	if not self.queueHolder then
+		-- Create a holder frame parented to UIParent to avoid MBB
+		local holder = CreateFrame("Frame", nil, UIParent)
+		holder:SetSize(80, 80)
+		holder:SetPoint("TOP", Minimap, "BOTTOM", 0, 37) -- 6 o'clock position
+		holder:SetFrameStrata("MEDIUM")
+		holder:SetFrameLevel(Minimap:GetFrameLevel() + 10)
+		self.queueHolder = holder
+		-- Apply custom eye texture
+		local eyeTexture = queueButton:CreateTexture(nil, "OVERLAY")
+		eyeTexture:SetPoint("CENTER", 0, 0)
+		eyeTexture:SetSize(80, 80)
+		eyeTexture:SetTexture(GetMedia("group-finder-eye-orange"))
+		eyeTexture:SetVertexColor(.85, .8, .75)
+		self.queueEyeTexture = eyeTexture
+		-- Hide default eye texture
+		if queueButton.Eye then
+			queueButton.Eye:SetAlpha(0)
+		end
+		if queueButton.Highlight then
+			queueButton.Highlight:SetAlpha(0)
+		end
+	end
+	-- Always reposition (called multiple times with delay)
+	queueButton:SetParent(self.queueHolder)
+	queueButton:ClearAllPoints()
+	queueButton:SetPoint("CENTER", self.queueHolder, "CENTER", 0, 0)
+	queueButton.layoutIndex = nil
 end
 
 MinimapMod.RepositionTracking = function(self)
@@ -437,6 +471,16 @@ MinimapMod.DisableBlizzard = function(self)
 
 	-- Hide AddonCompartmentFrame (works regardless of IsRetail)
 	if AddonCompartmentFrame then AddonCompartmentFrame:SetParent(UIHider) end
+
+	-- Hide Zoom buttons (works regardless of IsRetail)
+	if Minimap.ZoomIn then
+		Minimap.ZoomIn:SetParent(UIHider)
+		Minimap.ZoomIn:UnregisterAllEvents()
+	end
+	if Minimap.ZoomOut then
+		Minimap.ZoomOut:SetParent(UIHider)
+		Minimap.ZoomOut:UnregisterAllEvents()
+	end
 
 	if (ns.IsRetail) then
 		if MinimapCluster.BorderTop then
@@ -814,10 +858,14 @@ MinimapMod.OnEvent = function(self, event)
 		self:UpdateZone()
 		self:UpdateMail()
 		self:UpdateTimers()
-		-- WoW 12.0: Reposition MailFrame, Tracking, and InstanceDifficulty
+		-- WoW 12.0: Reposition MailFrame, Tracking, InstanceDifficulty, and QueueStatus
 		self:RepositionMailFrame()
 		self:RepositionTracking()
 		self:RepositionInstanceDifficulty()
+		self:RepositionQueueStatus()
+		-- Call again with delays to override other addons
+		C_Timer.After(0.5, function() self:RepositionQueueStatus() end)
+		C_Timer.After(1, function() self:RepositionQueueStatus() end)
 		-- Hide MinimapCluster completely after repositioning elements
 		-- This removes it from EditMode system frames
 		if MinimapCluster then

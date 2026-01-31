@@ -1,5 +1,14 @@
 # DiabolicUI3 Changelog
 
+## [2.0.0-alpha7] - 2026-01-31
+### Improved
+- Minimap: Mail icon repositioned to 9 o'clock (left side)
+- Minimap: QueueStatusButton (LFG eye) repositioned to 6 o'clock with custom orange texture
+- Minimap: Hidden zoom buttons (+/-)
+
+### Fixed
+- Fixed zoom buttons not hiding due to ns.IsRetail being nil in WoW 12.0
+
 ## [2.0.0-alpha6] - 2026-01-31
 ### Improved
 - Minimap: Mail icon repositioned to bottom (6 o'clock)
