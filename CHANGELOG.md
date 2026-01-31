@@ -1,5 +1,12 @@
 # DiabolicUI3 Changelog
 
+## [2.0.0-alpha10] - 2026-01-31
+### Changed
+- Disabled custom nameplates (use Blizzard default or Plater/Kui/etc.)
+
+### Maintenance
+- Cleaned up TODO.md - removed completed tasks
+
 ## [2.0.0-alpha9] - 2026-01-31
 ### Added
 - Castbar: Added ToT-style border texture to PlayerCastingBarFrame and PetCastingBarFrame
