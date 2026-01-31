@@ -588,11 +588,19 @@ Tooltips.OnTooltipSetUnit = function(self, tooltip)
 
 end
 
-local updateTooltip = function(tooltip)
+local TOOLTIP_UPDATE_THROTTLE = 0.033 -- ~30 updates per second for smooth tooltip following
+local updateTooltip = function(tooltip, elapsed)
 	if not tooltip.update then return end
 	if not ns.db or not ns.db.char or not ns.db.char.tooltips then return end
 	if not ns.db.char.tooltips.enabled then return end
-
+	-- Throttle OnUpdate calls (elapsed is only passed from OnUpdate, not direct calls)
+	if elapsed then
+		tooltip.updateElapsed = (tooltip.updateElapsed or 0) + elapsed
+		if tooltip.updateElapsed < TOOLTIP_UPDATE_THROTTLE then
+			return
+		end
+		tooltip.updateElapsed = 0
+	end
 	local settings = ns.db.char.tooltips
 	local scale = UIParent:GetEffectiveScale()
 	local mX, mY = GetCursorPosition()

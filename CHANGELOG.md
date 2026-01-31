@@ -1,5 +1,10 @@
 # DiabolicUI3 Changelog
 
+## [2.0.0-alpha11] - 2026-01-31
+### Performance
+- Tooltip OnUpdate: Added throttle (~30 fps instead of every frame)
+- Auras OnUpdate: Reduced from 100 fps to ~30 fps for timer updates
+
 ## [2.0.0-alpha10] - 2026-01-31
 ### Changed
 - Disabled custom nameplates (use Blizzard default or Plater/Kui/etc.)

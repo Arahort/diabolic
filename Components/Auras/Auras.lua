@@ -1,29 +1,4 @@
---[[
-
-	The MIT License (MIT)
-
-	Copyright (c) 2022 Lars Norberg
-
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-
---]]
-local Addon, ns = ...
+﻿local Addon, ns = ...
 local Auras = ns:NewModule("Auras", "LibMoreEvents-1.0", "AceTimer-3.0", "AceHook-3.0", "AceConsole-3.0", "LibSmoothBar-1.0")
 
 -- Lua API
@@ -292,11 +267,12 @@ Aura.UpdateTooltip = function(self)
 end
 
 Aura.OnUpdate = function(self, elapsed)
-	self.elapsed = (self.elapsed or 0) - elapsed
-	if (self.elapsed > 0) then
+	self.elapsed = (self.elapsed or 0) + elapsed
+	if (self.elapsed < 0.033) then -- ~30 fps for smooth aura timers
 		return
 	end
-	self.elapsed = .01
+	local totalElapsed = self.elapsed
+	self.elapsed = 0
 
 	-- WoW 12.0.0: Update counter from cache (works in combat!)
 	if (self.auraInstanceID) then
@@ -314,7 +290,7 @@ Aura.OnUpdate = function(self, elapsed)
 		local expiration = select(self.enchant, GetWeaponEnchantInfo())
 		timeLeft = expiration and (expiration / 1e3) or 0
 	else
-		timeLeft = self.timeLeft - elapsed
+		timeLeft = self.timeLeft - totalElapsed
 	end
 	self.timeLeft = timeLeft
 
