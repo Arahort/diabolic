@@ -1,29 +1,4 @@
---[[
-
-	The MIT License (MIT)
-
-	Copyright (c) 2022 Lars Norberg
-
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-
---]]
-local Addon, ns = ...
+﻿local Addon, ns = ...
 local Tooltips = ns:NewModule("Tooltips", "LibMoreEvents-1.0", "AceHook-3.0")
 
 -- Lua API
@@ -35,6 +10,7 @@ local string_format = string.format
 local string_lower = string.lower
 
 -- WoW API
+local InCombatLockdown = InCombatLockdown
 local GameTooltip_ClearMoney = GameTooltip_ClearMoney
 local GetBestMapForUnit = C_Map.GetBestMapForUnit
 local GetGuildInfo = GetGuildInfo
@@ -275,16 +251,25 @@ Tooltips.StyleStatusBar = function(self)
 	GameTooltip.StatusBar:HookScript("OnShow", function(self)
 		local tooltip = self:GetParent()
 		if (tooltip) then
+			-- WoW 12.0.0: Skip backdrop adjustment for world tooltips to avoid taint
+			local owner = tooltip:GetOwner()
+			if owner == WorldFrame or owner == UIParent then
+				return
+			end
 			local backdrop = Backdrops[tooltip]
 			if (backdrop) then
 				backdrop:SetPoint("BOTTOM", 0, backdrop.offsetBottom + backdrop.offsetBarBottom)
 			end
 		end
 	end)
-
 	GameTooltip.StatusBar:HookScript("OnHide", function(self)
 		local tooltip = self:GetParent()
 		if (tooltip) then
+			-- WoW 12.0.0: Skip backdrop adjustment for world tooltips to avoid taint
+			local owner = tooltip:GetOwner()
+			if owner == WorldFrame or owner == UIParent then
+				return
+			end
 			local backdrop = Backdrops[tooltip]
 			if (backdrop) then
 				backdrop:SetPoint("BOTTOM", 0, backdrop.offsetBottom)
@@ -300,6 +285,12 @@ Tooltips.StyleStatusBar = function(self)
 end
 
 Tooltips.SetHealthValue = function(self, unit)
+	-- WoW 12.0.0: Skip for world cursor tooltips to avoid taint
+	local owner = GameTooltip:GetOwner()
+	if owner == WorldFrame or owner == UIParent then
+		return
+	end
+
 	if (UnitIsDeadOrGhost(unit)) then
 		if (GameTooltip.StatusBar:IsShown()) then
 			GameTooltip.StatusBar:Hide()
@@ -330,6 +321,12 @@ Tooltips.SetHealthValue = function(self, unit)
 end
 
 Tooltips.OnValueChanged = function(self)
+	-- WoW 12.0.0: Skip for world cursor tooltips to avoid taint
+	local owner = GameTooltip:GetOwner()
+	if owner == WorldFrame or owner == UIParent then
+		return
+	end
+
 	local unit = select(2, GameTooltip.StatusBar:GetParent():GetUnit())
 	if (not unit) then
 		local GMF = GetMouseFocus()
@@ -348,6 +345,11 @@ end
 
 Tooltips.OnTooltipCleared = function(self, tooltip)
 	if (not tooltip) or (tooltip:IsForbidden()) then return end
+	-- WoW 12.0.0: Skip for world cursor tooltips to avoid taint
+	local owner = tooltip:GetOwner()
+	if owner == WorldFrame or owner == UIParent then
+		return
+	end
 	if (GameTooltip.StatusBar:IsShown()) then
 		GameTooltip.StatusBar:Hide()
 	end
@@ -615,37 +617,46 @@ end
 
 Tooltips.SetDefaultAnchor = function(self, tooltip, parent)
 	if (not tooltip) or (tooltip:IsForbidden()) then return end
-	-- WoW 12.0.0: Check if parent is also forbidden to avoid taint errors
 	if parent and type(parent.IsForbidden) == "function" and parent:IsForbidden() then return end
 
-	-- WoW 12.0.0: Wrap all tooltip operations in pcall to prevent taint errors
-	local success = pcall(function()
-		if ns.db and ns.db.char and ns.db.char.tooltips and ns.db.char.tooltips.enabled then
+	local isWorldTooltip = (parent == WorldFrame or parent == UIParent)
+
+	if ns.db and ns.db.char and ns.db.char.tooltips and ns.db.char.tooltips.enabled then
+		-- WoW 12.0.0: Don't change owner for WorldFrame tooltips to avoid taint
+		-- But still position them via OnUpdate
+		if not isWorldTooltip then
 			if parent.unit then
 				tooltip:SetOwner(parent, "ANCHOR_PRESERVE")
 			else
 				tooltip:SetOwner(parent, "ANCHOR_CURSOR")
 			end
-
-			updateTooltip(tooltip)
-			tooltip.update = true
-
-			if not trackedTooltips[tostring(tooltip)] then
-				trackedTooltips[tostring(tooltip)] = true
-				tooltip:HookScript("OnUpdate", updateTooltip)
-				tooltip:HookScript("OnHide", function()
-					tooltip.update = false
-				end)
-			end
-		else
-			tooltip:SetOwner(parent, "ANCHOR_NONE")
-			tooltip:SetPoint("BOTTOMRIGHT", -40, 40)
 		end
-	end)
-	-- If pcall failed, silently ignore - tooltip will use default positioning
+
+		updateTooltip(tooltip)
+		tooltip.update = true
+
+		if not trackedTooltips[tostring(tooltip)] then
+			trackedTooltips[tostring(tooltip)] = true
+			tooltip:HookScript("OnUpdate", updateTooltip)
+			tooltip:HookScript("OnHide", function()
+				tooltip.update = false
+			end)
+		end
+	else
+		if not isWorldTooltip then
+			tooltip:SetOwner(parent, "ANCHOR_NONE")
+		end
+		tooltip:ClearAllPoints()
+		tooltip:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -40, 40)
+	end
 end
 
 Tooltips.SetUnitColor = function(self, unit)
+	-- WoW 12.0.0: Skip for world cursor tooltips to avoid taint
+	local owner = GameTooltip:GetOwner()
+	if owner == WorldFrame or owner == UIParent then
+		return
+	end
 	local color = GetUnitColor(unit) or Colors.reaction[5]
 	if (color) then
 		GameTooltip.StatusBar:SetStatusBarColor(color[1], color[2], color[3])
@@ -694,35 +705,49 @@ Tooltips.SetFonts = function(self)
 end
 
 Tooltips.SetHooks = function(self)
+	-- WoW 12.0.0: Wrap all hooks in pcall to prevent taint errors
+	pcall(function()
+		if (_G.SharedTooltip_SetBackdropStyle) then
+			self:SecureHook("SharedTooltip_SetBackdropStyle", "SetBackdropStyle")
+		elseif (_G.GameTooltip_SetBackdropStyle) then
+			self:SecureHook("GameTooltip_SetBackdropStyle", "SetBackdropStyle")
+		end
+	end)
 
-	if (_G.SharedTooltip_SetBackdropStyle) then
-		self:SecureHook("SharedTooltip_SetBackdropStyle", "SetBackdropStyle")
-	else
-		self:SecureHook("GameTooltip_SetBackdropStyle", "SetBackdropStyle")
-	end
+	pcall(function()
+		if GameTooltip_UnitColor then
+			self:SecureHook("GameTooltip_UnitColor", "SetUnitColor")
+		end
+	end)
 
-	if GameTooltip_UnitColor then
-		self:SecureHook("GameTooltip_UnitColor", "SetUnitColor")
-	end
-	if GameTooltip_ShowCompareItem then
-		self:SecureHook("GameTooltip_ShowCompareItem", "OnCompareItemShow")
-	end
-	self:SecureHook("GameTooltip_SetDefaultAnchor", "SetDefaultAnchor")
+	pcall(function()
+		if GameTooltip_ShowCompareItem then
+			self:SecureHook("GameTooltip_ShowCompareItem", "OnCompareItemShow")
+		end
+	end)
 
-	if GameTooltip and GameTooltip.GetScript and GameTooltip:GetScript("OnTooltipCleared") then
-		self:SecureHookScript(GameTooltip, "OnTooltipCleared", "OnTooltipCleared")
-	end
+	pcall(function()
+		self:SecureHook("GameTooltip_SetDefaultAnchor", "SetDefaultAnchor")
+	end)
 
-	if (not ns.IsRetail) then
-		pcall(function() self:SecureHookScript(GameTooltip, "OnTooltipSetSpell", "OnTooltipSetSpell") end)
-		pcall(function() self:SecureHookScript(GameTooltip, "OnTooltipSetItem", "OnTooltipSetItem") end)
-		pcall(function() self:SecureHookScript(GameTooltip, "OnTooltipSetUnit", "OnTooltipSetUnit") end)
-	end
+	pcall(function()
+		if GameTooltip and GameTooltip.GetScript and GameTooltip:GetScript("OnTooltipCleared") then
+			self:SecureHookScript(GameTooltip, "OnTooltipCleared", "OnTooltipCleared")
+		end
+	end)
 
-	if GameTooltip.StatusBar then
-		self:SecureHookScript(GameTooltip.StatusBar, "OnValueChanged", "OnValueChanged")
-	end
+	-- WoW 12.0.0: These hooks cause taint, disabled
+	-- if (not ns.IsRetail) then
+	-- 	pcall(function() self:SecureHookScript(GameTooltip, "OnTooltipSetSpell", "OnTooltipSetSpell") end)
+	-- 	pcall(function() self:SecureHookScript(GameTooltip, "OnTooltipSetItem", "OnTooltipSetItem") end)
+	-- 	pcall(function() self:SecureHookScript(GameTooltip, "OnTooltipSetUnit", "OnTooltipSetUnit") end)
+	-- end
 
+	pcall(function()
+		if GameTooltip.StatusBar then
+			self:SecureHookScript(GameTooltip.StatusBar, "OnValueChanged", "OnValueChanged")
+		end
+	end)
 end
 
 Tooltips.OnInitialize = function(self)

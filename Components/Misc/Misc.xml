@@ -1,18 +1,45 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
 
-	<!-- AlertFrames.lua disabled - using default Blizzard positioning for now -->
+	<!-- AlertFrames.lua - repositions achievement/loot alert popups (disabled - using default Blizzard positioning) -->
 	<!-- <Script file="AlertFrames.lua"/> -->
-	<Script file="ChatFrames.lua"/>
-	<Script file="ChatBubbles.lua"/>
+
+	<!-- Castbar.lua - adds ToT-style border texture to PlayerCastingBarFrame -->
+	<Script file="Castbar.lua"/>
+
+	<!-- ChatFrames.lua - chat window styling and positioning (disabled) -->
+	<!-- <Script file="ChatFrames.lua"/> -->
+
+	<!-- ChatBubbles.lua - custom styling for chat bubbles above characters (disabled) -->
+	<!-- <Script file="ChatBubbles.lua"/> -->
+
+	<!-- Clutter.lua - hides various unwanted Blizzard UI elements -->
 	<Script file="Clutter.lua"/>
+
+	<!-- MapCoords.lua - adds player coordinates display to the world map -->
 	<Script file="MapCoords.lua"/>
+
+	<!-- MinimapButtons.lua - collects addon minimap buttons into a single dropdown menu -->
 	<Script file="MinimapButtons.lua"/>
+
+	<!-- Minimap.lua - custom minimap styling, positioning and element repositioning -->
 	<Script file="Minimap.lua"/>
-	<Script file="ObjectivesTracker.lua"/>
+
+	<!-- ObjectivesTracker.lua - repositions and styles the quest/objectives tracker (disabled - ns.IsRetail=nil breaks it) -->
+	<!-- <Script file="ObjectivesTracker.lua"/> -->
+
+	<!-- QualityOfLife.lua - various QoL improvements (auto-repair, auto-sell junk, etc.) -->
 	<Script file="QualityOfLife.lua"/>
-	<Script file="TalkingHead.lua"/>
-	<Script file="Timers.lua"/>
+
+	<!-- TalkingHead.lua - repositions the talking head popup frame (disabled) -->
+	<!-- <Script file="TalkingHead.lua"/> -->
+
+	<!-- Timers.lua - custom styling for mirror timers (breath, fatigue, etc.) (disabled) -->
+	<!-- <Script file="Timers.lua"/> -->
+
+	<!-- Tooltips.lua - custom tooltip styling and positioning -->
 	<Script file="Tooltips.lua"/>
-	<Script file="WatchFrame.lua"/>
+
+	<!-- WatchFrame.lua - legacy quest tracker handling (Classic/Wrath) (disabled - not needed for Retail) -->
+	<!-- <Script file="WatchFrame.lua"/> -->
 
 </Ui>
