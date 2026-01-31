@@ -319,20 +319,27 @@ MinimapMod.RepositionTracking = function(self)
 	-- WoW 12.0: Tracking is at MinimapCluster.Tracking
 	local tracking = MinimapCluster and MinimapCluster.Tracking
 	if tracking then
+		-- Use flag to prevent recursion
+		if tracking.__GP_Repositioning then return end
+		tracking.__GP_Repositioning = true
 		tracking:SetParent(Minimap)
 		tracking:ClearAllPoints()
 		tracking:SetPoint("LEFT", Minimap, "RIGHT", -6, 0) -- 3 o'clock position
 		tracking:SetFrameLevel(Minimap:GetFrameLevel() + 10)
 		tracking:SetScale(1.1)
 		tracking.layoutIndex = nil
-		-- Hook SetPoint to prevent Blizzard from resetting position on zone change
+		tracking.__GP_Repositioning = nil
+		-- TODO: Add pulse animation for tracking icon (needs investigation)
+		-- Hook SetPoint to prevent Blizzard from resetting position
 		if not tracking.__GP_Hooked then
+			local module = self
 			hooksecurefunc(tracking, "SetPoint", function(frame, point, relativeTo, ...)
+				-- Skip if we're doing the repositioning ourselves
+				if frame.__GP_Repositioning then return end
 				-- If someone tries to anchor NOT to Minimap - restore our position
 				if relativeTo ~= Minimap then
-					C_Timer.After(0, function()
-						frame:ClearAllPoints()
-						frame:SetPoint("LEFT", Minimap, "RIGHT", -6, 0)
+					C_Timer.After(0.01, function()
+						module:RepositionTracking()
 					end)
 				end
 			end)
@@ -423,6 +430,8 @@ MinimapMod.UpdateZone = function(self)
 		zoneName:SetTextColor(Colors.normal[1], Colors.normal[2], Colors.normal[3], a)
 	end
 	zoneName:SetText(minimapZoneName)
+	-- Reposition tracking icon on zone change
+	self:RepositionTracking()
 end
 
 MinimapMod.UpdatePosition = function(self)
@@ -851,9 +860,12 @@ MinimapMod.OnEvent = function(self, event)
 		self:RepositionTracking()
 		self:RepositionInstanceDifficulty()
 		self:RepositionQueueStatus()
-		-- Call again with delays to override other addons
+		-- Call again with delays to override Blizzard repositioning
+		C_Timer.After(0.5, function() self:RepositionTracking() end)
 		C_Timer.After(0.5, function() self:RepositionQueueStatus() end)
+		C_Timer.After(1, function() self:RepositionTracking() end)
 		C_Timer.After(1, function() self:RepositionQueueStatus() end)
+		C_Timer.After(2, function() self:RepositionTracking() end)
 		-- Hide MinimapCluster completely after repositioning elements
 		-- This removes it from EditMode system frames
 		if MinimapCluster then
