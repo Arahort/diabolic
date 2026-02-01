@@ -1,12 +1,12 @@
-# Diabolic UI 3.0 - Arahort Edition
+# Diabolic UI - Arahort Edition
 
-Orb-based graphical user interface replacement for World of Warcraft.
+Orb-based graphical user interface replacement for World of Warcraft, inspired by Diablo series.
 
 ## About This Fork
 
 This is a **community-maintained fork** of the original [Diabolic UI 2.0](https://www.curseforge.com/wow/addons/diabolicui) by Lars Norberg and Daniel Troko.
 
-**Important:** The original Diabolic UI 2.0 is **no longer functional** in modern World of Warcraft (11.2.7+). This fork has been completely rebuilt to work with current game versions.
+**Important:** The original Diabolic UI 2.0 is **no longer functional** in modern World of Warcraft. This fork has been completely rebuilt to work with current game versions.
 
 ### Original Project Credits
 
@@ -17,89 +17,120 @@ This is a **community-maintained fork** of the original [Diabolic UI 2.0](https:
 
 ### This Fork
 
-- **Updated for WoW 11.x by:** Alex Arahort
-- **Status:** Fully functional for The War Within (11.2.7+)
+- **Updated for WoW 12.x by:** Alex Arahort
+- **Status:** Fully functional for Midnight (12.0+)
 - **License:** Community Fork - respecting original authors' work
 
 ---
 
-## What's Different From the Original
+## Features
 
-The original Diabolic UI 2.0 **stopped working completely** after Blizzard's API changes in WoW 11.x. This edition includes:
+### Orb Styles
 
-### Core Fixes (Making it Work Again)
+- **Diablo 2 Resurrected Style** (default) - New orb textures inspired by D2R
+- **Classic Diablo 3 Style** - Original DiabolicUI orb textures
+- **Custom Orb Colors** - Per-character color picker for Health and Power orbs
 
-- ✅ Complete API migration to WoW 11.x standards
-- ✅ Migrated to `C_AddOns` namespace (old AddOn API deprecated)
-- ✅ Updated Aura system to use `C_UnitAuras` API
-- ✅ Updated Reputation system to use `C_Reputation` API
-- ✅ Fixed `MainMenuBar` → `MainActionBar` transition
-- ✅ Fixed `ObjectiveTracker` hooks for new API
-- ✅ Fixed hundreds of deprecated function calls
-- ✅ Replaced LibActionButton-1.0 with LibActionButton-1.0-GE for WoW 11.x compatibility
-- ✅ Fixed action button click registration (EnableMouse propagation)
-- ✅ Fixed taint issues with secure templates
-- ✅ Updated oUF (unit frames library) to version 12.1.0
+### Action Bars
 
-### Settings & Customization
+- **6 Action Bars** - Primary, Secondary, Third bars + 2 side panels + Pet bar
+- **Extended Mode** - 12 buttons per bar (6x2 layout) using action bar page 7
+- **Pet Orb Style** - Show pet health as a sphere instead of portrait frame
+- **Single-Button Assistant Support** - Dynamic icon updates during combat
+- **Stance/Form Bar** - Automatic display for classes with stances
 
-- ✅ Settings panel in Interface Options → AddOns
-- ✅ Addon Compartment support for quick settings access
-- ✅ Export/Import settings - share configurations or backup your setup with version control
-- ✅ Target Frame Scale Control - adjust target frame size independently (0.5x - 1.5x)
-- ✅ Threat Indicator setting - toggle threat-based HP coloring (green/yellow/red)
-- ✅ Improved "Hide target name on cast" - now also hides cast bar, cast time, and spell text
-- ✅ Tooltip offset customization - adjust X/Y position relative to cursor
+### Unit Frames
 
-### UI Improvements
+- **Health & Power Orbs** - Diablo-style resource spheres
+- **Target Frame** - Independent scaling (0.5x - 2.0x)
+- **Target of Target** - Optional display when target attacks you
+- **Castbar Borders** - ToT-style border for player and pet castbars
+- **Debuff Filtering** - Show only your debuffs on target (boss debuffs always visible)
 
-- ✅ Better default scaling for modern displays
-- ✅ Secondary action bar enabled by default
-- ✅ Improved power orb for hybrid classes (shows primary resource)
-- ✅ Optimized default positions for all UI elements
-- ✅ EditMode position saving - Minimap, TalkingHead, and ExtraButtons properly save positions
+### Minimap
 
-### Quality of Life Features
+- **Repositioned Elements** - Mail (left), Tracking (right), LFG eye (bottom)
+- **LFG Queue Animation** - Pulsing glow when in dungeon/raid queue
+- **Coordinates Display** - Player and cursor coordinates on minimap and world map
+- **Button Collector** - All addon minimap buttons in single organized container
+- **Clean Look** - Hidden zoom buttons, AddonCompartment, EditMode clutter
 
-- ✅ **Movable interface windows** - hold SHIFT and drag to move Character, Bags, Map, Friends, Settings, and more
-- ✅ **Tooltips follow mouse cursor** - integrated TTOM functionality with customizable offset
-- ✅ **Auto-fill delete confirmation** - no need to type "DELETE" manually when destroying items
-- ✅ **Fixed buff cancellation** - right-click buffs to cancel them (works on player and target frames)
-- ✅ **Action bars switching in quests** - properly switches when entering vehicles/dragons
-- ✅ **Pet bar duplication fixed** - reworked Blizzard pet bar hiding using safe methods
-- ✅ **Combat lockdown protection** - added InCombatLockdown() checks to prevent taint errors
-- ✅ **Action bar toggle improved** - left click shows/hides all 3 extra bars
-- ✅ **Map coordinates display** - player and cursor coordinates on world map and minimap
-- ✅ **Minimap buttons container** - collects addon buttons into single organized container
-- ✅ **NamePlates toggle** - optional setting to enable/disable custom nameplates
+### Auras (Buffs/Debuffs)
+
+- **Near Minimap** - Configurable position and icon size (20-64px)
+- **Near Health Orb** - Optional display for player buffs
+- **Right-click to Cancel** - Cancel buffs on player and target frames
+
+### Performance Optimizations
+
+- Removed SetCooldown hooks (major CPU savings in combat)
+- Throttled OnUpdate for tooltips and auras (~30 fps)
+- Combat-only checks for dynamic features
+
+### Quality of Life
+
+- **Movable Windows** - Hold SHIFT and drag Character, Bags, Map, etc.
+- **Tooltips Follow Cursor** - Customizable X/Y offset
+- **Auto-fill DELETE** - No need to type "DELETE" when destroying items
+- **Server/Local Time** - Toggle between server and local time display
+- **12/24 Hour Clock** - Choose your preferred time format
 
 ---
 
 ## Requirements
 
-- World of Warcraft **Retail 11.2.7** or later (The War Within)
+- World of Warcraft **Retail 12.0** or later (Midnight)
 
 ## Installation
 
-1. Download the addon
+### From CurseForge/Wago (Recommended)
+
+Install via CurseForge or Wago client for automatic updates.
+
+### Manual Installation
+
+1. Download the latest release
 2. Extract to `World of Warcraft\_retail_\Interface\AddOns`
 3. Restart WoW or type `/reload` in-game
 
 ---
 
+## Configuration
+
+Access settings via:
+- **ESC → Options → AddOns → DiabolicUI**
+- **Minimap button** (if addon compartment enabled)
+- **/diabolic** or **/dui** slash commands
+
+### Settings Overview
+
+| Section | Options |
+|---------|---------|
+| **Scale** | UI Scale, Minimap Scale, Bottom UI Scale, Target Frame Scale |
+| **Spheres** | D2R Style, Custom Colors, Health/Power Color Pickers |
+| **Action Bars** | Secondary/Third Bar, Pet Bar, Extended Mode, Pet Orb Style |
+| **Auras** | Always Show/Hide, Position, Icon Size |
+| **Map** | Minimap Position, Coordinates, Button Collector, Time Format |
+| **Unit Frames** | Class Color Power, Player Buffs, Target of Target, Debuff Filter |
+| **Tooltips** | X/Y Offset from cursor |
+| **Other** | Movable Frames toggle |
+
+---
+
 ## Support
 
-This is a community-maintained fork. For issues or feature requests, please visit:
+This is a community-maintained fork. For issues or feature requests:
 
 - **GitHub:** https://github.com/Arahort/diabolic
 - **CurseForge:** https://www.curseforge.com/wow/addons/diabolicui-arahort-edition
+- **Wago:** https://addons.wago.io/addons/diabolicui-arahort-edition
 
 ### Support the Developer
 
 - **Patreon:** https://www.patreon.com/c/Arahort
 - **Boosty:** https://boosty.to/alex_arahort
 
-#### Crypto:
+#### Crypto
 
 - USDT TRC20: `TShMCz6xGiLvtES8JquqhavrMvFnLM4UQ4`
 - USDT TON: `UQAKgkYbTk9qWICUn4O249X4F_hqPUHUpCEXNONLbHVfUjcc`
@@ -107,29 +138,32 @@ This is a community-maintained fork. For issues or feature requests, please visi
 
 ---
 
-## List of Add-ons Present in the Video
+## Changelog
 
-- DiabolicUI Arahort Edition
-- Scrap
-- DBM
-- Rematch
-- Talent Tree Tweaks
-- DragonRider
-- AllTheThings
-- Auctinator
-- Baganator
-- Syndicator
-- Chattynator
-- Platynator
-- Better Fishing
-- Almost Completed Achievements
-- BugGrabber
-- BugSack
-- Details!
-- Dialogue UI
-- Plumber
-- Postal
-- TomTom
-- WIM
-- World Quest Tracker
-- WaypointUI
+See [CHANGELOG.md](CHANGELOG.md) for full version history.
+
+### Version 2.0.0 Highlights
+
+- Diablo 2 Resurrected orb style (enabled by default)
+- Custom orb colors with per-character settings
+- Independent target frame scaling
+- Extended hidden bars option (12 buttons per bar)
+- Pet orb style display
+- Single-Button Assistant dynamic icon updates
+- Performance optimizations (removed SetCooldown hooks, OnUpdate throttling)
+- Minimap improvements (repositioned elements, LFG animation)
+- Full localization (12 languages)
+
+---
+
+## Recommended Addons
+
+These addons work well alongside DiabolicUI:
+
+- **Scrap** - Auto-sell junk items
+- **Details!** - Damage/healing meters
+- **DBM/BigWigs** - Boss mods
+- **Plater/Kui** - Nameplates (DiabolicUI nameplates disabled by default)
+- **Baganator** - Bag management
+- **TomTom** - Waypoint navigation
+- **Dialogue UI** - Improved quest dialogs
