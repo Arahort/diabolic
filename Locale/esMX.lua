@@ -162,3 +162,7 @@ L["MainButtonSize"] = "Tamaño del botón principal"
 L["MainButtonSizeDesc"] = "Tamaño del botón de alternancia principal en píxeles (24 - 64)"
 L["CollectedButtonScale"] = "Escala de los botones recopilados"
 L["CollectedButtonScaleDesc"] = "Escala de los botones de addon recopilados (0.5 - 1.5)"
+-- Pet
+L["PetHeader"] = "Mascota"
+L["UsePetOrbStyle"] = "Mostrar mascota como orbe"
+L["UsePetOrbStyleDesc"] = "Mostrar la salud de la mascota como orbe en lugar de retrato (requiere /reload)"

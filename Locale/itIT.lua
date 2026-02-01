@@ -162,3 +162,7 @@ L["MainButtonSize"] = "Dimensione pulsante principale"
 L["MainButtonSizeDesc"] = "Dimensione del pulsante di commutazione principale in pixel (24 - 64)"
 L["CollectedButtonScale"] = "Scala pulsanti raccolti"
 L["CollectedButtonScaleDesc"] = "Scala dei pulsanti addon raccolti (0.5 - 1.5)"
+-- Pet
+L["PetHeader"] = "Famiglio"
+L["UsePetOrbStyle"] = "Mostra famiglio come sfera"
+L["UsePetOrbStyleDesc"] = "Mostra la salute del famiglio come sfera invece del ritratto (richiede /reload)"

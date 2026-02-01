@@ -163,3 +163,7 @@ L["MainButtonSize"] = "主按钮大小"
 L["MainButtonSizeDesc"] = "主切换按钮大小(像素) (24 - 64)"
 L["CollectedButtonScale"] = "收集的按钮缩放"
 L["CollectedButtonScaleDesc"] = "收集的插件按钮缩放(0.5 - 1.5)"
+-- Pet
+L["PetHeader"] = "宠物"
+L["UsePetOrbStyle"] = "以球体显示宠物"
+L["UsePetOrbStyleDesc"] = "以球体显示宠物生命值而非头像框架（需要/reload）"

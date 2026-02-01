@@ -162,3 +162,7 @@ L["MainButtonSize"] = "Taille du bouton principal"
 L["MainButtonSizeDesc"] = "Taille du bouton de basculement principal en pixels (24 - 64)"
 L["CollectedButtonScale"] = "Échelle des boutons collectés"
 L["CollectedButtonScaleDesc"] = "Échelle des boutons d'addon collectés (0.5 - 1.5)"
+-- Pet
+L["PetHeader"] = "Familier"
+L["UsePetOrbStyle"] = "Afficher le familier en orbe"
+L["UsePetOrbStyleDesc"] = "Afficher la santé du familier sous forme d'orbe au lieu d'un portrait (nécessite /reload)"

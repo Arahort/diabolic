@@ -420,8 +420,28 @@ UnitFrames.SpawnUnitFrames = function(self)
 		ns.API.SetTargetFrameObjectScale(targetFrame, targetScale)
 		Spawn("targettarget", "ToT"):SetPoint("CENTER", ns.UnitFramesByName["Target"], "CENTER", 0, -26)
 
-		-- The dock manager will position these.
-		Spawn("pet", "Pet")
+		-- Spawn pet frame
+		local petFrame = Spawn("pet", "Pet")
+		local petUseOrb = ns.db and ns.db.char and ns.db.char.pet and ns.db.char.pet.useOrbStyle
+
+		-- If pet uses orb style, position it near player health orb
+		if petUseOrb then
+			-- Position depends on number of action bars
+			local hasSecond = ns.db and ns.db.char and ns.db.char.actionbars and ns.db.char.actionbars.enableSecondary
+			local hasThird = ns.db and ns.db.char and ns.db.char.actionbars and ns.db.char.actionbars.enableThird
+			local petX, petY
+			if hasThird then
+				petX, petY = 220, 125 -- 3 action bars
+			elseif hasSecond then
+				petX, petY = 265, 90  -- 2 action bars
+			else
+				petX, petY = 280, 35  -- 1 action bar
+			end
+			petFrame:SetPoint("RIGHT", ns.UnitFramesByName["Player"], "LEFT", petX, petY)
+			petFrame:SetFrameStrata("BACKGROUND") -- Below action bar panels
+		end
+
+		-- Focus frame is always docked
 		Spawn("focus", "Focus")
 
 		-- Retrieve the dock manager.
@@ -435,20 +455,30 @@ UnitFrames.SpawnUnitFrames = function(self)
 		dockManager:SetAttribute("maxRows", 4)
 		dockManager:SetAttribute("maxCols", 6)
 
-		-- Reference the frames to be docked.
-		dockManager:SetFrameRef("Pet", ns.UnitFramesByName["Pet"])
+		-- Reference the frames to be docked (only non-orb pet and focus)
+		if not petUseOrb then
+			dockManager:SetFrameRef("Pet", ns.UnitFramesByName["Pet"])
+		end
 		dockManager:SetFrameRef("Focus", ns.UnitFramesByName["Focus"])
 
 		-- Append the frames to the layout cache.
 		-- The order we insert them into the table
 		-- decides the order in which they are placed.
-		dockManager:Execute([=[
-			table.insert(Frames, "Pet");
-			table.insert(Frames, "Focus");
-		]=])
+		if petUseOrb then
+			dockManager:Execute([=[
+				table.insert(Frames, "Focus");
+			]=])
+		else
+			dockManager:Execute([=[
+				table.insert(Frames, "Pet");
+				table.insert(Frames, "Focus");
+			]=])
+		end
 
 		-- Register macro conditionals to inform the dock manager about changes requiring updates.
-		RegisterAttributeDriver(dockManager, "state-dock-pet", "[vehicleui][@pet,exists]pet;nopet")
+		if not petUseOrb then
+			RegisterAttributeDriver(dockManager, "state-dock-pet", "[vehicleui][@pet,exists]pet;nopet")
+		end
 		RegisterAttributeDriver(dockManager, "state-dock-focus", "[@focus,exists]focus;nofocus")
 
 		-- Inform the environment that frames have been created and initialized.

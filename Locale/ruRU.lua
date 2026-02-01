@@ -162,3 +162,7 @@ L["MainButtonSize"] = "Размер главной кнопки"
 L["MainButtonSizeDesc"] = "Размер главной кнопки-переключателя в пикселях (24 - 64)"
 L["CollectedButtonScale"] = "Масштаб собранных кнопок"
 L["CollectedButtonScaleDesc"] = "Масштаб собранных кнопок аддонов (0.5 - 1.5)"
+-- Pet
+L["PetHeader"] = "Питомец"
+L["UsePetOrbStyle"] = "Отображать питомца в виде орбы"
+L["UsePetOrbStyleDesc"] = "Показывать здоровье питомца в виде орбы вместо портрета (требуется /reload)"

@@ -871,6 +871,19 @@ SettingsModule.OnInitialize = function(self)
 			end)
 			Settings.CreateSlider(category, setting, options, L["CollectedButtonScaleDesc"])
 		end
+		-- Pet section
+		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["PetHeader"]))
+		do
+			local setting = RegisterSetting(
+				category,
+				"useOrbStyle",
+				"char.pet",
+				L["UsePetOrbStyle"],
+				true,
+				L["UsePetOrbStyleDesc"]
+			)
+			Settings.CreateCheckbox(category, setting, L["UsePetOrbStyleDesc"])
+		end
 		--[[
 		-- Reset, Import/Export section (disabled for now, may be restored later)
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["ResetHeader"]))

@@ -162,3 +162,7 @@ L["MainButtonSize"] = "Main Button Size"
 L["MainButtonSizeDesc"] = "Size of the main toggle button in pixels (24 - 64)"
 L["CollectedButtonScale"] = "Collected Buttons Scale"
 L["CollectedButtonScaleDesc"] = "Scale of collected addon buttons (0.5 - 1.5)"
+-- Pet
+L["PetHeader"] = "Pet"
+L["UsePetOrbStyle"] = "Display Pet as Orb"
+L["UsePetOrbStyleDesc"] = "Show pet health as an orb instead of portrait frame (requires /reload)"

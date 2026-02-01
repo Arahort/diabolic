@@ -163,3 +163,7 @@ L["MainButtonSize"] = "주 버튼 크기"
 L["MainButtonSizeDesc"] = "주 토글 버튼 크기(픽셀) (24 - 64)"
 L["CollectedButtonScale"] = "수집된 버튼 크기"
 L["CollectedButtonScaleDesc"] = "수집된 애드온 버튼 크기 (0.5 - 1.5)"
+-- Pet
+L["PetHeader"] = "소환수"
+L["UsePetOrbStyle"] = "소환수를 구체로 표시"
+L["UsePetOrbStyleDesc"] = "소환수 체력을 초상화 대신 구체로 표시 (/reload 필요)"

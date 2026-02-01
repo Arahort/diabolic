@@ -1,28 +1,3 @@
---[[
-
-	The MIT License (MIT)
-
-	Copyright (c) 2022 Lars Norberg
-
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-
---]]
 local Addon, ns = ...
 local UnitStyles = ns.UnitStyles
 if (not UnitStyles) then
@@ -36,8 +11,8 @@ local CreateFrame = CreateFrame
 local GetFont = ns.API.GetFont
 local GetMedia = ns.API.GetMedia
 
-UnitStyles["Pet"] = function(self, unit, id)
-
+-- Classic style (portrait + health bar)
+local StyleClassic = function(self, unit, id)
 	self:SetSize(60,72)
 	self:SetHitRectInsets(0,0,0,-16)
 
@@ -131,4 +106,86 @@ UnitStyles["Pet"] = function(self, unit, id)
 
 	self.Castbar = cast
 
+	-- Mark as classic style for positioning
+	self.isOrbStyle = false
+end
+
+-- Orb style (like player health orb but smaller and green)
+local StyleOrb = function(self, unit, id)
+	-- Orb is half the size of player orb (200 -> 100)
+	local orbSize = 100
+	local backdropSize = 165
+
+	self:SetSize(orbSize, orbSize)
+	self:SetHitRectInsets(-10, -10, -10, -10)
+
+	-- Artwork holder (for proper layering)
+	local artworkHolder = CreateFrame("Frame", nil, self)
+	artworkHolder:SetAllPoints()
+	artworkHolder:SetFrameLevel(self:GetFrameLevel())
+
+	local artworkOverlay = CreateFrame("Frame", nil, self)
+	artworkOverlay:SetAllPoints()
+	artworkOverlay:SetFrameStrata(self:GetFrameStrata())
+	artworkOverlay:SetFrameLevel(self:GetFrameLevel() + 5)
+
+	-- Health Orb
+	--------------------------------------------
+	local health = self:CreateOrb(self:GetName().."HealthOrb")
+	health:SetSize(orbSize, orbSize)
+	health:SetPoint("CENTER")
+	health:SetStatusBarTexture(GetMedia("orb2"), GetMedia("orb2"))
+	-- Green color for friendly (pet)
+	health.colorHealth = false
+	health:SetStatusBarColor(0.2, 0.9, 0.2) -- Friendly green
+
+	select(2, health:GetStatusBarTexture()):SetTexCoord(1,0,1,0) -- flip 2nd texture horizontally
+
+	self.Health = health
+	self.Health.Override = ns.API.UpdateHealth
+
+	local healthBackdrop = artworkHolder:CreateTexture(health:GetName().."Backdrop", "BACKGROUND", nil, -7)
+	healthBackdrop:SetSize(backdropSize, backdropSize)
+	healthBackdrop:SetPoint("CENTER", health)
+	healthBackdrop:SetTexture(GetMedia("orb-backdrop1"))
+
+	self.Health.Backdrop = healthBackdrop
+
+	local healthOverlay = CreateFrame("Frame", nil, health)
+	healthOverlay:SetFrameLevel(health:GetFrameLevel() + 5)
+
+	self.Health.Overlay = healthOverlay
+
+	local healthShade = artworkOverlay:CreateTexture(nil, "BACKGROUND")
+	healthShade:SetAllPoints(health)
+	healthShade:SetTexture(GetMedia("shade-circle"))
+	healthShade:SetVertexColor(0,0,0,1)
+
+	self.Health.Shade = healthShade
+
+	local healthGlass = artworkOverlay:CreateTexture(health:GetName().."Glass", "BORDER")
+	healthGlass:SetAllPoints(healthBackdrop)
+	healthGlass:SetTexture(GetMedia("orb-glass"))
+	healthGlass:SetAlpha(.6)
+
+	self.Health.Glass = healthGlass
+
+	local healthBorder = artworkOverlay:CreateTexture(health:GetName().."Border", "ARTWORK")
+	healthBorder:SetAllPoints(healthBackdrop)
+	healthBorder:SetTexture(GetMedia("orb-border"))
+
+	self.Health.Border = healthBorder
+
+	-- Mark as orb style for positioning
+	self.isOrbStyle = true
+end
+
+UnitStyles["Pet"] = function(self, unit, id)
+	-- Check setting for orb style
+	local useOrbStyle = ns.db and ns.db.char and ns.db.char.pet and ns.db.char.pet.useOrbStyle
+	if useOrbStyle then
+		StyleOrb(self, unit, id)
+	else
+		StyleClassic(self, unit, id)
+	end
 end

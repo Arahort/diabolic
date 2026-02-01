@@ -162,3 +162,7 @@ L["MainButtonSize"] = "Hauptschaltflächen-Größe"
 L["MainButtonSizeDesc"] = "Größe der Hauptumschalttaste in Pixeln (24 - 64)"
 L["CollectedButtonScale"] = "Gesammelte Schaltflächen-Skalierung"
 L["CollectedButtonScaleDesc"] = "Skalierung gesammelter Addon-Schaltflächen (0.5 - 1.5)"
+-- Pet
+L["PetHeader"] = "Begleiter"
+L["UsePetOrbStyle"] = "Begleiter als Kugel anzeigen"
+L["UsePetOrbStyleDesc"] = "Begleiter-Gesundheit als Kugel anstatt Porträtrahmen anzeigen (erfordert /reload)"

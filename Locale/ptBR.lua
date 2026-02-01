@@ -163,3 +163,7 @@ L["MainButtonSize"] = "Tamanho do botão principal"
 L["MainButtonSizeDesc"] = "Tamanho do botão de alternância principal em pixels (24 - 64)"
 L["CollectedButtonScale"] = "Escala dos botões coletados"
 L["CollectedButtonScaleDesc"] = "Escala dos botões de addon coletados (0.5 - 1.5)"
+-- Pet
+L["PetHeader"] = "Mascote"
+L["UsePetOrbStyle"] = "Exibir mascote como orbe"
+L["UsePetOrbStyleDesc"] = "Mostrar a vida do mascote como orbe em vez de retrato (requer /reload)"
