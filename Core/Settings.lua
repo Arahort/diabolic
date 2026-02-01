@@ -322,6 +322,17 @@ SettingsModule.OnInitialize = function(self)
 			)
 			Settings.CreateCheckbox(category, setting, L["UsePetOrbStyleDesc"])
 		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"useExtendedBars",
+				"char.actionbars",
+				L["UseExtendedBars"],
+				false,
+				L["UseExtendedBarsDesc"]
+			)
+			CreateCheckbox(category, setting, L["UseExtendedBarsDesc"])
+		end
 		--------------------------------------------
 		-- Auras Section
 		--------------------------------------------

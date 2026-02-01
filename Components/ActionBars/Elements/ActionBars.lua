@@ -371,55 +371,108 @@ Bars.SpawnBars = function(self)
 
 	-- Small Action Bars
 	-------------------------------------------------------
-	-- 1: Left Bar 1 (Bottom Right 1-6)
-	-- 2: Left Bar 2 (Left Side 1-6)
-	-- 3: Left Bar 3 (Left Side 7-12)
-	-- 4: Right Bar 1 (Bottom Right 7-12)
-	-- 5: Right Bar 2 (Right Side 1-6)
-	-- 6: Right Bar 3 (Right Side 7-12)
-	-------------------------------------------------------
-	for i = 1,6 do
-
-		local name = "SmallActionBar"..i
-		local barID
-		if (i == 1 or i == 4) then
-			-- Page 2 (free page, not used by main bars)
-			-- Previously BOTTOMRIGHT_ACTIONBAR_PAGE (5) which conflicts with ThirdActionBar
-			barID = 2
-		elseif (i == 2 or i == 3) then
-			barID = LEFT_ACTIONBAR_PAGE
-		elseif (i == 5 or i == 6) then
-			barID = RIGHT_ACTIONBAR_PAGE
+	local useExtended = ns.db.char.actionbars.useExtendedBars
+	if useExtended then
+		-- Extended mode: 4 bars with 12 buttons each (6x2)
+		-- Left side: SmallActionBar1 (Page 2), SmallActionBar2 (Page 4)
+		-- Right side: SmallActionBar4 (Page 3), SmallActionBar5 (Page 7)
+		-- SmallActionBar3 and SmallActionBar6 are dummy for toggle compatibility
+		-------------------------------------------------------
+		local extendedConfig = {
+			{ name = "SmallActionBar1", barID = 2, side = "left", level = 1 },
+			{ name = "SmallActionBar2", barID = LEFT_ACTIONBAR_PAGE, side = "left", level = 2 },
+			{ name = "SmallActionBar4", barID = RIGHT_ACTIONBAR_PAGE, side = "right", level = 1 },
+			{ name = "SmallActionBar5", barID = 7, side = "right", level = 2 },
+		}
+		for i, cfg in ipairs(extendedConfig) do
+			local bar = SetObjectScale(ns.ActionBar:Create(cfg.barID, ns.Prefix..cfg.name, UIParent))
+			bar:SetAttribute("userhidden", true)
+			bar:SetFrameStrata("HIGH")
+			bar:SetSize(324, 112) -- 6x2 buttons (6*54=324, 2*53+6=112)
+			if cfg.side == "left" then
+				bar:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOM", -579, 11 + (cfg.level-1)*129)
+			else
+				bar:SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", 579, 11 + (cfg.level-1)*129)
+			end
+			local backdrop = bar:CreateTexture(nil, "BACKGROUND", nil, -7)
+			backdrop:SetSize(512,256)
+			backdrop:SetPoint("CENTER", -1, 0)
+			backdrop:SetTexture(GetMedia("bars-floater"))
+			bar.Backdrop = backdrop
+			for j = 1,12 do
+				local button = bar:CreateButton(j)
+				button:SetPoint("TOPLEFT", ((j-1)%6)*54, -(math_floor((j-1)/6))*(53 + 6))
+				style(button)
+			end
+			bar:UpdateStateDriver()
+			bar:Enable()
+			self.Bars[cfg.name] = bar
 		end
-
-		local bar = SetObjectScale(ns.ActionBar:Create(barID, ns.Prefix..name, UIParent))
-		bar:SetAttribute("userhidden", true)
-		bar:SetFrameStrata("HIGH")
-		bar:SetSize(162, 112)
-
-		if (i > 3) then
-			bar:SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", 660, 11 + (i-4)*129)
-		else
-			bar:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOM", -660, 11 + (i-1)*129)
+		-- Create dummy bars for toggle button compatibility (SmallActionBar3, SmallActionBar6)
+		for _, idx in ipairs({3, 6}) do
+			local name = "SmallActionBar"..idx
+			local bar = SetObjectScale(CreateFrame("Frame", ns.Prefix..name, UIParent, "SecureHandlerBaseTemplate"))
+			bar:SetSize(1,1)
+			bar:SetPoint("CENTER")
+			bar:Hide()
+			bar.Enable = noop
+			bar.Disable = noop
+			bar.UpdateStateDriver = noop
+			bar.UpdateBindings = noop
+			bar.buttons = {}
+			-- Create dummy button frames for secure handler compatibility
+			for j = 1,6 do
+				local dummyButton = CreateFrame("Button", nil, bar, "SecureActionButtonTemplate")
+				dummyButton:SetSize(1,1)
+				dummyButton:Hide()
+				bar:SetFrameRef("Button"..j, dummyButton)
+				bar.buttons[j] = dummyButton
+			end
+			self.Bars[name] = bar
 		end
-
-		local backdrop = bar:CreateTexture(nil, "BACKGROUND", nil, -7)
-		backdrop:SetSize(256,256)
-		backdrop:SetPoint("CENTER", -1, 0)
-		backdrop:SetTexture(GetMedia("bars-floater"))
-		bar.Backdrop = backdrop
-
-		local buttonOffset = (i == 3 or i == 4 or i == 6) and 6 or 0
-		for j = 1,6 do
-			local button = bar:CreateButton(j + buttonOffset)
-			button:SetPoint("TOPLEFT", ((j-1)%3)*54, -(math_floor((j-1)/3))*(53 + 6))
-			style(button)
+	else
+		-- Standard mode: 6 bars with 6 buttons each (3x2)
+		-- 1: Left Bar 1 (Page 2, buttons 1-6)
+		-- 2: Left Bar 2 (Page 4, buttons 1-6)
+		-- 3: Left Bar 3 (Page 4, buttons 7-12)
+		-- 4: Right Bar 1 (Page 2, buttons 7-12)
+		-- 5: Right Bar 2 (Page 3, buttons 1-6)
+		-- 6: Right Bar 3 (Page 3, buttons 7-12)
+		-------------------------------------------------------
+		for i = 1,6 do
+			local name = "SmallActionBar"..i
+			local barID
+			if (i == 1 or i == 4) then
+				barID = 2
+			elseif (i == 2 or i == 3) then
+				barID = LEFT_ACTIONBAR_PAGE
+			elseif (i == 5 or i == 6) then
+				barID = RIGHT_ACTIONBAR_PAGE
+			end
+			local bar = SetObjectScale(ns.ActionBar:Create(barID, ns.Prefix..name, UIParent))
+			bar:SetAttribute("userhidden", true)
+			bar:SetFrameStrata("HIGH")
+			bar:SetSize(162, 112)
+			if (i > 3) then
+				bar:SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", 660, 11 + (i-4)*129)
+			else
+				bar:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOM", -660, 11 + (i-1)*129)
+			end
+			local backdrop = bar:CreateTexture(nil, "BACKGROUND", nil, -7)
+			backdrop:SetSize(256,256)
+			backdrop:SetPoint("CENTER", -1, 0)
+			backdrop:SetTexture(GetMedia("bars-floater"))
+			bar.Backdrop = backdrop
+			local buttonOffset = (i == 3 or i == 4 or i == 6) and 6 or 0
+			for j = 1,6 do
+				local button = bar:CreateButton(j + buttonOffset)
+				button:SetPoint("TOPLEFT", ((j-1)%3)*54, -(math_floor((j-1)/3))*(53 + 6))
+				style(button)
+			end
+			bar:UpdateStateDriver()
+			bar:Enable()
+			self.Bars[name] = bar
 		end
-
-		bar:UpdateStateDriver()
-		bar:Enable()
-
-		self.Bars[name] = bar
 	end
 
 	-- ToggleButtons

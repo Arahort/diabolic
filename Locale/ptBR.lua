@@ -41,6 +41,8 @@ L["PetBarPosY"] = "Posição vertical da barra do ajudante"
 L["PetBarPosYDesc"] = "Ajustar a posição vertical (0 a 200)"
 L["UsePetOrbStyle"] = "Exibir mascote como esfera"
 L["UsePetOrbStyleDesc"] = "Mostrar a vida do mascote como esfera em vez de retrato (requer /reload)"
+L["UseExtendedBars"] = "Barras ocultas estendidas (Página 7)"
+L["UseExtendedBarsDesc"] = "Altera o layout para 12 botões por barra (6x2) e usa a página 7 das barras de ação. AVISO: Pode conflitar com a troca de páginas de posturas/formas de Druidas, Guerreiros, Ladinos. Requer /reload"
 -- Auras
 L["AurasHeader"] = "Auras"
 L["AlwaysShowAuras"] = "Sempre mostrar auras"

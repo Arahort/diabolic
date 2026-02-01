@@ -41,6 +41,8 @@ L["PetBarPosY"] = "Posición vertical de la barra de mascota"
 L["PetBarPosYDesc"] = "Ajustar la posición vertical (0 a 200)"
 L["UsePetOrbStyle"] = "Mostrar mascota como esfera"
 L["UsePetOrbStyleDesc"] = "Mostrar la salud de la mascota como esfera en lugar de retrato (requiere /reload)"
+L["UseExtendedBars"] = "Barras ocultas extendidas (Página 7)"
+L["UseExtendedBarsDesc"] = "Cambia el diseño a 12 botones por barra (6x2) y usa la página 7 de barras de acción. ADVERTENCIA: Puede conflictuar con el cambio de páginas de posturas/formas de Druidas, Guerreros, Pícaros. Requiere /reload"
 -- Auras
 L["AurasHeader"] = "Auras"
 L["AlwaysShowAuras"] = "Mostrar auras siempre"

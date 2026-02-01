@@ -41,6 +41,8 @@ L["PetBarPosY"] = "寵物列垂直位置"
 L["PetBarPosYDesc"] = "調整垂直位置 (0 到 200)"
 L["UsePetOrbStyle"] = "以能量球顯示寵物"
 L["UsePetOrbStyleDesc"] = "以能量球顯示寵物生命值而非頭像框架（需要 /reload）"
+L["UseExtendedBars"] = "擴展隱藏動作列（第7頁）"
+L["UseExtendedBarsDesc"] = "將佈局更改為每列12個按鈕（6x2）並使用動作列第7頁。警告：可能與德魯伊、戰士、盜賊的姿態/形態切換頁面衝突。需要 /reload"
 -- Auras
 L["AurasHeader"] = "光環"
 L["AlwaysShowAuras"] = "總是顯示光環"

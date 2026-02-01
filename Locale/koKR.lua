@@ -41,6 +41,8 @@ L["PetBarPosY"] = "소환수 바 세로 위치"
 L["PetBarPosYDesc"] = "세로 위치 조정 (0 ~ 200)"
 L["UsePetOrbStyle"] = "소환수를 구체로 표시"
 L["UsePetOrbStyleDesc"] = "소환수 체력을 초상화 대신 구체로 표시 (/reload 필요)"
+L["UseExtendedBars"] = "확장 숨김 바 (페이지 7)"
+L["UseExtendedBarsDesc"] = "레이아웃을 바당 12개 버튼(6x2)으로 변경하고 행동 단축바 페이지 7을 사용합니다. 경고: 드루이드, 전사, 도적의 자세/변신 페이지 전환과 충돌할 수 있습니다. /reload 필요"
 -- Auras
 L["AurasHeader"] = "효과"
 L["AlwaysShowAuras"] = "효과 항상 표시"

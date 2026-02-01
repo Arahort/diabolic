@@ -41,6 +41,8 @@ L["PetBarPosY"] = "Posizione verticale barra famiglio"
 L["PetBarPosYDesc"] = "Regola la posizione verticale (0 a 200)"
 L["UsePetOrbStyle"] = "Mostra famiglio come sfera"
 L["UsePetOrbStyleDesc"] = "Mostra la salute del famiglio come sfera invece del ritratto (richiede /reload)"
+L["UseExtendedBars"] = "Barre nascoste estese (Pagina 7)"
+L["UseExtendedBarsDesc"] = "Cambia il layout a 12 pulsanti per barra (6x2) e usa la pagina 7 delle barre azioni. ATTENZIONE: Potrebbe conflittare con il cambio pagine posture/forme di Druidi, Guerrieri, Ladri. Richiede /reload"
 -- Auras
 L["AurasHeader"] = "Aure"
 L["AlwaysShowAuras"] = "Mostra sempre le aure"

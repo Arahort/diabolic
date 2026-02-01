@@ -41,6 +41,8 @@ L["PetBarPosY"] = "Position verticale de la barre du familier"
 L["PetBarPosYDesc"] = "Ajuster la position verticale (0 à 200)"
 L["UsePetOrbStyle"] = "Afficher le familier en sphère"
 L["UsePetOrbStyleDesc"] = "Afficher la santé du familier sous forme de sphère au lieu d'un portrait (nécessite /reload)"
+L["UseExtendedBars"] = "Barres cachées étendues (Page 7)"
+L["UseExtendedBarsDesc"] = "Change la disposition en 12 boutons par barre (6x2) et utilise la page 7 des barres d'action. ATTENTION: Peut conflictuer avec le changement de pages postures/formes des Druides, Guerriers, Voleurs. Nécessite /reload"
 -- Auras
 L["AurasHeader"] = "Auras"
 L["AlwaysShowAuras"] = "Toujours afficher les auras"

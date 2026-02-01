@@ -41,6 +41,8 @@ L["PetBarPosY"] = "Pet Bar Vertical Position"
 L["PetBarPosYDesc"] = "Adjust vertical position (0 to 200)"
 L["UsePetOrbStyle"] = "Display Pet as Sphere"
 L["UsePetOrbStyleDesc"] = "Show pet health as a sphere instead of portrait frame (requires /reload)"
+L["UseExtendedBars"] = "Extended Hidden Bars (Page 7)"
+L["UseExtendedBarsDesc"] = "Changes layout to 12 buttons per bar (6x2) and uses action bar page 7. WARNING: May conflict with stance/form paging for Druids, Warriors, Rogues. Requires /reload"
 -- Auras
 L["AurasHeader"] = "Auras"
 L["AlwaysShowAuras"] = "Always Show Auras"

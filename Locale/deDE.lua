@@ -41,6 +41,8 @@ L["PetBarPosY"] = "Begleiterleiste vertikale Position"
 L["PetBarPosYDesc"] = "Vertikale Position anpassen (0 bis 200)"
 L["UsePetOrbStyle"] = "Begleiter als Sphäre anzeigen"
 L["UsePetOrbStyleDesc"] = "Begleiter-Gesundheit als Sphäre anstatt Porträtrahmen anzeigen (erfordert /reload)"
+L["UseExtendedBars"] = "Erweiterte versteckte Leisten (Seite 7)"
+L["UseExtendedBarsDesc"] = "Ändert das Layout auf 12 Schaltflächen pro Leiste (6x2) und nutzt Aktionsleisten-Seite 7. WARNUNG: Kann mit Haltungs-/Form-Seitenwechsel bei Druiden, Kriegern, Schurken konfliktieren. Erfordert /reload"
 -- Auras
 L["AurasHeader"] = "Auren"
 L["AlwaysShowAuras"] = "Auren immer anzeigen"
