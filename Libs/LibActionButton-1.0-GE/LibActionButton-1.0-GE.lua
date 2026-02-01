@@ -1780,11 +1780,19 @@ end
 
 local flashTime = 0
 local rangeTimer = -1
+--[[ GE Custom Start ]]--
+local iconTimer = -1
+local ICON_UPDATE_TIME = 0.1 -- Update icons every 0.1 seconds for Single-Button Assistant support
+-- Single-Button Assistant spell ID and its texture (to be ignored during icon updates)
+local SINGLE_BUTTON_ASSISTANT_ID = 1229376
+local singleButtonAssistantTexture = nil
+--[[ GE Custom End ]]--
 function OnUpdate(_, elapsed)
 	flashTime = flashTime - elapsed
 	rangeTimer = rangeTimer - elapsed
+	iconTimer = iconTimer - elapsed --[[ GE Custom ]]--
 	-- Run the loop only when there is something to update
-	if rangeTimer <= 0 or flashTime <= 0 then
+	if rangeTimer <= 0 or flashTime <= 0 or iconTimer <= 0 then --[[ GE Custom: added iconTimer ]]--
 		for button in next, ActiveButtons do
 			-- Flashing
 			if button.flashing == 1 and flashTime <= 0 then
@@ -1820,6 +1828,23 @@ function OnUpdate(_, elapsed)
 					end
 				end
 			end
+
+			--[[ GE Custom Start: Dynamic icon update for Single-Button Assistant ]]--
+			-- Only check in combat - outside combat ACTIONBAR_SLOT_CHANGED handles updates
+			-- Note: We track texture by ID because button.icon:GetTexture() returns mask paths, not numeric IDs
+			if iconTimer <= 0 and lib.incombat and button._state_type == "action" then
+				-- Cache Single-Button Assistant texture on first use
+				if not singleButtonAssistantTexture then
+					singleButtonAssistantTexture = C_Spell and C_Spell.GetSpellTexture and C_Spell.GetSpellTexture(SINGLE_BUTTON_ASSISTANT_ID) or GetSpellTexture(SINGLE_BUTTON_ASSISTANT_ID)
+				end
+				local texture = button:GetTexture()
+				-- Skip if texture is the Single-Button Assistant's own icon (we want the recommended spell icon instead)
+				if texture and texture ~= singleButtonAssistantTexture and button._lastTextureId ~= texture then
+					button._lastTextureId = texture
+					button.icon:SetTexture(texture)
+				end
+			end
+			--[[ GE Custom End ]]--
 		end
 
 		-- Update values
@@ -1829,6 +1854,11 @@ function OnUpdate(_, elapsed)
 		if rangeTimer <= 0 then
 			rangeTimer = TOOLTIP_UPDATE_TIME
 		end
+		--[[ GE Custom Start ]]--
+		if iconTimer <= 0 then
+			iconTimer = ICON_UPDATE_TIME
+		end
+		--[[ GE Custom End ]]--
 	end
 end
 
