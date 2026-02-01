@@ -1,5 +1,53 @@
 # DiabolicUI3 Changelog
 
+## [2.0.0] - 2026-02-01
+
+### ✨ New Features
+- **Diablo 2 Resurrected Orb Style**: New orb textures inspired by D2R (enabled by default)
+- **Custom Orb Colors**: Per-character color picker for Health and Power orbs
+- **Independent Target Frame Scale**: Separate scaling slider (0.5-2.0) for target frame
+- **Extended Hidden Bars**: Option for 12 buttons per bar (6x2 layout) using action bar page 7
+- **Pet Orb Style**: Show pet health as a sphere instead of portrait frame
+- **Single-Button Assistant Support**: Dynamic icon updates during combat
+- **Castbar Border**: ToT-style border texture for player and pet castbars
+- **LFG Eye Animation**: Pulsing glow when in dungeon/raid queue
+
+### 🎨 UI Improvements
+- **Minimap Rework**: Repositioned Mail (left), Tracking (right), LFG eye (bottom) with custom textures
+- **Settings Panel Reorganization**: Better organized with proper section headers
+- **Renamed "Orbs" to "Spheres"**: Consistent terminology across all settings and localization
+- **D2R Positions for Extra Buttons**: ZoneAbility and ExtraAction buttons positioned near orbs when D2R style is enabled
+- **Hidden Minimap Clutter**: Removed zoom buttons, AddonCompartment, EditMode empty frame
+
+### ⚡ Performance Optimizations
+- Removed SetCooldown hooks from ActionBars, PetBar, StanceBar (major optimization)
+- Added OnUpdate throttle for Tooltip (~30 fps instead of every frame)
+- Added OnUpdate throttle for Auras (~30 fps for timer updates)
+- Single-Button Assistant icon check runs only in combat (0.1s interval)
+
+### 🐛 Bug Fixes
+- Fixed ADDON_ACTION_BLOCKED errors when hiding auras, changing EditMode, moving frames in combat
+- Fixed achievement toasts, loot popups, and bonus rolls not showing
+- Fixed border appearing on action bar 2-3 after /reload
+- Fixed SmallActionBar page conflict with ThirdActionBar
+- Fixed tracking icon resetting on zone change
+- Fixed LFG eye resetting position when talking to NPCs
+- Fixed Cyrillic characters displaying as squares in aura timers
+- Fixed Single-Button Assistant icon freezing in combat
+- Fixed custom orb colors being overridden by PostUpdate functions
+- Fixed tooltip taint for world objects
+
+### 🔧 Changes
+- Disabled custom nameplates module (use Blizzard default or Plater/Kui/etc.)
+- D2R orb style is now enabled by default
+- "Class Color for Power Orb" is now per-character setting
+
+### 🌍 Localization
+- Full localization support for all new features (12 languages)
+- Languages: English, German, Spanish (EU/MX), French, Italian, Korean, Portuguese (BR/PT), Russian, Chinese (Simplified/Traditional)
+
+---
+
 ## [2.0.0-alpha12] - 2026-01-31
 ### Performance
 - ActionBars: Removed SetCooldown hook, set alpha once at creation (major optimization)
