@@ -17,7 +17,7 @@ jobs:
       - name: Create addon package
         run: |
           mkdir -p package/DiabolicUI3
-          rsync -av --exclude='.git*' --exclude='package' --exclude='RELEASE_NOTES*' ./ package/DiabolicUI3/
+          rsync -av --exclude='.git*' --exclude='package' --exclude='RELEASE_NOTES*' --exclude='Components/Misc/Disabled' ./ package/DiabolicUI3/
           cd package
           zip -r DiabolicUI3.zip DiabolicUI3
 

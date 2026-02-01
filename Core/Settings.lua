@@ -629,7 +629,7 @@ SettingsModule.OnInitialize = function(self)
 				"showPlayerBuffs",
 				"global.unitframes",
 				L["ShowPlayerBuffs"],
-				true,
+				false,
 				L["ShowPlayerBuffsDesc"]
 			)
 			CreateCheckbox(category, setting, L["ShowPlayerBuffsDesc"])

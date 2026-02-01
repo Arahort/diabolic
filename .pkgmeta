@@ -15,5 +15,6 @@ ignore:
   - DiabolicUI3_Wrath.toc
   - Libs/Libs_Wrath.xml
   - Libs/oUF.old
+  - Components/Misc/Disabled
 
 enable-nolib-creation: no
