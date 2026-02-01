@@ -6,11 +6,11 @@ Orb-based graphical user interface replacement for World of Warcraft, inspired b
 
 This is a **community-maintained fork** of the original [Diabolic UI 2.0](https://www.curseforge.com/wow/addons/diabolicui) by Lars Norberg and Daniel Troko.
 
-**Important:** The original Diabolic UI 2.0 is **no longer functional** in modern World of Warcraft. This fork has been completely rebuilt to work with current game versions.
+**Important:** The original Diabolic UI is **no longer functional** in modern World of Warcraft. This fork has been completely rebuilt to work with current game versions.
 
 ### Original Project Credits
 
-- **Original Addon:** [Diabolic UI 2.0](https://www.curseforge.com/wow/addons/diabolicui)
+- **Original Addon:** [Diabolic UI](https://www.curseforge.com/wow/addons/diabolicui)
 - **Original Code:** Lars Norberg
 - **Original Artwork:** Daniel Troko and Lars Norberg
 - **Original License:** Custom License (All Rights Reserved)
@@ -18,8 +18,9 @@ This is a **community-maintained fork** of the original [Diabolic UI 2.0](https:
 ### This Fork
 
 - **Updated for WoW 12.x by:** Alex Arahort
+- **Artwork:** Alex Arahort and Karina Kisenkova
 - **Status:** Fully functional for Midnight (12.0+)
-- **License:** Community Fork - respecting original authors' work
+- **License:** Community Fork
 
 ---
 
@@ -83,9 +84,9 @@ This is a **community-maintained fork** of the original [Diabolic UI 2.0](https:
 
 ## Installation
 
-### From CurseForge/Wago (Recommended)
+### From CurseForge (Recommended)
 
-Install via CurseForge or Wago client for automatic updates.
+Install via CurseForge client for automatic updates.
 
 ### Manual Installation
 
@@ -95,35 +96,12 @@ Install via CurseForge or Wago client for automatic updates.
 
 ---
 
-## Configuration
-
-Access settings via:
-- **ESC → Options → AddOns → DiabolicUI**
-- **Minimap button** (if addon compartment enabled)
-- **/diabolic** or **/dui** slash commands
-
-### Settings Overview
-
-| Section | Options |
-|---------|---------|
-| **Scale** | UI Scale, Minimap Scale, Bottom UI Scale, Target Frame Scale |
-| **Spheres** | D2R Style, Custom Colors, Health/Power Color Pickers |
-| **Action Bars** | Secondary/Third Bar, Pet Bar, Extended Mode, Pet Orb Style |
-| **Auras** | Always Show/Hide, Position, Icon Size |
-| **Map** | Minimap Position, Coordinates, Button Collector, Time Format |
-| **Unit Frames** | Class Color Power, Player Buffs, Target of Target, Debuff Filter |
-| **Tooltips** | X/Y Offset from cursor |
-| **Other** | Movable Frames toggle |
-
----
-
 ## Support
 
 This is a community-maintained fork. For issues or feature requests:
 
 - **GitHub:** https://github.com/Arahort/diabolic
 - **CurseForge:** https://www.curseforge.com/wow/addons/diabolicui-arahort-edition
-- **Wago:** https://addons.wago.io/addons/diabolicui-arahort-edition
 
 ### Support the Developer
 
@@ -153,17 +131,3 @@ See [CHANGELOG.md](CHANGELOG.md) for full version history.
 - Performance optimizations (removed SetCooldown hooks, OnUpdate throttling)
 - Minimap improvements (repositioned elements, LFG animation)
 - Full localization (12 languages)
-
----
-
-## Recommended Addons
-
-These addons work well alongside DiabolicUI:
-
-- **Scrap** - Auto-sell junk items
-- **Details!** - Damage/healing meters
-- **DBM/BigWigs** - Boss mods
-- **Plater/Kui** - Nameplates (DiabolicUI nameplates disabled by default)
-- **Baganator** - Bag management
-- **TomTom** - Waypoint navigation
-- **Dialogue UI** - Improved quest dialogs
