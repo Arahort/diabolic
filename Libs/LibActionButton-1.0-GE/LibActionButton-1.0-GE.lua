@@ -2382,7 +2382,26 @@ function UpdateCooldown(self)
 	self.cooldown:SetDrawBling(self.cooldown:GetEffectiveAlpha() > 0.5)
 	-- WoW 12.0.0: Use ActionButton_ApplyCooldown which works with Blizzard's built-in countdown
 	if ActionButton_ApplyCooldown then
+		-- GE Fix: Pre-create lossOfControlCooldown as child of button to prevent
+		-- C++ from creating orphaned frames parented to UIParent
+		if not self.lossOfControlCooldown then
+			local loc = CreateFrame("Cooldown", nil, self, "CooldownFrameTemplate")
+			loc:SetAllPoints(self.cooldown)
+			loc:SetDrawEdge(false)
+			loc:SetDrawBling(false)
+			loc:SetHideCountdownNumbers(true)
+			self.lossOfControlCooldown = loc
+		end
 		ActionButton_ApplyCooldown(self.cooldown, cooldownInfo, self.chargeCooldown, chargeInfo, self.lossOfControlCooldown, lossOfControlInfo)
+		-- GE Fix: C++ ActionButton_ApplyCooldown enables edge internally
+		-- bypassing Lua SetDrawEdge hooks. Force disable after every call.
+		self.cooldown:SetDrawEdge(false)
+		if self.lossOfControlCooldown then
+			self.lossOfControlCooldown:SetDrawEdge(false)
+		end
+		if self.chargeCooldown then
+			self.chargeCooldown:SetDrawEdge(false)
+		end
 	else
 		-- Fallback: Extract values from tables and check if they are secret
 		-- CRITICAL: Secret values REMAIN secret even when stored in tables!
