@@ -1,5 +1,10 @@
 # DiabolicUI3 Changelog
 
+## [2.0.1] - 2026-02-03
+
+### 🐛 Bug Fixes
+- **Cooldown Edge Fix**: Fixed yellow-orange cooldown edge line appearing on hidden side panel action bar buttons. WoW 12.0 C++ `ActionButton_ApplyCooldown` was enabling edge rendering internally, bypassing Lua hooks.
+
 ## [2.0.0] - 2026-02-01
 
 ### ✨ New Features
