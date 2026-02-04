@@ -103,7 +103,10 @@ local defaults = {
 			targetRelativeScale = 1.2
 		},
 		micromenu = {
-			enableMicroMenu = false
+			enableMicroMenu = true,
+			positionX = -11,
+			positionY = 11,
+			buttonSize = 34
 		},
 		minimap = {
 			useServerTime = false,

@@ -1,5 +1,22 @@
 # DiabolicUI3 Changelog
 
+## [2.1.0] - 2026-02-04
+
+### ✨ New Features
+- **MicroMenu Panel**: New vertical popup menu with all game micro buttons (Character, Spellbook, Talents, etc.), accessible via a toggle button in the bottom-right corner
+- **MicroMenu Settings**: Enable/disable toggle, button size slider (20-50px), and position sliders (X/Y) in the Settings panel under "Other"
+- **Auto-Hide**: MicroMenu automatically hides after 3 seconds when the mouse leaves the panel
+- **Combat Safe**: Menu opens/closes freely in combat via secure frame handlers
+
+### 🎨 UI Improvements
+- Clean icon-only display: stripped Blizzard button backgrounds and borders for a minimal look
+- Semi-transparent dark backdrop with tooltip-style border
+- Toggle button with plus/minus texture, fades to 30% opacity when idle
+- Hidden during pet battles and vehicle UI
+
+### 🌍 Localization
+- Full translations for MicroMenu settings in all 12 supported languages
+
 ## [2.0.1] - 2026-02-03
 
 ### 🐛 Bug Fixes

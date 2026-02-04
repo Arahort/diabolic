@@ -111,3 +111,12 @@ L["TooltipOffsetYDesc"] = "Вертикальное смещение от кур
 L["OtherHeader"] = "Прочее"
 L["MovableFrames"] = "Перемещаемые окна интерфейса"
 L["MovableFramesDesc"] = "Удерживайте SHIFT и перетаскивайте окна интерфейса (персонаж, сумки, карта и т.д.). Не работает если загружен аддон BlizzMove."
+-- MicroMenu
+L["EnableMicroMenu"] = "Включить кнопку MicroMenu"
+L["EnableMicroMenuDesc"] = "Показывать кнопку MicroMenu для быстрого доступа к игровым меню (требуется перезагрузка)"
+L["MicroMenuButtonSize"] = "Размер кнопок MicroMenu"
+L["MicroMenuButtonSizeDesc"] = "Размер кнопок в панели MicroMenu (20 - 50 пикселей)"
+L["MicroMenuPosX"] = "Горизонтальная позиция MicroMenu"
+L["MicroMenuPosXDesc"] = "Горизонтальное смещение кнопки MicroMenu (-500 до 0)"
+L["MicroMenuPosY"] = "Вертикальная позиция MicroMenu"
+L["MicroMenuPosYDesc"] = "Вертикальное смещение кнопки MicroMenu (0 до 500)"

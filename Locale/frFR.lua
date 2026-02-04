@@ -111,3 +111,12 @@ L["TooltipOffsetYDesc"] = "Décalage vertical par rapport au curseur (-100 à 10
 L["OtherHeader"] = "Autres"
 L["MovableFrames"] = "Cadres d'interface déplaçables"
 L["MovableFramesDesc"] = "Maintenez MAJ et faites glisser pour déplacer les fenêtres d'interface (Personnage, Sacs, Carte, etc.). Ne fonctionne pas si l'addon BlizzMove est chargé."
+-- MicroMenu
+L["EnableMicroMenu"] = "Activer le bouton MicroMenu"
+L["EnableMicroMenuDesc"] = "Afficher le bouton MicroMenu pour accéder rapidement aux menus du jeu (nécessite un rechargement)"
+L["MicroMenuButtonSize"] = "Taille des boutons du MicroMenu"
+L["MicroMenuButtonSizeDesc"] = "Taille des boutons dans le panneau MicroMenu (20 - 50 pixels)"
+L["MicroMenuPosX"] = "Position horizontale du MicroMenu"
+L["MicroMenuPosXDesc"] = "Décalage horizontal du bouton MicroMenu (-500 à 0)"
+L["MicroMenuPosY"] = "Position verticale du MicroMenu"
+L["MicroMenuPosYDesc"] = "Décalage vertical du bouton MicroMenu (0 à 500)"

@@ -54,6 +54,8 @@ local function OnSettingChanged(_, setting, value)
 		ns.callbacks:Fire("PetBar_Position_Updated")
 	elseif variable:match("^global_stancebar_") then
 		ns.callbacks:Fire("StanceBar_Position_Updated")
+	elseif variable:match("^global_micromenu_") then
+		ns.callbacks:Fire("MicroMenu_Settings_Updated")
 	end
 end
 local function RegisterSetting(category, key, path, name, defaultValue, tooltip)
@@ -763,6 +765,66 @@ SettingsModule.OnInitialize = function(self)
 				L["MovableFramesDesc"]
 			)
 			CreateCheckbox(category, setting, L["MovableFramesDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"enableMicroMenu",
+				"global.micromenu",
+				L["EnableMicroMenu"],
+				true,
+				L["EnableMicroMenuDesc"]
+			)
+			local OnMicroMenuToggle = function()
+				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
+			end
+			Settings.SetOnValueChangedCallback("global_micromenu_enableMicroMenu", OnMicroMenuToggle)
+			CreateCheckbox(category, setting, L["EnableMicroMenuDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"buttonSize",
+				"global.micromenu",
+				L["MicroMenuButtonSize"],
+				34,
+				L["MicroMenuButtonSizeDesc"]
+			)
+			local options = Settings.CreateSliderOptions(20, 50, 2)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return string.format("%d px", value)
+			end)
+			Settings.CreateSlider(category, setting, options, L["MicroMenuButtonSizeDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"positionX",
+				"global.micromenu",
+				L["MicroMenuPosX"],
+				-11,
+				L["MicroMenuPosXDesc"]
+			)
+			local options = Settings.CreateSliderOptions(-500, 0, 5)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return tostring(value)
+			end)
+			Settings.CreateSlider(category, setting, options, L["MicroMenuPosXDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"positionY",
+				"global.micromenu",
+				L["MicroMenuPosY"],
+				11,
+				L["MicroMenuPosYDesc"]
+			)
+			local options = Settings.CreateSliderOptions(0, 500, 5)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return tostring(value)
+			end)
+			Settings.CreateSlider(category, setting, options, L["MicroMenuPosYDesc"])
 		end
 		--[[
 		-- Castbar position disabled
