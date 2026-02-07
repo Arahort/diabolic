@@ -120,3 +120,6 @@ L["MicroMenuPosX"] = "Горизонтальная позиция MicroMenu"
 L["MicroMenuPosXDesc"] = "Горизонтальное смещение кнопки MicroMenu (-500 до 0)"
 L["MicroMenuPosY"] = "Вертикальная позиция MicroMenu"
 L["MicroMenuPosYDesc"] = "Вертикальное смещение кнопки MicroMenu (0 до 500)"
+-- BagButton
+L["HideBagButton"] = "Скрывать кнопку сумок"
+L["HideBagButtonDesc"] = "Полностью скрыть кнопку открытия сумок (требуется перезагрузка)"

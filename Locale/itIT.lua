@@ -120,3 +120,6 @@ L["MicroMenuPosX"] = "Posizione orizzontale MicroMenu"
 L["MicroMenuPosXDesc"] = "Offset orizzontale del pulsante MicroMenu (-500 a 0)"
 L["MicroMenuPosY"] = "Posizione verticale MicroMenu"
 L["MicroMenuPosYDesc"] = "Offset verticale del pulsante MicroMenu (0 a 500)"
+-- BagButton
+L["HideBagButton"] = "Nascondi pulsante borsa"
+L["HideBagButtonDesc"] = "Nasconde completamente il pulsante della borsa (richiede ricaricamento)"

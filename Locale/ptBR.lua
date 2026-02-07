@@ -120,3 +120,6 @@ L["MicroMenuPosX"] = "Posição horizontal do MicroMenu"
 L["MicroMenuPosXDesc"] = "Deslocamento horizontal do botão MicroMenu (-500 a 0)"
 L["MicroMenuPosY"] = "Posição vertical do MicroMenu"
 L["MicroMenuPosYDesc"] = "Deslocamento vertical do botão MicroMenu (0 a 500)"
+-- BagButton
+L["HideBagButton"] = "Ocultar botão de bolsa"
+L["HideBagButtonDesc"] = "Ocultar completamente o botão de bolsa (requer recarregamento)"

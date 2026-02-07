@@ -56,6 +56,8 @@ local function OnSettingChanged(_, setting, value)
 		ns.callbacks:Fire("StanceBar_Position_Updated")
 	elseif variable:match("^global_micromenu_") then
 		ns.callbacks:Fire("MicroMenu_Settings_Updated")
+	elseif variable:match("^global_bagbutton_") then
+		ns.callbacks:Fire("BagButton_Settings_Updated")
 	end
 end
 local function RegisterSetting(category, key, path, name, defaultValue, tooltip)
@@ -805,7 +807,7 @@ SettingsModule.OnInitialize = function(self)
 				-11,
 				L["MicroMenuPosXDesc"]
 			)
-			local options = Settings.CreateSliderOptions(-500, 0, 5)
+			local options = Settings.CreateSliderOptions(-2000, 0, 5)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
@@ -820,11 +822,27 @@ SettingsModule.OnInitialize = function(self)
 				11,
 				L["MicroMenuPosYDesc"]
 			)
-			local options = Settings.CreateSliderOptions(0, 500, 5)
+			local options = Settings.CreateSliderOptions(0, 2000, 5)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
 			Settings.CreateSlider(category, setting, options, L["MicroMenuPosYDesc"])
+		end
+		-- BagButton
+		do
+			local setting = RegisterSetting(
+				category,
+				"hideBagButton",
+				"global.bagbutton",
+				L["HideBagButton"],
+				false,
+				L["HideBagButtonDesc"]
+			)
+			local OnBagButtonToggle = function()
+				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
+			end
+			Settings.SetOnValueChangedCallback("global_bagbutton_hideBagButton", OnBagButtonToggle)
+			CreateCheckbox(category, setting, L["HideBagButtonDesc"])
 		end
 		--[[
 		-- Castbar position disabled

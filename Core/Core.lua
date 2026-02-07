@@ -136,6 +136,9 @@ local defaults = {
 		stancebar = {
 			positionX = 380,
 			positionY = 84
+		},
+		bagbutton = {
+			hideBagButton = false
 		}
 	}
 }

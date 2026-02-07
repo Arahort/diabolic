@@ -120,3 +120,6 @@ L["MicroMenuPosX"] = "마이크로메뉴 가로 위치"
 L["MicroMenuPosXDesc"] = "마이크로메뉴 버튼의 가로 오프셋 (-500 ~ 0)"
 L["MicroMenuPosY"] = "마이크로메뉴 세로 위치"
 L["MicroMenuPosYDesc"] = "마이크로메뉴 버튼의 세로 오프셋 (0 ~ 500)"
+-- BagButton
+L["HideBagButton"] = "가방 버튼 숨기기"
+L["HideBagButtonDesc"] = "가방 버튼을 완전히 숨깁니다 (새로고침 필요)"

@@ -120,3 +120,6 @@ L["MicroMenuPosX"] = "MicroMenu horizontale Position"
 L["MicroMenuPosXDesc"] = "Horizontaler Versatz der MicroMenu-Schaltfläche (-500 bis 0)"
 L["MicroMenuPosY"] = "MicroMenu vertikale Position"
 L["MicroMenuPosYDesc"] = "Vertikaler Versatz der MicroMenu-Schaltfläche (0 bis 500)"
+-- BagButton
+L["HideBagButton"] = "Taschen-Schaltfläche ausblenden"
+L["HideBagButtonDesc"] = "Die Taschen-Schaltfläche vollständig ausblenden (erfordert Neustart)"

@@ -614,10 +614,10 @@ Bars.SpawnBars = function(self)
 				self:Hide();
 			else
 				self:Show();
-				self:RunMethod("UpdateAlpha");
 			end
 		]])
-
+		-- Note: UpdateAlpha is called via HookScript on toggle OnShow
+		toggle:HookScript("OnShow", toggle.UpdateAlpha)
 		toggle:SetScript("OnEnter", toggle.OnEnter)
 		toggle:SetScript("OnLeave", toggle.OnLeave)
 		toggle:SetScript("OnEvent", toggle.UpdateAlpha)

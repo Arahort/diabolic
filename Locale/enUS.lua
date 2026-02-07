@@ -120,3 +120,6 @@ L["MicroMenuPosX"] = "MicroMenu Horizontal Position"
 L["MicroMenuPosXDesc"] = "Horizontal offset of the MicroMenu toggle button (-500 to 0)"
 L["MicroMenuPosY"] = "MicroMenu Vertical Position"
 L["MicroMenuPosYDesc"] = "Vertical offset of the MicroMenu toggle button (0 to 500)"
+-- BagButton
+L["HideBagButton"] = "Hide Bag Button"
+L["HideBagButtonDesc"] = "Completely hide the bag button (requires reload)"

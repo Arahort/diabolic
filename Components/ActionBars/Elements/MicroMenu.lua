@@ -168,6 +168,7 @@ MicroMenu.InitializeMicroMenu = function(self)
 	-- Frame references for secure handler
 	toggle:SetFrameRef("Bar", bar)
 	-- Secure onclick - toggles menu visibility (works in combat)
+	-- Note: UpdateTexture is called via HookScript on bar OnShow/OnHide
 	toggle:SetAttribute("_onclick", [[
 		local bar = self:GetFrameRef("Bar")
 		if (bar:IsShown()) then
@@ -175,7 +176,6 @@ MicroMenu.InitializeMicroMenu = function(self)
 		else
 			bar:Show()
 		end
-		self:RunMethod("UpdateTexture")
 	]])
 	-- Toggle textures
 	toggle.texPlus = GetMedia("button-toggle-plus")
@@ -212,6 +212,7 @@ MicroMenu.InitializeMicroMenu = function(self)
 	toggle:SetScript("OnEnter", toggle.OnEnter)
 	toggle:SetScript("OnLeave", toggle.OnLeave)
 	-- Visibility driver - hide during pet battle / vehicle
+	-- Note: UpdateTexture is called via HookScript on toggle OnShow
 	toggle:SetAttribute("_onstate-vis", [[
 		if (not newstate) then
 			return
@@ -221,7 +222,6 @@ MicroMenu.InitializeMicroMenu = function(self)
 			self:GetFrameRef("Bar"):Hide()
 		else
 			self:Show()
-			self:RunMethod("UpdateTexture")
 		end
 	]])
 	RegisterStateDriver(toggle, "state-vis", "[petbattle][possessbar][overridebar][vehicleui][@vehicle,exists]hide;show")

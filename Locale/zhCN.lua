@@ -120,3 +120,6 @@ L["MicroMenuPosX"] = "微型菜单水平位置"
 L["MicroMenuPosXDesc"] = "微型菜单按钮的水平偏移 (-500 到 0)"
 L["MicroMenuPosY"] = "微型菜单垂直位置"
 L["MicroMenuPosYDesc"] = "微型菜单按钮的垂直偏移 (0 到 500)"
+-- BagButton
+L["HideBagButton"] = "隐藏背包按钮"
+L["HideBagButtonDesc"] = "完全隐藏背包按钮 (需要重载)"
