@@ -1,0 +1,20 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Button name="DiabolicAuraTemplate" virtual="true">
+		<Size x="36" y="36"/>
+		<Scripts>
+			<OnLoad>
+				self:RegisterForClicks("RightButtonUp")
+				DiabolicUI3:GetModule("Auras"):Embed(self)
+				self:OnInitialize()
+			</OnLoad>
+			<OnClick>
+				if button == "RightButton" then
+					local unit = self:GetParent():GetAttribute("unit") or "player"
+					local index = self:GetAttribute("index")
+					-- print("|cFFFF00FF[OnClick]|r Canceling buff - unit:", unit, "index:", index, "filter:", self.filter)
+					CancelUnitBuff(unit, index, self.filter)
+				end
+			</OnClick>
+		</Scripts>
+	</Button>
+</Ui>

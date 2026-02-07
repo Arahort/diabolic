@@ -1,0 +1,34 @@
+## Interface: 120000, 120001
+
+## Title: |cffaa0022Diabolic|r |cfffafafaUI|r |cffcccccc3.0 Arahort Edition|r
+## Notes: Orb based graphical user interface replacement for WoW 12.x|n|nMaintained by Arahort (arahort.pro)|n|nBased on original DiabolicUI by Lars Norberg and Daniel Troko
+## Version: 2.2.0
+## Author: Arahort
+## IconTexture: Interface\AddOns\DiabolicUI3\Assets\diabolic-lettermark
+
+## X-Category: Interface Enhancements
+## X-Curse-Project-ID: 100658
+## X-Wago-ID: WqKQBaGx
+## X-License: Custom
+
+## SavedVariables: DiabolicUI3_DB
+## OptionalDeps: Ace3, Clique, LibKeyBound-1.0
+
+# TaintLess
+# https://www.townlong-yak.com/addons/taintless/release/22-09-15
+TaintLess.xml
+
+# Libraries
+Libs\Libs.xml
+
+# Addon localization
+Locale\Locale.xml
+
+# Addon core
+Core\Core.xml
+
+# Addon components
+Components\Components.xml
+
+# TEMPORARY: Test cancelaura functionality
+# test_cancelaura.lua
