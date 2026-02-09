@@ -123,3 +123,7 @@ L["MicroMenuPosYDesc"] = "Offset verticale del pulsante MicroMenu (0 a 500)"
 -- BagButton
 L["HideBagButton"] = "Nascondi pulsante borsa"
 L["HideBagButtonDesc"] = "Nasconde completamente il pulsante della borsa (richiede ricaricamento)"
+-- Experiments
+L["ExperimentsHeader"] = "Esperimenti"
+L["CustomizePlatynator"] = "Personalizza Platynator"
+L["CustomizePlatynatorDesc"] = "Attiva lo stile personalizzato per l'addon Platynator (richiede ricaricamento)"

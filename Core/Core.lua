@@ -139,6 +139,9 @@ local defaults = {
 		},
 		bagbutton = {
 			hideBagButton = false
+		},
+		experiments = {
+			customizePlatynator = false
 		}
 	}
 }

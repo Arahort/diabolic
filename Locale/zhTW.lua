@@ -123,3 +123,7 @@ L["MicroMenuPosYDesc"] = "微型選單按鈕的垂直偏移 (0 到 500)"
 -- BagButton
 L["HideBagButton"] = "隱藏背包按鈕"
 L["HideBagButtonDesc"] = "完全隱藏背包按鈕 (需要重載)"
+-- Experiments
+L["ExperimentsHeader"] = "實驗"
+L["CustomizePlatynator"] = "自訂 Platynator"
+L["CustomizePlatynatorDesc"] = "啟用 Platynator 插件的自訂樣式 (需要重載)"

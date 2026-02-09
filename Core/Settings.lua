@@ -58,6 +58,8 @@ local function OnSettingChanged(_, setting, value)
 		ns.callbacks:Fire("MicroMenu_Settings_Updated")
 	elseif variable:match("^global_bagbutton_") then
 		ns.callbacks:Fire("BagButton_Settings_Updated")
+	elseif variable:match("^global_experiments_") then
+		ns.callbacks:Fire("Experiments_Settings_Updated")
 	end
 end
 local function RegisterSetting(category, key, path, name, defaultValue, tooltip)
@@ -877,6 +879,25 @@ SettingsModule.OnInitialize = function(self)
 			Settings.CreateSlider(category, setting, options, L["CastbarPosYDesc"])
 		end
 		--]]
+		--------------------------------------------
+		-- Experiments Section
+		--------------------------------------------
+		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["ExperimentsHeader"]))
+		do
+			local setting = RegisterSetting(
+				category,
+				"customizePlatynator",
+				"global.experiments",
+				L["CustomizePlatynator"],
+				false,
+				L["CustomizePlatynatorDesc"]
+			)
+			local OnPlatynatorToggle = function()
+				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
+			end
+			Settings.SetOnValueChangedCallback("global_experiments_customizePlatynator", OnPlatynatorToggle)
+			CreateCheckbox(category, setting, L["CustomizePlatynatorDesc"])
+		end
 		-- Reload UI popup for orb style changes
 		StaticPopupDialogs["DIABOLICUI3_RELOAD_UI"] = {
 			text = L["OrbStyleReloadConfirmation"] or "Changing orb style requires a UI reload. Reload now?",

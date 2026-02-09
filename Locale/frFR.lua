@@ -123,3 +123,7 @@ L["MicroMenuPosYDesc"] = "Décalage vertical du bouton MicroMenu (0 à 500)"
 -- BagButton
 L["HideBagButton"] = "Masquer le bouton de sac"
 L["HideBagButtonDesc"] = "Masquer complètement le bouton de sac (nécessite un rechargement)"
+-- Experiments
+L["ExperimentsHeader"] = "Expériences"
+L["CustomizePlatynator"] = "Personnaliser Platynator"
+L["CustomizePlatynatorDesc"] = "Activer le style personnalisé pour l'addon Platynator (nécessite un rechargement)"

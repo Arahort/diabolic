@@ -123,3 +123,7 @@ L["MicroMenuPosYDesc"] = "Vertikaler Versatz der MicroMenu-Schaltfläche (0 bis 
 -- BagButton
 L["HideBagButton"] = "Taschen-Schaltfläche ausblenden"
 L["HideBagButtonDesc"] = "Die Taschen-Schaltfläche vollständig ausblenden (erfordert Neustart)"
+-- Experiments
+L["ExperimentsHeader"] = "Experimente"
+L["CustomizePlatynator"] = "Platynator anpassen"
+L["CustomizePlatynatorDesc"] = "Benutzerdefinierte Gestaltung für das Platynator-Addon aktivieren (erfordert Neustart)"

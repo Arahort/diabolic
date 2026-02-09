@@ -123,3 +123,7 @@ L["MicroMenuPosYDesc"] = "Вертикальное смещение кнопки
 -- BagButton
 L["HideBagButton"] = "Скрывать кнопку сумок"
 L["HideBagButtonDesc"] = "Полностью скрыть кнопку открытия сумок (требуется перезагрузка)"
+-- Experiments
+L["ExperimentsHeader"] = "Эксперименты"
+L["CustomizePlatynator"] = "Кастомизировать Platynator"
+L["CustomizePlatynatorDesc"] = "Включить кастомную стилизацию для аддона Platynator (требуется перезагрузка)"

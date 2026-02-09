@@ -123,3 +123,7 @@ L["MicroMenuPosYDesc"] = "마이크로메뉴 버튼의 세로 오프셋 (0 ~ 500
 -- BagButton
 L["HideBagButton"] = "가방 버튼 숨기기"
 L["HideBagButtonDesc"] = "가방 버튼을 완전히 숨깁니다 (새로고침 필요)"
+-- Experiments
+L["ExperimentsHeader"] = "실험"
+L["CustomizePlatynator"] = "Platynator 사용자 정의"
+L["CustomizePlatynatorDesc"] = "Platynator 애드온에 대한 사용자 정의 스타일 활성화 (새로고침 필요)"

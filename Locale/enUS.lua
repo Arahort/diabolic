@@ -123,3 +123,7 @@ L["MicroMenuPosYDesc"] = "Vertical offset of the MicroMenu toggle button (0 to 5
 -- BagButton
 L["HideBagButton"] = "Hide Bag Button"
 L["HideBagButtonDesc"] = "Completely hide the bag button (requires reload)"
+-- Experiments
+L["ExperimentsHeader"] = "Experiments"
+L["CustomizePlatynator"] = "Customize Platynator"
+L["CustomizePlatynatorDesc"] = "Enable custom styling for Platynator addon (requires reload)"
