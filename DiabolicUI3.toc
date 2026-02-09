@@ -1,8 +1,8 @@
-## Interface: 120000, 120001
+## Interface: 120000, 120001, 50503, 40402, 30403, 20505, 11508
 
 ## Title: |cffaa0022Diabolic|r |cfffafafaUI|r |cffcccccc3.0 Arahort Edition|r
-## Notes: Orb based graphical user interface replacement for WoW 12.x (The War Within)|n|nMaintained by Arahort (arahort.pro)|n|nBased on original DiabolicUI by Lars Norberg and Daniel Troko
-## Version: 2.2.1
+## Notes: Orb based graphical user interface replacement for WoW|n|nMaintained by Arahort (arahort.pro)|n|nBased on original DiabolicUI by Lars Norberg and Daniel Troko
+## Version: 2.3.0
 ## Author: Arahort
 ## IconTexture: Interface\AddOns\DiabolicUI3\Assets\diabolic-lettermark
 

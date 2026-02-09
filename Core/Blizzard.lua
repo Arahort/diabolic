@@ -196,7 +196,8 @@ BlizzKill.KillActionBars = function(self)
 		end
 
 		hideActionBarFrame(MicroButtonAndBagsBar, false)
-		hideActionBarFrame(StanceBar, true)
+		-- StanceBar: keep visible, styled by StanceButtons module
+		-- hideActionBarFrame(StanceBar, true)
 		hideActionBarFrame(PossessActionBar, true)
 		hideActionBarFrame(MultiCastActionBarFrame, false)
 		hideActionBarFrame(PetActionBar, true)
@@ -298,7 +299,8 @@ BlizzKill.KillActionBars = function(self)
 			StatusTrackingBarManager:Hide()
 		end
 
-		hideActionBar(StanceBarFrame, true, true)
+		-- StanceBarFrame: keep visible, styled by StanceButtons module
+		-- hideActionBar(StanceBarFrame, true, true)
 		hideActionBar(PossessBarFrame, false, true)
 		hideActionBar(MultiCastActionBarFrame, false, false, true)
 		hideActionBar(PetActionBarFrame, true, true)

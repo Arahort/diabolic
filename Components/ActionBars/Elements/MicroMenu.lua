@@ -21,7 +21,7 @@ local SetObjectScale = ns.API.SetUnitFramesObjectScale
 local IsAddOnEnabled = ns.API.IsAddOnEnabled
 
 -- Constants
-local TOGGLE_SIZE = 48
+local TOGGLE_SIZE = 80
 local BUTTON_SPACING = 2
 local PADDING_H = 8
 local PADDING_V = 14
@@ -164,7 +164,7 @@ MicroMenu.InitializeMicroMenu = function(self)
 	toggle:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", posX, posY)
 	self.toggle = toggle
 	-- Anchor menu above toggle
-	bar:SetPoint("BOTTOM", toggle, "TOP", 0, 4)
+	bar:SetPoint("BOTTOM", toggle, "TOP", 0, -4)
 	-- Frame references for secure handler
 	toggle:SetFrameRef("Bar", bar)
 	-- Secure onclick - toggles menu visibility (works in combat)
@@ -177,21 +177,15 @@ MicroMenu.InitializeMicroMenu = function(self)
 			bar:Show()
 		end
 	]])
-	-- Toggle textures
-	toggle.texPlus = GetMedia("button-toggle-plus")
-	toggle.texMinus = GetMedia("button-toggle-minus")
+	-- Toggle texture - config button from AzeriteUI
 	local texture = toggle:CreateTexture(nil, "ARTWORK", nil, 0)
-	texture:SetSize(64, 64)
+	texture:SetSize(80, 80)
 	texture:SetPoint("CENTER")
-	texture:SetTexture(toggle.texPlus)
+	texture:SetTexture(GetMedia("config_button_bright"))
 	toggle.texture = texture
 	-- Methods
 	toggle.UpdateTexture = function(self)
-		if (bar:IsShown()) then
-			self.texture:SetTexture(self.texMinus)
-		else
-			self.texture:SetTexture(self.texPlus)
-		end
+		-- Icon stays the same, just update alpha
 		self:UpdateAlpha()
 	end
 	toggle.UpdateAlpha = function(self)
