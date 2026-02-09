@@ -28,11 +28,13 @@ ns.Private.ClientMinor = tonumber(minor)
 ns.Private.ClientBuild = tonumber(build)
 
 -- Simple flags for client version checks
-ns.IsRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
-ns.Private.IsClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
-ns.Private.IsTBC = (WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC)
-ns.Private.IsWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
-ns.Private.WoW10 = version >= 100000
+-- All flags disabled - unified codebase
+ns.IsRetail = false
+ns.Private.IsRetail = false
+ns.Private.IsClassic = false
+ns.Private.IsTBC = false
+ns.Private.IsWrath = false
+ns.Private.WoW10 = false
 
 -- Prefix for frame names
 ------------------------------------------------------
@@ -53,11 +55,11 @@ ns.Private.UIDefaultScale = 0.6
 -- Create aliases for backward compatibility
 ------------------------------------------------------
 -- Use rawset to bypass metatable protection
-rawset(ns, "IsRetail", ns.Private.IsRetail)
-rawset(ns, "IsClassic", ns.Private.IsClassic)
-rawset(ns, "IsTBC", ns.Private.IsTBC)
-rawset(ns, "IsWrath", ns.Private.IsWrath)
-rawset(ns, "WoW10", ns.Private.WoW10)
+rawset(ns, "IsRetail", false)
+rawset(ns, "IsClassic", false)
+rawset(ns, "IsTBC", false)
+rawset(ns, "IsWrath", false)
+rawset(ns, "WoW10", false)
 rawset(ns, "Prefix", ns.Private.Prefix)
 rawset(ns, "PlayerClass", ns.Private.PlayerClass)
 rawset(ns, "PlayerRealm", ns.Private.PlayerRealm)
