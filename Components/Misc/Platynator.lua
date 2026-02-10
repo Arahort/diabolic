@@ -25,9 +25,10 @@ local CUSTOM_TEXTURES = {
 }
 -- Debug mode
 local DEBUG = false
--- Adjustable sizes (can be changed via /platynator command)
+-- Adjustable sizes
 local FRAME_WIDTH_MULT = 0.35
 local FRAME_HEIGHT_MULT = 0.35
+local FRAME_WIDTH_EXTRA = 3  -- extra pixels to cover original HP bar edges
 -- Debug helper
 local Debug = function(...)
 	if DEBUG then
@@ -105,9 +106,10 @@ Platynator.CustomizeHealthBar = function(self, display)
 				-- Hook SetSize on statusBar to update frame when size changes (combat scaling)
 				local originalSetSize = widget.statusBar.SetSize
 				widget.statusBar.SetSize = function(bar, w, h)
-					originalSetSize(bar, w, h)
+					-- Expand statusBar width to match frame
+					originalSetSize(bar, w + FRAME_WIDTH_EXTRA, h)
 					if widget.diabolicFrame then
-						local frameWidth = w * FRAME_WIDTH_MULT
+						local frameWidth = w * FRAME_WIDTH_MULT + FRAME_WIDTH_EXTRA
 						local frameHeight = h * FRAME_HEIGHT_MULT
 						widget.diabolicFrame:SetSize(frameWidth, frameHeight)
 					end
@@ -116,9 +118,10 @@ Platynator.CustomizeHealthBar = function(self, display)
 			end
 			-- Use DiabolicUI power crystal textures
 			widget.statusBar:SetStatusBarTexture(CUSTOM_TEXTURES.powerCrystalFront)
-			-- Store original size
+			-- Store original size and expand statusBar width to match frame
 			if not widget.diabolicOrigSize then
 				widget.diabolicOrigSize = { width = origWidth, height = origHeight }
+				widget.statusBar:SetSize(origWidth + FRAME_WIDTH_EXTRA, origHeight)
 			end
 			-- Hide Platynator's background and border
 			widget.background:SetAlpha(0)
@@ -132,7 +135,7 @@ Platynator.CustomizeHealthBar = function(self, display)
 				widget.diabolicFrame:SetTexture(CUSTOM_TEXTURES.powerCrystal)
 				widget.diabolicFrame:SetVertexColor(1, 1, 1, 1)
 				-- StatusBar ~358x47, adjust frame to fit
-				local frameWidth = origWidth * FRAME_WIDTH_MULT
+				local frameWidth = origWidth * FRAME_WIDTH_MULT + FRAME_WIDTH_EXTRA
 				local frameHeight = origHeight * FRAME_HEIGHT_MULT
 				widget.diabolicFrame:SetSize(frameWidth, frameHeight)
 				widget.diabolicFrame:SetPoint("CENTER", widget.statusBar, "CENTER", 0, 0)
@@ -306,7 +309,7 @@ Platynator.UpdateAllFrames = function(self)
 					local origWidth = widget.diabolicOrigSize.width
 					local origHeight = widget.diabolicOrigSize.height
 					-- Update frame size
-					local frameWidth = origWidth * FRAME_WIDTH_MULT
+					local frameWidth = origWidth * FRAME_WIDTH_MULT + FRAME_WIDTH_EXTRA
 					local frameHeight = origHeight * FRAME_HEIGHT_MULT
 					widget.diabolicFrame:SetSize(frameWidth, frameHeight)
 				end
