@@ -414,11 +414,17 @@ UnitStyles["Target"] = function(self, unit, id)
 	-- Auras
 	--------------------------------------------
 	local auras = CreateFrame("Frame", nil, self)
-	auras:SetSize(40*7-4, 36)
+	local twoRows = ns.db and ns.db.global and ns.db.global.auras and ns.db.global.auras.twoRowsTargetAuras
+	if twoRows then
+		auras:SetSize(40*7-4, 36*2+4)  -- 2 rows: height for 2 aura rows + spacing
+		auras.numTotal = 14
+	else
+		auras:SetSize(40*7-4, 36)  -- 1 row
+		auras.numTotal = 7
+	end
 	auras:SetPoint("TOP", self, "BOTTOM", 0, -12)
 	auras.size = 36
 	auras.spacing = 4
-	auras.numTotal = 7
 	auras.disableMouse = false
 	auras.disableCooldown = false
 	auras.onlyShowPlayer = false

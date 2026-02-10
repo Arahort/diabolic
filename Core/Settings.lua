@@ -431,6 +431,21 @@ SettingsModule.OnInitialize = function(self)
 			end)
 			Settings.CreateSlider(category, setting, options, L["AurasIconSizeDesc"])
 		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"twoRowsTargetAuras",
+				"global.auras",
+				L["TwoRowsTargetAuras"],
+				false,
+				L["TwoRowsTargetAurasDesc"]
+			)
+			local OnTwoRowsChanged = function()
+				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
+			end
+			Settings.SetOnValueChangedCallback("global_auras_twoRowsTargetAuras", OnTwoRowsChanged)
+			CreateCheckbox(category, setting, L["TwoRowsTargetAurasDesc"])
+		end
 		--------------------------------------------
 		-- Map and Minimap Section
 		--------------------------------------------
@@ -734,7 +749,7 @@ SettingsModule.OnInitialize = function(self)
 				32,
 				L["TooltipOffsetXDesc"]
 			)
-			local options = Settings.CreateSliderOptions(-100, 100, 5)
+			local options = Settings.CreateSliderOptions(-2000, 2000, 5)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
@@ -749,7 +764,7 @@ SettingsModule.OnInitialize = function(self)
 				-32,
 				L["TooltipOffsetYDesc"]
 			)
-			local options = Settings.CreateSliderOptions(-100, 100, 5)
+			local options = Settings.CreateSliderOptions(-2000, 2000, 5)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
@@ -809,7 +824,7 @@ SettingsModule.OnInitialize = function(self)
 				-11,
 				L["MicroMenuPosXDesc"]
 			)
-			local options = Settings.CreateSliderOptions(-2000, 0, 5)
+			local options = Settings.CreateSliderOptions(-2000, 2000, 5)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
@@ -824,7 +839,7 @@ SettingsModule.OnInitialize = function(self)
 				11,
 				L["MicroMenuPosYDesc"]
 			)
-			local options = Settings.CreateSliderOptions(0, 2000, 5)
+			local options = Settings.CreateSliderOptions(-2000, 2000, 5)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)

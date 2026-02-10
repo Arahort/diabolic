@@ -316,33 +316,33 @@ Platynator.UpdateAllFrames = function(self)
 	print("|cff00ff00DiabolicUI3|r |cffff9900[Platynator]|r Updated: frame=" .. FRAME_WIDTH_MULT .. "x" .. FRAME_HEIGHT_MULT)
 end
 Platynator.OnEnable = function(self)
-	-- Register slash command
-	SLASH_PLATYNATOR1 = "/platynator"
-	SLASH_PLATYNATOR2 = "/platy"
-	SlashCmdList["PLATYNATOR"] = function(msg)
-		local cmd, value = msg:match("^(%S+)%s*(.*)$")
-		if cmd == "w" or cmd == "width" then  -- frame width
-			local num = tonumber(value)
-			if num and num > 0 and num < 3 then
-				FRAME_WIDTH_MULT = num
-				self:UpdateAllFrames()
-			else
-				print("Usage: /platy w 0.75")
-			end
-		elseif cmd == "h" or cmd == "height" then  -- frame height
-			local num = tonumber(value)
-			if num and num > 0 and num < 5 then
-				FRAME_HEIGHT_MULT = num
-				self:UpdateAllFrames()
-			else
-				print("Usage: /platy h 1.5")
-			end
-		else
-			print("|cff00ff00DiabolicUI3|r |cffff9900[Platynator]|r Commands:")
-			print("  /platy w <num> - frame width (current: " .. FRAME_WIDTH_MULT .. ")")
-			print("  /platy h <num> - frame height (current: " .. FRAME_HEIGHT_MULT .. ")")
-		end
-	end
+	-- Slash commands disabled for now
+	-- SLASH_PLATYNATOR1 = "/platynator"
+	-- SLASH_PLATYNATOR2 = "/platy"
+	-- SlashCmdList["PLATYNATOR"] = function(msg)
+	-- 	local cmd, value = msg:match("^(%S+)%s*(.*)$")
+	-- 	if cmd == "w" or cmd == "width" then  -- frame width
+	-- 		local num = tonumber(value)
+	-- 		if num and num > 0 and num < 3 then
+	-- 			FRAME_WIDTH_MULT = num
+	-- 			self:UpdateAllFrames()
+	-- 		else
+	-- 			print("Usage: /platy w 0.75")
+	-- 		end
+	-- 	elseif cmd == "h" or cmd == "height" then  -- frame height
+	-- 		local num = tonumber(value)
+	-- 		if num and num > 0 and num < 5 then
+	-- 			FRAME_HEIGHT_MULT = num
+	-- 			self:UpdateAllFrames()
+	-- 		else
+	-- 			print("Usage: /platy h 1.5")
+	-- 		end
+	-- 	else
+	-- 		print("|cff00ff00DiabolicUI3|r |cffff9900[Platynator]|r Commands:")
+	-- 		print("  /platy w <num> - frame width (current: " .. FRAME_WIDTH_MULT .. ")")
+	-- 		print("  /platy h <num> - frame height (current: " .. FRAME_HEIGHT_MULT .. ")")
+	-- 	end
+	-- end
 end
 Platynator.OnDisable = function(self)
 	-- Cleanup event frame if it exists
