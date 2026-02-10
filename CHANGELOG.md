@@ -1,5 +1,35 @@
 # DiabolicUI3 Changelog
 
+## [2.3.0] - 2026-02-10
+
+### ✨ New Features
+- **Platynator Integration**: Custom DiabolicUI styling for Platynator addon nameplates
+  - Replaces Platynator health bars with power-crystal textures
+  - Automatic frame sizing with combat scaling support
+  - Experimental feature - enable in Settings → Experiments
+- **Two Rows Target Auras**: New option to show 14 auras in 2 rows under target frame (instead of 7)
+  - New checkbox in Settings → Auras section
+  - Requires UI reload to apply
+- **StanceBar Styling**: Custom DiabolicUI styling for stance/shapeshifting buttons
+  - Power-crystal frame overlay matching action bar style
+  - Proper border textures and consistent visual design
+
+### 🎨 UI Improvements
+- Extended all position slider ranges to -2000/2000 for more flexibility
+- Improved Platynator frame width to properly cover health bar edges
+- MicroMenu now has proper icon styling
+
+### 🌍 Localization
+- Full translations for all new settings in 12 supported languages
+- Updated slider descriptions to show extended -2000 to 2000 range
+
+### 🔧 Technical
+- Added FRAME_WIDTH_EXTRA constant for Platynator health bar edge coverage
+- Platynator slash commands disabled (internal testing only)
+- Added twoRowsTargetAuras setting to global.auras database
+
+---
+
 ## [2.1.0] - 2026-02-04
 
 ### ✨ New Features
