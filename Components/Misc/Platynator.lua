@@ -18,10 +18,10 @@ local C_NamePlate = C_NamePlate
 local CreateFrame = CreateFrame
 local hooksecurefunc = hooksecurefunc
 local IsAddOnLoaded = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
--- Custom textures path
+-- Custom textures path (use TGA files with underscores)
 local CUSTOM_TEXTURES = {
-	powerCrystal = [[Interface\AddOns\DiabolicUI3\Assets\power-crystal.png]],
-	powerCrystalFront = [[Interface\AddOns\DiabolicUI3\Assets\power-crystal-front.png]],
+	powerCrystal = [[Interface\AddOns\DiabolicUI3\Assets\power_crystal_back.tga]],
+	powerCrystalFront = [[Interface\AddOns\DiabolicUI3\Assets\power_crystal_front.tga]],
 }
 -- Debug mode
 local DEBUG = true
@@ -48,40 +48,178 @@ end
 Platynator.processedNameplates = {}
 -- Cache for Platynator display frames (they're parented to UIParent, not nameplate)
 Platynator.displayFrames = {}
+-- Deep scan helper - prints all keys on a frame
+local function DumpFrameKeys(frame, prefix)
+	prefix = prefix or ""
+	local keys = {}
+	for k, v in pairs(frame) do
+		local vtype = type(v)
+		if vtype == "table" then
+			table.insert(keys, prefix .. tostring(k) .. " = [table]")
+		elseif vtype == "function" then
+			-- skip functions
+		elseif vtype == "userdata" then
+			table.insert(keys, prefix .. tostring(k) .. " = [userdata/frame]")
+		else
+			table.insert(keys, prefix .. tostring(k) .. " = " .. tostring(v))
+		end
+	end
+	return keys
+end
 -- Find Platynator's custom frame for a unit
--- Platynator creates a Button as a CHILD of the nameplate with a healthBar field
+-- Tries multiple methods to find Platynator frames
 Platynator.FindPlatynatorFrame = function(self, nameplate, unit)
 	if not nameplate then return nil end
 	-- First check if we've already cached this frame
 	if self.displayFrames[unit] then
 		return self.displayFrames[unit]
 	end
-	-- Platynator creates Button children of the nameplate with healthBar field
+	Debug("=== DEEP SCAN for", unit, "===")
+	-- Method 1: Check nameplate children for Platynator frames
+	Debug("Method 1: Scanning nameplate children...")
 	local children = { nameplate:GetChildren() }
-	for _, child in ipairs(children) do
-		-- Look for Platynator's button with healthBar
-		if child.healthBar then
-			Debug("Found Platynator frame with healthBar for", unit)
-			self.displayFrames[unit] = child
-			return child
+	Debug("  Found", #children, "children")
+	local platynatorFrame = nil
+	for i, child in ipairs(children) do
+		local childName = child:GetName() or "unnamed"
+		local childType = child:GetObjectType()
+		Debug("  Child", i, ":", childType, childName)
+		-- Check if this is a Blizzard frame (has Blizzard-specific fields)
+		local isBlizzardFrame = child.HealthBarsContainer or child.classificationIndicator or child.RaidTargetFrame
+		if isBlizzardFrame then
+			Debug("    ^ This is a BLIZZARD frame, skipping")
+		else
+			-- Dump interesting keys for non-Blizzard frames
+			local keys = DumpFrameKeys(child, "    ")
+			for _, key in ipairs(keys) do
+				Debug(key)
+			end
+			-- Check for widgets (Platynator structure)
+			if child.widgets then
+				Debug("  >>> FOUND Platynator frame with widgets!")
+				platynatorFrame = child
+				self.displayFrames[unit] = child
+				return child, "widgets"
+			end
+			-- Check for healthBar on non-Blizzard frame
+			if child.healthBar and not isBlizzardFrame then
+				Debug("  >>> FOUND healthBar on non-Blizzard frame!")
+				platynatorFrame = child
+			end
 		end
 	end
+	-- If we found a non-Blizzard healthBar frame, use it
+	if platynatorFrame then
+		self.displayFrames[unit] = platynatorFrame
+		return platynatorFrame, "healthBar"
+	end
+	-- Method 2: Check UIParent children (old Platynator structure)
+	Debug("Method 2: Scanning UIParent children...")
+	local uiChildren = { UIParent:GetChildren() }
+	local platynatorFrames = 0
+	for _, child in pairs(uiChildren) do
+		-- Look for Platynator-specific fields
+		if child.widgets and child.kind then
+			platynatorFrames = platynatorFrames + 1
+			if child.unit == unit then
+				Debug("  >>> FOUND via UIParent! unit match:", unit)
+				self.displayFrames[unit] = child
+				return child, "widgets-uiparent"
+			end
+		end
+	end
+	Debug("  Found", platynatorFrames, "Platynator-style frames in UIParent")
+	-- Method 3: Check if Platynator global has any useful methods
+	Debug("Method 3: Checking Platynator global API...")
+	local PlatynatorAddon = _G.Platynator
+	if PlatynatorAddon then
+		-- Check for GetDisplay or similar method
+		if PlatynatorAddon.GetDisplay then
+			Debug("  Found GetDisplay method!")
+			local display = PlatynatorAddon:GetDisplay(unit)
+			if display then
+				Debug("  >>> Got display from API!")
+				self.displayFrames[unit] = display
+				return display, "api"
+			end
+		end
+		if PlatynatorAddon.displays then
+			Debug("  Found displays table!")
+			local display = PlatynatorAddon.displays[unit]
+			if display then
+				Debug("  >>> Got display from displays table!")
+				self.displayFrames[unit] = display
+				return display, "displays-table"
+			end
+		end
+		-- Dump Platynator global keys
+		Debug("  Platynator global keys:")
+		local keys = DumpFrameKeys(PlatynatorAddon, "    ")
+		for _, key in ipairs(keys) do
+			Debug(key)
+		end
+	end
+	Debug("=== END DEEP SCAN - NOT FOUND ===")
 	return nil
 end
 -- Modify the health bar texture of a Platynator nameplate
--- New structure: display is a Button with .healthBar (StatusBar)
-Platynator.CustomizeHealthBar = function(self, display)
+-- Supports multiple structures:
+-- 1. New: display.healthBar (StatusBar)
+-- 2. Old: display.widgets[].statusBar with details.kind == "health"
+Platynator.CustomizeHealthBar = function(self, display, structureType)
 	if not display then
 		return false
 	end
-	local healthBar = display.healthBar
+	Debug("CustomizeHealthBar called, structureType:", structureType or "unknown")
+	-- Try to find the health bar based on structure type
+	local healthBar
+	local widget -- for old structure
+	-- New structure: direct healthBar
+	if display.healthBar then
+		healthBar = display.healthBar
+		Debug("Using direct healthBar")
+	-- Old structure: widgets table
+	elseif display.widgets then
+		Debug("Looking in widgets table...")
+		for _, w in pairs(display.widgets) do
+			if w.statusBar and w.details and w.details.kind == "health" then
+				healthBar = w.statusBar
+				widget = w
+				Debug("Found health widget with statusBar")
+				break
+			elseif w.statusBar and w.background then
+				-- Alternative: has statusBar and background
+				healthBar = w.statusBar
+				widget = w
+				Debug("Found widget with statusBar and background")
+				break
+			end
+		end
+	end
 	if not healthBar then
 		Debug("No healthBar found on display!")
+		-- Dump display structure for debugging
+		Debug("Display keys:")
+		local keys = DumpFrameKeys(display, "  ")
+		for _, key in ipairs(keys) do
+			Debug(key)
+		end
 		return false
 	end
 	Debug("Found healthBar!")
 	local origWidth, origHeight = healthBar:GetSize()
 	Debug("  HealthBar size:", origWidth, "x", origHeight)
+	-- For old widget structure, hide background and border
+	if widget then
+		if widget.background then
+			widget.background:SetAlpha(0)
+			Debug("  Hidden widget.background")
+		end
+		if widget.border then
+			widget.border:SetAlpha(0)
+			Debug("  Hidden widget.border")
+		end
+	end
 	-- Mark as customized
 	display.diabolicCustomized = true
 	-- Hook SetSize on healthBar to update frame when size changes (combat scaling)
@@ -156,18 +294,22 @@ Platynator.CustomizeHealthBar = function(self, display)
 		healthBar:SetSize(origWidth + GetFrameWidthExtra(), origHeight)
 	end
 	-- Create DiabolicUI power crystal frame overlay
-	if not display.diabolicFrame then
-		Debug("  Creating DiabolicUI power-crystal frame overlay...")
-		display.diabolicFrame = display:CreateTexture(nil, "OVERLAY")
-		display.diabolicFrame:SetTexture(CUSTOM_TEXTURES.powerCrystal)
-		display.diabolicFrame:SetVertexColor(1, 1, 1, 1)
+	-- For widget structure, create on widget; otherwise on display
+	local overlayParent = widget or display
+	if not overlayParent.diabolicFrame then
+		Debug("  Creating DiabolicUI power-crystal frame overlay on", widget and "widget" or "display")
+		overlayParent.diabolicFrame = overlayParent:CreateTexture(nil, "OVERLAY")
+		overlayParent.diabolicFrame:SetTexture(CUSTOM_TEXTURES.powerCrystal)
+		overlayParent.diabolicFrame:SetVertexColor(1, 1, 1, 1)
 		local frameWidth = origWidth * GetFrameWidthMult() + GetFrameWidthExtra()
 		local frameHeight = origHeight * GetFrameHeightMult()
-		display.diabolicFrame:SetSize(frameWidth, frameHeight)
-		display.diabolicFrame:SetPoint("CENTER", healthBar, "CENTER", 0, 0)
+		overlayParent.diabolicFrame:SetSize(frameWidth, frameHeight)
+		overlayParent.diabolicFrame:SetPoint("CENTER", healthBar, "CENTER", 0, 0)
 		Debug("  Frame size:", frameWidth, "x", frameHeight)
 	end
-	display.diabolicFrame:Show()
+	overlayParent.diabolicFrame:Show()
+	-- Store reference on display for UpdateAllFrames
+	display.diabolicFrame = overlayParent.diabolicFrame
 	Debug("  Customization complete!")
 	return true
 end
@@ -175,10 +317,10 @@ end
 Platynator.TryCustomize = function(self, nameplate, unit, attempt)
 	attempt = attempt or 1
 	local maxAttempts = 5
-	local display = self:FindPlatynatorFrame(nameplate, unit)
+	local display, structureType = self:FindPlatynatorFrame(nameplate, unit)
 	if display then
-		Debug("Found Platynator display for", unit, "- kind:", display.kind, "attempt:", attempt)
-		if self:CustomizeHealthBar(display) then
+		Debug("Found Platynator display for", unit, "- kind:", display.kind, "structureType:", structureType, "attempt:", attempt)
+		if self:CustomizeHealthBar(display, structureType) then
 			Debug("Customized health bar for", unit)
 			self.processedNameplates[nameplate] = true
 		end
@@ -359,7 +501,9 @@ Platynator.UpdateAllFrames = function(self)
 end
 Platynator.OnEnable = function(self)
 	-- Listen for size setting changes
-	ns.callbacks.RegisterCallback(self, "Platynator_Size_Updated", "UpdateAllFrames")
+	if ns.callbacks and ns.callbacks.RegisterCallback then
+		ns.callbacks:RegisterCallback("Platynator_Size_Updated", "UpdateAllFrames", self)
+	end
 	-- Slash commands disabled for now
 	-- SLASH_PLATYNATOR1 = "/platynator"
 	-- SLASH_PLATYNATOR2 = "/platy"
