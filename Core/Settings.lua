@@ -913,6 +913,63 @@ SettingsModule.OnInitialize = function(self)
 			Settings.SetOnValueChangedCallback("global_experiments_customizePlatynator", OnPlatynatorToggle)
 			CreateCheckbox(category, setting, L["CustomizePlatynatorDesc"])
 		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"platynatorFrameWidthMult",
+				"global.experiments",
+				L["PlatynatorFrameWidthMult"],
+				0.35,
+				L["PlatynatorFrameWidthMultDesc"]
+			)
+			local options = Settings.CreateSliderOptions(0.1, 2.0, 0.05)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return string.format("%.2f", value)
+			end)
+			local OnPlatynatorSizeChange = function()
+				ns.callbacks:Fire("Platynator_Size_Updated")
+			end
+			Settings.SetOnValueChangedCallback("global_experiments_platynatorFrameWidthMult", OnPlatynatorSizeChange)
+			Settings.CreateSlider(category, setting, options, L["PlatynatorFrameWidthMultDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"platynatorFrameHeightMult",
+				"global.experiments",
+				L["PlatynatorFrameHeightMult"],
+				0.35,
+				L["PlatynatorFrameHeightMultDesc"]
+			)
+			local options = Settings.CreateSliderOptions(0.1, 2.0, 0.05)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return string.format("%.2f", value)
+			end)
+			local OnPlatynatorSizeChange = function()
+				ns.callbacks:Fire("Platynator_Size_Updated")
+			end
+			Settings.SetOnValueChangedCallback("global_experiments_platynatorFrameHeightMult", OnPlatynatorSizeChange)
+			Settings.CreateSlider(category, setting, options, L["PlatynatorFrameHeightMultDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"platynatorFrameWidthExtra",
+				"global.experiments",
+				L["PlatynatorFrameWidthExtra"],
+				3,
+				L["PlatynatorFrameWidthExtraDesc"]
+			)
+			local options = Settings.CreateSliderOptions(0, 20, 1)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return string.format("%d px", value)
+			end)
+			local OnPlatynatorSizeChange = function()
+				ns.callbacks:Fire("Platynator_Size_Updated")
+			end
+			Settings.SetOnValueChangedCallback("global_experiments_platynatorFrameWidthExtra", OnPlatynatorSizeChange)
+			Settings.CreateSlider(category, setting, options, L["PlatynatorFrameWidthExtraDesc"])
+		end
 		-- Reload UI popup for orb style changes
 		StaticPopupDialogs["DIABOLICUI3_RELOAD_UI"] = {
 			text = L["OrbStyleReloadConfirmation"] or "Changing orb style requires a UI reload. Reload now?",

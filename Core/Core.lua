@@ -142,7 +142,10 @@ local defaults = {
 			hideBagButton = false
 		},
 		experiments = {
-			customizePlatynator = false
+			customizePlatynator = false,
+			platynatorFrameWidthMult = 0.35,
+			platynatorFrameHeightMult = 0.35,
+			platynatorFrameWidthExtra = 3
 		}
 	}
 }

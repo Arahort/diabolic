@@ -24,11 +24,20 @@ local CUSTOM_TEXTURES = {
 	powerCrystalFront = [[Interface\AddOns\DiabolicUI3\Assets\power-crystal-front.png]],
 }
 -- Debug mode
-local DEBUG = false
--- Adjustable sizes
-local FRAME_WIDTH_MULT = 0.35
-local FRAME_HEIGHT_MULT = 0.35
-local FRAME_WIDTH_EXTRA = 3  -- extra pixels to cover original HP bar edges
+local DEBUG = true
+-- Get size settings from db (with fallbacks)
+local function GetFrameWidthMult()
+	local db = ns.db
+	return db and db.global and db.global.experiments and db.global.experiments.platynatorFrameWidthMult or 0.35
+end
+local function GetFrameHeightMult()
+	local db = ns.db
+	return db and db.global and db.global.experiments and db.global.experiments.platynatorFrameHeightMult or 0.35
+end
+local function GetFrameWidthExtra()
+	local db = ns.db
+	return db and db.global and db.global.experiments and db.global.experiments.platynatorFrameWidthExtra or 3
+end
 -- Debug helper
 local Debug = function(...)
 	if DEBUG then
@@ -40,113 +49,127 @@ Platynator.processedNameplates = {}
 -- Cache for Platynator display frames (they're parented to UIParent, not nameplate)
 Platynator.displayFrames = {}
 -- Find Platynator's custom frame for a unit
--- Platynator frames are NOT children of nameplates - they're parented to UIParent
--- and positioned over the nameplate via SetPoint("CENTER", nameplate)
+-- Platynator creates a Button as a CHILD of the nameplate with a healthBar field
 Platynator.FindPlatynatorFrame = function(self, nameplate, unit)
 	if not nameplate then return nil end
 	-- First check if we've already cached this frame
 	if self.displayFrames[unit] then
 		return self.displayFrames[unit]
 	end
-	-- Platynator frames are children of UIParent with widgets and kind fields
-	-- We need to find frames that are anchored to this nameplate
-	local children = { UIParent:GetChildren() }
-	for _, child in pairs(children) do
-		-- Platynator display frames have 'widgets' table, 'kind' field, and 'unit' field
-		if child.widgets and child.kind and child.unit then
-			-- Check if this display is for our unit
-			if child.unit == unit then
-				Debug("Found Platynator display via UIParent scan!")
-				self.displayFrames[unit] = child
-				return child
-			end
-		end
-	end
-	-- Alternative: check if frame is positioned at nameplate's center
-	for _, child in pairs(children) do
-		if child.widgets and child.kind then
-			-- Use pcall to avoid taint errors on protected frames
-			local ok, point, relativeTo = pcall(child.GetPoint, child, 1)
-			if ok and relativeTo == nameplate then
-				Debug("Found Platynator display via anchor check!")
-				self.displayFrames[unit] = child
-				return child
-			end
+	-- Platynator creates Button children of the nameplate with healthBar field
+	local children = { nameplate:GetChildren() }
+	for _, child in ipairs(children) do
+		-- Look for Platynator's button with healthBar
+		if child.healthBar then
+			Debug("Found Platynator frame with healthBar for", unit)
+			self.displayFrames[unit] = child
+			return child
 		end
 	end
 	return nil
 end
 -- Modify the health bar texture of a Platynator nameplate
+-- New structure: display is a Button with .healthBar (StatusBar)
 Platynator.CustomizeHealthBar = function(self, display)
-	if not display or not display.widgets then
+	if not display then
 		return false
 	end
-	local customized = false
-	for _, widget in pairs(display.widgets) do
-		-- Health bars have statusBar and background elements
-		if widget.statusBar and widget.background and widget.details and widget.details.kind == "health" then
-			Debug("Found health bar widget!")
-			widget.diabolicCustomized = true
-			local origWidth, origHeight = widget.statusBar:GetSize()
-			Debug("  StatusBar size:", origWidth, "x", origHeight)
-			-- Hook SetColor and SetSize to reapply texture and update frame size
-			if not widget.diabolicHooked then
-				widget.diabolicHooked = true
-				-- Hook SetColor
-				local originalSetColor = widget.SetColor
-				if originalSetColor then
-					widget.SetColor = function(self, ...)
-						originalSetColor(self, ...)
-						if self.diabolicCustomized then
-							self.statusBar:SetStatusBarTexture(CUSTOM_TEXTURES.powerCrystalFront)
-						end
-					end
-					Debug("  Hooked SetColor!")
-				end
-				-- Hook SetSize on statusBar to update frame when size changes (combat scaling)
-				local originalSetSize = widget.statusBar.SetSize
-				widget.statusBar.SetSize = function(bar, w, h)
-					-- Expand statusBar width to match frame
-					originalSetSize(bar, w + FRAME_WIDTH_EXTRA, h)
-					if widget.diabolicFrame then
-						local frameWidth = w * FRAME_WIDTH_MULT + FRAME_WIDTH_EXTRA
-						local frameHeight = h * FRAME_HEIGHT_MULT
-						widget.diabolicFrame:SetSize(frameWidth, frameHeight)
-					end
-				end
-				Debug("  Hooked SetSize!")
+	local healthBar = display.healthBar
+	if not healthBar then
+		Debug("No healthBar found on display!")
+		return false
+	end
+	Debug("Found healthBar!")
+	local origWidth, origHeight = healthBar:GetSize()
+	Debug("  HealthBar size:", origWidth, "x", origHeight)
+	-- Mark as customized
+	display.diabolicCustomized = true
+	-- Hook SetSize on healthBar to update frame when size changes (combat scaling)
+	if not display.diabolicHooked then
+		display.diabolicHooked = true
+		local originalSetSize = healthBar.SetSize
+		healthBar.SetSize = function(bar, w, h)
+			originalSetSize(bar, w + GetFrameWidthExtra(), h)
+			if display.diabolicFrame then
+				local frameWidth = w * GetFrameWidthMult() + GetFrameWidthExtra()
+				local frameHeight = h * GetFrameHeightMult()
+				display.diabolicFrame:SetSize(frameWidth, frameHeight)
 			end
-			-- Use DiabolicUI power crystal textures
-			widget.statusBar:SetStatusBarTexture(CUSTOM_TEXTURES.powerCrystalFront)
-			-- Store original size and expand statusBar width to match frame
-			if not widget.diabolicOrigSize then
-				widget.diabolicOrigSize = { width = origWidth, height = origHeight }
-				widget.statusBar:SetSize(origWidth + FRAME_WIDTH_EXTRA, origHeight)
+		end
+		Debug("  Hooked SetSize!")
+		-- Also hook SetWidth and SetHeight
+		local originalSetWidth = healthBar.SetWidth
+		healthBar.SetWidth = function(bar, w)
+			originalSetWidth(bar, w + GetFrameWidthExtra())
+			if display.diabolicFrame then
+				local frameWidth = w * GetFrameWidthMult() + GetFrameWidthExtra()
+				display.diabolicFrame:SetWidth(frameWidth)
 			end
-			-- Hide Platynator's background and border
-			widget.background:SetAlpha(0)
-			if widget.border then
-				widget.border:SetAlpha(0)
+		end
+		local originalSetHeight = healthBar.SetHeight
+		healthBar.SetHeight = function(bar, h)
+			originalSetHeight(bar, h)
+			if display.diabolicFrame then
+				local frameHeight = h * GetFrameHeightMult()
+				display.diabolicFrame:SetHeight(frameHeight)
 			end
-			-- Create DiabolicUI power crystal frame overlay
-			if not widget.diabolicFrame then
-				Debug("  Creating DiabolicUI power-crystal frame overlay...")
-				widget.diabolicFrame = widget:CreateTexture(nil, "OVERLAY")
-				widget.diabolicFrame:SetTexture(CUSTOM_TEXTURES.powerCrystal)
-				widget.diabolicFrame:SetVertexColor(1, 1, 1, 1)
-				-- StatusBar ~358x47, adjust frame to fit
-				local frameWidth = origWidth * FRAME_WIDTH_MULT + FRAME_WIDTH_EXTRA
-				local frameHeight = origHeight * FRAME_HEIGHT_MULT
-				widget.diabolicFrame:SetSize(frameWidth, frameHeight)
-				widget.diabolicFrame:SetPoint("CENTER", widget.statusBar, "CENTER", 0, 0)
-				Debug("  Frame size:", frameWidth, "x", frameHeight)
+		end
+		Debug("  Hooked SetWidth/SetHeight!")
+	end
+	-- Hook SetStatusBarTexture to prevent Platynator from overwriting our texture
+	if not display.diabolicTextureHooked then
+		display.diabolicTextureHooked = true
+		-- Hook the StatusBar method
+		local originalSetStatusBarTexture = healthBar.SetStatusBarTexture
+		healthBar.SetStatusBarTexture = function(bar, tex, ...)
+			-- Always use our custom texture instead
+			originalSetStatusBarTexture(bar, CUSTOM_TEXTURES.powerCrystalFront, ...)
+			Debug("  Intercepted SetStatusBarTexture, using our texture instead")
+		end
+		Debug("  Hooked SetStatusBarTexture!")
+		-- Also hook the texture object directly (Platynator might use tex:SetTexture())
+		local statusBarTex = healthBar:GetStatusBarTexture()
+		if statusBarTex then
+			local originalTexSetTexture = statusBarTex.SetTexture
+			statusBarTex.SetTexture = function(self, tex, ...)
+				-- Always use our custom texture instead
+				originalTexSetTexture(self, CUSTOM_TEXTURES.powerCrystalFront, ...)
+				Debug("  Intercepted texture:SetTexture, using our texture instead")
 			end
-			widget.diabolicFrame:Show()
-			Debug("  Textures applied!")
-			customized = true
+			Debug("  Hooked texture:SetTexture!")
 		end
 	end
-	return customized
+	-- Apply our custom texture directly to the texture object (most reliable)
+	local statusBarTex = healthBar:GetStatusBarTexture()
+	if statusBarTex then
+		-- Use raw SetTexture if available, or go through our hook
+		statusBarTex:SetTexture(CUSTOM_TEXTURES.powerCrystalFront)
+		print("|cff00ff00DiabolicUI3|r |cffff9900[Platynator]|r Texture after set:", statusBarTex:GetTexture())
+	else
+		-- Fallback: use SetStatusBarTexture
+		healthBar:SetStatusBarTexture(CUSTOM_TEXTURES.powerCrystalFront)
+	end
+	Debug("  Applied custom texture to healthBar!")
+	-- Store original size and expand healthBar width
+	if not display.diabolicOrigSize then
+		display.diabolicOrigSize = { width = origWidth, height = origHeight }
+		healthBar:SetSize(origWidth + GetFrameWidthExtra(), origHeight)
+	end
+	-- Create DiabolicUI power crystal frame overlay
+	if not display.diabolicFrame then
+		Debug("  Creating DiabolicUI power-crystal frame overlay...")
+		display.diabolicFrame = display:CreateTexture(nil, "OVERLAY")
+		display.diabolicFrame:SetTexture(CUSTOM_TEXTURES.powerCrystal)
+		display.diabolicFrame:SetVertexColor(1, 1, 1, 1)
+		local frameWidth = origWidth * GetFrameWidthMult() + GetFrameWidthExtra()
+		local frameHeight = origHeight * GetFrameHeightMult()
+		display.diabolicFrame:SetSize(frameWidth, frameHeight)
+		display.diabolicFrame:SetPoint("CENTER", healthBar, "CENTER", 0, 0)
+		Debug("  Frame size:", frameWidth, "x", frameHeight)
+	end
+	display.diabolicFrame:Show()
+	Debug("  Customization complete!")
+	return true
 end
 -- Try to customize a nameplate with retries
 Platynator.TryCustomize = function(self, nameplate, unit, attempt)
@@ -271,54 +294,72 @@ Platynator.OnAddonLoaded = function(self, event, addonName)
 	end
 end
 Platynator.OnInitialize = function(self)
+	print("|cff00ff00DiabolicUI3|r |cffff9900[Platynator]|r OnInitialize called")
 	-- Check if experiment is enabled
 	local db = ns.db
-	if not db or not db.global or not db.global.experiments then
-		Debug("Settings not available, disabling module")
+	if not db then
+		print("|cff00ff00DiabolicUI3|r |cffff9900[Platynator]|r ERROR: ns.db is nil!")
 		return self:Disable()
 	end
-	if not db.global.experiments.customizePlatynator then
-		-- Silent disable when experiment is off
+	if not db.global then
+		print("|cff00ff00DiabolicUI3|r |cffff9900[Platynator]|r ERROR: db.global is nil!")
 		return self:Disable()
 	end
-	Debug("Experiment enabled, checking for Platynator addon...")
+	if not db.global.experiments then
+		print("|cff00ff00DiabolicUI3|r |cffff9900[Platynator]|r ERROR: db.global.experiments is nil!")
+		return self:Disable()
+	end
+	local settingValue = db.global.experiments.customizePlatynator
+	print("|cff00ff00DiabolicUI3|r |cffff9900[Platynator]|r customizePlatynator =", tostring(settingValue))
+	if not settingValue then
+		print("|cff00ff00DiabolicUI3|r |cffff9900[Platynator]|r Experiment disabled, stopping")
+		return self:Disable()
+	end
+	print("|cff00ff00DiabolicUI3|r |cffff9900[Platynator]|r Experiment ENABLED!")
 	-- Check if Platynator addon is already loaded
 	local isPlatynatorLoaded = IsAddOnLoaded("Platynator")
+	print("|cff00ff00DiabolicUI3|r |cffff9900[Platynator]|r IsAddOnLoaded('Platynator') =", tostring(isPlatynatorLoaded))
 	if isPlatynatorLoaded then
-		Debug("Platynator addon already loaded!")
+		print("|cff00ff00DiabolicUI3|r |cffff9900[Platynator]|r Platynator already loaded, setting up...")
 		self:SetupPlatynator()
 	else
 		-- Check if it exists but not loaded yet
 		local platynatorExists = C_AddOns and C_AddOns.DoesAddOnExist and C_AddOns.DoesAddOnExist("Platynator")
+		print("|cff00ff00DiabolicUI3|r |cffff9900[Platynator]|r DoesAddOnExist('Platynator') =", tostring(platynatorExists))
 		if platynatorExists then
-			Debug("Platynator addon exists, waiting for ADDON_LOADED...")
+			print("|cff00ff00DiabolicUI3|r |cffff9900[Platynator]|r Waiting for ADDON_LOADED...")
 			self:RegisterEvent("ADDON_LOADED", "OnAddonLoaded")
 		else
-			Debug("Platynator addon NOT FOUND in AddOns folder")
+			print("|cff00ff00DiabolicUI3|r |cffff9900[Platynator]|r Platynator NOT FOUND, disabling")
 			return self:Disable()
 		end
 	end
 end
 -- Update all existing frames with new size multipliers
 Platynator.UpdateAllFrames = function(self)
-	local children = { UIParent:GetChildren() }
-	for _, child in pairs(children) do
-		if child.widgets and child.kind then
-			for _, widget in pairs(child.widgets) do
-				if widget.diabolicFrame and widget.diabolicOrigSize then
-					local origWidth = widget.diabolicOrigSize.width
-					local origHeight = widget.diabolicOrigSize.height
-					-- Update frame size
-					local frameWidth = origWidth * FRAME_WIDTH_MULT + FRAME_WIDTH_EXTRA
-					local frameHeight = origHeight * FRAME_HEIGHT_MULT
-					widget.diabolicFrame:SetSize(frameWidth, frameHeight)
-				end
+	local widthMult = GetFrameWidthMult()
+	local heightMult = GetFrameHeightMult()
+	local widthExtra = GetFrameWidthExtra()
+	-- Iterate through cached display frames
+	for unit, display in pairs(self.displayFrames) do
+		if display.diabolicFrame and display.diabolicOrigSize then
+			local origWidth = display.diabolicOrigSize.width
+			local origHeight = display.diabolicOrigSize.height
+			-- Update frame size
+			local frameWidth = origWidth * widthMult + widthExtra
+			local frameHeight = origHeight * heightMult
+			display.diabolicFrame:SetSize(frameWidth, frameHeight)
+			-- Also update healthBar width
+			if display.healthBar then
+				display.healthBar:SetSize(origWidth + widthExtra, origHeight)
 			end
 		end
 	end
-	print("|cff00ff00DiabolicUI3|r |cffff9900[Platynator]|r Updated: frame=" .. FRAME_WIDTH_MULT .. "x" .. FRAME_HEIGHT_MULT)
+	Debug("Updated all frames: widthMult=" .. widthMult .. " heightMult=" .. heightMult .. " extra=" .. widthExtra)
 end
 Platynator.OnEnable = function(self)
+	-- Listen for size setting changes
+	ns.callbacks.RegisterCallback(self, "Platynator_Size_Updated", "UpdateAllFrames")
 	-- Slash commands disabled for now
 	-- SLASH_PLATYNATOR1 = "/platynator"
 	-- SLASH_PLATYNATOR2 = "/platy"
@@ -327,7 +368,7 @@ Platynator.OnEnable = function(self)
 	-- 	if cmd == "w" or cmd == "width" then  -- frame width
 	-- 		local num = tonumber(value)
 	-- 		if num and num > 0 and num < 3 then
-	-- 			FRAME_WIDTH_MULT = num
+	-- 			GetFrameWidthMult() = num
 	-- 			self:UpdateAllFrames()
 	-- 		else
 	-- 			print("Usage: /platy w 0.75")
@@ -335,15 +376,15 @@ Platynator.OnEnable = function(self)
 	-- 	elseif cmd == "h" or cmd == "height" then  -- frame height
 	-- 		local num = tonumber(value)
 	-- 		if num and num > 0 and num < 5 then
-	-- 			FRAME_HEIGHT_MULT = num
+	-- 			GetFrameHeightMult() = num
 	-- 			self:UpdateAllFrames()
 	-- 		else
 	-- 			print("Usage: /platy h 1.5")
 	-- 		end
 	-- 	else
 	-- 		print("|cff00ff00DiabolicUI3|r |cffff9900[Platynator]|r Commands:")
-	-- 		print("  /platy w <num> - frame width (current: " .. FRAME_WIDTH_MULT .. ")")
-	-- 		print("  /platy h <num> - frame height (current: " .. FRAME_HEIGHT_MULT .. ")")
+	-- 		print("  /platy w <num> - frame width (current: " .. GetFrameWidthMult() .. ")")
+	-- 		print("  /platy h <num> - frame height (current: " .. GetFrameHeightMult() .. ")")
 	-- 	end
 	-- end
 end
