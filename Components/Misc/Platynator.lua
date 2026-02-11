@@ -332,10 +332,8 @@ Platynator.UpdateAllFrames = function(self)
 end
 Platynator.OnEnable = function(self)
 	-- Listen for size setting changes
-	if ns.callbacks then
-		ns.callbacks:RegisterCallback("Platynator_Size_Updated", function()
-			self:UpdateAllFrames()
-		end)
+	if ns.callbacks and ns.callbacks.RegisterCallback then
+		ns.callbacks:RegisterCallback(self, "Platynator_Size_Updated", "UpdateAllFrames")
 	end
 end
 Platynator.OnDisable = function(self)
