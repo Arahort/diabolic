@@ -928,7 +928,11 @@ SettingsModule.OnInitialize = function(self)
 				L["PlatynatorFrameWidthMultDesc"]
 			)
 			Settings.SetOnValueChangedCallback("global_experiments_platynatorFrameWidthMult", OnPlatynatorSizeChange)
-			CreateSlider(category, settingWidth, L["PlatynatorFrameWidthMultDesc"], 0.1, 2.0, 0.05)
+			local optionsWidth = Settings.CreateSliderOptions(0.1, 2.0, 0.05)
+			optionsWidth:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return string.format("%.2f", value)
+			end)
+			Settings.CreateSlider(category, settingWidth, optionsWidth, L["PlatynatorFrameWidthMultDesc"])
 			-- Frame height multiplier
 			local settingHeight = RegisterSetting(
 				category,
@@ -939,7 +943,11 @@ SettingsModule.OnInitialize = function(self)
 				L["PlatynatorFrameHeightMultDesc"]
 			)
 			Settings.SetOnValueChangedCallback("global_experiments_platynatorFrameHeightMult", OnPlatynatorSizeChange)
-			CreateSlider(category, settingHeight, L["PlatynatorFrameHeightMultDesc"], 0.1, 2.0, 0.05)
+			local optionsHeight = Settings.CreateSliderOptions(0.1, 2.0, 0.05)
+			optionsHeight:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return string.format("%.2f", value)
+			end)
+			Settings.CreateSlider(category, settingHeight, optionsHeight, L["PlatynatorFrameHeightMultDesc"])
 			-- Extra width pixels
 			local settingExtra = RegisterSetting(
 				category,
@@ -950,7 +958,11 @@ SettingsModule.OnInitialize = function(self)
 				L["PlatynatorFrameWidthExtraDesc"]
 			)
 			Settings.SetOnValueChangedCallback("global_experiments_platynatorFrameWidthExtra", OnPlatynatorSizeChange)
-			CreateSlider(category, settingExtra, L["PlatynatorFrameWidthExtraDesc"], 0, 20, 1)
+			local optionsExtra = Settings.CreateSliderOptions(0, 20, 1)
+			optionsExtra:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return string.format("%d", value)
+			end)
+			Settings.CreateSlider(category, settingExtra, optionsExtra, L["PlatynatorFrameWidthExtraDesc"])
 		end
 		-- Reload UI popup for orb style changes
 		StaticPopupDialogs["DIABOLICUI3_RELOAD_UI"] = {
