@@ -23,11 +23,13 @@ local defaults = {
 			showStanceBar = false,
 			showBlizzardBar5 = false,
 			showBlizzardBar6 = false,
-			showBlizzardBar7 = false
+			showBlizzardBar7 = false,
+			hideHotkeys = false
 		},
 		auras = {
 			alwaysHideAuras = false,
-			alwaysShowAuras = true
+			alwaysShowAuras = true,
+			growUpward = false
 		},
 		tooltips = {
 			enabled = true,
@@ -58,7 +60,7 @@ local defaults = {
 			direction = "leftdown",
 			buttonsPerRow = 5,
 			autohide = 2,
-			mainButtonSize = 40,
+			mainButtonSize = 30,
 			buttonScale = 0.9,
 			blacklist = {}
 		},
@@ -106,7 +108,8 @@ local defaults = {
 			enableMicroMenu = true,
 			positionX = -11,
 			positionY = 11,
-			buttonSize = 34
+			buttonSize = 34,
+			toggleAlpha = 0.3
 		},
 		minimap = {
 			useServerTime = false,

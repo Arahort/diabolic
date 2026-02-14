@@ -169,6 +169,13 @@ local function collectMinimapChildren()
 		end
 	end
 end
+-- Collect Blizzard expansion landing page button (Dragonflight, War Within, etc.)
+local function collectExpansionLandingButton()
+	local button = ExpansionLandingPageMinimapButton
+	if button and isValidFrame(button) and button:IsShown() then
+		collectButton(button)
+	end
+end
 -- Update button layout
 MinimapButtons.UpdateLayout = function(self)
 	if not buttonContainer or not ns.db or not ns.db.char or not ns.db.char.minimapbuttons then
@@ -283,6 +290,7 @@ MinimapButtons.CollectButtons = function(self)
 	collectLibDBIconButtons()
 	collectLibMapButtonButtons()
 	collectMinimapChildren()
+	collectExpansionLandingButton()
 	self:UpdateLayout()
 end
 -- Update main button size

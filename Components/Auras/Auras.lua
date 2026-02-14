@@ -522,7 +522,11 @@ Auras.SpawnAuras = function(self)
 		buffs:SetAttribute("yOffset", 0)
 		buffs:SetAttribute("wrapAfter", 6)
 		buffs:SetAttribute("wrapXOffset", 0)
-		buffs:SetAttribute("wrapYOffset", -(iconSize + 12))
+		-- Grow upward: positive wrapYOffset makes new rows appear above
+		local charDb = ns.db.char.auras
+		local growUpward = charDb and charDb.growUpward
+		local wrapYOffset = growUpward and (iconSize + 12) or -(iconSize + 12)
+		buffs:SetAttribute("wrapYOffset", wrapYOffset)
 		buffs:SetAttribute("filter", "HELPFUL")
 		buffs:SetAttribute("includeWeapons", 1)
 		buffs:SetAttribute("sortMethod", "TIME")

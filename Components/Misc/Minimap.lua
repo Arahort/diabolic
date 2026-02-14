@@ -278,6 +278,27 @@ MinimapMod.RepositionMailFrame = function(self)
 		blizzardMail:SetFrameLevel(Minimap:GetFrameLevel() + 10)
 		blizzardMail:SetScale(1.4)
 		blizzardMail.layoutIndex = nil
+		-- Add circular border (similar to bag button)
+		-- Note: MailFrame scale is 1.4, so we need smaller base size
+		if not blizzardMail.__GP_BorderAdded then
+			local buttonSize = 24 -- smaller size to match scaled icon
+			local borderSize = buttonSize * 1.35
+			-- Circular border - use BORDER layer so mail icon stays on top
+			local border = blizzardMail:CreateTexture(nil, "BORDER", nil, 1)
+			border:SetTexture(GetMedia("button-big-circular"))
+			border:SetVertexColor(.8, .76, .72)
+			border:SetPoint("CENTER")
+			border:SetSize(borderSize, borderSize)
+			blizzardMail.__GP_Border = border
+			-- Background shade
+			local shade = blizzardMail:CreateTexture(nil, "BACKGROUND", nil, -7)
+			shade:SetTexture(GetMedia("shade-circle"))
+			shade:SetVertexColor(0, 0, 0, .5)
+			shade:SetPoint("CENTER")
+			shade:SetSize(buttonSize, buttonSize)
+			blizzardMail.__GP_Shade = shade
+			blizzardMail.__GP_BorderAdded = true
+		end
 	end
 end
 
@@ -361,6 +382,26 @@ MinimapMod.RepositionTracking = function(self)
 		tracking:SetFrameLevel(Minimap:GetFrameLevel() + 10)
 		tracking:SetScale(1.1)
 		tracking.layoutIndex = nil
+		-- Add circular border (similar to bag button)
+		if not tracking.__GP_BorderAdded then
+			local buttonSize = 32 -- approximate icon size
+			local borderSize = buttonSize * 1.35
+			-- Circular border - use BORDER layer so tracking icon stays on top
+			local border = tracking:CreateTexture(nil, "BORDER", nil, 1)
+			border:SetTexture(GetMedia("button-big-circular"))
+			border:SetVertexColor(.8, .76, .72)
+			border:SetPoint("CENTER")
+			border:SetSize(borderSize, borderSize)
+			tracking.__GP_Border = border
+			-- Background shade
+			local shade = tracking:CreateTexture(nil, "BACKGROUND", nil, -7)
+			shade:SetTexture(GetMedia("shade-circle"))
+			shade:SetVertexColor(0, 0, 0, .5)
+			shade:SetPoint("CENTER")
+			shade:SetSize(buttonSize, buttonSize)
+			tracking.__GP_Shade = shade
+			tracking.__GP_BorderAdded = true
+		end
 		tracking.__GP_Repositioning = nil
 		-- Hook SetPoint to prevent Blizzard from resetting position
 		if not tracking.__GP_Hooked then
@@ -532,9 +573,7 @@ MinimapMod.DisableBlizzard = function(self)
 		Minimap:SetArchBlobRingScalar(0)
 		Minimap:SetQuestBlobRingAlpha(0)
 		Minimap:SetQuestBlobRingScalar(0)
-		ExpansionLandingPageMinimapButton:SetParent(UIHider)
-		ExpansionLandingPageMinimapButton:ClearAllPoints()
-		ExpansionLandingPageMinimapButton:SetPoint("CENTER")
+		-- ExpansionLandingPageMinimapButton is now collected by MinimapButtons module
 	else
 		if MinimapBorderTop then MinimapBorderTop:SetParent(UIHider) end
 		if MiniMapInstanceDifficulty then

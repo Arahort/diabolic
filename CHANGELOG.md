@@ -1,5 +1,21 @@
 # DiabolicUI3 Changelog
 
+## [2.4.0] - 2026-02-14
+
+### ✨ New Features
+- **Aura Growth Direction**: New per-character option to grow buff rows upward instead of downward
+  - Checkbox in Settings → Auras section
+  - Requires UI reload to apply
+- **Minimap Icon Borders**: Added circular borders to Mail (9 o'clock) and Tracking (3 o'clock) icons
+  - Matches the bag button border style for visual consistency
+- **Expansion Landing Button**: ExpansionLandingPageMinimapButton (Dragonflight/War Within) now collected into minimap buttons container
+- **Settings Panel Icon**: Added DiabolicUI icon next to addon name in Interface Options addon list
+
+### 🌍 Localization
+- Full translations for aura growth direction setting in all 12 supported languages
+
+---
+
 ## [2.3.0] - 2026-02-10
 
 ### ✨ New Features

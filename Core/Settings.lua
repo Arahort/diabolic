@@ -101,7 +101,7 @@ SettingsModule.OnInitialize = function(self)
 	if not db then return end
 	EventUtil.ContinueOnAddOnLoaded("Blizzard_Settings", function()
 		local CreateCheckbox = Settings.CreateCheckbox or Settings.CreateCheckBox
-		local category, layout = Settings.RegisterVerticalLayoutCategory("Diabolic UI")
+		local category, layout = Settings.RegisterVerticalLayoutCategory("|TInterface\\AddOns\\DiabolicUI3\\Assets\\diabolic-lettermark:16:16:0:0|t  Diabolic UI")
 		categoryID = category.ID
 		ns.SettingsCategoryID = categoryID
 		-- Apply Button
@@ -339,6 +339,21 @@ SettingsModule.OnInitialize = function(self)
 			)
 			CreateCheckbox(category, setting, L["UseExtendedBarsDesc"])
 		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"hideHotkeys",
+				"char.actionbars",
+				L["HideHotkeys"],
+				false,
+				L["HideHotkeysDesc"]
+			)
+			local OnHideHotkeysToggle = function()
+				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
+			end
+			Settings.SetOnValueChangedCallback("char_actionbars_hideHotkeys", OnHideHotkeysToggle)
+			CreateCheckbox(category, setting, L["HideHotkeysDesc"])
+		end
 		--------------------------------------------
 		-- Auras Section
 		--------------------------------------------
@@ -445,6 +460,21 @@ SettingsModule.OnInitialize = function(self)
 			end
 			Settings.SetOnValueChangedCallback("global_auras_twoRowsTargetAuras", OnTwoRowsChanged)
 			CreateCheckbox(category, setting, L["TwoRowsTargetAurasDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"growUpward",
+				"char.auras",
+				L["AurasGrowUpward"],
+				false,
+				L["AurasGrowUpwardDesc"]
+			)
+			local OnGrowUpwardChanged = function()
+				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
+			end
+			Settings.SetOnValueChangedCallback("char_auras_growUpward", OnGrowUpwardChanged)
+			CreateCheckbox(category, setting, L["AurasGrowUpwardDesc"])
 		end
 		--------------------------------------------
 		-- Map and Minimap Section
@@ -845,6 +875,25 @@ SettingsModule.OnInitialize = function(self)
 			end)
 			Settings.CreateSlider(category, setting, options, L["MicroMenuPosYDesc"])
 		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"toggleAlpha",
+				"global.micromenu",
+				L["MicroMenuToggleAlpha"],
+				0.3,
+				L["MicroMenuToggleAlphaDesc"]
+			)
+			local options = Settings.CreateSliderOptions(0.1, 1.0, 0.1)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return string.format("%.1f", value)
+			end)
+			local OnToggleAlphaChanged = function()
+				ns:Fire("MicroMenu_Settings_Updated")
+			end
+			Settings.SetOnValueChangedCallback("global_micromenu_toggleAlpha", OnToggleAlphaChanged)
+			Settings.CreateSlider(category, setting, options, L["MicroMenuToggleAlphaDesc"])
+		end
 		-- BagButton
 		do
 			local setting = RegisterSetting(
@@ -897,6 +946,7 @@ SettingsModule.OnInitialize = function(self)
 		--------------------------------------------
 		-- Experiments Section
 		--------------------------------------------
+		--[[ Platynator settings disabled - module moved to Disabled folder
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["ExperimentsHeader"]))
 		do
 			local setting = RegisterSetting(
@@ -964,6 +1014,7 @@ SettingsModule.OnInitialize = function(self)
 			end)
 			Settings.CreateSlider(category, settingExtra, optionsExtra, L["PlatynatorFrameWidthExtraDesc"])
 		end
+		--]]
 		-- Reload UI popup for orb style changes
 		StaticPopupDialogs["DIABOLICUI3_RELOAD_UI"] = {
 			text = L["OrbStyleReloadConfirmation"] or "Changing orb style requires a UI reload. Reload now?",
