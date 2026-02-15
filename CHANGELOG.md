@@ -1,5 +1,13 @@
 # DiabolicUI3 Changelog
 
+## [2.4.2] - 2026-02-15
+
+### 🎨 Visual Improvements
+- **Castbar Border**: New custom border texture for player and pet castbars
+  - Uses Health-Bar-Border2 texture for better visual consistency
+
+---
+
 ## [2.4.1] - 2026-02-15
 
 ### 🐛 Bug Fixes

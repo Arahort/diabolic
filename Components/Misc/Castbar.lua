@@ -12,10 +12,9 @@ Castbar.StyleCastbar = function(self, frame)
 	if width == 0 or height == 0 then
 		width, height = 195, 20 -- default size fallback
 	end
-	-- ToT texture is 164x46 for a 134x24 frame
-	-- Castbar is much wider, increase multipliers
-	local borderWidth = width * 1.45
-	local borderHeight = height * 5.0
+	-- Border size multipliers
+	local borderWidth = width * 1.1
+	local borderHeight = height * 2.55
 	-- Create a separate frame BEHIND the castbar with lower strata
 	local borderFrame = CreateFrame("Frame", nil, UIParent)
 	borderFrame:SetFrameStrata("LOW")
@@ -23,7 +22,7 @@ Castbar.StyleCastbar = function(self, frame)
 	-- Create border texture
 	local border = borderFrame:CreateTexture(nil, "ARTWORK")
 	border:SetAllPoints()
-	border:SetTexture(GetMedia("tot-diabolic"))
+	border:SetTexture(GetMedia("statusbar/Health-Bar-Border2"))
 	border:SetVertexColor(.8, .8, .8)
 	-- Position and show/hide with castbar
 	local function UpdatePosition()
