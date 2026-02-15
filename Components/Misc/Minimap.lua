@@ -76,7 +76,9 @@ local Minimap_OnMouseWheel = function(self, delta)
 	end
 end
 
-local Minimap_OnMouseUp = function(self, button)
+-- Hook for RightButton and MiddleButton only
+-- LeftButton is handled by Blizzard's original handler (ping)
+local Minimap_OnMouseUp_Hook = function(self, button)
 	if (button == "RightButton") then
 		if (ns.IsWrath) then
 			ToggleDropDownMenu(1, nil, MiniMapTrackingDropDown, "MiniMapTracking", 8, 5)
@@ -93,12 +95,8 @@ local Minimap_OnMouseUp = function(self, button)
 				GarrisonLandingPage_Toggle()
 			end
 		end
-	else
-		local func = Minimap.OnClick or Minimap_OnClick
-		if (func) then
-			func(self)
-		end
 	end
+	-- LeftButton: do nothing, let Blizzard handle ping
 end
 
 local Mail_OnEnter = function(self)
@@ -297,6 +295,17 @@ MinimapMod.RepositionMailFrame = function(self)
 			shade:SetPoint("CENTER")
 			shade:SetSize(buttonSize, buttonSize)
 			blizzardMail.__GP_Shade = shade
+			-- Hide/show border and shade with mail icon
+			local function UpdateBorderVisibility()
+				local hasMail = HasNewMail()
+				border:SetShown(hasMail)
+				shade:SetShown(hasMail)
+			end
+			-- Initial state
+			UpdateBorderVisibility()
+			-- Hook mail updates
+			blizzardMail:HookScript("OnShow", UpdateBorderVisibility)
+			blizzardMail:HookScript("OnHide", UpdateBorderVisibility)
 			blizzardMail.__GP_BorderAdded = true
 		end
 	end
@@ -606,7 +615,8 @@ MinimapMod.StyleMinimap = function(self)
 	Minimap:SetMaskTexture(GetMedia("minimap-mask-transparent"))
 	Minimap:EnableMouseWheel(true)
 	Minimap:SetScript("OnMouseWheel", Minimap_OnMouseWheel)
-	Minimap:SetScript("OnMouseUp", Minimap_OnMouseUp)
+	-- HookScript preserves Blizzard's ping handler for LeftButton
+	Minimap:HookScript("OnMouseUp", Minimap_OnMouseUp_Hook)
 
 	-- Minimap Backdrop
 	local backdrop = Minimap:CreateTexture(nil, "BACKGROUND")
