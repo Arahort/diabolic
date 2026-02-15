@@ -647,6 +647,13 @@ Tooltips.SetDefaultAnchor = function(self, tooltip, parent)
 	if (not tooltip) or (tooltip:IsForbidden()) then return end
 	-- WoW 12.0.0: Check if parent is also forbidden to avoid taint errors
 	if parent and type(parent.IsForbidden) == "function" and parent:IsForbidden() then return end
+	-- WoW 12.0.0: Skip map-related tooltips to avoid taint with POI/AreaPOI
+	if parent then
+		local parentName = parent:GetName()
+		if parentName and (parentName:match("MapCanvas") or parentName:match("WorldMap") or parentName:match("AreaPOI")) then
+			return
+		end
+	end
 
 	-- WoW 12.0.0: Wrap all tooltip operations in pcall to prevent taint errors
 	local success = pcall(function()

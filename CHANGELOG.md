@@ -1,5 +1,21 @@
 # DiabolicUI3 Changelog
 
+## [2.4.1] - 2026-02-15
+
+### 🐛 Bug Fixes
+- **Tooltip Taint Fix**: Fixed taint error when hovering over POI/quests on world map
+  - Blizzard_SharedXML/Backdrop.lua no longer throws "secret number value" errors
+  - Map-related tooltips (MapCanvas, WorldMap, AreaPOI) now skip custom positioning
+- **Minimap Ping Taint Fix**: Fixed ADDON_ACTION_FORBIDDEN when left-clicking minimap to ping
+  - Changed from SetScript to HookScript for OnMouseUp handler
+  - Blizzard's ping handler now works without taint
+- **Mail Icon Border Visibility**: Border and shade now hide when no mail (was showing empty frame)
+
+### 🔧 Changes
+- Added statusbar profile files for UI and Platynator customization
+
+---
+
 ## [2.4.0] - 2026-02-14
 
 ### ✨ New Features

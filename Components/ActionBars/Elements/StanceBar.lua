@@ -173,7 +173,11 @@ local style = function(button)
 
 	-- Button keybind
 	local hotkey = button.HotKey
-	hotkey:SetParent(overlay)
+	if (ns.db.char.actionbars.hideHotkeys) then
+		hotkey:SetParent(UIHider)
+	else
+		hotkey:SetParent(overlay)
+	end
 	hotkey:SetDrawLayer("OVERLAY", 1)
 	hotkey:ClearAllPoints()
 	hotkey:SetPoint("TOPRIGHT", 0, -3)

@@ -24,8 +24,8 @@
 	<!-- Minimap.lua - custom minimap styling, positioning and element repositioning -->
 	<Script file="Minimap.lua"/>
 
-	<!-- Platynator.lua - custom styling integration for Platynator nameplates addon -->
-	<Script file="Platynator.lua"/>
+	<!-- Platynator.lua - custom styling integration for Platynator nameplates addon (disabled - moved to Disabled folder) -->
+	<!-- <Script file="Platynator.lua"/> -->
 
 	<!-- ObjectivesTracker.lua - repositions and styles the quest/objectives tracker (disabled - ns.IsRetail=nil breaks it) -->
 	<!-- <Script file="ObjectivesTracker.lua"/> -->

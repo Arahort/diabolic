@@ -33,10 +33,9 @@ local SetOverrideBindingClick = SetOverrideBindingClick
 
 
 -- Addon API
-
 local Colors = ns.Colors
-
 local GetFont = ns.API.GetFont
+local UIHider = ns.Hider
 
 local GetMedia = ns.API.GetMedia
 
@@ -389,19 +388,16 @@ local style = function(button)
 
 
 	-- Button keybind
-
 	local hotkey = button.HotKey
-
-	hotkey:SetParent(overlay)
-
+	if (ns.db.char.actionbars.hideHotkeys) then
+		hotkey:SetParent(UIHider)
+	else
+		hotkey:SetParent(overlay)
+	end
 	hotkey:SetDrawLayer("OVERLAY", 1)
-
 	hotkey:ClearAllPoints()
-
 	hotkey:SetPoint("TOPRIGHT", 0, -3)
-
 	hotkey:SetFontObject(GetFont(12,true))
-
 	hotkey:SetTextColor(.75, .75, .75)
 
 

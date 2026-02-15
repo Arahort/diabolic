@@ -15,6 +15,7 @@ local Colors = ns.Colors
 local GetFont = ns.API.GetFont
 local GetMedia = ns.API.GetMedia
 local SetObjectScale = ns.API.SetUnitFramesObjectScale
+local UIHider = ns.Hider
 local noop = ns.Noop
 
 ExtraButtons.UpdateButton = function(self, button)
@@ -74,6 +75,9 @@ ExtraButtons.UpdateButton = function(self, button)
 
 	local keybind = button.HotKey
 	if (keybind) then
+		if (ns.db.char.actionbars.hideHotkeys) then
+			keybind:SetParent(UIHider)
+		end
 		keybind:ClearAllPoints()
 		keybind:SetPoint("TOPRIGHT", -11, -11)
 		keybind:SetFontObject(GetFont(12, true))

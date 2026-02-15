@@ -38,6 +38,11 @@ MicroMenu.GetPosition = function(self)
 	return posX, posY
 end
 
+MicroMenu.GetToggleAlpha = function(self)
+	local db = ns.db
+	return (db and db.global.micromenu.toggleAlpha) or 0.3
+end
+
 MicroMenu.ResizeButton = function(self, btn, targetSize)
 	local nw, nh = btn.nativeWidth, btn.nativeHeight
 	if (not nw or nw == 0) then
@@ -192,7 +197,7 @@ MicroMenu.InitializeMicroMenu = function(self)
 		if (self.mouseOver) or (bar:IsShown()) then
 			self:SetAlpha(1)
 		else
-			self:SetAlpha(0.3)
+			self:SetAlpha(MicroMenu:GetToggleAlpha())
 		end
 	end
 	toggle.OnEnter = function(self)
