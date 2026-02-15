@@ -1,5 +1,14 @@
 # DiabolicUI3 Changelog
 
+## [2.4.3] - 2026-02-15
+
+### 🎨 Visual Improvements
+- **Castbar Progress Texture**: Custom overlay texture for player and pet castbars
+  - Uses Heath-Bar texture with proper fill animation via SetTexCoord
+  - Blue color tint for visual distinction
+
+---
+
 ## [2.4.2] - 2026-02-15
 
 ### 🎨 Visual Improvements

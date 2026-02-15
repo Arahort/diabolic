@@ -41,6 +41,30 @@ Castbar.StyleCastbar = function(self, frame)
 	frame.__GP_BorderFrame = borderFrame
 	frame.__GP_Border = border
 	frame.__GP_Styled = true
+	-- WoW 12.0: SetStatusBarTexture on protected frames is ignored
+	-- Alternative: hide original texture and overlay our own with proper texcoord
+	local origTexture = frame:GetStatusBarTexture()
+	if origTexture then
+		origTexture:SetAlpha(0) -- Hide original
+		-- Create overlay texture at full width, use texcoord to show progress
+		local overlay = frame:CreateTexture(nil, "ARTWORK", nil, 1)
+		overlay:SetTexture(GetMedia("statusbar/Heath-Bar"))
+		overlay:SetPoint("TOPLEFT", frame, "TOPLEFT")
+		overlay:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT")
+		overlay:SetVertexColor(0.2, 0.5, 1.0) -- Blue color
+		frame.__GP_BarOverlay = overlay
+		-- Update overlay width and texcoord based on progress
+		frame:HookScript("OnUpdate", function(self)
+			local min, max = self:GetMinMaxValues()
+			local value = self:GetValue()
+			if max > min then
+				local progress = (value - min) / (max - min)
+				local fullWidth = self:GetWidth()
+				overlay:SetWidth(fullWidth * progress)
+				overlay:SetTexCoord(0, progress, 0, 1)
+			end
+		end)
+	end
 end
 
 Castbar.OnInitialize = function(self)
