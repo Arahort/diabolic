@@ -8,7 +8,7 @@
 
 ## X-Category: Interface Enhancements
 ## X-Curse-Project-ID: 100658
-## X-Wago-ID: WqKQBaGx
+## X-Wago-ID: b6Xe8bKp
 ## X-License: Custom
 
 ## SavedVariables: DiabolicUI3_DB
