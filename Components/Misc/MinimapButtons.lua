@@ -420,8 +420,8 @@ MinimapButtons.OnEnable = function(self)
 		self:CollectButtons()
 	end)
 	-- Register callback for settings updates
-	if ns.callbacks and ns.callbacks.RegisterCallback then
-		ns.callbacks:RegisterCallback(self, "MinimapButtons_Settings_Updated", "UpdateVisibility")
-		ns.callbacks:RegisterCallback(self, "MinimapButtons_MainButtonSize_Updated", "UpdateMainButtonSize")
+	if ns.RegisterCallback then
+		ns.RegisterCallback(self, "MinimapButtons_Settings_Updated", "UpdateVisibility")
+		ns.RegisterCallback(self, "MinimapButtons_MainButtonSize_Updated", "UpdateMainButtonSize")
 	end
 end

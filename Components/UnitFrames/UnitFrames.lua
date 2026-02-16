@@ -646,9 +646,10 @@ UnitFrames.OnInitialize = function(self)
 end
 
 UnitFrames.OnEnable = function(self)
-	if ns.callbacks and ns.callbacks.RegisterCallback then
-		ns.callbacks:RegisterCallback(self, "Target_Position_Updated", "UpdateTargetPosition")
-		ns.callbacks:RegisterCallback(self, "UnitFrames_Settings_Updated", "UpdateTargetHealthColor")
+	-- CallbackHandler adds RegisterCallback to the target object (ns), not to ns.callbacks
+	if ns.RegisterCallback then
+		ns.RegisterCallback(self, "Target_Position_Updated", "UpdateTargetPosition")
+		ns.RegisterCallback(self, "UnitFrames_Settings_Updated", "UpdateTargetHealthColor")
 	end
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnEvent")
 	self:RegisterEvent("DISPLAY_SIZE_CHANGED", "OnEvent")

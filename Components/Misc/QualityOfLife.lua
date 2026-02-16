@@ -108,7 +108,7 @@ end
 QoL.OnInitialize = function(self)
 	self:AutoFillDeleteConfirmation()
 	self:EnableMovableFrames()
-	if ns.callbacks and ns.callbacks.RegisterCallback then
-		ns.callbacks:RegisterCallback(self, "QoL_Settings_Updated", "UpdateMovableFrames")
+	if ns.RegisterCallback then
+		ns.RegisterCallback(self, "QoL_Settings_Updated", "UpdateMovableFrames")
 	end
 end

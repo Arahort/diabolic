@@ -778,7 +778,7 @@ end
 
 Tooltips.OnEnable = function(self)
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "StyleTooltips")
-	if ns.callbacks and ns.callbacks.RegisterCallback then
+	if ns.RegisterCallback then
 		ns.RegisterCallback(self, "Saved_Settings_Updated", "UpdateSettings")
 		ns.RegisterCallback(self, "Tooltips_Settings_Updated", "UpdateSettings")
 	end

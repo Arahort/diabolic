@@ -84,7 +84,14 @@ local Minimap_OnMouseUp_Hook = function(self, button)
 			ToggleDropDownMenu(1, nil, MiniMapTrackingDropDown, "MiniMapTracking", 8, 5)
 			PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON, "SFX")
 		else
-			MinimapCluster.Tracking.Button:OnMouseDown()
+			local trackingBtn = MinimapCluster and MinimapCluster.Tracking and MinimapCluster.Tracking.Button
+			if trackingBtn then
+				if trackingBtn.OnMouseDown then
+					trackingBtn:OnMouseDown()
+				elseif trackingBtn.Click then
+					trackingBtn:Click()
+				end
+			end
 		end
 	elseif (button == "MiddleButton" and ns.IsRetail) then
 		local GLP = GarrisonLandingPageMinimapButton or ExpansionLandingPageMinimapButton
@@ -1021,7 +1028,7 @@ MinimapMod.OnInitialize = function(self)
 end
 
 MinimapMod.OnEnable = function(self)
-	if ns.callbacks and ns.callbacks.RegisterCallback then
-		ns.callbacks:RegisterCallback(self, "Minimap_Settings_Updated", "UpdatePosition")
+	if ns.RegisterCallback then
+		ns.RegisterCallback(self, "Minimap_Settings_Updated", "UpdatePosition")
 	end
 end

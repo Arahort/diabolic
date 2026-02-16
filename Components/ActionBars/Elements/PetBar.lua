@@ -871,17 +871,11 @@ end
 
 
 PetBar.OnEnable = function(self)
-
-	if ns.callbacks and ns.callbacks.RegisterCallback then
-
+	if ns.RegisterCallback then
 		ns.RegisterCallback(self, "ActionBars_Artwork_Updated", "UpdatePosition")
-
 		ns.RegisterCallback(self, "ActionBars_SecondaryBar_Updated", "UpdatePosition")
-
 		ns.RegisterCallback(self, "ActionBars_ThirdBar_Updated", "UpdatePosition")
-
-		ns.callbacks:RegisterCallback(self, "PetBar_Position_Updated", "UpdatePosition")
-
+		ns.RegisterCallback(self, "PetBar_Position_Updated", "UpdatePosition")
 	end
 
 

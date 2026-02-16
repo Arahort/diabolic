@@ -451,6 +451,45 @@ Auras.UpdatePosition = function(self)
 	buffs:ClearAllPoints()
 	buffs:SetPoint("TOPRIGHT", db.positionX or -380, db.positionY or -66)
 end
+Auras.UpdateIconSize = function(self)
+	if (InCombatLockdown()) then
+		return self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnEvent")
+	end
+	local buffs = self.buffs
+	if (not buffs) then
+		return
+	end
+	local db = ns.db.global.auras
+	local charDb = ns.db.char.auras
+	local iconSize = db.iconSize or 36
+	local growUpward = charDb and charDb.growUpward
+	local wrapYOffset = growUpward and (iconSize + 12) or -(iconSize + 12)
+	-- Update header attributes
+	buffs:SetSize(iconSize, iconSize)
+	buffs:SetAttribute("minHeight", iconSize)
+	buffs:SetAttribute("minWidth", iconSize)
+	buffs:SetAttribute("xOffset", -(iconSize + 6))
+	buffs:SetAttribute("wrapYOffset", wrapYOffset)
+	-- Update proxy
+	if buffs.proxy then
+		buffs.proxy:SetSize(iconSize, iconSize)
+	end
+	-- Update consolidation
+	if buffs.consolidation then
+		buffs.consolidation:SetSize(iconSize, iconSize)
+		buffs.consolidation:SetAttribute("xOffset", -(iconSize + 6))
+		buffs.consolidation:SetAttribute("wrapYOffset", wrapYOffset)
+	end
+	-- Update existing aura buttons
+	for i = 1, 40 do
+		local button = buffs:GetAttribute("child" .. i)
+		if button then
+			button:SetSize(iconSize, iconSize)
+		else
+			break
+		end
+	end
+end
 Auras.UpdateSettings = function(self)
 	if (InCombatLockdown()) then
 		return self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnEvent")
@@ -496,6 +535,8 @@ Auras.UpdateSettings = function(self)
 		end
 	end
 	visibility:Execute([[ self:RunAttribute("UpdateDriver"); ]])
+	-- Also update icon size
+	self:UpdateIconSize()
 end
 
 -- Initialization & Events
@@ -846,8 +887,9 @@ Auras.OnInitialize = function(self)
 end
 
 Auras.OnEnable = function(self)
-	if ns.callbacks and ns.callbacks.RegisterCallback then
-		ns.callbacks:RegisterCallback(self, "Auras_Position_Updated", "UpdatePosition")
+	if ns.RegisterCallback then
+		ns.RegisterCallback(self, "Auras_Position_Updated", "UpdatePosition")
+		ns.RegisterCallback(self, "Aura_Settings_Updated", "UpdateSettings")
 	end
 	self:UpdateSettings()
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnEvent")

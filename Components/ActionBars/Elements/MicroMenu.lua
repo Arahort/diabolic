@@ -270,6 +270,9 @@ end
 
 MicroMenu.OnSettingsUpdated = function(self)
 	self:UpdateLayout()
+	if self.toggle and self.toggle.UpdateAlpha then
+		self.toggle:UpdateAlpha()
+	end
 end
 
 MicroMenu.ReclaimButtons = function(self)

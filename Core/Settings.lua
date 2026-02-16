@@ -43,6 +43,7 @@ local function OnSettingChanged(_, setting, value)
 		ns.callbacks:Fire("Minimap_Settings_Updated")
 	elseif variable:match("^global_auras_") then
 		ns.callbacks:Fire("Auras_Position_Updated")
+		ns.callbacks:Fire("Aura_Settings_Updated")
 	elseif variable:match("^global_castbar_") then
 		ns.callbacks:Fire("Castbar_Settings_Updated")
 	elseif variable:match("^global_unitframes_") then
@@ -81,18 +82,27 @@ local function RegisterSetting(category, key, path, name, defaultValue, tooltip)
 	if current[key] == nil then
 		current[key] = defaultValue
 	end
-	local setting = Settings.RegisterAddOnSetting(
+	-- Use RegisterProxySetting for real-time updates
+	local function GetValue()
+		return current[key]
+	end
+	local function SetValue(value)
+		current[key] = value
+	end
+	local setting = Settings.RegisterProxySetting(
 		category,
 		variable,
-		key,
-		current,
 		type(defaultValue),
 		name,
-		defaultValue
+		defaultValue,
+		GetValue,
+		SetValue
 	)
 	if setting then
-		setting:SetValue(current[key])
-		Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
+		-- Wrap callback to match expected signature
+		setting:SetValueChangedCallback(function(s, val)
+			OnSettingChanged(nil, s, val)
+		end)
 	end
 	return setting
 end
@@ -779,7 +789,7 @@ SettingsModule.OnInitialize = function(self)
 				32,
 				L["TooltipOffsetXDesc"]
 			)
-			local options = Settings.CreateSliderOptions(-2000, 2000, 5)
+			local options = Settings.CreateSliderOptions(-2000, 2000, 1)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
@@ -794,7 +804,7 @@ SettingsModule.OnInitialize = function(self)
 				-32,
 				L["TooltipOffsetYDesc"]
 			)
-			local options = Settings.CreateSliderOptions(-2000, 2000, 5)
+			local options = Settings.CreateSliderOptions(-2000, 2000, 1)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)

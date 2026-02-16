@@ -1,5 +1,26 @@
 # DiabolicUI3 Changelog
 
+## [2.4.4] - 2026-02-16
+
+### ✨ Improvements
+- **Real-time Settings**: All settings sliders now apply changes instantly without requiring /reload
+  - Target frame position and scale
+  - Aura icon size and position
+  - Pet bar and stance bar position
+  - Minimap position
+  - MicroMenu toggle button transparency
+  - Tooltip offset and settings
+  - ActionBar settings
+  - QoL movable frames settings
+- **Tooltip Offset Step**: Changed slider step from 5 to 1 for precise positioning
+
+### 🔧 Technical
+- Fixed CallbackHandler usage: `ns.RegisterCallback()` instead of `ns.callbacks:RegisterCallback()`
+- Added `UpdateIconSize` function for real-time aura icon resizing
+- Implemented `RegisterProxySetting` for immediate settings updates
+
+---
+
 ## [2.4.3] - 2026-02-15
 
 ### 🎨 Visual Improvements

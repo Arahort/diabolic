@@ -938,11 +938,11 @@ Bars.OnInitialize = function(self)
 end
 
 Bars.OnEnable = function(self)
-	if ns.callbacks and ns.callbacks.RegisterCallback then
+	if ns.RegisterCallback then
 		ns.RegisterCallback(self, "ActionBars_SecondaryBar_Updated", "UpdateArtwork")
 		ns.RegisterCallback(self, "ActionBars_ThirdBar_Updated", "UpdateArtwork")
 		ns.RegisterCallback(self, "Saved_Settings_Updated", "UpdateSettings")
-		ns.callbacks:RegisterCallback(self, "ActionBar_Settings_Updated", "UpdateSettings")
+		ns.RegisterCallback(self, "ActionBar_Settings_Updated", "UpdateSettings")
 	end
 
 	self:UpdateSettings()
