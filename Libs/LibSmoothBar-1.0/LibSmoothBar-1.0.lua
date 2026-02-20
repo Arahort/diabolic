@@ -24,7 +24,7 @@
 
 --]]
 local MAJOR_VERSION = "LibSmoothBar-1.0"
-local MINOR_VERSION = 6
+local MINOR_VERSION = 7
 
 if (not LibStub) then
 	error(MAJOR_VERSION .. " requires LibStub.")
@@ -546,21 +546,18 @@ end
 
 StatusBar.SetStatusBarColor = function(self, ...)
 	local data = Bars[self]
-	-- Set color on native statusbar (which is now our visible bar)
-	if data.nativeStatusBar then
-		data.nativeStatusBar:SetStatusBarColor(...)
-	end
+	-- Set color on our visual bar texture
+	data.bar:SetVertexColor(...)
 	data.spark:SetVertexColor(...)
 end
 
 StatusBar.SetStatusBarTexture = function(self, ...)
 	local data = Bars[self]
-	-- Set texture on native statusbar (which is now our visible bar)
-	if data.nativeStatusBar then
-		data.nativeStatusBar:SetStatusBarTexture(...)
-		-- Update bar reference to new texture
-		data.bar = data.nativeStatusBar:GetStatusBarTexture()
-		data.bar:SetDrawLayer("BORDER", 0)
+	local arg = ...
+	if (type(arg) == "number") then
+		data.bar:SetColorTexture(...)
+	else
+		data.bar:SetTexture(...)
 	end
 end
 
@@ -662,8 +659,12 @@ StatusBar.SetGrowth = function(self, orientation)
 	local data = Bars[self]
 	local nativeBar = data.nativeStatusBar
 	local spark = data.spark
+	local scrollframe = data.scrollframe
+	local scrollchild = data.scrollchild
+	local statusbar = data.statusbar
 	local statusBarTex = nativeBar and nativeBar:GetStatusBarTexture()
 	spark:ClearAllPoints()
+	scrollframe:ClearAllPoints()
 	if (orientation == "LEFT") then
 		spark:SetTexCoord(0, 1, 3/32, 28/32)
 		data.barOrientation = "LEFT"
@@ -673,7 +674,12 @@ StatusBar.SetGrowth = function(self, orientation)
 			nativeBar:SetOrientation("HORIZONTAL")
 			nativeBar:SetReverseFill(true)
 		end
+		-- Scrollframe: anchor RIGHT to parent, LEFT to native texture LEFT edge
+		scrollframe:SetPoint("TOP")
+		scrollframe:SetPoint("BOTTOM")
+		scrollframe:SetPoint("RIGHT")
 		if statusBarTex then
+			scrollframe:SetPoint("LEFT", statusBarTex, "LEFT")
 			spark:SetPoint("CENTER", statusBarTex, "LEFT", 0, 0)
 		end
 	elseif (orientation == "RIGHT") then
@@ -685,7 +691,12 @@ StatusBar.SetGrowth = function(self, orientation)
 			nativeBar:SetOrientation("HORIZONTAL")
 			nativeBar:SetReverseFill(false)
 		end
+		-- Scrollframe: anchor LEFT to parent, RIGHT to native texture RIGHT edge
+		scrollframe:SetPoint("TOP")
+		scrollframe:SetPoint("BOTTOM")
+		scrollframe:SetPoint("LEFT")
 		if statusBarTex then
+			scrollframe:SetPoint("RIGHT", statusBarTex, "RIGHT")
 			spark:SetPoint("CENTER", statusBarTex, "RIGHT", 0, 0)
 		end
 	elseif (orientation == "UP") then
@@ -697,7 +708,12 @@ StatusBar.SetGrowth = function(self, orientation)
 			nativeBar:SetOrientation("VERTICAL")
 			nativeBar:SetReverseFill(false)
 		end
+		-- Scrollframe: anchor BOTTOM to parent, TOP to native texture TOP edge
+		scrollframe:SetPoint("LEFT")
+		scrollframe:SetPoint("RIGHT")
+		scrollframe:SetPoint("BOTTOM")
 		if statusBarTex then
+			scrollframe:SetPoint("TOP", statusBarTex, "TOP")
 			spark:SetPoint("CENTER", statusBarTex, "TOP", 0, 0)
 		end
 	elseif (orientation == "DOWN") then
@@ -709,7 +725,12 @@ StatusBar.SetGrowth = function(self, orientation)
 			nativeBar:SetOrientation("VERTICAL")
 			nativeBar:SetReverseFill(true)
 		end
+		-- Scrollframe: anchor TOP to parent, BOTTOM to native texture BOTTOM edge
+		scrollframe:SetPoint("LEFT")
+		scrollframe:SetPoint("RIGHT")
+		scrollframe:SetPoint("TOP")
 		if statusBarTex then
+			scrollframe:SetPoint("BOTTOM", statusBarTex, "BOTTOM")
 			spark:SetPoint("CENTER", statusBarTex, "BOTTOM", 0, 0)
 		end
 	end
@@ -779,25 +800,25 @@ StatusBar.GetMinMaxValues = function(self)
 end
 
 StatusBar.GetStatusBarColor = function(self)
-	local data = Bars[self]
-	if data.nativeStatusBar then
-		return data.nativeStatusBar:GetStatusBarColor()
-	end
-	return 1, 1, 1, 1
+	return Bars[self].bar:GetVertexColor()
 end
 
 StatusBar.GetStatusBarTexture = function(self)
-	local data = Bars[self]
-	if data.nativeStatusBar then
-		return data.nativeStatusBar:GetStatusBarTexture()
-	end
-	return data.bar
+	return Bars[self].bar
 end
 
 StatusBar.GetAnchor = function(self) return Bars[self].bar end
 StatusBar.GetObjectType = function(self) return "StatusBar" end
 StatusBar.IsObjectType = function(self, type) return type == "SmartBar" or type == "StatusBar" or type == "Frame" end
 StatusBar.IsForbidden = function(self) return true end
+
+-- Update scrollchild size when statusbar size changes
+local OnSizeChanged = function(self, width, height)
+	local data = Bars[self]
+	if data and data.scrollchild then
+		data.scrollchild:SetSize(width, height)
+	end
+end
 
 lib.CreateSmoothBar = function(self, name, parent, template)
 
@@ -806,20 +827,31 @@ lib.CreateSmoothBar = function(self, name, parent, template)
 
 	-- WoW 12.0.1: Create native StatusBar to handle secret values
 	-- Native StatusBar accepts secret values without Lua comparisons
-	-- We now use the native StatusBar texture DIRECTLY for display
 	local nativeStatusBar = CreateFrame("StatusBar", nil, statusbar)
 	nativeStatusBar:SetAllPoints()
-	nativeStatusBar:SetStatusBarTexture([[Interface\FontStyles\FontStyleMetal]])
+	nativeStatusBar:SetStatusBarTexture([[Interface\Buttons\WHITE8X8]])
+	nativeStatusBar:GetStatusBarTexture():SetAlpha(0) -- invisible, just for value tracking
 	nativeStatusBar:SetMinMaxValues(0, 1)
 	nativeStatusBar:SetValue(0)
-	-- Keep native texture VISIBLE - this is our actual bar now!
-	local nativeTexture = nativeStatusBar:GetStatusBarTexture()
-	nativeTexture:SetDrawLayer("BORDER", 0)
 
-	-- bar reference now points to native texture for API compatibility
-	local bar = nativeTexture
+	-- ScrollFrame approach: clips the bar texture based on native statusbar size
+	-- ScrollChild holds the full-size bar texture
+	local scrollchild = CreateFrame("Frame", nil, statusbar)
+	scrollchild:SetFrameLevel(statusbar:GetFrameLevel())
 
-	-- the spark texture - anchor to native statusbar texture edge
+	-- ScrollFrame anchored to native statusbar texture for automatic sizing
+	local scrollframe = CreateFrame("ScrollFrame", nil, statusbar)
+	scrollframe:SetScrollChild(scrollchild)
+	scrollframe:SetFrameLevel(statusbar:GetFrameLevel())
+	scrollframe:SetClipsChildren(true)
+
+	-- Our visual bar texture - full size, clipped by scrollframe
+	local bar = scrollchild:CreateTexture()
+	bar:SetDrawLayer("BORDER", 0)
+	bar:SetTexture([[Interface\FontStyles\FontStyleMetal]])
+	bar:SetAllPoints(scrollchild)
+
+	-- the spark texture
 	local spark = statusbar:CreateTexture()
 	spark:SetDrawLayer("BORDER", 1)
 	spark:SetSize(8, 16)
@@ -833,6 +865,8 @@ lib.CreateSmoothBar = function(self, name, parent, template)
 	data.spark = spark
 	data.statusbar = statusbar
 	data.nativeStatusBar = nativeStatusBar
+	data.scrollframe = scrollframe
+	data.scrollchild = scrollchild
 
 	data.barMin = 0 -- min value
 	data.barMax = 1 -- max value
@@ -869,6 +903,9 @@ lib.CreateSmoothBar = function(self, name, parent, template)
 	-- Give both the bar texture and the virtual bar direct access
 	Textures[bar] = texCoords
 	Textures[statusbar] = texCoords
+
+	-- Handle size changes to update scrollchild
+	Orig_SetScript(statusbar, "OnSizeChanged", OnSizeChanged)
 
 	-- Initialize growth direction to set up proper anchoring
 	statusbar:SetGrowth("RIGHT")
