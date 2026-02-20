@@ -107,6 +107,13 @@ L["TargetPosX"] = "Zielfenster horizontale Position"
 L["TargetPosXDesc"] = "Horizontale Position anpassen (-2000 bis 2000)"
 L["TargetPosY"] = "Zielfenster vertikale Position"
 L["TargetPosYDesc"] = "Vertikale Position anpassen (-2000 bis 2000)"
+-- Class Power / Runes
+L["ClassPowerPosX"] = "Horizontale Position der Klassenressourcen"
+L["ClassPowerPosXDesc"] = "Position von Runen, Kombopunkten, usw. (-2000 bis 2000)"
+L["ClassPowerPosY"] = "Vertikale Position der Klassenressourcen"
+L["ClassPowerPosYDesc"] = "Position von Runen, Kombopunkten, usw. (-2000 bis 2000)"
+L["ClassPowerScale"] = "Skalierung der Klassenressourcen"
+L["ClassPowerScaleDesc"] = "Skalierung von Runen, Kombopunkten, usw. (0.5 bis 2.0)"
 -- Tooltips
 L["TooltipsHeader"] = "Tooltips"
 L["TooltipOffsetX"] = "Tooltip X-Versatz"

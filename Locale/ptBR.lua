@@ -107,6 +107,13 @@ L["TargetPosX"] = "Posição horizontal do quadro do alvo"
 L["TargetPosXDesc"] = "Ajustar a posição horizontal (-2000 a 2000)"
 L["TargetPosY"] = "Posição vertical do quadro do alvo"
 L["TargetPosYDesc"] = "Ajustar a posição vertical (-2000 a 2000)"
+-- Class Power / Runes
+L["ClassPowerPosX"] = "Posição horizontal dos recursos de classe"
+L["ClassPowerPosXDesc"] = "Posição de runas, pontos de combo, etc. (-2000 a 2000)"
+L["ClassPowerPosY"] = "Posição vertical dos recursos de classe"
+L["ClassPowerPosYDesc"] = "Posição de runas, pontos de combo, etc. (-2000 a 2000)"
+L["ClassPowerScale"] = "Escala dos recursos de classe"
+L["ClassPowerScaleDesc"] = "Escala de runas, pontos de combo, etc. (0.5 a 2.0)"
 -- Tooltips
 L["TooltipsHeader"] = "Dicas de ferramentas"
 L["TooltipOffsetX"] = "Deslocamento X da dica"

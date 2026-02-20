@@ -764,23 +764,12 @@ end
 
 
 PetBar.UpdatePosition = function(self)
-
 	if (not self.Bar) then
-
 		return
-
 	end
-
-	local db = ns.db.global.petbar
-
+	local db = ns.db.char.petbar
 	self.Bar:ClearAllPoints()
-
-	-- Always use dynamic offset calculation based on visible action bars
-	-- Don't use saved db.positionY as it won't adapt to bar configuration changes
-	-- Lower position only when third bar is enabled (needs more spacing)
-	local additionalOffset = ns.db.char.actionbars.enableThird and 15 or 0
-	self.Bar:SetPoint("BOTTOM", db.positionX or 4, ((84 + ActionBars:GetBarOffset()) / self.Bar.scale) - additionalOffset)
-
+	self.Bar:SetPoint("BOTTOM", db.positionX or 4, (db.positionY or 84 + ActionBars:GetBarOffset()) / self.Bar.scale)
 end
 
 

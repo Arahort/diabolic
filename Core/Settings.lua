@@ -50,8 +50,11 @@ local function OnSettingChanged(_, setting, value)
 		if variable:match("targetPosition") or variable:match("targetRelativeScale") then
 			ns.callbacks:Fire("Target_Position_Updated")
 		end
+		if variable:match("classpowerPosition") or variable:match("classpowerScale") then
+			ns.callbacks:Fire("ClassPower_Position_Updated")
+		end
 		ns.callbacks:Fire("UnitFrames_Settings_Updated")
-	elseif variable:match("^global_petbar_") then
+	elseif variable:match("^char_petbar_") then
 		ns.callbacks:Fire("PetBar_Position_Updated")
 	elseif variable:match("^global_stancebar_") then
 		ns.callbacks:Fire("StanceBar_Position_Updated")
@@ -301,7 +304,7 @@ SettingsModule.OnInitialize = function(self)
 			local setting = RegisterSetting(
 				category,
 				"positionX",
-				"global.petbar",
+				"char.petbar",
 				L["PetBarPosX"],
 				4,
 				L["PetBarPosXDesc"]
@@ -316,7 +319,7 @@ SettingsModule.OnInitialize = function(self)
 			local setting = RegisterSetting(
 				category,
 				"positionY",
-				"global.petbar",
+				"char.petbar",
 				L["PetBarPosY"],
 				84,
 				L["PetBarPosYDesc"]
@@ -776,6 +779,52 @@ SettingsModule.OnInitialize = function(self)
 			Settings.CreateSlider(category, setting, options, L["TargetRelativeScaleDesc"])
 		end
 		--]]
+		-- Class Power / Runes Position
+		do
+			local setting = RegisterSetting(
+				category,
+				"classpowerPositionX",
+				"global.unitframes",
+				L["ClassPowerPosX"],
+				0,
+				L["ClassPowerPosXDesc"]
+			)
+			local options = Settings.CreateSliderOptions(-2000, 2000, 5)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return tostring(value)
+			end)
+			Settings.CreateSlider(category, setting, options, L["ClassPowerPosXDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"classpowerPositionY",
+				"global.unitframes",
+				L["ClassPowerPosY"],
+				300,
+				L["ClassPowerPosYDesc"]
+			)
+			local options = Settings.CreateSliderOptions(-2000, 2000, 5)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return tostring(value)
+			end)
+			Settings.CreateSlider(category, setting, options, L["ClassPowerPosYDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
+				"classpowerScale",
+				"global.unitframes",
+				L["ClassPowerScale"],
+				1.0,
+				L["ClassPowerScaleDesc"]
+			)
+			local options = Settings.CreateSliderOptions(0.5, 2.0, 0.05)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return string.format("%.2f", value)
+			end)
+			Settings.CreateSlider(category, setting, options, L["ClassPowerScaleDesc"])
+		end
 		--------------------------------------------
 		-- Tooltips Section
 		--------------------------------------------

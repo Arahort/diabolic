@@ -66,6 +66,10 @@ local defaults = {
 		},
 		pet = {
 			useOrbStyle = true
+		},
+		petbar = {
+			positionX = 4,
+			positionY = 130
 		}
 	},
 	global = {
@@ -102,7 +106,10 @@ local defaults = {
 			showThreatOnTarget = false,
 			targetPositionX = 0,
 			targetPositionY = -95,
-			targetRelativeScale = 1.2
+			targetRelativeScale = 1.2,
+			classpowerPositionX = 0,
+			classpowerPositionY = 300,
+			classpowerScale = 1.0
 		},
 		micromenu = {
 			enableMicroMenu = true,
@@ -132,10 +139,6 @@ local defaults = {
 			positionY = -5,
 			iconSize = 36,
 			twoRowsTargetAuras = false
-		},
-		petbar = {
-			positionX = 4,
-			positionY = 130
 		},
 		stancebar = {
 			positionX = 380,

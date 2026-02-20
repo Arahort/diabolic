@@ -107,6 +107,13 @@ L["TargetPosX"] = "Posizione orizzontale riquadro bersaglio"
 L["TargetPosXDesc"] = "Regola la posizione orizzontale (-2000 a 2000)"
 L["TargetPosY"] = "Posizione verticale riquadro bersaglio"
 L["TargetPosYDesc"] = "Regola la posizione verticale (-2000 a 2000)"
+-- Class Power / Runes
+L["ClassPowerPosX"] = "Posizione orizzontale risorse di classe"
+L["ClassPowerPosXDesc"] = "Posizione di rune, punti combo, ecc. (-2000 a 2000)"
+L["ClassPowerPosY"] = "Posizione verticale risorse di classe"
+L["ClassPowerPosYDesc"] = "Posizione di rune, punti combo, ecc. (-2000 a 2000)"
+L["ClassPowerScale"] = "Scala risorse di classe"
+L["ClassPowerScaleDesc"] = "Scala di rune, punti combo, ecc. (0.5 a 2.0)"
 -- Tooltips
 L["TooltipsHeader"] = "Descrizioni comandi"
 L["TooltipOffsetX"] = "Offset X descrizione comando"

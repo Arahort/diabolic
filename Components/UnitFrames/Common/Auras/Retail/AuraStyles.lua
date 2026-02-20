@@ -38,7 +38,8 @@ ns.AuraStyles.PlayerPostUpdateButton = function(self, button, unit, data, positi
 	end
 	if (color) then
 		button.Border:SetBackdropBorderColor(color[1], color[2], color[3])
-		button.Bar:SetStatusBarColor(color[1], color[2], color[3])
+		-- WoW 12.0.1: Bar disabled (see Shared/AuraStyles.lua)
+		-- button.Bar:SetStatusBarColor(color[1], color[2], color[3])
 	end
 	-- Icon Coloring - always show player auras colored
 	button.Icon:SetDesaturated(false)

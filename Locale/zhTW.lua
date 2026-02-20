@@ -107,6 +107,13 @@ L["TargetPosX"] = "目標框架水平位置"
 L["TargetPosXDesc"] = "調整水平位置 (-2000 到 2000)"
 L["TargetPosY"] = "目標框架垂直位置"
 L["TargetPosYDesc"] = "調整垂直位置 (-2000 到 2000)"
+-- Class Power / Runes
+L["ClassPowerPosX"] = "職業資源水平位置"
+L["ClassPowerPosXDesc"] = "符文、連擊點等的位置 (-2000 到 2000)"
+L["ClassPowerPosY"] = "職業資源垂直位置"
+L["ClassPowerPosYDesc"] = "符文、連擊點等的位置 (-2000 到 2000)"
+L["ClassPowerScale"] = "職業資源縮放"
+L["ClassPowerScaleDesc"] = "符文、連擊點等的縮放 (0.5 到 2.0)"
 -- Tooltips
 L["TooltipsHeader"] = "滑鼠提示"
 L["TooltipOffsetX"] = "提示 X 偏移"

@@ -107,6 +107,13 @@ L["TargetPosX"] = "Горизонтальная позиция фрейма це
 L["TargetPosXDesc"] = "Настройка горизонтальной позиции (-2000 до 2000)"
 L["TargetPosY"] = "Вертикальная позиция фрейма цели"
 L["TargetPosYDesc"] = "Настройка вертикальной позиции (-2000 до 2000)"
+-- Class Power / Runes
+L["ClassPowerPosX"] = "Горизонтальная позиция ресурсов класса"
+L["ClassPowerPosXDesc"] = "Позиция рун, комбо-очков и т.д. (-2000 до 2000)"
+L["ClassPowerPosY"] = "Вертикальная позиция ресурсов класса"
+L["ClassPowerPosYDesc"] = "Позиция рун, комбо-очков и т.д. (-2000 до 2000)"
+L["ClassPowerScale"] = "Масштаб ресурсов класса"
+L["ClassPowerScaleDesc"] = "Масштаб рун, комбо-очков и т.д. (0.5 до 2.0)"
 -- Tooltips
 L["TooltipsHeader"] = "Подсказки"
 L["TooltipOffsetX"] = "Смещение подсказок по X"

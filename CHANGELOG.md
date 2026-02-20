@@ -1,5 +1,23 @@
 # DiabolicUI3 Changelog
 
+## [2.5.0-alpha1] - 2026-02-20
+
+### ✨ New Features
+- **Class Resources Settings**: Added position and scale settings for runes, combo points, chi, holy power, etc.
+  - Horizontal position (-2000 to 2000)
+  - Vertical position (-2000 to 2000)
+  - Scale (0.5 to 2.0)
+- **Extended Class Resources**: Increased max points from 6 to 8 (texture supports future expansions)
+
+### 🔧 Improvements
+- **Pet Bar Position**: Now saved per-character instead of globally
+- **Pet Bar Sliders**: Fixed real-time position updates
+
+### 🌍 Localization
+- Added translations for class resources settings in all 12 languages
+
+---
+
 ## [2.4.6-alpha] - 2026-02-20
 
 ### 🐛 Bug Fixes

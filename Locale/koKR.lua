@@ -107,6 +107,13 @@ L["TargetPosX"] = "대상 프레임 가로 위치"
 L["TargetPosXDesc"] = "가로 위치 조정 (-2000 ~ 2000)"
 L["TargetPosY"] = "대상 프레임 세로 위치"
 L["TargetPosYDesc"] = "세로 위치 조정 (-2000 ~ 2000)"
+-- Class Power / Runes
+L["ClassPowerPosX"] = "직업 자원 가로 위치"
+L["ClassPowerPosXDesc"] = "룬, 연계 점수 등의 위치 (-2000 ~ 2000)"
+L["ClassPowerPosY"] = "직업 자원 세로 위치"
+L["ClassPowerPosYDesc"] = "룬, 연계 점수 등의 위치 (-2000 ~ 2000)"
+L["ClassPowerScale"] = "직업 자원 크기"
+L["ClassPowerScaleDesc"] = "룬, 연계 점수 등의 크기 (0.5 ~ 2.0)"
 -- Tooltips
 L["TooltipsHeader"] = "툴팁"
 L["TooltipOffsetX"] = "툴팁 X 오프셋"

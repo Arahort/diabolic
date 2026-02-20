@@ -811,14 +811,14 @@ UnitStyles["Player"] = function(self, unit, id)
 	if (not SCP) then
 
 		local classpower = CreateFrame("Frame", nil, self)
-		classpower:SetSize(350,70)
+		classpower:SetSize(560,70) -- 8 points * 70px (resized dynamically by PostUpdate)
 		classpower:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 300)
 		classpower.pointWidth = 70
 		classpower.PostUpdate = ClassPower_PostUpdate
 		classpower.PostUpdateColor = ClassPower_PostUpdateColor
 
-		local maxPoints = (ns.IsRetail) and (playerClass == "MONK" or playerClass == "ROGUE") and 6 or 5
-		for i = 1,maxPoints do
+		-- Create max 8 points (texture supports 8, future patches may add more)
+		for i = 1, 8 do
 			local point = CreatePoint(self, i)
 			point:SetParent(classpower)
 			if (i == 1) then
@@ -865,13 +865,14 @@ UnitStyles["Player"] = function(self, unit, id)
 	if (playerClass == "DEATHKNIGHT") and ((ns.IsWrath) or (ns.IsRetail and not SCP)) then
 
 		local runes = CreateFrame("Frame", nil, self)
-		runes:SetSize(420,70)
+		runes:SetSize(560,70) -- 8 runes * 70px
 		runes:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 300)
 		runes.sortOrder = "ASC"
 		runes.PostUpdate = Runes_PostUpdate
 		runes.PostUpdateColor = Runes_PostUpdateColor
 
-		for i = 1,6 do
+		-- Create max 8 runes (texture supports 8, future patches may add more)
+		for i = 1, 8 do
 			local rune = CreatePoint(self, i)
 			rune:SetParent(runes)
 			if (i == 1) then
@@ -1006,5 +1007,33 @@ UnitStyles["Player"] = function(self, unit, id)
 	end
 	ns.RegisterCallback(self, "OrbColors_Updated", "UpdateOrbColors")
 	self:UpdateOrbColors()
+
+	-- Class Power / Runes Position and Scale
+	self.UpdateClassPowerPosition = function(self)
+		local db = ns.db.global.unitframes
+		local posX = db.classpowerPositionX or 0
+		local posY = db.classpowerPositionY or 300
+		local scale = db.classpowerScale or 1.0
+		-- Update ClassPower
+		if self.ClassPower then
+			self.ClassPower:ClearAllPoints()
+			self.ClassPower:SetPoint("BOTTOM", UIParent, "BOTTOM", posX, posY)
+			self.ClassPower:SetScale(scale)
+		end
+		-- Update Runes (Death Knight)
+		if self.Runes then
+			self.Runes:ClearAllPoints()
+			self.Runes:SetPoint("BOTTOM", UIParent, "BOTTOM", posX, posY)
+			self.Runes:SetScale(scale)
+		end
+		-- Update Stagger (Monk)
+		if self.Stagger then
+			self.Stagger:ClearAllPoints()
+			self.Stagger:SetPoint("BOTTOM", UIParent, "BOTTOM", posX, posY)
+			self.Stagger:SetScale(scale)
+		end
+	end
+	ns.RegisterCallback(self, "ClassPower_Position_Updated", "UpdateClassPowerPosition")
+	self:UpdateClassPowerPosition()
 
 end
