@@ -8,7 +8,7 @@
 
 	<Script file="Units\Player.lua"/>
 	<Script file="Units\Pet.lua"/>
-	<Script file="Units\Focus.lua"/>
+	<!-- <Script file="Units\Focus.lua"/> --> <!-- TEST: disabled for testing -->
 	<Script file="Units\Target.lua"/>
 	<Script file="Units\ToT.lua"/>
 	<Script file="Units\Boss.lua"/>

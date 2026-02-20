@@ -1,5 +1,13 @@
 # DiabolicUI3 Changelog
 
+## [2.5.0-alpha2] - 2026-02-20
+
+### 🔧 Changes
+- **Focus Frame**: Temporarily disabled custom Focus frame (using Blizzard default for testing)
+  - Disabled Focus.lua, Spawn, DisableBlizzard, and DockManager references
+
+---
+
 ## [2.5.0-alpha1] - 2026-02-20
 
 ### ✨ New Features

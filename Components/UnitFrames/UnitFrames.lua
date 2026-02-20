@@ -442,7 +442,7 @@ UnitFrames.SpawnUnitFrames = function(self)
 		end
 
 		-- Focus frame is always docked
-		Spawn("focus", "Focus")
+		-- Spawn("focus", "Focus") -- TEST: disabled for testing
 
 		-- Retrieve the dock manager.
 		local dockManager = self:GetDockManager()
@@ -459,19 +459,20 @@ UnitFrames.SpawnUnitFrames = function(self)
 		if not petUseOrb then
 			dockManager:SetFrameRef("Pet", ns.UnitFramesByName["Pet"])
 		end
-		dockManager:SetFrameRef("Focus", ns.UnitFramesByName["Focus"])
+		-- dockManager:SetFrameRef("Focus", ns.UnitFramesByName["Focus"]) -- TEST: disabled for testing
 
 		-- Append the frames to the layout cache.
 		-- The order we insert them into the table
 		-- decides the order in which they are placed.
 		if petUseOrb then
-			dockManager:Execute([=[
-				table.insert(Frames, "Focus");
-			]=])
+			-- TEST: Focus disabled for testing
+			-- dockManager:Execute([=[
+			-- 	table.insert(Frames, "Focus");
+			-- ]=])
 		else
 			dockManager:Execute([=[
 				table.insert(Frames, "Pet");
-				table.insert(Frames, "Focus");
+				-- table.insert(Frames, "Focus"); -- TEST: disabled
 			]=])
 		end
 
@@ -628,7 +629,7 @@ UnitFrames.OnInitialize = function(self)
 	-- Disable Blizzard unit frames before spawning custom frames
 	oUF:DisableBlizzard("player")
 	oUF:DisableBlizzard("target")
-	oUF:DisableBlizzard("focus")
+	-- oUF:DisableBlizzard("focus") -- TEST: disabled for testing
 	oUF:DisableBlizzard("pet")
 	--[[ oUF:DisableBlizzard("party")
 	oUF:DisableBlizzard("boss")
