@@ -91,20 +91,19 @@ ns.AuraStyles.CreateButtonWithBar_NonSecure = function(element, position)
 	end
 	aura.Cooldown = cd
 
-	local bar = element.__owner:CreateBar(nil, aura)
-	bar:SetPoint("TOP", aura, "BOTTOM", 0, 0)
-	bar:SetPoint("LEFT", aura, "LEFT", 1, 0)
-	bar:SetPoint("RIGHT", aura, "RIGHT", -1, 0)
-	bar:SetHeight(6)
-	bar:SetStatusBarTexture(GetMedia("bar-small"))
-	bar.bg = bar:CreateTexture(nil, "BACKGROUND", nil, -7)
-	bar.bg:SetPoint("TOPLEFT", -1, 1)
-	bar.bg:SetPoint("BOTTOMRIGHT", 1, -1)
-	bar.bg:SetColorTexture(.05, .05, .05, .85)
-	aura.Bar = bar
-
-	-- WoW 12.0.0: Hook real cooldown to update bar
-	ns.Widgets.RegisterCooldown(cd, bar)
+	-- WoW 12.0.1: Disabled bar under aura icons for now
+	-- local bar = element.__owner:CreateBar(nil, aura)
+	-- bar:SetPoint("TOP", aura, "BOTTOM", 0, 0)
+	-- bar:SetPoint("LEFT", aura, "LEFT", 1, 0)
+	-- bar:SetPoint("RIGHT", aura, "RIGHT", -1, 0)
+	-- bar:SetHeight(6)
+	-- bar:SetStatusBarTexture(GetMedia("bar-small"))
+	-- bar.bg = bar:CreateTexture(nil, "BACKGROUND", nil, -7)
+	-- bar.bg:SetPoint("TOPLEFT", -1, 1)
+	-- bar.bg:SetPoint("BOTTOMRIGHT", 1, -1)
+	-- bar.bg:SetColorTexture(.05, .05, .05, .85)
+	-- aura.Bar = bar
+	-- ns.Widgets.RegisterCooldown(cd, bar)
 
 	-- Replacing oUF's aura tooltips, as they are not secure.
 	if (not element.disableMouse) then
@@ -153,20 +152,19 @@ ns.AuraStyles.CreateButtonWithBar = function(element, position)
 	end
 	aura.Cooldown = cd
 
-	local bar = element.__owner:CreateBar(nil, aura)
-	bar:SetPoint("TOP", aura, "BOTTOM", 0, 0)
-	bar:SetPoint("LEFT", aura, "LEFT", 1, 0)
-	bar:SetPoint("RIGHT", aura, "RIGHT", -1, 0)
-	bar:SetHeight(6)
-	bar:SetStatusBarTexture(GetMedia("bar-small"))
-	bar.bg = bar:CreateTexture(nil, "BACKGROUND", nil, -7)
-	bar.bg:SetPoint("TOPLEFT", -1, 1)
-	bar.bg:SetPoint("BOTTOMRIGHT", 1, -1)
-	bar.bg:SetColorTexture(.05, .05, .05, .85)
-	aura.Bar = bar
-
-	-- WoW 12.0.0: Hook real cooldown to update bar
-	ns.Widgets.RegisterCooldown(cd, bar)
+	-- WoW 12.0.1: Disabled bar under aura icons for now
+	-- local bar = element.__owner:CreateBar(nil, aura)
+	-- bar:SetPoint("TOP", aura, "BOTTOM", 0, 0)
+	-- bar:SetPoint("LEFT", aura, "LEFT", 1, 0)
+	-- bar:SetPoint("RIGHT", aura, "RIGHT", -1, 0)
+	-- bar:SetHeight(6)
+	-- bar:SetStatusBarTexture(GetMedia("bar-small"))
+	-- bar.bg = bar:CreateTexture(nil, "BACKGROUND", nil, -7)
+	-- bar.bg:SetPoint("TOPLEFT", -1, 1)
+	-- bar.bg:SetPoint("BOTTOMRIGHT", 1, -1)
+	-- bar.bg:SetColorTexture(.05, .05, .05, .85)
+	-- aura.Bar = bar
+	-- ns.Widgets.RegisterCooldown(cd, bar)
 
 	-- Replacing oUF's aura tooltips, as they are not secure.
 	if (not element.disableMouse) then

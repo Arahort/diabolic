@@ -70,19 +70,19 @@ Aura.Style = function(self)
 	--end)
 	self.time = time
 
-	local bar = Auras:CreateSmoothBar(nil, self)
-	bar:SetPoint("TOP", self, "BOTTOM", 0, 0)
-	bar:SetPoint("LEFT", self, "LEFT", 1, 0)
-	bar:SetPoint("RIGHT", self, "RIGHT", -1, 0)
-	bar:SetHeight(4)
-	bar:SetStatusBarTexture(GetMedia("bar-small"))
-	bar:SetStatusBarColor(Colors.xp[1], Colors.xp[2], Colors.xp[3])
-	--bar:SetStatusBarColor(Colors.quest.green[1], Colors.quest.green[2], Colors.quest.green[3])
-	bar.bg = bar:CreateTexture(nil, "BACKGROUND", nil, -7)
-	bar.bg:SetPoint("TOPLEFT", -1, 1)
-	bar.bg:SetPoint("BOTTOMRIGHT", 1, -1)
-	bar.bg:SetColorTexture(.05, .05, .05, .85)
-	self.bar = bar
+	-- WoW 12.0.1: Disabled bar under aura icons for now
+	-- local bar = Auras:CreateSmoothBar(nil, self)
+	-- bar:SetPoint("TOP", self, "BOTTOM", 0, 0)
+	-- bar:SetPoint("LEFT", self, "LEFT", 1, 0)
+	-- bar:SetPoint("RIGHT", self, "RIGHT", -1, 0)
+	-- bar:SetHeight(4)
+	-- bar:SetStatusBarTexture(GetMedia("bar-small"))
+	-- bar:SetStatusBarColor(Colors.xp[1], Colors.xp[2], Colors.xp[3])
+	-- bar.bg = bar:CreateTexture(nil, "BACKGROUND", nil, -7)
+	-- bar.bg:SetPoint("TOPLEFT", -1, 1)
+	-- bar.bg:SetPoint("BOTTOMRIGHT", 1, -1)
+	-- bar.bg:SetColorTexture(.05, .05, .05, .85)
+	-- self.bar = bar
 
 	local fadeAnimation = self:CreateAnimationGroup()
 	fadeAnimation:SetLooping("BOUNCE")
@@ -108,8 +108,8 @@ Aura.Style = function(self)
 	end
 	self.cd = cd
 
-	-- Hook cooldown to update bar
-	RegisterCooldown(cd, bar)
+	-- Hook cooldown to update bar (disabled - bar is disabled)
+	-- RegisterCooldown(cd, bar)
 
 end
 
