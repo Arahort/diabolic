@@ -1,26 +1,6 @@
 # DiabolicUI3 Changelog
 
-## [2.5.0-alpha3] - 2026-02-20
-
-### ✨ New Features
-- **LFG Eye Scale**: Added scale setting for dungeon finder eye icon (0.5 - 2.0)
-  - Located in Map and Minimap settings section
-  - Updates in real-time with 0.1 step
-
-### 🌍 Localization
-- Added translations for LFG Eye Scale setting in all 12 languages
-
----
-
-## [2.5.0-alpha2] - 2026-02-20
-
-### 🔧 Changes
-- **Focus Frame**: Temporarily disabled custom Focus frame (using Blizzard default for testing)
-  - Disabled Focus.lua, Spawn, DisableBlizzard, and DockManager references
-
----
-
-## [2.5.0-alpha1] - 2026-02-20
+## [2.5.0] - 2026-02-20
 
 ### ✨ New Features
 - **Class Resources Settings**: Added position and scale settings for runes, combo points, chi, holy power, etc.
@@ -28,13 +8,15 @@
   - Vertical position (-2000 to 2000)
   - Scale (0.5 to 2.0)
 - **Extended Class Resources**: Increased max points from 6 to 8 (texture supports future expansions)
+- **LFG Eye Scale**: Added scale setting for dungeon finder eye icon (0.5 - 2.0)
 
-### 🔧 Improvements
+### 🔧 Changes
+- **Focus Frame**: Temporarily disabled custom Focus frame (using Blizzard default)
 - **Pet Bar Position**: Now saved per-character instead of globally
 - **Pet Bar Sliders**: Fixed real-time position updates
 
 ### 🌍 Localization
-- Added translations for class resources settings in all 12 languages
+- Added translations for all new settings in all 12 languages
 
 ---
 
