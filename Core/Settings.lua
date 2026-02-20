@@ -556,6 +556,22 @@ SettingsModule.OnInitialize = function(self)
 			end)
 			Settings.CreateSlider(category, setting, options, L["MinimapPosYDesc"])
 		end
+		-- LFG Eye Scale
+		do
+			local setting = RegisterSetting(
+				category,
+				"lfgEyeScale",
+				"global.minimap",
+				L["LFGEyeScale"],
+				1.0,
+				L["LFGEyeScaleDesc"]
+			)
+			local options = Settings.CreateSliderOptions(0.5, 2.0, 0.1)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return string.format("%.1f", value)
+			end)
+			Settings.CreateSlider(category, setting, options, L["LFGEyeScaleDesc"])
+		end
 		do
 			local setting = RegisterSetting(
 				category,

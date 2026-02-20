@@ -122,7 +122,8 @@ local defaults = {
 			useServerTime = false,
 			useHalfClock = false,
 			positionX = -30,
-			positionY = -40
+			positionY = -40,
+			lfgEyeScale = 1.0
 		},
 		talkinghead = {
 			positionX = 0,

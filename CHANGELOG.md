@@ -1,5 +1,17 @@
 # DiabolicUI3 Changelog
 
+## [2.5.0-alpha3] - 2026-02-20
+
+### ✨ New Features
+- **LFG Eye Scale**: Added scale setting for dungeon finder eye icon (0.5 - 2.0)
+  - Located in Map and Minimap settings section
+  - Updates in real-time with 0.1 step
+
+### 🌍 Localization
+- Added translations for LFG Eye Scale setting in all 12 languages
+
+---
+
 ## [2.5.0-alpha2] - 2026-02-20
 
 ### 🔧 Changes

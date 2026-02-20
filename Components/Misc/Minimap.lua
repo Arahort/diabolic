@@ -332,6 +332,9 @@ MinimapMod.RepositionQueueStatus = function(self)
 		holder:SetPoint("TOP", Minimap, "BOTTOM", 0, 37) -- 6 o'clock position
 		holder:SetFrameStrata("MEDIUM")
 		holder:SetFrameLevel(Minimap:GetFrameLevel() + 10)
+		-- Apply scale from settings
+		local db = ns.db.global.minimap
+		holder:SetScale(db.lfgEyeScale or 1.0)
 		self.queueHolder = holder
 		-- Apply custom eye texture
 		local eyeTexture = queueButton:CreateTexture(nil, "OVERLAY")
@@ -542,6 +545,16 @@ MinimapMod.UpdatePosition = function(self)
 	Minimap:ClearAllPoints()
 	Minimap:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", db.positionX or -20, db.positionY or -20)
 	Minimap:SetMovable(true)
+	-- Update LFG Eye scale
+	self:UpdateLFGEyeScale()
+end
+
+MinimapMod.UpdateLFGEyeScale = function(self)
+	if self.queueHolder then
+		local db = ns.db.global.minimap
+		local scale = db.lfgEyeScale or 1.0
+		self.queueHolder:SetScale(scale)
+	end
 end
 
 MinimapMod.UpdateSize = function(self)
