@@ -1,5 +1,30 @@
-﻿local MAJOR_VERSION = "LibSmoothBar-1.0"
-local MINOR_VERSION = 2
+--[[
+
+	The MIT License (MIT)
+
+	Copyright (c) 2022 Lars Norberg
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+
+--]]
+local MAJOR_VERSION = "LibSmoothBar-1.0"
+local MINOR_VERSION = 4
 
 if (not LibStub) then
 	error(MAJOR_VERSION .. " requires LibStub.")
@@ -31,8 +56,6 @@ local type = type
 -- WoW API
 local CreateFrame = CreateFrame
 local GetTime = GetTime
--- WoW 12.0.0: issecretvalue may not exist in older versions
-local issecretvalue = issecretvalue or function() return false end
 
 -- Library registries
 lib.bars = lib.bars or {}
@@ -118,21 +141,12 @@ end
 
 local Update = function(self, elapsed)
 	local data = Bars[self]
-
 	local value = data.disableSmoothing and data.barValue or data.barDisplayValue
 	local min, max = data.barMin, data.barMax
-
-	-- WoW 12.0.0: Can't do arithmetic with secret values - skip Update entirely
-	if issecretvalue(value) or issecretvalue(min) or issecretvalue(max) then
-		return
-	end
-
-
 	local width, height = data.statusbar:GetSize()
 	local orientation = data.barOrientation
 	local bar = data.bar
 	local spark = data.spark
-
 	if (value > max) then
 		value = max
 	elseif (value < min) then
@@ -381,6 +395,8 @@ local smoothingFrequency = .5 -- default duration of smooth transitions
 local smartSmoothingDownFrequency = .15 -- duration of smooth reductions in smart mode
 local smartSmoothingUpFrequency = .75 -- duration of smooth increases in smart mode
 local smoothingLimit = 1/120 -- max updates per second
+-- WoW 12.0.1: Check if value is secret (cannot be used in Lua comparisons)
+local issecretvalue = issecretvalue or function() return false end
 
 local OnUpdate = function(self, elapsed)
 	local data = Bars[self]
@@ -491,44 +507,33 @@ end
 
 StatusBar.SetValue = function(self, value, overrideSmoothing)
 	local data = Bars[self]
-	-- WoW 12.0.0: If value is secret, use proxy StatusBar to unwrap it
-	if issecretvalue(value) and data.proxyBar then
-		data.proxyBar:SetValue(value)
+	-- WoW 12.0.1: Block secret values - they cannot be used in Lua comparisons
+	if issecretvalue(value) then
 		return
 	end
 	local min, max = data.barMin, data.barMax
-	-- WoW 12.0.0: Skip clamping for secret values
-	if not issecretvalue(value) then
-		if (value > max) then
-			value = max
-		elseif (value < min) then
-			value = min
-		end
+	if (value > max) then
+		value = max
+	elseif (value < min) then
+		value = min
 	end
 	data.barValue = value
 	if overrideSmoothing then
 		data.barDisplayValue = value
 	end
 	if (not data.disableSmoothing) then
-		-- WoW 12.0.0: Skip clamping for secret display values
-		if not issecretvalue(data.barDisplayValue) then
-			if (data.barDisplayValue > max) then
-				data.barDisplayValue = max
-			elseif (data.barDisplayValue < min) then
-				data.barDisplayValue = min
-			end
+		if (data.barDisplayValue > max) then
+			data.barDisplayValue = max
+		elseif (data.barDisplayValue < min) then
+			data.barDisplayValue = min
 		end
 		data.smoothingInitialValue = data.barDisplayValue
 		data.smoothingStart = GetTime()
 	end
-	-- WoW 12.0.0: Skip comparison if either value is secret
-	if not (issecretvalue(value) or issecretvalue(data.barDisplayValue)) then
-		if (value ~= data.barDisplayValue) then
-			data.smoothing = true
-		end
+	if (value ~= data.barDisplayValue) then
+		data.smoothing = true
 	end
-	-- WoW 12.0.0: Skip complex comparison if display value is secret
-	if (data.smoothing or not issecretvalue(data.barDisplayValue)) then
+	if (data.smoothing or (data.barDisplayValue > min) or (data.barDisplayValue < max)) then
 		data.updatesRunning = true
 		return
 	end
@@ -544,53 +549,29 @@ end
 
 StatusBar.SetMinMaxValues = function(self, min, max, overrideSmoothing)
 	local data = Bars[self]
-	-- WoW 12.0.0: Save non-secret min/max and pass to proxy for unwrapping
-	if not issecretvalue(min) then
-		data.knownMin = min
+	-- WoW 12.0.1: Block secret values
+	if issecretvalue(min) or issecretvalue(max) then
+		return
 	end
-	if not issecretvalue(max) then
-		data.knownMax = max
+	if (data.barMin == min) and (data.barMax == max) then
+		return
 	end
-	if data.proxyBar then
-		data.proxyBar:SetMinMaxValues(min, max)
-	end
-	-- WoW 12.0.0: Skip comparison if min/max are secret values
-	if not (issecretvalue(min) or issecretvalue(max) or issecretvalue(data.barMin) or issecretvalue(data.barMax)) then
-		if (data.barMin == min) and (data.barMax == max) then
-			return
-		end
-	end
-	-- WoW 12.0.0: Skip clamping if values are secret
-	if not (issecretvalue(data.barValue) or issecretvalue(max) or issecretvalue(min)) then
-		if (data.barValue > max) then
-			data.barValue = max
-		elseif (data.barValue < min) then
-			data.barValue = min
-		end
+	if (data.barValue > max) then
+		data.barValue = max
+	elseif (data.barValue < min) then
+		data.barValue = min
 	end
 	if (overrideSmoothing) then
 		data.barDisplayValue = data.barValue
 	else
-		-- WoW 12.0.0: Skip clamping if values are secret
-		if not (issecretvalue(data.barDisplayValue) or issecretvalue(max) or issecretvalue(min)) then
-			if (data.barDisplayValue > max) then
-				data.barDisplayValue = max
-			elseif (data.barDisplayValue < min) then
-				data.barDisplayValue = min
-			end
+		if (data.barDisplayValue > max) then
+			data.barDisplayValue = max
+		elseif (data.barDisplayValue < min) then
+			data.barDisplayValue = min
 		end
 	end
-	-- WoW 12.0.0: Use saved knownMin/knownMax if incoming values are secret
-	if not issecretvalue(min) then
-		data.barMin = min
-	elseif data.knownMin then
-		data.barMin = data.knownMin
-	end
-	if not issecretvalue(max) then
-		data.barMax = max
-	elseif data.knownMax then
-		data.barMax = data.knownMax
-	end
+	data.barMin = min
+	data.barMax = max
 	Update(self)
 end
 
@@ -615,6 +596,26 @@ end
 
 StatusBar.SetFlippedVertically = function(self, reversed)
 	Bars[self].reversedV = reversed
+end
+
+-- WoW 12.0.1: Timer-based StatusBar methods (stubs for compatibility)
+StatusBar.SetTimerDuration = function(self, duration, interpolation, direction)
+	-- Timer-based status bars not fully supported, use traditional SetValue
+	local data = Bars[self]
+	if (not data) then return end
+	-- Store timer info for GetTimerDuration
+	data.timerDuration = duration
+	data.timerDirection = direction or 1
+end
+
+StatusBar.GetTimerDuration = function(self)
+	local data = Bars[self]
+	if (not data) or (not data.timerDuration) then return nil end
+	-- Return a mock duration object
+	return {
+		GetRemainingDuration = function() return data.timerDuration or 0 end,
+		GetDuration = function() return data.timerDuration or 0 end,
+	}
 end
 
 StatusBar.IsFlippedHorizontally = function(self)
@@ -785,11 +786,6 @@ lib.CreateSmoothBar = function(self, name, parent, template)
 	local statusbar = setmetatable(CreateFrame("Frame", name, parent, template), StatusBar_MT)
 	statusbar:SetSize(1,1)
 
-	-- WoW 12.0.0: Create hidden real StatusBar to unwrap secret values via OnValueChanged
-	local proxyBar = CreateFrame("StatusBar", nil, statusbar)
-	proxyBar:Hide()
-	proxyBar:SetAllPoints()
-
 	local bar = setmetatable(statusbar:CreateTexture(), Texture_MT)
 	bar:SetDrawLayer("BORDER", 0)
 	bar:SetPoint("TOP")
@@ -814,15 +810,11 @@ lib.CreateSmoothBar = function(self, name, parent, template)
 	data.bar = bar
 	data.spark = spark
 	data.statusbar = statusbar
-	data.proxyBar = proxyBar
 
 	data.barMin = 0 -- min value
 	data.barMax = 1 -- max value
 	data.barValue = 0 -- real value
 	data.barDisplayValue = 0 -- displayed value while smoothing
-	-- WoW 12.0.0: Known non-secret min/max for proxy StatusBar unwrapping
-	data.knownMin = 0
-	data.knownMax = 1
 	data.barOrientation = "RIGHT" -- direction the bar is growing in
 
 	-- API compatibility
@@ -858,36 +850,6 @@ lib.CreateSmoothBar = function(self, name, parent, template)
 
 	-- Apply our custom handler
 	Orig_SetScript(statusbar, "OnUpdate", OnUpdate)
-
-	-- WoW 12.0.0: Setup proxy StatusBar OnValueChanged to unwrap secret values
-	proxyBar:SetScript("OnValueChanged", function(pbar, value)
-		local d = Bars[statusbar]
-		if d then
-			-- value here is UNWRAPPED by C++ code!
-			-- Use saved knownMin/knownMax directly - GetMinMaxValues still returns SECRET
-			local oldBarMax = d.barMax
-			d.barValue = value
-			d.barMin = d.knownMin or 0
-			d.barMax = d.knownMax or 1
-
-			-- Handle smoothing
-			if not d.disableSmoothing then
-				if d.barDisplayValue ~= value then
-					d.smoothing = true
-					d.smoothingInitialValue = d.barDisplayValue
-					d.smoothingStart = GetTime()
-				end
-			else
-				d.barDisplayValue = value
-			end
-
-			if d.smoothing then
-				d.updatesRunning = true
-			else
-				Update(statusbar)
-			end
-		end
-	end)
 
 	return statusbar
 end

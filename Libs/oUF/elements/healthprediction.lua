@@ -3,6 +3,8 @@
 
 Handles the visibility and updating of incoming heals and heal/damage absorbs.
 
+**WARNING**: this element is deprecated, please use sub-widgets of Health element instead.
+
 ## Widget
 
 HealthPrediction - A `table` containing references to sub-widgets and options.
@@ -46,6 +48,7 @@ This example does not contain all widgets or options, just a selection.
     healingAll:SetPoint('BOTTOM')
     healingAll:SetPoint('LEFT', self.Health:GetStatusBarTexture(), 'RIGHT')
     healingAll:SetWidth(200)
+    healingAll:SetStatusBarTexture('Interface\\TargetingFrame\\UI-StatusBar')
 
     local damageAbsorb = CreateFrame('StatusBar', nil, self.Health)
     damageAbsorb:SetPoint('TOP')
@@ -127,8 +130,9 @@ local function Update(self, event, unit)
 		element:PreUpdate(unit)
 	end
 
-	local maxHealth = UnitHealthMax(unit)
+	-- WoW 12.0.1: Use calculator for non-secret health values
 	UnitGetDetailedHealPrediction(unit, 'player', element.values)
+	local maxHealth = element.values:GetMaximumHealth()
 
 	local allHeal, playerHeal, otherHeal, healClamped = element.values:GetIncomingHeals()
 	if(element.healingAll) then

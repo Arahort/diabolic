@@ -1,5 +1,30 @@
-﻿local MAJOR_VERSION = "LibOrb-1.0"
-local MINOR_VERSION = 3
+--[[
+
+	The MIT License (MIT)
+
+	Copyright (c) 2022 Lars Norberg
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+
+--]]
+local MAJOR_VERSION = "LibOrb-1.0"
+local MINOR_VERSION = 5
 
 if (not LibStub) then
 	error(MAJOR_VERSION .. " requires LibStub.")
@@ -23,8 +48,6 @@ local unpack = unpack
 -- WoW API
 local CreateFrame = _G.CreateFrame
 local GetTime = _G.GetTime
--- WoW 12.0.0: issecretvalue may not exist in older versions
-local issecretvalue = _G.issecretvalue or function() return false end
 
 -- Library registries
 lib.orbs = lib.orbs or {}
@@ -68,23 +91,16 @@ Orb.SetStatusBarTexture = noop
 local smoothingMinValue = 1 -- if a value is lower than this, we won't smoothe
 local smoothingFrequency = .5 -- time for the smooth transition to complete
 local smoothingLimit = 1/60 -- max updates per second
+-- WoW 12.0.1: Check if value is secret (cannot be used in Lua comparisons)
+local issecretvalue = issecretvalue or function() return false end
 
 local Update = function(self, elapsed)
 	local data = Orbs[self]
-
 	local value = data.disableSmoothing and data.barValue or data.barDisplayValue
 	local min, max = data.barMin, data.barMax
-
-	-- WoW 12.0.0: Values should be unwrapped by proxy StatusBar now
-	-- If they're still secret, skip Update (shouldn't happen if proxy works correctly)
-	if issecretvalue(value) or issecretvalue(min) or issecretvalue(max) then
-		return
-	end
-
 	local orientation = data.orbOrientation
 	local width, height = self:GetSize()
 	local spark = data.spark
-
 	if value > max then
 		value = max
 	elseif value < min then
@@ -305,44 +321,33 @@ end
 -- Sets the value the orb should move towards
 Orb.SetValue = function(self, value, overrideSmoothing)
 	local data = Orbs[self]
-	-- WoW 12.0.0: If value is secret, use proxy StatusBar to unwrap it
-	if issecretvalue(value) and data.proxyBar then
-		data.proxyBar:SetValue(value)
+	-- WoW 12.0.1: Block secret values - they cannot be used in Lua comparisons
+	if issecretvalue(value) then
 		return
 	end
 	local min, max = data.barMin, data.barMax
-	-- WoW 12.0.0: Skip clamping for secret values (they will be clamped by widget internally)
-	if not issecretvalue(value) then
-		if (value > max) then
-			value = max
-		elseif (value < min) then
-			value = min
-		end
+	if (value > max) then
+		value = max
+	elseif (value < min) then
+		value = min
 	end
 	data.barValue = value
 	if overrideSmoothing then
 		data.barDisplayValue = value
 	end
 	if (not data.disableSmoothing) then
-		-- WoW 12.0.0: Skip clamping for secret display values
-		if not issecretvalue(data.barDisplayValue) then
-			if (data.barDisplayValue > max) then
-				data.barDisplayValue = max
-			elseif (data.barDisplayValue < min) then
-				data.barDisplayValue = min
-			end
+		if (data.barDisplayValue > max) then
+			data.barDisplayValue = max
+		elseif (data.barDisplayValue < min) then
+			data.barDisplayValue = min
 		end
 		data.smoothingInitialValue = data.barDisplayValue
 		data.smoothingStart = GetTime()
 	end
-	-- WoW 12.0.0: Skip comparison if either value is secret
-	if not (issecretvalue(value) or issecretvalue(data.barDisplayValue)) then
-		if (value ~= data.barDisplayValue) then
-			data.smoothing = true
-		end
+	if (value ~= data.barDisplayValue) then
+		data.smoothing = true
 	end
-	-- WoW 12.0.0: Skip complex comparison if display value is secret
-	if (data.smoothing or not issecretvalue(data.barDisplayValue)) then
+	if (data.smoothing or (data.barDisplayValue > min) or (data.barDisplayValue < max)) then
 		if (not Orig_GetScript(self, "OnUpdate")) then
 			Orig_SetScript(self, "OnUpdate", OnUpdate)
 		end
@@ -352,41 +357,25 @@ end
 
 Orb.SetMinMaxValues = function(self, min, max, overrideSmoothing)
 	local data = Orbs[self]
-	-- WoW 12.0.0: Save non-secret min/max for OnValueChanged to use
-	if not issecretvalue(min) then
-		data.knownMin = min
+	-- WoW 12.0.1: Block secret values
+	if issecretvalue(min) or issecretvalue(max) then
+		return
 	end
-	if not issecretvalue(max) then
-		data.knownMax = max
+	if (data.barMin == min) and (data.barMax == max) then
+		return
 	end
-	-- WoW 12.0.0: Always update proxy StatusBar too (even if min/max are secret)
-	if data.proxyBar then
-		data.proxyBar:SetMinMaxValues(min, max)
-	end
-	-- WoW 12.0.0: Skip comparison if min/max are secret values
-	if not (issecretvalue(min) or issecretvalue(max) or issecretvalue(data.barMin) or issecretvalue(data.barMax)) then
-		if (data.barMin == min) and (data.barMax == max) then
-			return
-		end
-	end
-	-- WoW 12.0.0: Skip clamping if values are secret
-	if not (issecretvalue(data.barValue) or issecretvalue(max) or issecretvalue(min)) then
-		if (data.barValue > max) then
-			data.barValue = max
-		elseif (data.barValue < min) then
-			data.barValue = min
-		end
+	if (data.barValue > max) then
+		data.barValue = max
+	elseif (data.barValue < min) then
+		data.barValue = min
 	end
 	if overrideSmoothing then
 		data.barDisplayValue = data.barValue
 	else
-		-- WoW 12.0.0: Skip clamping if values are secret
-		if not (issecretvalue(data.barDisplayValue) or issecretvalue(max) or issecretvalue(min)) then
-			if (data.barDisplayValue > max) then
-				data.barDisplayValue = max
-			elseif (data.barDisplayValue < min) then
-				data.barDisplayValue = min
-			end
+		if (data.barDisplayValue > max) then
+			data.barDisplayValue = max
+		elseif (data.barDisplayValue < min) then
+			data.barDisplayValue = min
 		end
 	end
 	data.barMin = min
@@ -484,11 +473,6 @@ lib.CreateOrb = function(self, name, parent, template, rotateClockwise, speedMod
 	local orb = setmetatable(CreateFrame("Frame", name, parent, template), Orb_MT)
 	orb:SetSize(1,1)
 	Orig_SetScript(orb, "OnSizeChanged", OnSizeChanged)
-
-	-- WoW 12.0.0: Create hidden real StatusBar to unwrap secret values via OnValueChanged
-	local proxyBar = CreateFrame("StatusBar", nil, orb)
-	proxyBar:Hide()
-	proxyBar:SetAllPoints()
 
 	-- The scrollchild is where we put rotating textures that needs to be cropped.
 	local scrollchild = CreateFrame("Frame", nil, orb)
@@ -610,7 +594,6 @@ lib.CreateOrb = function(self, name, parent, template, rotateClockwise, speedMod
 	data.scrollchild = scrollchild
 	data.scrollframe = scrollframe
 	data.overlay = overlay
-	data.proxyBar = proxyBar
 
 	-- layers
 	data.layer1 = orbTex1
@@ -623,9 +606,6 @@ lib.CreateOrb = function(self, name, parent, template, rotateClockwise, speedMod
 	data.barMax = 1 -- max value
 	data.barValue = 0 -- real value
 	data.barDisplayValue = 0 -- displayed value while smoothing
-	-- WoW 12.0.0: Known non-secret min/max for proxy StatusBar unwrapping
-	data.knownMin = 0
-	data.knownMax = 1
 	data.barLeftCrop = 0 -- percentage of the orb cropped from the left
 	data.barRightCrop = 0 -- percentage of the orb cropped from the right
 	data.barSmoothingMode = "bezier-fast-in-slow-out"
@@ -636,43 +616,6 @@ lib.CreateOrb = function(self, name, parent, template, rotateClockwise, speedMod
 	data.sparkMaxPercent = 99/100
 
 	Orbs[orb] = data
-
-	-- WoW 12.0.0: Setup proxy StatusBar OnValueChanged to unwrap secret values
-	proxyBar:SetScript("OnValueChanged", function(pbar, value)
-		local d = Orbs[orb]
-		if d then
-			-- value here is UNWRAPPED by C++ code!
-			-- But min/max from GetMinMaxValues() are still SECRET
-			-- So we use knownMin/knownMax saved in SetMinMaxValues
-
-			-- Update data with unwrapped values
-			d.barValue = value
-			if d.knownMin then
-				d.barMin = d.knownMin
-			end
-			if d.knownMax then
-				d.barMax = d.knownMax
-			end
-
-			-- Don't touch barDisplayValue - let smoothing logic handle it
-			if not d.disableSmoothing then
-				if d.barDisplayValue ~= value then
-					d.smoothing = true
-					d.smoothingInitialValue = d.barDisplayValue
-					d.smoothingStart = GetTime()
-				end
-			else
-				d.barDisplayValue = value
-			end
-			if d.smoothing then
-				if not Orig_GetScript(orb, "OnUpdate") then
-					Orig_SetScript(orb, "OnUpdate", OnUpdate)
-				end
-			else
-				Update(orb)
-			end
-		end
-	end)
 
 	Update(orb)
 

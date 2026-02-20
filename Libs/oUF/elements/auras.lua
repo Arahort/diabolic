@@ -38,6 +38,7 @@ At least one of the above widgets must be present for the element to work.
 .showBuffType             - Show Overlay texture colored by oUF.colors.dispel when it's a buff. Exclusive with .showType (boolean)
 .minCount                 - Minimum number of aura applications for the Count text to be visible. Defaults to 2 (number)
 .maxCount                 - Maximum number of aura applications for the Count text, anything above renders "*". Defaults to 999 (number)
+.maxCols                  - Maximum number of aura button columns before wrapping to a new row. Defaults to element width divided by aura button size (number)
 
 ## Options Auras
 
@@ -107,14 +108,6 @@ local function CreateButton(element, index)
 
 	local cd = CreateFrame('Cooldown', '$parentCooldown', button, 'CooldownFrameTemplate')
 	cd:SetAllPoints()
-	-- WoW 12.0.0: Hide cooldown spiral, show built-in countdown numbers
-	cd:SetDrawEdge(false)
-	cd:SetDrawSwipe(false)
-	cd:SetHideCountdownNumbers(false)
-	-- Set countdown font - required for countdown to show!
-	if cd.SetCountdownFont then
-		cd:SetCountdownFont('NumberFontNormal')
-	end
 	button.Cooldown = cd
 
 	local icon = button:CreateTexture(nil, 'BORDER')
@@ -165,7 +158,7 @@ local function SetPosition(element, from, to)
 	local anchor = element.initialAnchor or 'BOTTOMLEFT'
 	local growthX = (element.growthX == 'LEFT' and -1) or 1
 	local growthY = (element.growthY == 'DOWN' and -1) or 1
-	local cols = math.floor(element:GetWidth() / sizeX + 0.5)
+	local cols = element.maxCols or math.floor(element:GetWidth() / sizeX + 0.5)
 
 	for i = from, to do
 		local button = element[i]
@@ -174,12 +167,8 @@ local function SetPosition(element, from, to)
 		local col = (i - 1) % cols
 		local row = math.floor((i - 1) / cols)
 
-		-- WoW 12.0.0: Skip positioning in combat to avoid ADDON_ACTION_BLOCKED for secure buttons
-		-- Allow positioning for non-secure buttons (element.allowCombatUpdates = true)
-		if element.allowCombatUpdates or not InCombatLockdown() then
-			button:ClearAllPoints()
-			button:SetPoint(anchor, element, anchor, col * sizeX * growthX, row * sizeY * growthY)
-		end
+		button:ClearAllPoints()
+		button:SetPoint(anchor, element, anchor, col * sizeX * growthX, row * sizeY * growthY)
 	end
 end
 
@@ -208,40 +197,23 @@ local function updateAura(element, unit, data, position)
 	button.auraInstanceID = data.auraInstanceID
 
 	if(button.Cooldown and not element.disableCooldown) then
-		-- WoW 12.0.0: issecretvalue may not exist in older versions
-		local issecretvalue = issecretvalue or function() return false end
-		if data.duration and data.expirationTime then
-			-- WoW 12.0.0: If values are secret, use GetAuraDuration API
-			if issecretvalue(data.duration) or issecretvalue(data.expirationTime) then
-				-- Can't safely use GetAuraDuration in combat (causes taint on action buttons)
-				if InCombatLockdown() then
-					button.Cooldown:Hide()
-				elseif C_UnitAuras and C_UnitAuras.GetAuraDuration then
-					local durationSecret = C_UnitAuras.GetAuraDuration(unit, data.auraInstanceID)
-					if durationSecret and button.Cooldown.SetCooldownFromDurationObject then
-						button.Cooldown:SetCooldownFromDurationObject(durationSecret)
-						button.Cooldown:Show()
-					else
-						button.Cooldown:Hide()
-					end
-				else
-					-- No API available, hide cooldown
-					button.Cooldown:Hide()
-				end
-			-- Not secret, use traditional method
-			elseif data.duration > 0 then
-				local startTime = data.expirationTime - data.duration
-				button.Cooldown:SetCooldown(startTime, data.duration)
-				button.Cooldown:Show()
-			else
-				button.Cooldown:Hide()
-			end
+		local duration = C_UnitAuras.GetAuraDuration(unit, data.auraInstanceID)
+		if duration then
+			button.Cooldown:SetCooldownFromDurationObject(duration)
+			button.Cooldown:Show()
+		else
+			button.Cooldown:Hide()
 		end
 	end
 
 	if(button.Overlay) then
 		if(element.showType or (data.isHarmfulAura and element.showDebuffType) or (not data.isHarmfulAura and element.showBuffType)) then
 			local color = C_UnitAuras.GetAuraDispelTypeColor(unit, data.auraInstanceID, element.dispelColorCurve)
+			if color == nil then
+				-- BUG: this shouldn't happen but color can be nil, so default to None color
+				color = element.dispelColorCurve:Evaluate(0)
+			end
+
 			button.Overlay:SetVertexColor(color:GetRGBA())
 			button.Overlay:Show()
 		else
@@ -259,28 +231,14 @@ local function updateAura(element, unit, data, position)
 
 	if(button.Icon) then button.Icon:SetTexture(data.icon) end
 	if(button.Count) then
-		local count = C_UnitAuras.GetAuraApplicationDisplayCount(unit, data.auraInstanceID, element.minCount or 2, element.maxCount or 999)
-		-- WoW 12.0.0: count can be secret value, can't display
-		local issecretvalue = issecretvalue or function() return false end
-		if issecretvalue(count) then
-			button.Count:SetText("") -- Don't display secret values
-		else
-			button.Count:SetText(count)
-		end
+		button.Count:SetText(C_UnitAuras.GetAuraApplicationDisplayCount(unit, data.auraInstanceID, element.minCount or 2, element.maxCount or 999))
 	end
 
 	local width = element.width or element.size or 16
 	local height = element.height or element.size or 16
-	-- WoW 12.0.0: Skip protected operations in combat to avoid ADDON_ACTION_BLOCKED for secure buttons
-	-- Allow operations for non-secure buttons (element.allowCombatUpdates = true)
-	if element.allowCombatUpdates or not InCombatLockdown() then
-		button:SetSize(width, height)
-		button:EnableMouse(not element.disableMouse)
-		button:Show()
-	elseif not button:IsShown() then
-		-- Button exists but hidden - try to show it (size already set during creation)
-		pcall(function() button:Show() end)
-	end
+	button:SetSize(width, height)
+	button:EnableMouse(not element.disableMouse)
+	button:Show()
 
 	--[[ Callback: Auras:PostUpdateButton(unit, button, data, position)
 	Called after the aura button has been updated.
@@ -342,6 +300,9 @@ local function UpdateAuras(self, event, unit, updateInfo)
 
 	local auras = self.Auras
 	if(auras) then
+		isFullUpdate = auras.needFullUpdate or isFullUpdate
+		auras.needFullUpdate = false
+
 		--[[ Callback: Auras:PreUpdate(unit, isFullUpdate)
 		Called before the element has been updated.
 
@@ -448,12 +409,6 @@ local function UpdateAuras(self, event, unit, updateInfo)
 							debuffsChanged = true
 						end
 					end
-				end
-				-- WoW 12.0.0: Even if aura wasn't in active list, we need to update visuals
-				-- for currently displayed auras (counter updates during combat)
-				if not buffsChanged and not debuffsChanged and next(updateInfo.updatedAuraInstanceIDs) then
-					buffsChanged = true
-					debuffsChanged = true
 				end
 			end
 
@@ -632,6 +587,9 @@ local function UpdateAuras(self, event, unit, updateInfo)
 
 	local buffs = self.Buffs
 	if(buffs) then
+		isFullUpdate = buffs.needFullUpdate or isFullUpdate
+		buffs.needFullUpdate = false
+
 		if(buffs.PreUpdate) then buffs:PreUpdate(unit, isFullUpdate) end
 
 		local buffsChanged = false
@@ -641,13 +599,9 @@ local function UpdateAuras(self, event, unit, updateInfo)
 			buffFilter = buffFilter(buffs, unit)
 		end
 
-		-- WoW 12.0.0: Initialize buffs.all and buffs.active if they don't exist
-		buffs.all = buffs.all or {}
-		buffs.active = buffs.active or {}
-
 		if(isFullUpdate) then
-			buffs.all = table.wipe(buffs.all)
-			buffs.active = table.wipe(buffs.active)
+			buffs.all = table.wipe(buffs.all or {})
+			buffs.active = table.wipe(buffs.active or {})
 			buffsChanged = true
 
 			local slots = {C_UnitAuras.GetAuraSlots(unit, buffFilter)}
@@ -680,16 +634,9 @@ local function UpdateAuras(self, event, unit, updateInfo)
 
 						if(buffs.active[auraInstanceID]) then
 							buffs.active[auraInstanceID] = true
-							-- WoW 12.0.0: Always trigger update when aura data changes (counters, duration)
-							-- This ensures visual updates work during combat
 							buffsChanged = true
 						end
 					end
-				end
-				-- WoW 12.0.0: Even if aura wasn't in active list, we need to update visuals
-				-- for currently displayed buffs (counter updates during combat)
-				if not buffsChanged and next(updateInfo.updatedAuraInstanceIDs) then
-					buffsChanged = true
 				end
 			end
 
@@ -752,6 +699,9 @@ local function UpdateAuras(self, event, unit, updateInfo)
 
 	local debuffs = self.Debuffs
 	if(debuffs) then
+		isFullUpdate = debuffs.needFullUpdate or isFullUpdate
+		debuffs.needFullUpdate = false
+
 		if(debuffs.PreUpdate) then debuffs:PreUpdate(unit, isFullUpdate) end
 
 		local debuffsChanged = false
@@ -761,13 +711,9 @@ local function UpdateAuras(self, event, unit, updateInfo)
 			debuffFilter = debuffFilter(debuffs, unit)
 		end
 
-		-- WoW 12.0.0: Initialize debuffs.all and debuffs.active if they don't exist
-		debuffs.all = debuffs.all or {}
-		debuffs.active = debuffs.active or {}
-
 		if(isFullUpdate) then
-			debuffs.all = table.wipe(debuffs.all)
-			debuffs.active = table.wipe(debuffs.active)
+			debuffs.all = table.wipe(debuffs.all or {})
+			debuffs.active = table.wipe(debuffs.active or {})
 			debuffsChanged = true
 
 			local slots = {C_UnitAuras.GetAuraSlots(unit, debuffFilter)}
@@ -800,16 +746,9 @@ local function UpdateAuras(self, event, unit, updateInfo)
 
 						if(debuffs.active[auraInstanceID]) then
 							debuffs.active[auraInstanceID] = true
-							-- WoW 12.0.0: Always trigger update when aura data changes (counters, duration)
-							-- This ensures visual updates work during combat
 							debuffsChanged = true
 						end
 					end
-				end
-				-- WoW 12.0.0: Even if aura wasn't in active list, we need to update visuals
-				-- for currently displayed debuffs (counter updates during combat)
-				if not debuffsChanged and next(updateInfo.updatedAuraInstanceIDs) then
-					debuffsChanged = true
 				end
 			end
 
@@ -915,12 +854,15 @@ local function Enable(self)
 			auras.anchoredButtons = 0
 			auras.visibleButtons = 0
 			auras.tooltipAnchor = auras.tooltipAnchor or 'ANCHOR_BOTTOMRIGHT'
+			auras.needFullUpdate = true
 
-			auras.dispelColorCurve = auras.dispelColorCurve or C_CurveUtil.CreateColorCurve()
-			auras.dispelColorCurve:SetType(Enum.LuaCurveType.Step)
-			for _, dispelIndex in next, oUF.Enum.DispelType do
-				if(self.colors.dispel[dispelIndex]) then
-					auras.dispelColorCurve:AddPoint(dispelIndex, self.colors.dispel[dispelIndex])
+			if(not auras.dispelColorCurve) then
+				auras.dispelColorCurve = C_CurveUtil.CreateColorCurve()
+				auras.dispelColorCurve:SetType(Enum.LuaCurveType.Step)
+				for _, dispelIndex in next, oUF.Enum.DispelType do
+					if(self.colors.dispel[dispelIndex]) then
+						auras.dispelColorCurve:AddPoint(dispelIndex, self.colors.dispel[dispelIndex])
+					end
 				end
 			end
 
@@ -938,12 +880,15 @@ local function Enable(self)
 			buffs.anchoredButtons = 0
 			buffs.visibleButtons = 0
 			buffs.tooltipAnchor = buffs.tooltipAnchor or 'ANCHOR_BOTTOMRIGHT'
+			buffs.needFullUpdate = true
 
-			buffs.dispelColorCurve = buffs.dispelColorCurve or C_CurveUtil.CreateColorCurve()
-			buffs.dispelColorCurve:SetType(Enum.LuaCurveType.Step)
-			for _, dispelIndex in next, oUF.Enum.DispelType do
-				if(self.colors.dispel[dispelIndex]) then
-					buffs.dispelColorCurve:AddPoint(dispelIndex, self.colors.dispel[dispelIndex])
+			if(not buffs.dispelColorCurve) then
+				buffs.dispelColorCurve = C_CurveUtil.CreateColorCurve()
+				buffs.dispelColorCurve:SetType(Enum.LuaCurveType.Step)
+				for _, dispelIndex in next, oUF.Enum.DispelType do
+					if(self.colors.dispel[dispelIndex]) then
+						buffs.dispelColorCurve:AddPoint(dispelIndex, self.colors.dispel[dispelIndex])
+					end
 				end
 			end
 
@@ -961,12 +906,15 @@ local function Enable(self)
 			debuffs.anchoredButtons = 0
 			debuffs.visibleButtons = 0
 			debuffs.tooltipAnchor = debuffs.tooltipAnchor or 'ANCHOR_BOTTOMRIGHT'
+			debuffs.needFullUpdate = true
 
-			debuffs.dispelColorCurve = debuffs.dispelColorCurve or C_CurveUtil.CreateColorCurve()
-			debuffs.dispelColorCurve:SetType(Enum.LuaCurveType.Step)
-			for _, dispelIndex in next, oUF.Enum.DispelType do
-				if(self.colors.dispel[dispelIndex]) then
-					debuffs.dispelColorCurve:AddPoint(dispelIndex, self.colors.dispel[dispelIndex])
+			if(not debuffs.dispelColorCurve) then
+				debuffs.dispelColorCurve = C_CurveUtil.CreateColorCurve()
+				debuffs.dispelColorCurve:SetType(Enum.LuaCurveType.Step)
+				for _, dispelIndex in next, oUF.Enum.DispelType do
+					if(self.colors.dispel[dispelIndex]) then
+						debuffs.dispelColorCurve:AddPoint(dispelIndex, self.colors.dispel[dispelIndex])
+					end
 				end
 			end
 
