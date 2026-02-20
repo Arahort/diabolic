@@ -24,7 +24,7 @@
 
 --]]
 local MAJOR_VERSION = "LibOrb-1.0"
-local MINOR_VERSION = 5
+local MINOR_VERSION = 6
 
 if (not LibStub) then
 	error(MAJOR_VERSION .. " requires LibStub.")
@@ -91,8 +91,6 @@ Orb.SetStatusBarTexture = noop
 local smoothingMinValue = 1 -- if a value is lower than this, we won't smoothe
 local smoothingFrequency = .5 -- time for the smooth transition to complete
 local smoothingLimit = 1/60 -- max updates per second
--- WoW 12.0.1: Check if value is secret (cannot be used in Lua comparisons)
-local issecretvalue = issecretvalue or function() return false end
 
 local Update = function(self, elapsed)
 	local data = Orbs[self]
@@ -252,13 +250,20 @@ local OnSizeChanged = function(self, width, height)
 	local leftCrop = data.barLeftCrop
 	local rightCrop = data.barRightCrop
 	self:SetHitRectInsets(leftCrop, rightCrop, 0, 0)
-	data.scrollchild:SetSize(width,height)
-	data.scrollframe:SetWidth(width - (leftCrop + rightCrop))
-	data.scrollframe:SetHorizontalScroll(leftCrop)
-	data.scrollframe:ClearAllPoints()
-	data.scrollframe:SetPoint("BOTTOM", leftCrop/2 - rightCrop/2, 0)
+	data.scrollchild:SetSize(width, height)
+	-- WoW 12.0.1: Scrollframe is anchored to nativeStatusBar texture
+	-- No need for SetVerticalScroll - SetPoint handles the filling
+	local scrollframe = data.scrollframe
+	scrollframe:ClearAllPoints()
+	scrollframe:SetPoint("BOTTOM", leftCrop/2 - rightCrop/2, 0)
+	scrollframe:SetPoint("LEFT", leftCrop, 0)
+	scrollframe:SetPoint("RIGHT", -rightCrop, 0)
+	-- Anchor TOP to statusbar texture for automatic height based on value
+	local nativeBar = data.nativeStatusBar
+	if nativeBar then
+		scrollframe:SetPoint("TOP", nativeBar:GetStatusBarTexture(), "TOP")
+	end
 	data.sparkHeight = height/4 >= 8 and height/4 or 8
-	Update(self)
 	if (data.OnSizeChanged) then
 		data.OnSizeChanged(self, width, height)
 	end
@@ -278,9 +283,13 @@ end
 -- forces a hard reset to zero
 Orb.Clear = function(self)
 	local data = Orbs[self]
-	data.barValue = data.barMin
-	data.barDisplayValue = data.barMin
-	Update(self)
+	data.barValue = 0
+	data.barDisplayValue = 0
+	-- WoW 12.0.1: Reset native statusbar
+	local nativeBar = data.nativeStatusBar
+	if nativeBar then
+		nativeBar:SetValue(0, Enum.StatusBarInterpolation.Immediate)
+	end
 end
 
 Orb.SetSparkTexture = function(self, path)
@@ -321,66 +330,34 @@ end
 -- Sets the value the orb should move towards
 Orb.SetValue = function(self, value, overrideSmoothing)
 	local data = Orbs[self]
-	-- WoW 12.0.1: Block secret values - they cannot be used in Lua comparisons
-	if issecretvalue(value) then
-		return
+	-- WoW 12.0.1: Use native StatusBar to handle secret values
+	local nativeBar = data.nativeStatusBar
+	if nativeBar then
+		-- Convert boolean overrideSmoothing to interpolation enum
+		local interpMode
+		if overrideSmoothing == true then
+			interpMode = Enum.StatusBarInterpolation.Immediate
+		elseif type(overrideSmoothing) == "number" then
+			interpMode = overrideSmoothing
+		else
+			interpMode = Enum.StatusBarInterpolation.Linear
+		end
+		nativeBar:SetValue(value, interpMode)
 	end
-	local min, max = data.barMin, data.barMax
-	if (value > max) then
-		value = max
-	elseif (value < min) then
-		value = min
-	end
+	-- Store value (may be secret)
 	data.barValue = value
-	if overrideSmoothing then
-		data.barDisplayValue = value
-	end
-	if (not data.disableSmoothing) then
-		if (data.barDisplayValue > max) then
-			data.barDisplayValue = max
-		elseif (data.barDisplayValue < min) then
-			data.barDisplayValue = min
-		end
-		data.smoothingInitialValue = data.barDisplayValue
-		data.smoothingStart = GetTime()
-	end
-	if (value ~= data.barDisplayValue) then
-		data.smoothing = true
-	end
-	if (data.smoothing or (data.barDisplayValue > min) or (data.barDisplayValue < max)) then
-		if (not Orig_GetScript(self, "OnUpdate")) then
-			Orig_SetScript(self, "OnUpdate", OnUpdate)
-		end
-	end
-	Update(self)
 end
 
 Orb.SetMinMaxValues = function(self, min, max, overrideSmoothing)
 	local data = Orbs[self]
-	-- WoW 12.0.1: Block secret values
-	if issecretvalue(min) or issecretvalue(max) then
-		return
+	-- WoW 12.0.1: Use native StatusBar to handle secret values
+	local nativeBar = data.nativeStatusBar
+	if nativeBar then
+		nativeBar:SetMinMaxValues(min, max)
 	end
-	if (data.barMin == min) and (data.barMax == max) then
-		return
-	end
-	if (data.barValue > max) then
-		data.barValue = max
-	elseif (data.barValue < min) then
-		data.barValue = min
-	end
-	if overrideSmoothing then
-		data.barDisplayValue = data.barValue
-	else
-		if (data.barDisplayValue > max) then
-			data.barDisplayValue = max
-		elseif (data.barDisplayValue < min) then
-			data.barDisplayValue = min
-		end
-	end
+	-- Store values (may be secret)
 	data.barMin = min
 	data.barMax = max
-	Update(self)
 end
 
 Orb.GetValue = function(self)
@@ -474,6 +451,17 @@ lib.CreateOrb = function(self, name, parent, template, rotateClockwise, speedMod
 	orb:SetSize(1,1)
 	Orig_SetScript(orb, "OnSizeChanged", OnSizeChanged)
 
+	-- WoW 12.0.1: Create native StatusBar to handle secret values
+	-- Native StatusBar accepts secret values without Lua comparisons
+	local nativeStatusBar = CreateFrame("StatusBar", nil, orb)
+	nativeStatusBar:SetAllPoints()
+	nativeStatusBar:SetOrientation("VERTICAL")
+	nativeStatusBar:SetReverseFill(false) -- fill from bottom to top
+	nativeStatusBar:SetStatusBarTexture([[Interface\Buttons\WHITE8X8]])
+	nativeStatusBar:GetStatusBarTexture():SetAlpha(0) -- hide the texture, we use our own
+	nativeStatusBar:SetMinMaxValues(0, 1)
+	nativeStatusBar:SetValue(0)
+
 	-- The scrollchild is where we put rotating textures that needs to be cropped.
 	local scrollchild = CreateFrame("Frame", nil, orb)
 	scrollchild:SetFrameLevel(orb:GetFrameLevel())
@@ -481,19 +469,15 @@ lib.CreateOrb = function(self, name, parent, template, rotateClockwise, speedMod
 
 	-- The scrollframe defines the height/filling of the orb,
 	-- and is where the actual cropping of the textures occur.
-	-- We need this anchored to the bottom,
-	-- its height a fraction of the frame height,
-	-- and its sides subjective to our custom crop.
-	--
-	-- Note: Even though his is a frame, it's comparable to the statusbar texture
-	-- in regular statusbars when it comes to layout and anchoring.
+	-- WoW 12.0.1: Anchor to native statusbar texture for automatic sizing
 	local scrollframe = CreateFrame("ScrollFrame", nil, orb)
 	scrollframe:SetScrollChild(scrollchild)
 	scrollframe:SetFrameLevel(orb:GetFrameLevel())
 	scrollframe:SetPoint("BOTTOM")
 	scrollframe:SetPoint("LEFT")
 	scrollframe:SetPoint("RIGHT")
-	scrollframe:SetSize(1,1)
+	-- Anchor TOP to statusbar texture TOP - height follows statusbar fill
+	scrollframe:SetPoint("TOP", nativeStatusBar:GetStatusBarTexture(), "TOP")
 
 	-- The overlay is meant to hold overlay textures like the spark.
 	local overlay = CreateFrame("Frame", nil, scrollframe)
@@ -594,6 +578,7 @@ lib.CreateOrb = function(self, name, parent, template, rotateClockwise, speedMod
 	data.scrollchild = scrollchild
 	data.scrollframe = scrollframe
 	data.overlay = overlay
+	data.nativeStatusBar = nativeStatusBar
 
 	-- layers
 	data.layer1 = orbTex1
@@ -617,7 +602,8 @@ lib.CreateOrb = function(self, name, parent, template, rotateClockwise, speedMod
 
 	Orbs[orb] = data
 
-	Update(orb)
+	-- Initial state - scrollframe anchored to statusbar texture handles filling
+	scrollframe:Show()
 
 	return orb
 end

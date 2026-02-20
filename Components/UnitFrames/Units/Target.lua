@@ -175,17 +175,30 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 end
 
 local Cast_CustomDelayText = function(element, duration)
-	if (element.casting) then
+	-- WoW 12.0.1: duration may be a timer object, extract number
+	if type(duration) == "table" and duration.GetRemainingDuration then
+		duration = duration:GetRemainingDuration() or 0
+	end
+	if (element.casting) and element.max then
 		duration = element.max - duration
 	end
-	element.Time:SetFormattedText("%.1f |cffff0000%s%.2f|r", duration, element.casting and "+" or "-", element.delay)
+	local delay = element.delay or 0
+	if type(duration) == "number" then
+		element.Time:SetFormattedText("%.1f |cffff0000%s%.2f|r", duration, element.casting and "+" or "-", delay)
+	end
 end
 
 local Cast_CustomTimeText = function(element, duration)
-	if (element.casting) then
+	-- WoW 12.0.1: duration may be a timer object, extract number
+	if type(duration) == "table" and duration.GetRemainingDuration then
+		duration = duration:GetRemainingDuration() or 0
+	end
+	if (element.casting) and element.max then
 		duration = element.max - duration
 	end
-	element.Time:SetFormattedText("%.1f", duration)
+	if type(duration) == "number" then
+		element.Time:SetFormattedText("%.1f", duration)
+	end
 end
 
 local Cast_PostCastStart = function(element, unit)

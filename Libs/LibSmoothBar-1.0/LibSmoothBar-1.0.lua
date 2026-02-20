@@ -24,7 +24,7 @@
 
 --]]
 local MAJOR_VERSION = "LibSmoothBar-1.0"
-local MINOR_VERSION = 4
+local MINOR_VERSION = 6
 
 if (not LibStub) then
 	error(MAJOR_VERSION .. " requires LibStub.")
@@ -395,8 +395,6 @@ local smoothingFrequency = .5 -- default duration of smooth transitions
 local smartSmoothingDownFrequency = .15 -- duration of smooth reductions in smart mode
 local smartSmoothingUpFrequency = .75 -- duration of smooth increases in smart mode
 local smoothingLimit = 1/120 -- max updates per second
--- WoW 12.0.1: Check if value is secret (cannot be used in Lua comparisons)
-local issecretvalue = issecretvalue or function() return false end
 
 local OnUpdate = function(self, elapsed)
 	local data = Bars[self]
@@ -507,37 +505,24 @@ end
 
 StatusBar.SetValue = function(self, value, overrideSmoothing)
 	local data = Bars[self]
-	-- WoW 12.0.1: Block secret values - they cannot be used in Lua comparisons
-	if issecretvalue(value) then
-		return
-	end
-	local min, max = data.barMin, data.barMax
-	if (value > max) then
-		value = max
-	elseif (value < min) then
-		value = min
-	end
-	data.barValue = value
-	if overrideSmoothing then
-		data.barDisplayValue = value
-	end
-	if (not data.disableSmoothing) then
-		if (data.barDisplayValue > max) then
-			data.barDisplayValue = max
-		elseif (data.barDisplayValue < min) then
-			data.barDisplayValue = min
+	-- WoW 12.0.1: Use native StatusBar to handle secret values
+	-- Native SetValue accepts secret values without Lua comparisons
+	local nativeBar = data.nativeStatusBar
+	if nativeBar then
+		-- Convert boolean overrideSmoothing to interpolation enum
+		-- true = instant (no smoothing), false/nil = use smoothing
+		local interpMode
+		if overrideSmoothing == true then
+			interpMode = Enum.StatusBarInterpolation.Immediate
+		elseif type(overrideSmoothing) == "number" then
+			interpMode = overrideSmoothing
+		else
+			interpMode = data.smoothingMode or Enum.StatusBarInterpolation.Linear
 		end
-		data.smoothingInitialValue = data.barDisplayValue
-		data.smoothingStart = GetTime()
+		nativeBar:SetValue(value, interpMode)
 	end
-	if (value ~= data.barDisplayValue) then
-		data.smoothing = true
-	end
-	if (data.smoothing or (data.barDisplayValue > min) or (data.barDisplayValue < max)) then
-		data.updatesRunning = true
-		return
-	end
-	Update(self)
+	-- Store value for GetValue (may be secret)
+	data.barValue = value
 end
 
 StatusBar.Clear = function(self)
@@ -549,45 +534,34 @@ end
 
 StatusBar.SetMinMaxValues = function(self, min, max, overrideSmoothing)
 	local data = Bars[self]
-	-- WoW 12.0.1: Block secret values
-	if issecretvalue(min) or issecretvalue(max) then
-		return
+	-- WoW 12.0.1: Use native StatusBar to handle secret values
+	local nativeBar = data.nativeStatusBar
+	if nativeBar then
+		nativeBar:SetMinMaxValues(min, max)
 	end
-	if (data.barMin == min) and (data.barMax == max) then
-		return
-	end
-	if (data.barValue > max) then
-		data.barValue = max
-	elseif (data.barValue < min) then
-		data.barValue = min
-	end
-	if (overrideSmoothing) then
-		data.barDisplayValue = data.barValue
-	else
-		if (data.barDisplayValue > max) then
-			data.barDisplayValue = max
-		elseif (data.barDisplayValue < min) then
-			data.barDisplayValue = min
-		end
-	end
+	-- Store values (may be secret)
 	data.barMin = min
 	data.barMax = max
-	Update(self)
 end
 
 StatusBar.SetStatusBarColor = function(self, ...)
-	Bars[self].bar:SetVertexColor(...)
-	Bars[self].spark:SetVertexColor(...)
+	local data = Bars[self]
+	-- Set color on native statusbar (which is now our visible bar)
+	if data.nativeStatusBar then
+		data.nativeStatusBar:SetStatusBarColor(...)
+	end
+	data.spark:SetVertexColor(...)
 end
 
 StatusBar.SetStatusBarTexture = function(self, ...)
-	local arg = ...
-	if (type(arg) == "number") then
-		Bars[self].bar:SetColorTexture(...)
-	else
-		Bars[self].bar:SetTexture(...)
+	local data = Bars[self]
+	-- Set texture on native statusbar (which is now our visible bar)
+	if data.nativeStatusBar then
+		data.nativeStatusBar:SetStatusBarTexture(...)
+		-- Update bar reference to new texture
+		data.bar = data.nativeStatusBar:GetStatusBarTexture()
+		data.bar:SetDrawLayer("BORDER", 0)
 	end
-	Update(self, true)
 end
 
 StatusBar.SetFlippedHorizontally = function(self, reversed)
@@ -686,29 +660,58 @@ end
 
 StatusBar.SetGrowth = function(self, orientation)
 	local data = Bars[self]
+	local nativeBar = data.nativeStatusBar
+	local spark = data.spark
+	local statusBarTex = nativeBar and nativeBar:GetStatusBarTexture()
+	spark:ClearAllPoints()
 	if (orientation == "LEFT") then
-		data.spark:SetTexCoord(0, 1, 3/32, 28/32)
+		spark:SetTexCoord(0, 1, 3/32, 28/32)
 		data.barOrientation = "LEFT"
 		data.barBlizzardOrientation = "HORIZONTAL"
 		data.barBlizzardReverseFill = true
-
+		if nativeBar then
+			nativeBar:SetOrientation("HORIZONTAL")
+			nativeBar:SetReverseFill(true)
+		end
+		if statusBarTex then
+			spark:SetPoint("CENTER", statusBarTex, "LEFT", 0, 0)
+		end
 	elseif (orientation == "RIGHT") then
-		data.spark:SetTexCoord(0, 1, 3/32, 28/32)
+		spark:SetTexCoord(0, 1, 3/32, 28/32)
 		data.barOrientation = "RIGHT"
 		data.barBlizzardOrientation = "HORIZONTAL"
 		data.barBlizzardReverseFill = false
-
+		if nativeBar then
+			nativeBar:SetOrientation("HORIZONTAL")
+			nativeBar:SetReverseFill(false)
+		end
+		if statusBarTex then
+			spark:SetPoint("CENTER", statusBarTex, "RIGHT", 0, 0)
+		end
 	elseif (orientation == "UP") then
-		data.spark:SetTexCoord(1,11/32,0,11/32,1,19/32,0,19/32)
+		spark:SetTexCoord(1,11/32,0,11/32,1,19/32,0,19/32)
 		data.barOrientation = "UP"
 		data.barBlizzardOrientation = "VERTICAL"
 		data.barBlizzardReverseFill = false
-
+		if nativeBar then
+			nativeBar:SetOrientation("VERTICAL")
+			nativeBar:SetReverseFill(false)
+		end
+		if statusBarTex then
+			spark:SetPoint("CENTER", statusBarTex, "TOP", 0, 0)
+		end
 	elseif (orientation == "DOWN") then
-		data.spark:SetTexCoord(1,11/32,0,11/32,1,19/32,0,19/32)
+		spark:SetTexCoord(1,11/32,0,11/32,1,19/32,0,19/32)
 		data.barOrientation = "DOWN"
 		data.barBlizzardOrientation = "VERTICAL"
 		data.barBlizzardReverseFill = true
+		if nativeBar then
+			nativeBar:SetOrientation("VERTICAL")
+			nativeBar:SetReverseFill(true)
+		end
+		if statusBarTex then
+			spark:SetPoint("CENTER", statusBarTex, "BOTTOM", 0, 0)
+		end
 	end
 end
 
@@ -723,6 +726,13 @@ end
 StatusBar.SetReverseFill = function(self, state)
 	local data = Bars[self]
 	data.barBlizzardReverseFill = state and true or false
+	if data.nativeStatusBar then
+		data.nativeStatusBar:SetReverseFill(state and true or false)
+	end
+	-- Re-apply growth to update bar anchoring
+	if data.barOrientation then
+		self:SetGrowth(data.barOrientation)
+	end
 end
 
 StatusBar.GetReverseFill = function(self, state)
@@ -769,11 +779,19 @@ StatusBar.GetMinMaxValues = function(self)
 end
 
 StatusBar.GetStatusBarColor = function(self)
-	return Bars[self].bar:GetVertexColor()
+	local data = Bars[self]
+	if data.nativeStatusBar then
+		return data.nativeStatusBar:GetStatusBarColor()
+	end
+	return 1, 1, 1, 1
 end
 
 StatusBar.GetStatusBarTexture = function(self)
-	return Bars[self].bar
+	local data = Bars[self]
+	if data.nativeStatusBar then
+		return data.nativeStatusBar:GetStatusBarTexture()
+	end
+	return data.bar
 end
 
 StatusBar.GetAnchor = function(self) return Bars[self].bar end
@@ -786,36 +804,42 @@ lib.CreateSmoothBar = function(self, name, parent, template)
 	local statusbar = setmetatable(CreateFrame("Frame", name, parent, template), StatusBar_MT)
 	statusbar:SetSize(1,1)
 
-	local bar = setmetatable(statusbar:CreateTexture(), Texture_MT)
-	bar:SetDrawLayer("BORDER", 0)
-	bar:SetPoint("TOP")
-	bar:SetPoint("BOTTOM")
-	bar:SetPoint("LEFT")
-	bar:SetWidth(statusbar:GetWidth())
+	-- WoW 12.0.1: Create native StatusBar to handle secret values
+	-- Native StatusBar accepts secret values without Lua comparisons
+	-- We now use the native StatusBar texture DIRECTLY for display
+	local nativeStatusBar = CreateFrame("StatusBar", nil, statusbar)
+	nativeStatusBar:SetAllPoints()
+	nativeStatusBar:SetStatusBarTexture([[Interface\FontStyles\FontStyleMetal]])
+	nativeStatusBar:SetMinMaxValues(0, 1)
+	nativeStatusBar:SetValue(0)
+	-- Keep native texture VISIBLE - this is our actual bar now!
+	local nativeTexture = nativeStatusBar:GetStatusBarTexture()
+	nativeTexture:SetDrawLayer("BORDER", 0)
 
-	-- rare gem of a texture, works nicely on bars smaller than 256px in effective width
-	bar:SetTexture([[Interface\FontStyles\FontStyleMetal]])
+	-- bar reference now points to native texture for API compatibility
+	local bar = nativeTexture
 
-	-- the spark texture
+	-- the spark texture - anchor to native statusbar texture edge
 	local spark = statusbar:CreateTexture()
 	spark:SetDrawLayer("BORDER", 1)
-	spark:SetPoint("CENTER", bar, "RIGHT", 0, 0)
-	spark:SetSize(1,1)
+	spark:SetSize(8, 16)
 	spark:SetAlpha(.6)
 	spark:SetBlendMode("ADD")
-	spark:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]]) -- 32x32, centered vertical spark being 32x9px, from 0,11px to 32,19px
+	spark:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]])
 	spark:SetTexCoord(0, 1, 25/80, 55/80)
 
 	local data = {}
 	data.bar = bar
 	data.spark = spark
 	data.statusbar = statusbar
+	data.nativeStatusBar = nativeStatusBar
 
 	data.barMin = 0 -- min value
 	data.barMax = 1 -- max value
 	data.barValue = 0 -- real value
 	data.barDisplayValue = 0 -- displayed value while smoothing
 	data.barOrientation = "RIGHT" -- direction the bar is growing in
+	data.smoothingMode = Enum.StatusBarInterpolation.Linear
 
 	-- API compatibility
 	data.barBlizzardOrientation = "HORIZONTAL"
@@ -846,10 +870,8 @@ lib.CreateSmoothBar = function(self, name, parent, template)
 	Textures[bar] = texCoords
 	Textures[statusbar] = texCoords
 
-	Update(statusbar)
-
-	-- Apply our custom handler
-	Orig_SetScript(statusbar, "OnUpdate", OnUpdate)
+	-- Initialize growth direction to set up proper anchoring
+	statusbar:SetGrowth("RIGHT")
 
 	return statusbar
 end
