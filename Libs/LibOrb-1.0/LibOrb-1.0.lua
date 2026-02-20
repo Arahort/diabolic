@@ -24,7 +24,7 @@
 
 --]]
 local MAJOR_VERSION = "LibOrb-1.0"
-local MINOR_VERSION = 6
+local MINOR_VERSION = 7
 
 if (not LibStub) then
 	error(MAJOR_VERSION .. " requires LibStub.")
@@ -250,18 +250,21 @@ local OnSizeChanged = function(self, width, height)
 	local leftCrop = data.barLeftCrop
 	local rightCrop = data.barRightCrop
 	self:SetHitRectInsets(leftCrop, rightCrop, 0, 0)
-	data.scrollchild:SetSize(width, height)
-	-- WoW 12.0.1: Scrollframe is anchored to nativeStatusBar texture
-	-- No need for SetVerticalScroll - SetPoint handles the filling
-	local scrollframe = data.scrollframe
-	scrollframe:ClearAllPoints()
-	scrollframe:SetPoint("BOTTOM", leftCrop/2 - rightCrop/2, 0)
-	scrollframe:SetPoint("LEFT", leftCrop, 0)
-	scrollframe:SetPoint("RIGHT", -rightCrop, 0)
-	-- Anchor TOP to statusbar texture for automatic height based on value
+	-- WoW 12.0.1: contentHolder (scrollchild) needs full orb height
+	-- It's anchored to BOTTOM of clipFrame, so we set explicit height
+	local contentHolder = data.scrollchild
+	contentHolder:SetHeight(height)
+	contentHolder:SetWidth(width)
+	-- clipFrame (scrollframe) anchors
+	local clipFrame = data.scrollframe
+	clipFrame:ClearAllPoints()
+	clipFrame:SetPoint("BOTTOM", leftCrop/2 - rightCrop/2, 0)
+	clipFrame:SetPoint("LEFT", leftCrop, 0)
+	clipFrame:SetPoint("RIGHT", -rightCrop, 0)
+	-- TOP anchored to native statusbar texture for automatic height based on value
 	local nativeBar = data.nativeStatusBar
 	if nativeBar then
-		scrollframe:SetPoint("TOP", nativeBar:GetStatusBarTexture(), "TOP")
+		clipFrame:SetPoint("TOP", nativeBar:GetStatusBarTexture(), "TOP")
 	end
 	data.sparkHeight = height/4 >= 8 and height/4 or 8
 	if (data.OnSizeChanged) then
@@ -462,22 +465,29 @@ lib.CreateOrb = function(self, name, parent, template, rotateClockwise, speedMod
 	nativeStatusBar:SetMinMaxValues(0, 1)
 	nativeStatusBar:SetValue(0)
 
-	-- The scrollchild is where we put rotating textures that needs to be cropped.
-	local scrollchild = CreateFrame("Frame", nil, orb)
-	scrollchild:SetFrameLevel(orb:GetFrameLevel())
-	scrollchild:SetSize(1,1)
+	-- WoW 12.0.1: Use clipping frame instead of ScrollFrame
+	-- clipFrame clips content, its height follows native statusbar
+	local clipFrame = CreateFrame("Frame", nil, orb)
+	clipFrame:SetFrameLevel(orb:GetFrameLevel())
+	clipFrame:SetClipsChildren(true)
+	clipFrame:SetPoint("BOTTOM")
+	clipFrame:SetPoint("LEFT")
+	clipFrame:SetPoint("RIGHT")
+	-- TOP anchored to native statusbar texture - height follows fill level
+	clipFrame:SetPoint("TOP", nativeStatusBar:GetStatusBarTexture(), "TOP")
 
-	-- The scrollframe defines the height/filling of the orb,
-	-- and is where the actual cropping of the textures occur.
-	-- WoW 12.0.1: Anchor to native statusbar texture for automatic sizing
-	local scrollframe = CreateFrame("ScrollFrame", nil, orb)
-	scrollframe:SetScrollChild(scrollchild)
-	scrollframe:SetFrameLevel(orb:GetFrameLevel())
-	scrollframe:SetPoint("BOTTOM")
-	scrollframe:SetPoint("LEFT")
-	scrollframe:SetPoint("RIGHT")
-	-- Anchor TOP to statusbar texture TOP - height follows statusbar fill
-	scrollframe:SetPoint("TOP", nativeStatusBar:GetStatusBarTexture(), "TOP")
+	-- contentHolder sits inside clipFrame, anchored to BOTTOM
+	-- It has full orb height, so top part gets clipped when health is low
+	local contentHolder = CreateFrame("Frame", nil, clipFrame)
+	contentHolder:SetFrameLevel(orb:GetFrameLevel())
+	contentHolder:SetPoint("BOTTOM")
+	contentHolder:SetPoint("LEFT")
+	contentHolder:SetPoint("RIGHT")
+	-- Height will be set by OnSizeChanged to match orb height
+
+	-- For compatibility, keep scrollframe/scrollchild names
+	local scrollframe = clipFrame
+	local scrollchild = contentHolder
 
 	-- The overlay is meant to hold overlay textures like the spark.
 	local overlay = CreateFrame("Frame", nil, scrollframe)
