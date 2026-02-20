@@ -262,6 +262,10 @@ Aura.UpdateTooltip = function(self)
 	pcall(function()
 		local unit = self:GetParent():GetAttribute("unit") or "player"
 		local index = self:GetAttribute("index")
+		-- WoW 12.0.0: Validate index before calling SetUnitAura
+		if (not index) or (type(index) ~= "number") or (index < 1) then
+			return
+		end
 		GameTooltip:SetUnitAura(unit, index, self.filter)
 	end)
 end

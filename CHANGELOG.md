@@ -1,5 +1,29 @@
 # DiabolicUI3 Changelog
 
+## [2.4.6-alpha] - 2026-02-20
+
+### 🐛 Bug Fixes
+- **Tooltip Errors**: Fixed SetUnitAura errors on minimap aura buttons (invalid index validation)
+- **MoneyFrame Taint**: Removed MoneyFrame font modifications that caused taint on bag item tooltips
+- **Aura Timer Bars**: Disabled timer bars under aura icons to fix orange residue on auras without duration
+
+### 🔧 Technical
+- Added index validation in Auras.lua UpdateTooltip function
+- Removed taint-causing SetTooltipMoney and MoneyFrame font modifications
+- Commented out CreateSmoothBar calls in Auras.lua and AuraStyles.lua
+
+---
+
+## [2.4.5-alpha] - 2026-02-19
+
+### 🔧 Technical (WoW 12.0.1 Secret Values)
+- **LibSmoothBar v7**: ScrollFrame approach for horizontal bars with secret values support
+- **LibOrb v7**: ClipFrame approach for vertical orbs with secret values support
+- Fixed target/ToT/focus health bars not updating
+- Fixed player health/power orbs animation direction
+
+---
+
 ## [2.4.4] - 2026-02-16
 
 ### ✨ Improvements

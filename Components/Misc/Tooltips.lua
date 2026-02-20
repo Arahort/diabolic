@@ -692,29 +692,16 @@ Tooltips.SetUnitColor = function(self, unit)
 end
 
 Tooltips.SetFonts = function(self)
-
 	local header = GetFont(15,true)
 	local normal = GetFont(13,true)
 	local small = GetFont(12,true)
-
 	_G.GameTooltipHeaderText:SetFontObject(header)
 	_G.GameTooltipTextSmall:SetFontObject(small)
 	_G.GameTooltipText:SetFontObject(normal)
-
-	if (not GameTooltip.hasMoney) then
-		SetTooltipMoney(GameTooltip, 1, nil, "", "")
-		SetTooltipMoney(GameTooltip, 1, nil, "", "")
-		GameTooltip_ClearMoney(GameTooltip)
-	end
-	if (GameTooltip.hasMoney) then
-		for i = 1, GameTooltip.numMoneyFrames do
-			_G["GameTooltipMoneyFrame"..i.."PrefixText"]:SetFontObject(normal)
-			_G["GameTooltipMoneyFrame"..i.."SuffixText"]:SetFontObject(normal)
-			_G["GameTooltipMoneyFrame"..i.."GoldButtonText"]:SetFontObject(normal)
-			_G["GameTooltipMoneyFrame"..i.."SilverButtonText"]:SetFontObject(normal)
-			_G["GameTooltipMoneyFrame"..i.."CopperButtonText"]:SetFontObject(normal)
-		end
-	end
+	-- WoW 12.0.0: Removed MoneyFrame font modifications to avoid taint
+	-- The hasMoney/numMoneyFrames properties and SetTooltipMoney calls
+	-- were causing taint that propagated to bag item tooltips with prices
+	-- Original code created taint chain: DiabolicUI3 -> MoneyFrame -> Backdrop.lua
 
 	if (_G.DatatextTooltip) then
 		_G.DatatextTooltipTextLeft1:SetFontObject(normal)
