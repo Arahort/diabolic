@@ -1,5 +1,21 @@
 # DiabolicUI3 Changelog
 
+## [2.5.1] - 2026-02-22
+
+### 🐛 Bug Fixes
+- **SOUL_FRAGMENTS Color**: Fixed "attempt to index local 'color' (a number value)" error for Demon Hunter Soul Fragments
+- **GUID Taint**: Fixed "attempt to compare 'guid' (secret string tainted)" error when changing targets
+- **Backdrop Taint**: Fixed tooltip backdrop turning white due to secret value taint propagation
+- **Slider Ranges**: Extended position slider ranges from ±2000 to ±5000 for all settings
+
+### 🔧 Technical
+- Changed SOUL_FRAGMENTS color format to stages for oUF compatibility
+- Added fallback in classpower.lua for simple {r,g,b} color tables
+- Wrapped GUID comparison in pcall to handle WoW 12.0 tainted values
+- Wrapped tooltip StatusBar hooks in pcall to prevent taint propagation
+
+---
+
 ## [2.5.0] - 2026-02-20
 
 ### ✨ New Features
