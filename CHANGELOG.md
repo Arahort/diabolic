@@ -1,5 +1,15 @@
 # DiabolicUI3 Changelog
 
+## [2.6.1] - 2026-02-23
+
+### 🐛 Bug Fixes
+- **Backdrop Taint (continued)**: Additional fixes for "secret number value" errors
+  - Wrapped OnBackdropSizeChanged and ApplyBackdrop methods in pcall
+  - Added pcall protection to RaidFrames SetBackdrop calls
+  - Prevents BackdropTemplateMixin texture recalculation errors
+
+---
+
 ## [2.6.0] - 2026-02-23
 
 ### ✨ New Features

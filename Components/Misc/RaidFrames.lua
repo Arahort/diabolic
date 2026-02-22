@@ -56,11 +56,14 @@ local function CreateBorder(frame)
 	border:ClearAllPoints()
 	border:SetPoint("TOPLEFT", frame, "TOPLEFT", -left, top)
 	border:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", right, -bottom)
-	border:SetBackdrop({
-		edgeFile = BORDER_TEXTURE,
-		edgeSize = edgeSize,
-		insets = { left = 6, right = 6, top = 6, bottom = 6 }
-	})
+	-- WoW 12.0: Wrap SetBackdrop in pcall to prevent taint from secret values
+	pcall(function()
+		border:SetBackdrop({
+			edgeFile = BORDER_TEXTURE,
+			edgeSize = edgeSize,
+			insets = { left = 6, right = 6, top = 6, bottom = 6 }
+		})
+	end)
 	border:Show()
 end
 -- Update all styled frames with new border settings

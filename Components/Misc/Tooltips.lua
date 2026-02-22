@@ -137,6 +137,21 @@ local Backdrops = setmetatable({}, { __index = function(t,k)
 	bg:SetPoint("BOTTOMRIGHT", k, "BOTTOMRIGHT", 0, 0)
 	-- Wrap frame level in pcall to handle secret values
 	pcall(function() bg:SetFrameLevel(k:GetFrameLevel()) end)
+	-- WoW 12.0: Override OnSizeChanged to wrap backdrop recalculation in pcall
+	-- BackdropTemplateMixin calls SetupTextureCoordinates on size change which can fail with secret values
+	if bg.OnBackdropSizeChanged then
+		local origOnSizeChanged = bg.OnBackdropSizeChanged
+		bg.OnBackdropSizeChanged = function(self, ...)
+			pcall(origOnSizeChanged, self, ...)
+		end
+	end
+	-- Also wrap ApplyBackdrop if it exists (called internally by BackdropTemplateMixin)
+	if bg.ApplyBackdrop then
+		local origApplyBackdrop = bg.ApplyBackdrop
+		bg.ApplyBackdrop = function(self, ...)
+			pcall(origApplyBackdrop, self, ...)
+		end
+	end
 	-- Hook into tooltip framelevel changes.
 	-- Might help with some of the conflicts experienced with Silverdragon and Raider.IO
 	hooksecurefunc(k, "SetFrameLevel", function(self)
