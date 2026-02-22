@@ -1,5 +1,30 @@
 # DiabolicUI3 Changelog
 
+## [2.6.0] - 2026-02-23
+
+### ✨ New Features
+- **Raid Frames Customization**: Added experimental settings to customize Blizzard CompactUnitFrames
+  - Custom fonts and textures for raid/party frames
+  - Border size and offset adjustments (top, bottom, left, right)
+  - Role icon position offsets (X, Y)
+  - Real-time preview when adjusting sliders
+- **Statusbar Profiles**: Added texture profiles for statusbars (ui_profile.txt, platynator_profile.txt)
+
+### 🐛 Bug Fixes
+- **Backdrop Taint**: Fixed 129x "attempt to perform arithmetic on local 'width' (a secret number value)" error
+  - Replaced SetAllPoints() with explicit point anchors in tooltip backdrop cache
+  - Wrapped SetBackdrop, SetBackdropColor, SetFrameLevel calls in pcall
+  - Prevents taint errors from Syndicator, Chattynator and other addons
+
+### 🔧 Technical
+- Removed unused power crystal textures from Assets
+- Added pcall protection for all backdrop-related operations in WoW 12.0
+
+### 🌍 Localization
+- Added translations for Raid Frames settings in all 12 languages
+
+---
+
 ## [2.5.1] - 2026-02-22
 
 ### 🐛 Bug Fixes
