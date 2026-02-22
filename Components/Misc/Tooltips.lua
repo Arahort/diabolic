@@ -128,13 +128,20 @@ local PVP_RANKS = {
 local BOSS_TEXTURE = [[|TInterface\TargetingFrame\UI-TargetingFrame-Skull:14:14:-2:1|t]]
 
 -- Custom Backdrop Cache
+-- WoW 12.0: Don't use SetAllPoints() as it inherits tainted dimensions from tooltip
+-- when other addons (Syndicator, Chattynator) modify tooltip size with secret values
 local Backdrops = setmetatable({}, { __index = function(t,k)
 	local bg = CreateFrame("Frame", nil, k, ns.BackdropTemplate)
-	bg:SetAllPoints()
-	bg:SetFrameLevel(k:GetFrameLevel())
+	-- Use explicit point anchors instead of SetAllPoints() to avoid taint inheritance
+	bg:SetPoint("TOPLEFT", k, "TOPLEFT", 0, 0)
+	bg:SetPoint("BOTTOMRIGHT", k, "BOTTOMRIGHT", 0, 0)
+	-- Wrap frame level in pcall to handle secret values
+	pcall(function() bg:SetFrameLevel(k:GetFrameLevel()) end)
 	-- Hook into tooltip framelevel changes.
 	-- Might help with some of the conflicts experienced with Silverdragon and Raider.IO
-	hooksecurefunc(k, "SetFrameLevel", function(self) bg:SetFrameLevel(self:GetFrameLevel()) end)
+	hooksecurefunc(k, "SetFrameLevel", function(self)
+		pcall(function() bg:SetFrameLevel(self:GetFrameLevel()) end)
+	end)
 	rawset(t,k,bg)
 	return bg
 end })
@@ -215,13 +222,17 @@ Tooltips.SetBackdropStyle = function(self, tooltip)
 	end
 
 	local backdrop = Backdrops[tooltip]
-	backdrop:SetBackdrop(nil)
-	backdrop:SetBackdrop({
-		bgFile = [[Interface\Tooltips\UI-Tooltip-Background]],
-		edgeSize = 32, edgeFile = GetMedia("border-tooltip"),
-		tile = true,
-		insets = { left = 8, right = 8, top = 16, bottom = 16 }
-	})
+	-- WoW 12.0: Wrap SetBackdrop calls in pcall to prevent taint from secret values
+	-- when other addons modify tooltip dimensions (Syndicator, Chattynator, etc.)
+	pcall(function()
+		backdrop:SetBackdrop(nil)
+		backdrop:SetBackdrop({
+			bgFile = [[Interface\Tooltips\UI-Tooltip-Background]],
+			edgeSize = 32, edgeFile = GetMedia("border-tooltip"),
+			tile = true,
+			insets = { left = 8, right = 8, top = 16, bottom = 16 }
+		})
+	end)
 	backdrop:ClearAllPoints()
 	backdrop:SetPoint("LEFT", -10, 0)
 	backdrop:SetPoint("RIGHT", 10, 0)
@@ -230,7 +241,7 @@ Tooltips.SetBackdropStyle = function(self, tooltip)
 	backdrop.offsetBottom = -18
 	backdrop.offsetBar = 0
 	backdrop.offsetBarBottom = -6
-	backdrop:SetBackdropColor(.05, .05, .05, .95)
+	pcall(function() backdrop:SetBackdropColor(.05, .05, .05, .95) end)
 	--backdrop:SetBackdropBorderColor(ns.Colors.darkgray[1], ns.Colors.darkgray[2], ns.Colors.darkgray[3], 1)
 
 end
@@ -295,14 +306,16 @@ Tooltips.StyleStatusBar = function(self)
 		customBar:Show()
 		local backdrop = Backdrops[GameTooltip]
 		if (backdrop) then
-			backdrop:SetPoint("BOTTOM", 0, backdrop.offsetBottom + backdrop.offsetBarBottom)
+			-- WoW 12.0: Wrap in pcall to prevent taint from secret values
+			pcall(function() backdrop:SetPoint("BOTTOM", 0, backdrop.offsetBottom + backdrop.offsetBarBottom) end)
 		end
 	end)
 	hooksecurefunc(GameTooltipStatusBar, "Hide", function()
 		customBar:Hide()
 		local backdrop = Backdrops[GameTooltip]
 		if (backdrop) then
-			backdrop:SetPoint("BOTTOM", 0, backdrop.offsetBottom)
+			-- WoW 12.0: Wrap in pcall to prevent taint from secret values
+			pcall(function() backdrop:SetPoint("BOTTOM", 0, backdrop.offsetBottom) end)
 		end
 	end)
 	-- Store reference for our functions (DON'T replace GameTooltip.StatusBar!)
