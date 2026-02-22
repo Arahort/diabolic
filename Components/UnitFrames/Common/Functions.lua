@@ -27,7 +27,13 @@ API.UpdateHealth = function(self, event, unit)
 	local forced = (event == "ForceUpdate") or (event == "RefreshUnit") or (event == "GROUP_ROSTER_UPDATE")
 	if (not forced) then
 		local guid = UnitGUID(unit)
-		if (guid ~= element.guid) then
+		-- WoW 12.0: Use pcall for guid comparison to handle secret/tainted values
+		local guidChanged = false
+		if guid then
+			local success, result = pcall(function() return guid ~= element.guid end)
+			guidChanged = success and result
+		end
+		if guidChanged or (guid and not element.guid) then
 			forced = true
 			element.guid = guid
 		end
@@ -62,7 +68,13 @@ API.UpdatePower = function(self, event, unit)
 		element:PreUpdate(unit)
 	end
 	local guid = UnitGUID(unit)
-	local forced = (guid ~= element.guid) or (UnitIsDeadOrGhost(unit))
+	-- WoW 12.0: Use pcall for guid comparison to handle secret/tainted values
+	local guidChanged = false
+	if guid then
+		local success, result = pcall(function() return guid ~= element.guid end)
+		guidChanged = success and result
+	end
+	local forced = guidChanged or (guid and not element.guid) or (UnitIsDeadOrGhost(unit))
 	element.guid = guid
 	local displayType, min = nil, 0
 	local cur, max = UnitPower(unit), UnitPowerMax(unit)

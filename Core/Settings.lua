@@ -309,7 +309,7 @@ SettingsModule.OnInitialize = function(self)
 				4,
 				L["PetBarPosXDesc"]
 			)
-			local options = Settings.CreateSliderOptions(-2000, 2000, 5)
+			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
@@ -324,7 +324,7 @@ SettingsModule.OnInitialize = function(self)
 				84,
 				L["PetBarPosYDesc"]
 			)
-			local options = Settings.CreateSliderOptions(-2000, 2000, 5)
+			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
@@ -423,7 +423,7 @@ SettingsModule.OnInitialize = function(self)
 				-380,
 				L["AurasPosXDesc"]
 			)
-			local options = Settings.CreateSliderOptions(-2000, 2000, 5)
+			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
@@ -438,7 +438,7 @@ SettingsModule.OnInitialize = function(self)
 				-66,
 				L["AurasPosYDesc"]
 			)
-			local options = Settings.CreateSliderOptions(-2000, 2000, 5)
+			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
@@ -535,7 +535,7 @@ SettingsModule.OnInitialize = function(self)
 				-60,
 				L["MinimapPosXDesc"]
 			)
-			local options = Settings.CreateSliderOptions(-2000, 2000, 5)
+			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
@@ -550,7 +550,7 @@ SettingsModule.OnInitialize = function(self)
 				-60,
 				L["MinimapPosYDesc"]
 			)
-			local options = Settings.CreateSliderOptions(-2000, 2000, 5)
+			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
@@ -756,7 +756,7 @@ SettingsModule.OnInitialize = function(self)
 				0,
 				L["TargetPosXDesc"]
 			)
-			local options = Settings.CreateSliderOptions(-2000, 2000, 5)
+			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
@@ -771,7 +771,7 @@ SettingsModule.OnInitialize = function(self)
 				-40,
 				L["TargetPosYDesc"]
 			)
-			local options = Settings.CreateSliderOptions(-2000, 2000, 5)
+			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
@@ -805,7 +805,7 @@ SettingsModule.OnInitialize = function(self)
 				0,
 				L["ClassPowerPosXDesc"]
 			)
-			local options = Settings.CreateSliderOptions(-2000, 2000, 5)
+			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
@@ -820,7 +820,7 @@ SettingsModule.OnInitialize = function(self)
 				300,
 				L["ClassPowerPosYDesc"]
 			)
-			local options = Settings.CreateSliderOptions(-2000, 2000, 5)
+			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
@@ -854,7 +854,7 @@ SettingsModule.OnInitialize = function(self)
 				32,
 				L["TooltipOffsetXDesc"]
 			)
-			local options = Settings.CreateSliderOptions(-2000, 2000, 1)
+			local options = Settings.CreateSliderOptions(-5000, 5000, 1)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
@@ -869,7 +869,7 @@ SettingsModule.OnInitialize = function(self)
 				-32,
 				L["TooltipOffsetYDesc"]
 			)
-			local options = Settings.CreateSliderOptions(-2000, 2000, 1)
+			local options = Settings.CreateSliderOptions(-5000, 5000, 1)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
@@ -929,7 +929,7 @@ SettingsModule.OnInitialize = function(self)
 				-11,
 				L["MicroMenuPosXDesc"]
 			)
-			local options = Settings.CreateSliderOptions(-2000, 2000, 5)
+			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
@@ -944,7 +944,7 @@ SettingsModule.OnInitialize = function(self)
 				11,
 				L["MicroMenuPosYDesc"]
 			)
-			local options = Settings.CreateSliderOptions(-2000, 2000, 5)
+			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
@@ -996,7 +996,7 @@ SettingsModule.OnInitialize = function(self)
 				0,
 				L["CastbarPosXDesc"]
 			)
-			local options = Settings.CreateSliderOptions(-2000, 2000, 5)
+			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
@@ -1011,7 +1011,7 @@ SettingsModule.OnInitialize = function(self)
 				-150,
 				L["CastbarPosYDesc"]
 			)
-			local options = Settings.CreateSliderOptions(-2000, 2000, 5)
+			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)

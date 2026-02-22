@@ -178,7 +178,10 @@ Colors.power.CHI = createColor(126/255, 255/255, 163/255) -- Monk
 Colors.power.COMBO_POINTS = createColor(220/255, 68/255,  25/255) -- Rogues, Druids, Vehicles
 Colors.power.HOLY_POWER = createColor(245/255, 254/255, 145/255) -- Retribution Paladins
 Colors.power.RUNES = createColor(100/255, 155/255, 225/255) -- Death Knight
-Colors.power.SOUL_FRAGMENTS = createColor(148/255, 130/255, 201/255) -- Demon Hunter
+-- Demon Hunter Soul Fragments - requires stages format for oUF compatibility
+Colors.power.SOUL_FRAGMENTS = {}
+Colors.power.SOUL_FRAGMENTS[1] = createColor(148/255, 130/255, 201/255) -- normal
+Colors.power.SOUL_FRAGMENTS[2] = createColor(148/255, 130/255, 201/255) -- metamorphosis
 Colors.power.SOUL_SHARDS = createColor(148/255, 130/255, 201/255) -- Warlock
 
 -- Alternate Power

@@ -235,7 +235,12 @@ local function UpdateColor(element, powerType)
 	if(color) then
 		for i = 1, #element do
 			local bar = element[i]
-			bar:GetStatusBarTexture():SetVertexColor(color:GetRGB())
+			-- Support both ColorMixin (with GetRGB method) and simple {r,g,b} tables
+			if color.GetRGB then
+				bar:GetStatusBarTexture():SetVertexColor(color:GetRGB())
+			else
+				bar:GetStatusBarTexture():SetVertexColor(color[1], color[2], color[3])
+			end
 		end
 	end
 
