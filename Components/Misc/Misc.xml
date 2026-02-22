@@ -33,6 +33,9 @@
 	<!-- QualityOfLife.lua - various QoL improvements (auto-repair, auto-sell junk, etc.) -->
 	<Script file="QualityOfLife.lua"/>
 
+	<!-- RaidFrames.lua - custom styling for Blizzard raid frames (experimental) -->
+	<Script file="RaidFrames.lua"/>
+
 	<!-- TalkingHead.lua - repositions the talking head popup frame (disabled) -->
 	<!-- <Script file="TalkingHead.lua"/> -->
 

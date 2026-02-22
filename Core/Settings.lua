@@ -1090,6 +1090,134 @@ SettingsModule.OnInitialize = function(self)
 			Settings.CreateSlider(category, settingExtra, optionsExtra, L["PlatynatorFrameWidthExtraDesc"])
 		end
 		--]]
+		--------------------------------------------
+		-- Experiments Section (Active)
+		--------------------------------------------
+		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["ExperimentsHeader"]))
+		do
+			local setting = RegisterSetting(
+				category,
+				"customizeRaidFrames",
+				"global.experiments",
+				L["CustomizeRaidFrames"],
+				false,
+				L["CustomizeRaidFramesDesc"]
+			)
+			local OnRaidFramesToggle = function()
+				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
+			end
+			Settings.SetOnValueChangedCallback("global_experiments_customizeRaidFrames", OnRaidFramesToggle)
+			CreateCheckbox(category, setting, L["CustomizeRaidFramesDesc"])
+			-- Raid Frames sliders (only shown when customizeRaidFrames is enabled)
+			local OnRaidFramesSettingChanged = function()
+				ns:Fire("RaidFrames_Settings_Updated")
+			end
+			-- Border Size
+			local settingBorderSize = RegisterSetting(
+				category,
+				"raidFramesBorderSize",
+				"global.experiments",
+				L["RaidFramesBorderSize"],
+				15,
+				L["RaidFramesBorderSizeDesc"]
+			)
+			Settings.SetOnValueChangedCallback("global_experiments_raidFramesBorderSize", OnRaidFramesSettingChanged)
+			local optionsBorderSize = Settings.CreateSliderOptions(5, 30, 1)
+			optionsBorderSize:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return string.format("%d", value)
+			end)
+			Settings.CreateSlider(category, settingBorderSize, optionsBorderSize, L["RaidFramesBorderSizeDesc"])
+			-- Border Top
+			local settingBorderTop = RegisterSetting(
+				category,
+				"raidFramesBorderTop",
+				"global.experiments",
+				L["RaidFramesBorderTop"],
+				6,
+				L["RaidFramesBorderTopDesc"]
+			)
+			Settings.SetOnValueChangedCallback("global_experiments_raidFramesBorderTop", OnRaidFramesSettingChanged)
+			local optionsBorderTop = Settings.CreateSliderOptions(-10, 20, 1)
+			optionsBorderTop:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return string.format("%d", value)
+			end)
+			Settings.CreateSlider(category, settingBorderTop, optionsBorderTop, L["RaidFramesBorderTopDesc"])
+			-- Border Bottom
+			local settingBorderBottom = RegisterSetting(
+				category,
+				"raidFramesBorderBottom",
+				"global.experiments",
+				L["RaidFramesBorderBottom"],
+				8,
+				L["RaidFramesBorderBottomDesc"]
+			)
+			Settings.SetOnValueChangedCallback("global_experiments_raidFramesBorderBottom", OnRaidFramesSettingChanged)
+			local optionsBorderBottom = Settings.CreateSliderOptions(-10, 20, 1)
+			optionsBorderBottom:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return string.format("%d", value)
+			end)
+			Settings.CreateSlider(category, settingBorderBottom, optionsBorderBottom, L["RaidFramesBorderBottomDesc"])
+			-- Border Left
+			local settingBorderLeft = RegisterSetting(
+				category,
+				"raidFramesBorderLeft",
+				"global.experiments",
+				L["RaidFramesBorderLeft"],
+				3,
+				L["RaidFramesBorderLeftDesc"]
+			)
+			Settings.SetOnValueChangedCallback("global_experiments_raidFramesBorderLeft", OnRaidFramesSettingChanged)
+			local optionsBorderLeft = Settings.CreateSliderOptions(-10, 20, 1)
+			optionsBorderLeft:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return string.format("%d", value)
+			end)
+			Settings.CreateSlider(category, settingBorderLeft, optionsBorderLeft, L["RaidFramesBorderLeftDesc"])
+			-- Border Right
+			local settingBorderRight = RegisterSetting(
+				category,
+				"raidFramesBorderRight",
+				"global.experiments",
+				L["RaidFramesBorderRight"],
+				3,
+				L["RaidFramesBorderRightDesc"]
+			)
+			Settings.SetOnValueChangedCallback("global_experiments_raidFramesBorderRight", OnRaidFramesSettingChanged)
+			local optionsBorderRight = Settings.CreateSliderOptions(-10, 20, 1)
+			optionsBorderRight:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return string.format("%d", value)
+			end)
+			Settings.CreateSlider(category, settingBorderRight, optionsBorderRight, L["RaidFramesBorderRightDesc"])
+			-- Role Icon X Offset
+			local settingRoleOffsetX = RegisterSetting(
+				category,
+				"raidFramesRoleOffsetX",
+				"global.experiments",
+				L["RaidFramesRoleOffsetX"],
+				5,
+				L["RaidFramesRoleOffsetXDesc"]
+			)
+			Settings.SetOnValueChangedCallback("global_experiments_raidFramesRoleOffsetX", OnRaidFramesSettingChanged)
+			local optionsRoleOffsetX = Settings.CreateSliderOptions(-10, 20, 1)
+			optionsRoleOffsetX:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return string.format("%d", value)
+			end)
+			Settings.CreateSlider(category, settingRoleOffsetX, optionsRoleOffsetX, L["RaidFramesRoleOffsetXDesc"])
+			-- Role Icon Y Offset
+			local settingRoleOffsetY = RegisterSetting(
+				category,
+				"raidFramesRoleOffsetY",
+				"global.experiments",
+				L["RaidFramesRoleOffsetY"],
+				5,
+				L["RaidFramesRoleOffsetYDesc"]
+			)
+			Settings.SetOnValueChangedCallback("global_experiments_raidFramesRoleOffsetY", OnRaidFramesSettingChanged)
+			local optionsRoleOffsetY = Settings.CreateSliderOptions(-10, 20, 1)
+			optionsRoleOffsetY:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return string.format("%d", value)
+			end)
+			Settings.CreateSlider(category, settingRoleOffsetY, optionsRoleOffsetY, L["RaidFramesRoleOffsetYDesc"])
+		end
 		-- Reload UI popup for orb style changes
 		StaticPopupDialogs["DIABOLICUI3_RELOAD_UI"] = {
 			text = L["OrbStyleReloadConfirmation"] or "Changing orb style requires a UI reload. Reload now?",
