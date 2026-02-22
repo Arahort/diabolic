@@ -1163,7 +1163,7 @@ SettingsModule.OnInitialize = function(self)
 				"raidFramesBorderLeft",
 				"global.experiments",
 				L["RaidFramesBorderLeft"],
-				3,
+				2,
 				L["RaidFramesBorderLeftDesc"]
 			)
 			Settings.SetOnValueChangedCallback("global_experiments_raidFramesBorderLeft", OnRaidFramesSettingChanged)
@@ -1178,7 +1178,7 @@ SettingsModule.OnInitialize = function(self)
 				"raidFramesBorderRight",
 				"global.experiments",
 				L["RaidFramesBorderRight"],
-				3,
+				2,
 				L["RaidFramesBorderRightDesc"]
 			)
 			Settings.SetOnValueChangedCallback("global_experiments_raidFramesBorderRight", OnRaidFramesSettingChanged)

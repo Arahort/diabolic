@@ -157,8 +157,8 @@ local defaults = {
 			raidFramesBorderSize = 15,
 			raidFramesBorderTop = 6,
 			raidFramesBorderBottom = 8,
-			raidFramesBorderLeft = 3,
-			raidFramesBorderRight = 3,
+			raidFramesBorderLeft = 2,
+			raidFramesBorderRight = 2,
 			raidFramesRoleOffsetX = 5,
 			raidFramesRoleOffsetY = 5
 		}
