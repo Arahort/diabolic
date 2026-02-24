@@ -152,6 +152,14 @@ local Backdrops = setmetatable({}, { __index = function(t,k)
 			pcall(origApplyBackdrop, self, ...)
 		end
 	end
+	-- WoW 12.0: Wrap SetupTextureCoordinates to prevent errors with secret dimensions
+	-- This is called by BackdropTemplateMixin when frame size changes
+	if bg.SetupTextureCoordinates then
+		local origSetupCoords = bg.SetupTextureCoordinates
+		bg.SetupTextureCoordinates = function(self, ...)
+			pcall(origSetupCoords, self, ...)
+		end
+	end
 	-- Hook into tooltip framelevel changes.
 	-- Might help with some of the conflicts experienced with Silverdragon and Raider.IO
 	hooksecurefunc(k, "SetFrameLevel", function(self)
@@ -618,6 +626,8 @@ Tooltips.OnTooltipSetUnit = function(self, tooltip)
 end
 
 local TOOLTIP_UPDATE_THROTTLE = 0.033 -- ~30 updates per second for smooth tooltip following
+-- WoW 12.0: Cache for tooltip dimensions when they are not secret
+local tooltipSizeCache = {}
 local updateTooltip = function(tooltip, elapsed)
 	if not tooltip.update then return end
 	if not ns.db or not ns.db.char or not ns.db.char.tooltips then return end
@@ -634,29 +644,47 @@ local updateTooltip = function(tooltip, elapsed)
 	local scale = UIParent:GetEffectiveScale()
 	local mX, mY = GetCursorPosition()
 	mX, mY = mX / scale + settings.x, mY / scale + settings.y
-
-	if settings.anchor == "TOPLEFT" then
-		mY = mY - tooltip:GetHeight()
-	elseif settings.anchor == "TOPRIGHT" then
-		mX = mX - tooltip:GetWidth()
-		mY = mY - tooltip:GetHeight()
-	elseif settings.anchor == "BOTTOMRIGHT" then
-		mX = mX - tooltip:GetWidth()
-	elseif settings.anchor == "TOP" then
-		mX = mX - tooltip:GetWidth() / 2
-		mY = mY - tooltip:GetHeight()
-	elseif settings.anchor == "BOTTOM" then
-		mX = mX - tooltip:GetWidth() / 2
-	elseif settings.anchor == "LEFT" then
-		mY = mY - tooltip:GetHeight() / 2
-	elseif settings.anchor == "RIGHT" then
-		mX = mX - tooltip:GetWidth()
-		mY = mY - tooltip:GetHeight() / 2
-	elseif settings.anchor == "CENTER" then
-		mX = mX - tooltip:GetWidth() / 2
-		mY = mY - tooltip:GetHeight() / 2
+	-- WoW 12.0: GetHeight/GetWidth can return secret values, cache and validate
+	local tooltipKey = tostring(tooltip)
+	local width = tooltip:GetWidth()
+	local height = tooltip:GetHeight()
+	-- Check for secret values and use cache if needed
+	if issecretvalue(width) or issecretvalue(height) then
+		-- Try to use cached dimensions
+		local cache = tooltipSizeCache[tooltipKey]
+		if cache then
+			width = cache.width
+			height = cache.height
+		else
+			-- No cache available, skip positioning this frame
+			return
+		end
+	else
+		-- Cache valid dimensions for future use
+		tooltipSizeCache[tooltipKey] = { width = width, height = height }
 	end
-
+	-- Now we have valid numeric dimensions, apply anchor offset
+	if settings.anchor == "TOPLEFT" then
+		mY = mY - height
+	elseif settings.anchor == "TOPRIGHT" then
+		mX = mX - width
+		mY = mY - height
+	elseif settings.anchor == "BOTTOMRIGHT" then
+		mX = mX - width
+	elseif settings.anchor == "TOP" then
+		mX = mX - width / 2
+		mY = mY - height
+	elseif settings.anchor == "BOTTOM" then
+		mX = mX - width / 2
+	elseif settings.anchor == "LEFT" then
+		mY = mY - height / 2
+	elseif settings.anchor == "RIGHT" then
+		mX = mX - width
+		mY = mY - height / 2
+	elseif settings.anchor == "CENTER" then
+		mX = mX - width / 2
+		mY = mY - height / 2
+	end
 	tooltip:ClearAllPoints()
 	tooltip:SetPoint("BOTTOMLEFT", "UIParent", "BOTTOMLEFT", mX, mY)
 end

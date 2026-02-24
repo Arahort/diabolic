@@ -153,6 +153,9 @@ local Private = oUF.Private
 
 local unitSelectionType = Private.unitSelectionType
 
+-- WoW 12.0: issecretvalue check for secret values from combat APIs
+local issecretvalue = issecretvalue or function() return false end
+
 local function UpdateColor(self, event, unit)
 	if(not unit or self.unit ~= unit) then return end
 	local element = self.Health
@@ -163,7 +166,17 @@ local function UpdateColor(self, event, unit)
 	elseif(element.colorTapping and not UnitPlayerControlled(unit) and UnitIsTapDenied(unit)) then
 		color = self.colors.tapped
 	elseif(element.colorThreat and not UnitPlayerControlled(unit) and UnitThreatSituation('player', unit)) then
-		color =  self.colors.threat[UnitThreatSituation('player', unit)]
+		-- WoW 12.0: UnitThreatSituation can return secret value for targettarget units
+		-- Use pcall to safely access threat color table with potentially secret index
+		local threatLevel = UnitThreatSituation('player', unit)
+		local success, threatColor = pcall(function()
+			return self.colors.threat[threatLevel]
+		end)
+		if success and threatColor then
+			color = threatColor
+		elseif self.colors.threat[0] then
+			color = self.colors.threat[0] -- fallback to no threat color
+		end
 	elseif(element.colorClass and (UnitIsPlayer(unit) or UnitInPartyIsAI(unit)))
 		or (element.colorClassNPC and not (UnitIsPlayer(unit) or UnitInPartyIsAI(unit)))
 		or (element.colorClassPet and UnitPlayerControlled(unit) and not UnitIsPlayer(unit)) then

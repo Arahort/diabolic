@@ -1,5 +1,21 @@
 # DiabolicUI3 Changelog
 
+## [2.6.2] - 2026-02-24
+
+### 🐛 Bug Fixes
+- **Health Color Secret Value**: Fixed "table index is secret" error for Target of Target frames
+  - UnitThreatSituation() returns secret values in WoW 12.0 for targettarget units
+  - Used pcall for safe table access with potentially secret index
+  - Falls back to default threat color if secret value encountered
+- **Tooltip Backdrop**: Fixed SetupTextureCoordinates errors with secret dimensions
+  - Wrapped SetupTextureCoordinates in pcall instead of OnShow hook
+  - Preserved tooltip styling while preventing taint errors
+- **Tooltip Positioning**: Fixed "arithmetic on secret number" for GetHeight/GetWidth
+  - Added dimension caching for when values are not secret
+  - Skips positioning gracefully when dimensions are secret
+
+---
+
 ## [2.6.1] - 2026-02-23
 
 ### 🐛 Bug Fixes
