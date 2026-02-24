@@ -36,6 +36,25 @@ local styledFrames = {}
 local function IsEnabled()
 	return ns.db and ns.db.global and ns.db.global.experiments and ns.db.global.experiments.customizeRaidFrames
 end
+-- Check if raid manager should be hidden
+local function ShouldHideRaidManager()
+	return ns.db and ns.db.global and ns.db.global.experiments and ns.db.global.experiments.hideRaidManager
+end
+-- Hide the raid manager panel (left-side raid control panel)
+local function HideRaidManager()
+	if not ShouldHideRaidManager() then return end
+	-- CompactRaidFrameManager is the left-side raid control panel
+	if CompactRaidFrameManager then
+		CompactRaidFrameManager:UnregisterAllEvents()
+		CompactRaidFrameManager:Hide()
+		-- Hook Show to prevent it from appearing again
+		hooksecurefunc(CompactRaidFrameManager, "Show", function(self)
+			if ShouldHideRaidManager() then
+				self:Hide()
+			end
+		end)
+	end
+end
 -- Create or update border for frame (same style as Tooltips, no background)
 local function CreateBorder(frame)
 	if not frame.diabolicBorder then
@@ -257,18 +276,27 @@ local function StyleExistingFrames()
 	end
 end
 function RaidFrames:OnInitialize()
+	-- Hide raid manager panel (independent of customizeRaidFrames)
+	HideRaidManager()
 	if not IsEnabled() then
 		return
 	end
 	SetupHooks()
 end
 function RaidFrames:OnEnable()
+	-- Register for PLAYER_ENTERING_WORLD to hide raid manager after reload
+	self:RegisterEvent("PLAYER_ENTERING_WORLD", function()
+		-- Re-check hiding after entering world (frame may be recreated)
+		if ShouldHideRaidManager() and CompactRaidFrameManager and CompactRaidFrameManager:IsShown() then
+			CompactRaidFrameManager:Hide()
+		end
+		if IsEnabled() then
+			C_Timer.After(1, StyleExistingFrames)
+		end
+	end)
 	if not IsEnabled() then
 		return
 	end
-	self:RegisterEvent("PLAYER_ENTERING_WORLD", function()
-		C_Timer.After(1, StyleExistingFrames)
-	end)
 	self:RegisterEvent("GROUP_ROSTER_UPDATE", function()
 		C_Timer.After(0.1, StyleExistingFrames)
 	end)
