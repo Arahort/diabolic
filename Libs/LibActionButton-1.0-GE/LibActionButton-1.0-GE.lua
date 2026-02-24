@@ -2302,18 +2302,21 @@ local function StartChargeCooldown(parent, chargeStart, chargeDuration, chargeMo
 			lib.NumChargeCooldowns = lib.NumChargeCooldowns + 1
 			cooldown = CreateFrame("Cooldown", "LAB10GEChargeCooldown"..lib.NumChargeCooldowns, parent, "CooldownFrameTemplate");
 			cooldown:SetScript("OnCooldownDone", EndChargeCooldown)
-			cooldown:SetHideCountdownNumbers(true)
 		end
+		-- GE Fix: Show countdown numbers for charge cooldown (like regular cooldown)
+		-- Must be called every time, not just on creation (pool reuse)
+		cooldown:SetHideCountdownNumbers(false)
 		cooldown:SetParent(parent)
 		cooldown:SetAllPoints(parent)
 		-- GE Fix: Ensure cooldown inherits parent alpha (for auto-hide panels)
 		cooldown:SetIgnoreParentAlpha(false)
 		-- GE Fix: Sync cooldown visibility with parent (auto-hide panels)
 		-- Disable swipe when parent hidden because SetAlpha(0) may not hide the swipe animation
+		-- NOTE: Use GetEffectiveAlpha() because RegisterAutoHide uses SetAlpha(0), not Hide()
 		cooldown:SetScript("OnUpdate", function(self)
 			if self.parent then
-				local parentVisible = self.parent:IsVisible()
-				if parentVisible then
+				local parentAlpha = self.parent:GetEffectiveAlpha()
+				if parentAlpha > 0.5 then
 					self:SetAlpha(1)
 					self:SetDrawSwipe(true)
 				else
@@ -2325,7 +2328,8 @@ local function StartChargeCooldown(parent, chargeStart, chargeDuration, chargeMo
 		--cooldown:SetFrameStrata("TOOLTIP")
 		cooldown:Show()
 		-- GE Fix: Start hidden if parent not visible (auto-hide panels)
-		local isParentVisible = parent:IsVisible()
+		-- NOTE: Use GetEffectiveAlpha() because RegisterAutoHide uses SetAlpha(0), not Hide()
+		local isParentVisible = parent:GetEffectiveAlpha() > 0.5
 		cooldown:SetAlpha(isParentVisible and 1 or 0)
 		cooldown:SetDrawSwipe(isParentVisible)
 		parent.chargeCooldown = cooldown
@@ -2335,7 +2339,8 @@ local function StartChargeCooldown(parent, chargeStart, chargeDuration, chargeMo
 	-- set cooldown
 	parent.chargeCooldown:SetDrawBling(parent.chargeCooldown:GetEffectiveAlpha() > 0.5)
 	-- Enable swipe only if parent visible (fixes visibility on auto-hide panels)
-	parent.chargeCooldown:SetDrawSwipe(parent:IsVisible())
+	-- NOTE: Use GetEffectiveAlpha() because RegisterAutoHide uses SetAlpha(0), not Hide()
+	parent.chargeCooldown:SetDrawSwipe(parent:GetEffectiveAlpha() > 0.5)
 
 	--[[ GE Custom Start ]]--
 	if parent.UpdateCharge then

@@ -212,10 +212,11 @@ local style = function(button)
 	hooksecurefunc(cooldown, "SetEdgeTexture", function(c,t) if t ~= b then c:SetEdgeTexture(b) end end)
 	--hooksecurefunc(cooldown, "SetSwipeColor", function(c,r,g,b,a) if not a or a>.76 then c:SetSwipeColor(r,g,b,.75) end end)
 	-- GE Fix: Only force swipe on if parent is visible (allow hiding for auto-hide panels)
+	-- NOTE: Use GetEffectiveAlpha() because RegisterAutoHide uses SetAlpha(0), not Hide()
 	hooksecurefunc(cooldown, "SetDrawSwipe", function(c,h)
 		if not h then
 			local parent = c:GetParent()
-			if parent and parent:IsVisible() then
+			if parent and parent:GetEffectiveAlpha() > 0.5 then
 				c:SetDrawSwipe(true)
 			end
 		end
@@ -228,6 +229,25 @@ local style = function(button)
 	cooldown:SetAlpha(.75)
 	-- GE Fix: Ensure cooldown inherits parent alpha (for auto-hide panels)
 	cooldown:SetIgnoreParentAlpha(false)
+	-- GE Fix: Sync cooldown visibility with parent (for auto-hide panels using SetAlpha)
+	-- NOTE: Use GetEffectiveAlpha() because RegisterAutoHide uses SetAlpha(0), not Hide()
+	cooldown:HookScript("OnUpdate", function(self)
+		local parent = self:GetParent()
+		if parent then
+			local parentAlpha = parent:GetEffectiveAlpha()
+			if parentAlpha > 0.5 then
+				if self:GetAlpha() < 0.5 then
+					self:SetAlpha(.75)
+					self:SetDrawSwipe(true)
+				end
+			else
+				if self:GetAlpha() > 0.1 then
+					self:SetAlpha(0)
+					self:SetDrawSwipe(false)
+				end
+			end
+		end
+	end)
 
 	-- WoW 12.0: Apply hooks for ALL versions (was only Classic before)
 	-- This prevents NormalTexture from reappearing after /reload
