@@ -441,6 +441,30 @@ Bars.SpawnBars = function(self)
 			bar:UpdateStateDriver()
 			bar:Enable()
 			self.Bars[cfg.name] = bar
+			-- GE Fix: Force cooldown update when bar is shown
+			bar:HookScript("OnShow", function(self)
+				for _, button in self:GetAll() do
+					if button.UpdateCooldown then
+						button:UpdateCooldown()
+					end
+				end
+			end)
+			-- GE Fix: Force cooldown update when bar becomes visible
+			bar._lastShown = bar:IsShown()
+			bar._alphaCheckTicker = C_Timer.NewTicker(0.05, function()
+				local isShown = bar:IsShown()
+				if isShown ~= bar._lastShown then
+					bar._lastShown = isShown
+					if isShown then
+						-- Bar just became visible - update cooldowns
+						for _, button in bar:GetAll() do
+							if button.UpdateCooldown then
+								button:UpdateCooldown()
+							end
+						end
+					end
+				end
+			end)
 		end
 		-- Create dummy bars for toggle button compatibility (SmallActionBar3, SmallActionBar6)
 		for _, idx in ipairs({3, 6}) do
@@ -519,6 +543,41 @@ Bars.SpawnBars = function(self)
 					-- Force cooldown update to restore visibility
 					if button.UpdateCooldown then
 						button:UpdateCooldown()
+					end
+				end
+			end)
+			-- GE Fix: Track alpha changes from RegisterAutoHide
+			-- RegisterAutoHide uses internal C++ animation, not Lua SetAlpha
+			-- Use C_Timer to periodically check alpha
+			print("GE DEBUG: Setting up alpha ticker for", name, "bar:", bar:GetName())
+			bar._lastAlpha = bar:GetAlpha()
+			bar._alphaCheckTicker = C_Timer.NewTicker(0.1, function()
+				local alpha = bar:GetAlpha()
+				if alpha ~= bar._lastAlpha then
+					print("Bar alpha changed:", bar:GetName(), "from:", bar._lastAlpha, "to:", alpha)
+					local wasHidden = (bar._lastAlpha or 1) < 0.5
+					local isHidden = alpha < 0.5
+					bar._lastAlpha = alpha
+					-- Only act on visibility change
+					if wasHidden ~= isHidden then
+						print("Visibility changed:", bar:GetName(), "isHidden:", isHidden)
+						for _, button in bar:GetAll() do
+							if isHidden then
+								-- Hiding - scale down cooldowns
+								if button.chargeCooldown then
+									button.chargeCooldown:SetScale(0.001)
+								end
+							else
+								-- Showing - restore cooldowns and update
+								if button.chargeCooldown then
+									print("  Restoring chargeCooldown on", button:GetName())
+									button.chargeCooldown:SetScale(1)
+								end
+								if button.UpdateCooldown then
+									button:UpdateCooldown()
+								end
+							end
+						end
 					end
 				end
 			end)
