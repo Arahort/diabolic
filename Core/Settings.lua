@@ -1094,6 +1094,22 @@ SettingsModule.OnInitialize = function(self)
 		-- Experiments Section (Active)
 		--------------------------------------------
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["ExperimentsHeader"]))
+		-- Hide Raid Manager Panel
+		do
+			local setting = RegisterSetting(
+				category,
+				"hideRaidManager",
+				"global.experiments",
+				L["HideRaidManager"],
+				false,
+				L["HideRaidManagerDesc"]
+			)
+			local OnHideRaidManagerToggle = function()
+				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
+			end
+			Settings.SetOnValueChangedCallback("global_experiments_hideRaidManager", OnHideRaidManagerToggle)
+			CreateCheckbox(category, setting, L["HideRaidManagerDesc"])
+		end
 		do
 			local setting = RegisterSetting(
 				category,

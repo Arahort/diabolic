@@ -235,8 +235,9 @@ ExtraButtons.UpdatePosition = function(self)
 end
 
 ExtraButtons.OnInitialize = function(self)
-
-	local ExtraAbilityContainer, ExtraActionBarFrame = SetObjectScale(ExtraAbilityContainer), SetObjectScale(ExtraActionBarFrame)
+	-- Wrap ExtraAbilityContainer scaling in pcall - it's a secure frame and can cause taint
+	pcall(SetObjectScale, ExtraAbilityContainer)
+	local ExtraActionBarFrame = SetObjectScale(ExtraActionBarFrame)
 	if (ExtraAbilityContainer and ExtraActionBarFrame) then
 		local extraScaffold = SetObjectScale(CreateFrame("Frame", nil, UIParent))
 		extraScaffold:SetFrameStrata("LOW")
