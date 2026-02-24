@@ -2310,37 +2310,18 @@ local function StartChargeCooldown(parent, chargeStart, chargeDuration, chargeMo
 		cooldown:SetAllPoints(parent)
 		-- GE Fix: Ensure cooldown inherits parent alpha (for auto-hide panels)
 		cooldown:SetIgnoreParentAlpha(false)
-		-- GE Fix: Sync cooldown visibility with parent (auto-hide panels)
-		-- Disable swipe when parent hidden because SetAlpha(0) may not hide the swipe animation
-		-- NOTE: Use GetEffectiveAlpha() because RegisterAutoHide uses SetAlpha(0), not Hide()
-		cooldown:SetScript("OnUpdate", function(self)
-			if self.parent then
-				local parentAlpha = self.parent:GetEffectiveAlpha()
-				if parentAlpha > 0.5 then
-					self:SetAlpha(1)
-					self:SetDrawSwipe(true)
-				else
-					self:SetAlpha(0)
-					self:SetDrawSwipe(false)
-				end
-			end
-		end)
 		--cooldown:SetFrameStrata("TOOLTIP")
 		cooldown:Show()
-		-- GE Fix: Start hidden if parent not visible (auto-hide panels)
-		-- NOTE: Use GetEffectiveAlpha() because RegisterAutoHide uses SetAlpha(0), not Hide()
-		local isParentVisible = parent:GetEffectiveAlpha() > 0.5
-		cooldown:SetAlpha(isParentVisible and 1 or 0)
-		cooldown:SetDrawSwipe(isParentVisible)
+		cooldown:SetDrawSwipe(true)
 		parent.chargeCooldown = cooldown
 		cooldown.parent = parent
 	end
 
 	-- set cooldown
-	parent.chargeCooldown:SetDrawBling(parent.chargeCooldown:GetEffectiveAlpha() > 0.5)
+	parent.chargeCooldown:SetDrawBling(parent:IsVisible())
 	-- Enable swipe only if parent visible (fixes visibility on auto-hide panels)
-	-- NOTE: Use GetEffectiveAlpha() because RegisterAutoHide uses SetAlpha(0), not Hide()
-	parent.chargeCooldown:SetDrawSwipe(parent:GetEffectiveAlpha() > 0.5)
+	-- NOTE: RegisterAutoHide uses Hide()/Show(), so check IsVisible()
+	parent.chargeCooldown:SetDrawSwipe(parent:IsVisible())
 
 	--[[ GE Custom Start ]]--
 	if parent.UpdateCharge then
@@ -2431,6 +2412,12 @@ function UpdateCooldown(self)
 			self.chargeCooldown:SetDrawEdge(false)
 			-- GE Fix: Enable swipe for charge cooldown to show recovery animation
 			self.chargeCooldown:SetDrawSwipe(self:IsVisible())
+			-- GE Fix: Ensure chargeCooldown is properly parented to button (not UIParent)
+			-- This makes it inherit visibility from the button automatically
+			if self.chargeCooldown:GetParent() ~= self then
+				self.chargeCooldown:SetParent(self)
+				self.chargeCooldown:SetAllPoints(self.cooldown)
+			end
 		end
 	else
 		-- Fallback: Extract values from tables and check if they are secret
