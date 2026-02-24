@@ -211,13 +211,23 @@ local style = function(button)
 	hooksecurefunc(cooldown, "SetBlingTexture", function(c,t) if t ~= b then c:SetBlingTexture(b,0,0,0,0) end end)
 	hooksecurefunc(cooldown, "SetEdgeTexture", function(c,t) if t ~= b then c:SetEdgeTexture(b) end end)
 	--hooksecurefunc(cooldown, "SetSwipeColor", function(c,r,g,b,a) if not a or a>.76 then c:SetSwipeColor(r,g,b,.75) end end)
-	hooksecurefunc(cooldown, "SetDrawSwipe", function(c,h) if not h then c:SetDrawSwipe(true) end end)
+	-- GE Fix: Only force swipe on if parent is visible (allow hiding for auto-hide panels)
+	hooksecurefunc(cooldown, "SetDrawSwipe", function(c,h)
+		if not h then
+			local parent = c:GetParent()
+			if parent and parent:IsVisible() then
+				c:SetDrawSwipe(true)
+			end
+		end
+	end)
 	hooksecurefunc(cooldown, "SetDrawBling", function(c,h) if h then c:SetDrawBling(false) end end)
 	hooksecurefunc(cooldown, "SetDrawEdge", function(c,h) if h then c:SetDrawEdge(false) end end)
 	-- WoW 12.0.0: Allow Blizzard's built-in countdown numbers to show
 	-- hooksecurefunc(cooldown, "SetHideCountdownNumbers", function(c,h) if not h then c:SetHideCountdownNumbers(true) end end)
 	-- WoW 12.0 optimization: Set alpha once instead of hooking SetCooldown (called every GCD!)
 	cooldown:SetAlpha(.75)
+	-- GE Fix: Ensure cooldown inherits parent alpha (for auto-hide panels)
+	cooldown:SetIgnoreParentAlpha(false)
 
 	-- WoW 12.0: Apply hooks for ALL versions (was only Classic before)
 	-- This prevents NormalTexture from reappearing after /reload
@@ -476,6 +486,22 @@ Bars.SpawnBars = function(self)
 			bar:UpdateStateDriver()
 			bar:Enable()
 			self.Bars[name] = bar
+			-- GE Fix: Hide/show cooldowns when bar is hidden/shown (RegisterAutoHide)
+			bar:HookScript("OnHide", function(self)
+				for _, button in self:GetAll() do
+					if button.cooldown then button.cooldown:Hide() end
+					if button.chargeCooldown then button.chargeCooldown:Hide() end
+					if button.lossOfControlCooldown then button.lossOfControlCooldown:Hide() end
+				end
+			end)
+			bar:HookScript("OnShow", function(self)
+				for _, button in self:GetAll() do
+					-- Force cooldown update to restore visibility
+					if button.UpdateCooldown then
+						button:UpdateCooldown()
+					end
+				end
+			end)
 		end
 	end
 

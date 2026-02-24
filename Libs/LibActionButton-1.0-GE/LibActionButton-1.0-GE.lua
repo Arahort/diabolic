@@ -2303,18 +2303,39 @@ local function StartChargeCooldown(parent, chargeStart, chargeDuration, chargeMo
 			cooldown = CreateFrame("Cooldown", "LAB10GEChargeCooldown"..lib.NumChargeCooldowns, parent, "CooldownFrameTemplate");
 			cooldown:SetScript("OnCooldownDone", EndChargeCooldown)
 			cooldown:SetHideCountdownNumbers(true)
-			cooldown:SetDrawSwipe(false)
 		end
 		cooldown:SetParent(parent)
 		cooldown:SetAllPoints(parent)
+		-- GE Fix: Ensure cooldown inherits parent alpha (for auto-hide panels)
+		cooldown:SetIgnoreParentAlpha(false)
+		-- GE Fix: Sync cooldown visibility with parent (auto-hide panels)
+		-- Disable swipe when parent hidden because SetAlpha(0) may not hide the swipe animation
+		cooldown:SetScript("OnUpdate", function(self)
+			if self.parent then
+				local parentVisible = self.parent:IsVisible()
+				if parentVisible then
+					self:SetAlpha(1)
+					self:SetDrawSwipe(true)
+				else
+					self:SetAlpha(0)
+					self:SetDrawSwipe(false)
+				end
+			end
+		end)
 		--cooldown:SetFrameStrata("TOOLTIP")
 		cooldown:Show()
+		-- GE Fix: Start hidden if parent not visible (auto-hide panels)
+		local isParentVisible = parent:IsVisible()
+		cooldown:SetAlpha(isParentVisible and 1 or 0)
+		cooldown:SetDrawSwipe(isParentVisible)
 		parent.chargeCooldown = cooldown
 		cooldown.parent = parent
 	end
 
 	-- set cooldown
 	parent.chargeCooldown:SetDrawBling(parent.chargeCooldown:GetEffectiveAlpha() > 0.5)
+	-- Enable swipe only if parent visible (fixes visibility on auto-hide panels)
+	parent.chargeCooldown:SetDrawSwipe(parent:IsVisible())
 
 	--[[ GE Custom Start ]]--
 	if parent.UpdateCharge then
@@ -2390,6 +2411,8 @@ function UpdateCooldown(self)
 			loc:SetDrawEdge(false)
 			loc:SetDrawBling(false)
 			loc:SetHideCountdownNumbers(true)
+			-- GE Fix: Ensure cooldown inherits parent alpha (for auto-hide panels)
+			loc:SetIgnoreParentAlpha(false)
 			self.lossOfControlCooldown = loc
 		end
 		ActionButton_ApplyCooldown(self.cooldown, cooldownInfo, self.chargeCooldown, chargeInfo, self.lossOfControlCooldown, lossOfControlInfo)
@@ -2401,6 +2424,8 @@ function UpdateCooldown(self)
 		end
 		if self.chargeCooldown then
 			self.chargeCooldown:SetDrawEdge(false)
+			-- GE Fix: Enable swipe for charge cooldown to show recovery animation
+			self.chargeCooldown:SetDrawSwipe(self:IsVisible())
 		end
 	else
 		-- Fallback: Extract values from tables and check if they are secret
