@@ -155,10 +155,10 @@ local defaults = {
 			platynatorFrameWidthExtra = 3,
 			customizeRaidFrames = false,
 			raidFramesBorderSize = 15,
-			raidFramesBorderTop = 6,
-			raidFramesBorderBottom = 8,
-			raidFramesBorderLeft = 2,
-			raidFramesBorderRight = 2,
+			raidFramesBorderTop = 5,
+			raidFramesBorderBottom = 7,
+			raidFramesBorderLeft = 1,
+			raidFramesBorderRight = 1,
 			raidFramesRoleOffsetX = 5,
 			raidFramesRoleOffsetY = 5
 		}
