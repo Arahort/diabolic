@@ -43,6 +43,8 @@ L["UsePetOrbStyle"] = "Exibir mascote como esfera"
 L["UsePetOrbStyleDesc"] = "Mostrar a vida do mascote como esfera em vez de retrato (requer /reload)"
 L["UseExtendedBars"] = "Barras ocultas estendidas (Página 7)"
 L["UseExtendedBarsDesc"] = "Altera a disposição para 12 botões por barra (6x2) e utiliza a página 7 das barras de ação. AVISO: Pode conflituar com a troca de páginas de posturas/formas de Druidas, Guerreiros, Ladinos. Requer /reload"
+L["DisableSidePanelAutoHide"] = "Desativar ocultação automática dos painéis laterais"
+L["DisableSidePanelAutoHideDesc"] = "As barras de ação esquerda e direita permanecem sempre visíveis em vez de se ocultar automaticamente"
 L["HideHotkeys"] = "Ocultar texto de atalhos"
 L["HideHotkeysDesc"] = "Ocultar texto de atalhos de teclado nos botões da barra de ação (requer recarregamento)"
 -- Auras

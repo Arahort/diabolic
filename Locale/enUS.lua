@@ -43,6 +43,8 @@ L["UsePetOrbStyle"] = "Display Pet as Sphere"
 L["UsePetOrbStyleDesc"] = "Show pet health as a sphere instead of portrait frame (requires /reload)"
 L["UseExtendedBars"] = "Extended Hidden Bars (Page 7)"
 L["UseExtendedBarsDesc"] = "Changes layout to 12 buttons per bar (6x2) and uses action bar page 7. WARNING: May conflict with stance/form paging for Druids, Warriors, Rogues. Requires /reload"
+L["DisableSidePanelAutoHide"] = "Disable Side Panel Auto-Hide"
+L["DisableSidePanelAutoHideDesc"] = "Keep left and right action bar panels always visible instead of auto-hiding on mouseout"
 L["HideHotkeys"] = "Hide Hotkey Text"
 L["HideHotkeysDesc"] = "Hide keybind text on action bar buttons (requires reload)"
 -- Auras

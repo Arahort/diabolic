@@ -424,9 +424,9 @@ Bars.SpawnBars = function(self)
 			bar:SetFrameStrata("HIGH")
 			bar:SetSize(324, 112) -- 6x2 buttons (6*54=324, 2*53+6=112)
 			if cfg.side == "left" then
-				bar:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOM", -579, 11 + (cfg.level-1)*129)
+				bar:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOM", -629, 11 + (cfg.level-1)*129)
 			else
-				bar:SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", 579, 11 + (cfg.level-1)*129)
+				bar:SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", 629, 11 + (cfg.level-1)*129)
 			end
 			local backdrop = bar:CreateTexture(nil, "BACKGROUND", nil, -7)
 			backdrop:SetSize(512,256)
@@ -586,11 +586,13 @@ Bars.SpawnBars = function(self)
 
 	-- ToggleButtons
 	-------------------------------------------------------
+	self.ToggleButtons = {}
 	for i = 1,2 do
 
 		local name = ns.Prefix..(i == 1 and "Left" or "Right").."SmallBarToggleButton"
 
 		local toggle = SetObjectScale(CreateFrame("CheckButton", name, UIParent, "SecureHandlerClickTemplate"))
+		self.ToggleButtons[i] = toggle
 		toggle:SetFrameStrata("HIGH")
 		toggle:RegisterForClicks("AnyUp")
 		toggle:SetSize(48,48)
@@ -598,10 +600,11 @@ Bars.SpawnBars = function(self)
 		toggle.OnLeave = toggleOnLeave
 		toggle.UpdateAlpha = toggleUpdateAlpha
 
+		local panelOffset = useExtended and 629 or 660
 		if (i == 1) then
-			toggle:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOM", -660 + 54, 11)
+			toggle:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOM", -panelOffset + 54, 11)
 		else
-			toggle:SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", 660 - 54, 11)
+			toggle:SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", panelOffset - 54, 11)
 		end
 
 		local texture = toggle:CreateTexture(nil, "ARTWORK", nil, 0)
@@ -617,11 +620,14 @@ Bars.SpawnBars = function(self)
 			toggle[barKey]:HookScript("OnHide", function() toggle:UpdateAlpha() end)
 		end
 
+		-- Set initial disableAutoHide attribute from settings
+		toggle:SetAttribute("disableAutoHide", ns.db.char.actionbars.disableSidePanelAutoHide)
 		toggle:SetAttribute("_onclick", [[
 
 			local bar1 = self:GetFrameRef("Bar1");
 			local bar2 = self:GetFrameRef("Bar2");
 			local bar3 = self:GetFrameRef("Bar3");
+			local disableAutoHide = self:GetAttribute("disableAutoHide");
 
 			if (button == "LeftButton") then
 				if (bar1:IsShown() and bar2:IsShown() and bar3:IsShown()) then
@@ -639,7 +645,7 @@ Bars.SpawnBars = function(self)
 			bar2:UnregisterAutoHide();
 			bar3:UnregisterAutoHide();
 
-			if (bar1:IsShown()) then
+			if (bar1:IsShown() and not disableAutoHide) then
 
 				-- Register autohider for bar1
 				bar1:RegisterAutoHide(.75);
@@ -736,6 +742,14 @@ Bars.SpawnBars = function(self)
 		RegisterStateDriver(toggle, "state-vis", "[petbattle][possessbar][overridebar][vehicleui][@vehicle,exists]hide;show")
 
 	end
+
+	-- Callback for disableSidePanelAutoHide setting change
+	Settings.SetOnValueChangedCallback("char_actionbars_disableSidePanelAutoHide", function()
+		local disableAutoHide = ns.db.char.actionbars.disableSidePanelAutoHide
+		for _, toggleBtn in ipairs(self.ToggleButtons) do
+			toggleBtn:SetAttribute("disableAutoHide", disableAutoHide)
+		end
+	end)
 
 	-- Inform the environment about the spawned bars
 	ns:Fire("ActionBar_Created", ns.Prefix.."PrimaryActionBar")

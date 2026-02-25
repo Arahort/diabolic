@@ -24,7 +24,9 @@ local defaults = {
 			showBlizzardBar5 = false,
 			showBlizzardBar6 = false,
 			showBlizzardBar7 = false,
-			hideHotkeys = false
+			hideHotkeys = false,
+			useExtendedBars = true,
+			disableSidePanelAutoHide = false
 		},
 		auras = {
 			alwaysHideAuras = false,
