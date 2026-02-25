@@ -72,6 +72,9 @@ local defaults = {
 		petbar = {
 			positionX = 4,
 			positionY = 130
+		},
+		experiments = {
+			useAzeriteClassPower = false
 		}
 	},
 	global = {

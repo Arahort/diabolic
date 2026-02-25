@@ -5,6 +5,8 @@ if (not UnitStyles) then
 end
 
 -- Lua API
+local math_pi = math.pi
+local next = next
 local select = select
 local unpack = unpack
 
@@ -20,6 +22,199 @@ local SetObjectScale = ns.API.SetUnitFramesObjectScale
 
 -- Constants
 local playerClass = ns.PlayerClass
+local useAzeriteClassPower = false
+
+-- AzeriteUI-style ClassPower Layout Data
+--------------------------------------------
+local toRadians = function(d) return d * (math_pi / 180) end
+local AzeriteClassPowerLayouts = {
+	Stagger = {
+		[1] = {
+			Position = { "TOPLEFT", 62, -109 },
+			Size = { 13, 13 }, BackdropSize = { 60, 60 },
+			Texture = GetMedia("point_crystal"), BackdropTexture = GetMedia("point_plate"),
+			PointRotation = toRadians(5)
+		},
+		[2] = {
+			Position = { "TOPLEFT", 41, -58 },
+			Size = { 39, 40 }, BackdropSize = { 80, 80 },
+			Texture = GetMedia("point_hearth"), BackdropTexture = GetMedia("point_plate"),
+			PointRotation = nil
+		},
+		[3] = {
+			Position = { "TOPLEFT", 64, -36 },
+			Size = { 13, 13 }, BackdropSize = { 60, 60 },
+			Texture = GetMedia("point_crystal"), BackdropTexture = GetMedia("point_plate"),
+			PointRotation = nil
+		}
+	},
+	ArcaneCharges = {
+		[1] = {
+			Position = { "TOPLEFT", 78, -139 },
+			Size = { 13, 13 }, BackdropSize = { 58, 58 },
+			Texture = GetMedia("point_crystal"), BackdropTexture = GetMedia("point_plate"),
+			PointRotation = toRadians(6)
+		},
+		[2] = {
+			Position = { "TOPLEFT", 57, -111 },
+			Size = { 13, 13 }, BackdropSize = { 60, 60 },
+			Texture = GetMedia("point_crystal"), BackdropTexture = GetMedia("point_plate"),
+			PointRotation = toRadians(5)
+		},
+		[3] = {
+			Position = { "TOPLEFT", 49, -76 },
+			Size = { 13, 13 }, BackdropSize = { 60, 60 },
+			Texture = GetMedia("point_crystal"), BackdropTexture = GetMedia("point_plate"),
+			PointRotation = toRadians(4)
+		},
+		[4] = {
+			Position = { "TOPLEFT", 72, -33 },
+			Size = { 51, 52 }, BackdropSize = { 104, 104 },
+			Texture = GetMedia("point_hearth"), BackdropTexture = GetMedia("point_plate"),
+			PointRotation = nil
+		}
+	},
+	ComboPoints = {
+		[1] = {
+			Position = { "TOPLEFT", 82, -137 },
+			Size = { 13, 13 }, BackdropSize = { 58, 58 },
+			Texture = GetMedia("point_crystal"), BackdropTexture = GetMedia("point_plate"),
+			PointRotation = toRadians(6)
+		},
+		[2] = {
+			Position = { "TOPLEFT", 64, -111 },
+			Size = { 13, 13 }, BackdropSize = { 60, 60 },
+			Texture = GetMedia("point_crystal"), BackdropTexture = GetMedia("point_plate"),
+			PointRotation = toRadians(5)
+		},
+		[3] = {
+			Position = { "TOPLEFT", 54, -79 },
+			Size = { 13, 13 }, BackdropSize = { 60, 60 },
+			Texture = GetMedia("point_crystal"), BackdropTexture = GetMedia("point_plate"),
+			PointRotation = toRadians(4)
+		},
+		[4] = {
+			Position = { "TOPLEFT", 60, -44 },
+			Size = { 13, 13 }, BackdropSize = { 60, 60 },
+			Texture = GetMedia("point_crystal"), BackdropTexture = GetMedia("point_plate"),
+			PointRotation = nil
+		},
+		[5] = {
+			Position = { "TOPLEFT", 82, -11 },
+			Size = { 14, 21 }, BackdropSize = { 82, 96 },
+			Texture = GetMedia("point_crystal"), BackdropTexture = GetMedia("point_diamond"),
+			PointRotation = toRadians(1)
+		}
+	},
+	Chi = {
+		[1] = {
+			Position = { "TOPLEFT", 82, -137 },
+			Size = { 13, 13 }, BackdropSize = { 58, 58 },
+			Texture = GetMedia("point_crystal"), BackdropTexture = GetMedia("point_plate"),
+			PointRotation = toRadians(6)
+		},
+		[2] = {
+			Position = { "TOPLEFT", 62, -109 },
+			Size = { 13, 13 }, BackdropSize = { 60, 60 },
+			Texture = GetMedia("point_crystal"), BackdropTexture = GetMedia("point_plate"),
+			PointRotation = toRadians(5)
+		},
+		[3] = {
+			Position = { "TOPLEFT", 51, -73 },
+			Size = { 39, 40 }, BackdropSize = { 80, 80 },
+			Texture = GetMedia("point_hearth"), BackdropTexture = GetMedia("point_plate"),
+			PointRotation = nil
+		},
+		[4] = {
+			Position = { "TOPLEFT", 64, -36 },
+			Size = { 13, 13 }, BackdropSize = { 60, 60 },
+			Texture = GetMedia("point_crystal"), BackdropTexture = GetMedia("point_plate"),
+			PointRotation = nil
+		},
+		[5] = {
+			Position = { "TOPLEFT", 82, -9 },
+			Size = { 13, 13 }, BackdropSize = { 60, 60 },
+			Texture = GetMedia("point_crystal"), BackdropTexture = GetMedia("point_plate"),
+			PointRotation = nil
+		}
+	},
+	SoulShards = {
+		[1] = {
+			Position = { "TOPLEFT", 82, -137 },
+			Size = { 12, 12 }, BackdropSize = { 54, 54 },
+			Texture = GetMedia("point_crystal"), BackdropTexture = GetMedia("point_plate"),
+			PointRotation = toRadians(6)
+		},
+		[2] = {
+			Position = { "TOPLEFT", 64, -111 },
+			Size = { 13, 13 }, BackdropSize = { 60, 60 },
+			Texture = GetMedia("point_crystal"), BackdropTexture = GetMedia("point_plate"),
+			PointRotation = toRadians(5)
+		},
+		[3] = {
+			Position = { "TOPLEFT", 50, -80 },
+			Size = { 11, 15 }, BackdropSize = { 65, 60 },
+			Texture = GetMedia("point_crystal"), BackdropTexture = GetMedia("point_diamond"),
+			PointRotation = toRadians(3)
+		},
+		[4] = {
+			Position = { "TOPLEFT", 58, -44 },
+			Size = { 12, 18 }, BackdropSize = { 78, 79 },
+			Texture = GetMedia("point_crystal"), BackdropTexture = GetMedia("point_diamond"),
+			PointRotation = toRadians(3)
+		},
+		[5] = {
+			Position = { "TOPLEFT", 82, -11 },
+			Size = { 14, 21 }, BackdropSize = { 82, 96 },
+			Texture = GetMedia("point_crystal"), BackdropTexture = GetMedia("point_diamond"),
+			PointRotation = toRadians(1)
+		}
+	},
+	Runes = {
+		[1] = {
+			Position = { "TOPLEFT", 82, -131 },
+			Size = { 28, 28 }, BackdropSize = { 58, 58 },
+			Texture = GetMedia("point_rune2"), BackdropTexture = GetMedia("point_dk_block"),
+			PointRotation = nil
+		},
+		[2] = {
+			Position = { "TOPLEFT", 58, -107 },
+			Size = { 28, 28 }, BackdropSize = { 68, 68 },
+			Texture = GetMedia("point_rune4"), BackdropTexture = GetMedia("point_dk_block"),
+			PointRotation = nil
+		},
+		[3] = {
+			Position = { "TOPLEFT", 32, -83 },
+			Size = { 30, 30 }, BackdropSize = { 74, 74 },
+			Texture = GetMedia("point_rune1"), BackdropTexture = GetMedia("point_dk_block"),
+			PointRotation = nil
+		},
+		[4] = {
+			Position = { "TOPLEFT", 65, -64 },
+			Size = { 28, 28 }, BackdropSize = { 68, 68 },
+			Texture = GetMedia("point_rune3"), BackdropTexture = GetMedia("point_dk_block"),
+			PointRotation = nil
+		},
+		[5] = {
+			Position = { "TOPLEFT", 39, -38 },
+			Size = { 32, 32 }, BackdropSize = { 78, 78 },
+			Texture = GetMedia("point_rune2"), BackdropTexture = GetMedia("point_dk_block"),
+			PointRotation = nil
+		},
+		[6] = {
+			Position = { "TOPLEFT", 79, -10 },
+			Size = { 40, 40 }, BackdropSize = { 98, 98 },
+			Texture = GetMedia("point_rune1"), BackdropTexture = GetMedia("point_dk_block"),
+			PointRotation = nil
+		}
+	}
+}
+local AzeriteCaseColor = { 211/255, 200/255, 169/255 }
+local AzeriteSlotColor = { 130/255 * .3, 133/255 * .3, 130/255 * .3, 2/3 }
+local AzeriteSlotOffset = 1.5
+local AzeriteRoundCaseTexture = GetMedia("point_plate")
+local AzeriteRoundFillTexture = [[Interface\CHARACTERFRAME\TempPortraitAlphaMask]]
+local AzeriteRoundFillScale = 0.125
 
 -- Element Callbacks
 --------------------------------------------
@@ -187,21 +382,179 @@ local Cast_PostCastFail = function(element, unit)
 	end
 end
 
+-- AzeriteUI-style ClassPower Callbacks
+--------------------------------------------
+local AzeriteApplyPointLayout = function(point, info, parent)
+	local rotation = info.PointRotation or 0
+	point.case:SetSize(unpack(info.BackdropSize))
+	point.case:SetTexture(info.BackdropTexture)
+	point.case:SetRotation(rotation)
+	if (info.BackdropTexture == AzeriteRoundCaseTexture) then
+		local caseW, caseH = info.BackdropSize[1], info.BackdropSize[2]
+		local fillSize = math.min(caseW, caseH) * AzeriteRoundFillScale
+		local origW, origH = info.Size[1], info.Size[2]
+		local centerX = info.Position[2] + origW / 2
+		local centerY = info.Position[3] - origH / 2
+		point:ClearAllPoints()
+		point:SetPoint("CENTER", parent, "TOPLEFT", centerX, centerY)
+		point:SetSize(fillSize, fillSize)
+		point:SetStatusBarTexture(AzeriteRoundFillTexture)
+		point.slot:SetTexture(AzeriteRoundFillTexture)
+		point.slot:SetRotation(0)
+	else
+		point:ClearAllPoints()
+		point:SetPoint(unpack(info.Position))
+		point:SetSize(unpack(info.Size))
+		point:SetStatusBarTexture(info.Texture)
+		point:GetStatusBarTexture():SetRotation(rotation)
+		point.slot:SetTexture(info.Texture)
+		point.slot:SetRotation(rotation)
+	end
+end
+local AzeriteClassPower_CreatePoint = function(self)
+	local point = CreateFrame("StatusBar", nil, self)
+	point:SetOrientation("VERTICAL")
+	point:SetReverseFill(false)
+	point:SetStatusBarTexture(GetMedia("point_crystal"))
+	point:SetStatusBarColor(1, 1, 1)
+	point:SetMinMaxValues(0, 1)
+	point:SetValue(1)
+	local case = point:CreateTexture(nil, "BACKGROUND", nil, -2)
+	case:SetPoint("CENTER")
+	case:SetVertexColor(unpack(AzeriteCaseColor))
+	point.case = case
+	local slot = point:CreateTexture(nil, "BACKGROUND", nil, -1)
+	slot:SetPoint("TOPLEFT", -AzeriteSlotOffset, AzeriteSlotOffset)
+	slot:SetPoint("BOTTOMRIGHT", AzeriteSlotOffset, -AzeriteSlotOffset)
+	slot:SetVertexColor(unpack(AzeriteSlotColor))
+	point.slot = slot
+	return point
+end
+local AzeriteClassPower_PostUpdate = function(element, cur, max, hasMaxChanged, powerType)
+	if (not cur or not max) then
+		return
+	end
+	if (type(cur) ~= "number" or cur <= 0) then
+		return element:Hide()
+	end
+	local style
+	if (max >= 6) then
+		style = "Runes"
+	elseif (max == 5) then
+		style = playerClass == "MONK" and "Chi" or playerClass == "WARLOCK" and "SoulShards" or "ComboPoints"
+	elseif (max == 4) then
+		style = "ArcaneCharges"
+	elseif (max == 3) then
+		style = "Stagger"
+	end
+	if (not style) then
+		return element:Hide()
+	end
+	if (not element:IsShown()) then
+		element:Show()
+	end
+	for i = 1, #element do
+		local point = element[i]
+		if (point:IsShown()) then
+			local value = point:GetValue()
+			local _, pmax = point:GetMinMaxValues()
+			if (element.inCombat) then
+				point:SetAlpha((cur == max) and 1 or (value < pmax) and .5 or 1)
+			else
+				point:SetAlpha((cur == max) and 0 or (value < pmax) and .5 or 1)
+			end
+		end
+	end
+	if (style ~= element.style) then
+		local layoutdb = AzeriteClassPowerLayouts[style]
+		if (layoutdb) then
+			local id = 0
+			for i, info in next, layoutdb do
+				local point = element[i]
+				if (point) then
+					AzeriteApplyPointLayout(point, info, element)
+					id = id + 1
+				end
+			end
+			for i = id + 1, #element do
+				element[i]:Hide()
+			end
+		end
+		element.style = style
+	end
+end
+local AzeriteClassPower_PostUpdateColor = function(element, r, g, b)
+	if type(r) == "table" and r.GetRGB then
+		r, g, b = r:GetRGB()
+	end
+	for i = 1, #element do
+		element[i]:SetStatusBarColor(r, g, b)
+	end
+end
+local AzeriteRunes_PostUpdate = function(element, runemap, hasVehicle, allReady)
+	for i = 1, #element do
+		local rune = element[i]
+		if (rune:IsShown()) then
+			local value = rune:GetValue()
+			local _, max = rune:GetMinMaxValues()
+			if (element.inCombat) then
+				rune:SetAlpha(allReady and 1 or (value < max) and .5 or 1)
+			else
+				rune:SetAlpha(allReady and 0 or (value < max) and .5 or 1)
+			end
+		end
+	end
+end
+local AzeriteRunes_PostUpdateColor = function(element, r, g, b, color, rune)
+	if (rune) then
+		rune:SetStatusBarColor(r, g, b)
+	else
+		color = element.__owner.colors.power.RUNES
+		r, g, b = color[1], color[2], color[3]
+		for i = 1, #element do
+			element[i]:SetStatusBarColor(r, g, b)
+		end
+	end
+end
+local AzeriteStagger_PostUpdate = function(element, cur, max)
+	element[1].min = 0
+	element[1].max = max * .3
+	element[2].min = element[1].max
+	element[2].max = max * .6
+	element[3].min = element[2].max
+	element[3].max = max
+	for i = 1, 3 do
+		local point = element[i]
+		local value = (cur > point.max) and point.max or (cur < point.min) and point.min or cur
+		point:SetMinMaxValues(point.min, point.max)
+		point:SetValue(value)
+		if (element.inCombat) then
+			point:SetAlpha((cur == max) and 1 or (value < point.max) and .5 or 1)
+		else
+			point:SetAlpha((cur == 0) and 0 or (value < point.max) and .5 or 1)
+		end
+	end
+end
+local AzeriteStagger_SetStatusBarColor = function(element, r, g, b)
+	for i, point in next, element do
+		point:SetStatusBarColor(r, g, b)
+	end
+end
+
+-- Standard ClassPower Callbacks
+--------------------------------------------
 local ClassPower_OnDisplayValueChanged = function(point)
 	local value = point:GetValue()
 	local min, max = point:GetMinMaxValues()
-
 	-- Base it all on the bar's current color
 	if (point.fg) then
 		local r, g, b = point:GetStatusBarColor()
 		point.fg:SetVertexColor(r, g, b, .75)
-
 		-- Adjust texcoords of the overlay glow to match the bars
 		local c = point.fg.texCoords
 		point.fg:SetTexCoord(c[1], c[2], c[4] - (c[4]-c[3]) * ((value-min)/(max-min)), c[4])
 	end
 end
-
 local ClassPower_PostUpdate = function(element, cur, max, hasMaxChanged, powerType)
 	-- Resize the holder frame to keep points centered
 	if (hasMaxChanged) then
@@ -313,19 +666,19 @@ local UnitFrame_OnEvent = function(self, event)
 		local runes = self.Runes
 		if (runes) and (not runes.inCombat) then
 			runes.inCombat = true
-			runes:Show()
+			if (not useAzeriteClassPower) then runes:Show() end
 			runes:ForceUpdate()
 		end
 		local stagger = self.Stagger
 		if (stagger and not stagger.inCombat) then
 			stagger.inCombat = true
-			stagger:Show()
+			if (not useAzeriteClassPower) then stagger:Show() end
 			stagger:ForceUpdate()
 		end
 		local classpower = self.ClassPower
 		if (classpower) and (not classpower.inCombat) then
 			classpower.inCombat = true
-			classpower:Show()
+			if (not useAzeriteClassPower) then classpower:Show() end
 			classpower:ForceUpdate()
 		end
 	elseif (event == "PLAYER_REGEN_ENABLED") then
@@ -333,19 +686,19 @@ local UnitFrame_OnEvent = function(self, event)
 		local runes = self.Runes
 		if (runes) and (runes.inCombat) then
 			runes.inCombat = false
-			runes:Hide()
+			if (not useAzeriteClassPower) then runes:Hide() end
 			runes:ForceUpdate()
 		end
 		local stagger = self.Stagger
 		if (stagger and stagger.inCombat) then
 			stagger.inCombat = false
-			stagger:Hide()
+			if (not useAzeriteClassPower) then stagger:Hide() end
 			stagger:ForceUpdate()
 		end
 		local classpower = self.ClassPower
 		if (classpower) and (classpower.inCombat) then
 			classpower.inCombat = false
-			classpower:Hide()
+			if (not useAzeriteClassPower) then classpower:Hide() end
 			classpower:ForceUpdate()
 		end
 	end
@@ -512,7 +865,7 @@ local CreatePoint = function(self, i)
 end
 
 UnitStyles["Player"] = function(self, unit, id)
-
+	useAzeriteClassPower = ns.db and ns.db.char and ns.db.char.experiments and ns.db.char.experiments.useAzeriteClassPower or false
 	self:SetSize(200,200)
 	self:SetFrameLevel(self:GetFrameLevel() + 1)
 
@@ -811,26 +1164,39 @@ UnitStyles["Player"] = function(self, unit, id)
 	if (not SCP) then
 
 		local classpower = CreateFrame("Frame", nil, self)
-		classpower:SetSize(560,70) -- 8 points * 70px (resized dynamically by PostUpdate)
-		classpower:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 300)
-		classpower.pointWidth = 70
-		classpower.PostUpdate = ClassPower_PostUpdate
-		classpower.PostUpdateColor = ClassPower_PostUpdateColor
-
-		-- Create max 8 points (texture supports 8, future patches may add more)
-		for i = 1, 8 do
-			local point = CreatePoint(self, i)
-			point:SetParent(classpower)
-			if (i == 1) then
-				point:SetPoint("TOPLEFT", classpower, "TOPLEFT", 0, 0)
-			else
-				point:SetPoint("TOPLEFT", classpower[i-1], "TOPRIGHT", 0, 0)
+		classpower:SetFrameLevel(self:GetFrameLevel() + 10)
+		if (useAzeriteClassPower) then
+			classpower:SetSize(124, 168)
+			classpower:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 300)
+			classpower.PostUpdate = AzeriteClassPower_PostUpdate
+			classpower.PostUpdateColor = AzeriteClassPower_PostUpdateColor
+			for i = 1, 10 do
+				local point = AzeriteClassPower_CreatePoint(self)
+				point:SetParent(classpower)
+				classpower[i] = point
 			end
-			classpower[i] = point
+		else
+			classpower:SetSize(560,70) -- 8 points * 70px (resized dynamically by PostUpdate)
+			classpower:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 300)
+			classpower.pointWidth = 70
+			classpower.PostUpdate = ClassPower_PostUpdate
+			classpower.PostUpdateColor = ClassPower_PostUpdateColor
+			-- Create max 8 points (texture supports 8, future patches may add more)
+			for i = 1, 8 do
+				local point = CreatePoint(self, i)
+				point:SetParent(classpower)
+				if (i == 1) then
+					point:SetPoint("TOPLEFT", classpower, "TOPLEFT", 0, 0)
+				else
+					point:SetPoint("TOPLEFT", classpower[i-1], "TOPRIGHT", 0, 0)
+				end
+				classpower[i] = point
+			end
 		end
-
 		self.ClassPower = classpower
-		self.ClassPower:Hide()
+		if (not useAzeriteClassPower) then
+			self.ClassPower:Hide()
+		end
 	end
 
 	-- Stagger (Monk)
@@ -838,26 +1204,48 @@ UnitStyles["Player"] = function(self, unit, id)
 	if (playerClass == "MONK") and (not SCP) then
 
 		local stagger = CreateFrame("Frame", nil, self)
-		stagger:SetSize(210,70)
-		stagger:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 300)
 		stagger.SetValue = noop
 		stagger.SetMinMaxValues = noop
-		stagger.SetStatusBarColor = Stagger_SetStatusBarColor
-
-		for i = 1,3 do
-			local point = CreatePoint(self, i)
-			point:SetParent(stagger)
-			if (i == 1) then
-				point:SetPoint("TOPLEFT", stagger, "TOPLEFT", 0, 0)
-			else
-				point:SetPoint("TOPLEFT", stagger[i-1], "TOPRIGHT", 0, 0)
+		stagger.SetStatusBarColor = useAzeriteClassPower and AzeriteStagger_SetStatusBarColor or Stagger_SetStatusBarColor
+		if (useAzeriteClassPower) then
+			stagger:SetSize(124, 168)
+			stagger:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 300)
+			for i = 1, 3 do
+				local point = AzeriteClassPower_CreatePoint(self)
+				point:SetParent(stagger)
+				stagger[i] = point
 			end
-			stagger[i] = point
+			-- Pre-apply Stagger layout (static, always 3 points)
+			local layoutdb = AzeriteClassPowerLayouts["Stagger"]
+			if (layoutdb) then
+				for i, info in next, layoutdb do
+					local point = stagger[i]
+					if (point) then
+						AzeriteApplyPointLayout(point, info, stagger)
+					end
+				end
+			end
+			self.Stagger = stagger
+			self.Stagger.PostUpdate = AzeriteStagger_PostUpdate
+		else
+			stagger:SetSize(210,70)
+			stagger:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 300)
+			for i = 1,3 do
+				local point = CreatePoint(self, i)
+				point:SetParent(stagger)
+				if (i == 1) then
+					point:SetPoint("TOPLEFT", stagger, "TOPLEFT", 0, 0)
+				else
+					point:SetPoint("TOPLEFT", stagger[i-1], "TOPRIGHT", 0, 0)
+				end
+				stagger[i] = point
+			end
+			self.Stagger = stagger
+			self.Stagger.PostUpdate = Stagger_PostUpdate
 		end
-
-		self.Stagger = stagger
-		self.Stagger.PostUpdate = Stagger_PostUpdate
-		self.Stagger:Hide()
+		if (not useAzeriteClassPower) then
+			self.Stagger:Hide()
+		end
 	end
 
 	-- Runes (Death Knight)
@@ -865,26 +1253,48 @@ UnitStyles["Player"] = function(self, unit, id)
 	if (playerClass == "DEATHKNIGHT") and ((ns.IsWrath) or (ns.IsRetail and not SCP)) then
 
 		local runes = CreateFrame("Frame", nil, self)
-		runes:SetSize(560,70) -- 8 runes * 70px
-		runes:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 300)
 		runes.sortOrder = "ASC"
-		runes.PostUpdate = Runes_PostUpdate
-		runes.PostUpdateColor = Runes_PostUpdateColor
-
-		-- Create max 8 runes (texture supports 8, future patches may add more)
-		for i = 1, 8 do
-			local rune = CreatePoint(self, i)
-			rune:SetParent(runes)
-			if (i == 1) then
-				rune:SetPoint("TOPLEFT", runes, "TOPLEFT", 0, 0)
-			else
-				rune:SetPoint("TOPLEFT", runes[i-1], "TOPRIGHT", 0, 0)
+		if (useAzeriteClassPower) then
+			runes:SetSize(124, 168)
+			runes:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 300)
+			runes.PostUpdate = AzeriteRunes_PostUpdate
+			runes.PostUpdateColor = AzeriteRunes_PostUpdateColor
+			for i = 1, 8 do
+				local rune = AzeriteClassPower_CreatePoint(self)
+				rune:SetParent(runes)
+				runes[i] = rune
 			end
-			runes[i] = rune
+			-- Pre-apply Runes layout (static, always 6 runes)
+			local layoutdb = AzeriteClassPowerLayouts["Runes"]
+			if (layoutdb) then
+				for i, info in next, layoutdb do
+					local rune = runes[i]
+					if (rune) then
+						AzeriteApplyPointLayout(rune, info, runes)
+					end
+				end
+			end
+		else
+			runes:SetSize(560,70) -- 8 runes * 70px
+			runes:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 300)
+			runes.PostUpdate = Runes_PostUpdate
+			runes.PostUpdateColor = Runes_PostUpdateColor
+			-- Create max 8 runes (texture supports 8, future patches may add more)
+			for i = 1, 8 do
+				local rune = CreatePoint(self, i)
+				rune:SetParent(runes)
+				if (i == 1) then
+					rune:SetPoint("TOPLEFT", runes, "TOPLEFT", 0, 0)
+				else
+					rune:SetPoint("TOPLEFT", runes[i-1], "TOPRIGHT", 0, 0)
+				end
+				runes[i] = rune
+			end
 		end
-
 		self.Runes = runes
-		self.Runes:Hide()
+		if (not useAzeriteClassPower) then
+			self.Runes:Hide()
+		end
 	end
 
 	-- Auras
