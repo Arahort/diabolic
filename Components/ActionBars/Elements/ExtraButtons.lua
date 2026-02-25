@@ -235,7 +235,7 @@ ExtraButtons.UpdatePosition = function(self)
 end
 
 ExtraButtons.OnInitialize = function(self)
-	-- Wrap ExtraAbilityContainer scaling in pcall - it's a secure frame and can cause taint
+	-- Wrap ALL ExtraAbilityContainer operations in pcall - it's a secure frame and causes taint
 	pcall(SetObjectScale, ExtraAbilityContainer)
 	local ExtraActionBarFrame = SetObjectScale(ExtraActionBarFrame)
 	if (ExtraAbilityContainer and ExtraActionBarFrame) then
@@ -249,10 +249,12 @@ ExtraButtons.OnInitialize = function(self)
 		if (UIPARENT_MANAGED_FRAME_POSITIONS) then
 			UIPARENT_MANAGED_FRAME_POSITIONS.ExtraAbilityContainer = nil
 		end
-		--ExtraAbilityContainer.SetSize = noop -- taints the editmode
-		ExtraAbilityContainer:SetFrameStrata("LOW")
-		ExtraAbilityContainer:SetFrameLevel(10)
-		ExtraAbilityContainer.ignoreFramePositionManager = true
+		-- All operations on ExtraAbilityContainer wrapped in pcall to prevent taint
+		pcall(function()
+			ExtraAbilityContainer:SetFrameStrata("LOW")
+			ExtraAbilityContainer:SetFrameLevel(10)
+			ExtraAbilityContainer.ignoreFramePositionManager = true
+		end)
 		ExtraActionBarFrame:SetParent(extraScaffold)
 		ExtraActionBarFrame:ClearAllPoints()
 		ExtraActionBarFrame:SetAllPoints()
