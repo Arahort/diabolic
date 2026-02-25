@@ -366,6 +366,21 @@ SettingsModule.OnInitialize = function(self)
 		do
 			local setting = RegisterSetting(
 				category,
+				"sidePanelToggleAlpha",
+				"global.actionbars",
+				L["SidePanelToggleAlpha"],
+				0.1,
+				L["SidePanelToggleAlphaDesc"]
+			)
+			local options = Settings.CreateSliderOptions(0, 1, 0.1)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return string.format("%.1f", value)
+			end)
+			Settings.CreateSlider(category, setting, options, L["SidePanelToggleAlphaDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
 				"hideHotkeys",
 				"char.actionbars",
 				L["HideHotkeys"],

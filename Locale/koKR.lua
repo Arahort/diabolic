@@ -45,6 +45,8 @@ L["UseExtendedBars"] = "확장 숨김 바 (페이지 7)"
 L["UseExtendedBarsDesc"] = "레이아웃을 바당 12개 버튼(6x2)으로 변경하고 행동 단축바 페이지 7을 사용합니다. 경고: 드루이드, 전사, 도적의 자세/변신 페이지 전환과 충돌할 수 있습니다. /reload 필요"
 L["DisableSidePanelAutoHide"] = "측면 패널 자동 숨기기 비활성화"
 L["DisableSidePanelAutoHideDesc"] = "좌우 행동 단축바가 자동으로 숨겨지지 않고 항상 표시됩니다"
+L["SidePanelToggleAlpha"] = "사이드 패널 토글 버튼 불투명도"
+L["SidePanelToggleAlphaDesc"] = "숨겨진 좌우 행동 단축바를 여는 버튼의 불투명도를 설정합니다. 0이면 마우스를 올릴 때까지 버튼이 보이지 않습니다."
 L["HideHotkeys"] = "단축키 텍스트 숨기기"
 L["HideHotkeysDesc"] = "행동 단축바 버튼의 단축키 텍스트 숨기기 (새로고침 필요)"
 -- Auras
