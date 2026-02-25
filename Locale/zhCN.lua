@@ -45,6 +45,8 @@ L["UseExtendedBars"] = "扩展隐藏动作条（第7页）"
 L["UseExtendedBarsDesc"] = "将布局更改为每条12个按钮（6x2）并使用动作条第7页。警告：可能与德鲁伊、战士、盗贼的姿态/形态切换页面冲突。需要 /reload"
 L["DisableSidePanelAutoHide"] = "禁用侧边面板自动隐藏"
 L["DisableSidePanelAutoHideDesc"] = "左右动作条面板保持始终可见，而不是自动隐藏"
+L["SidePanelToggleAlpha"] = "侧面板切换按钮透明度"
+L["SidePanelToggleAlphaDesc"] = "设置打开隐藏侧面动作条的按钮透明度。为0时，按钮在鼠标悬停前不可见。"
 L["HideHotkeys"] = "隐藏快捷键文本"
 L["HideHotkeysDesc"] = "隐藏动作条按钮上的快捷键文本 (需要重载)"
 -- Auras

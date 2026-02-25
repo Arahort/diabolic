@@ -1,5 +1,34 @@
 # DiabolicUI3 Changelog
 
+## [2.7.0] - 2026-02-25
+
+### ✨ New Features
+- **AzeriteUI-style ClassPower**: New experimental option to display class resources (combo points, runes, holy power, etc.) in AzeriteUI visual style
+  - Enable in Settings → Experiments → "AzeriteUI Style ClassPower"
+  - Round fills for round cases, diamond fills for diamond cases
+  - Per-character setting, requires /reload
+- **Side Panel Toggle Button Opacity**: New slider to control the opacity of buttons that open hidden left/right action bars
+  - Located in Settings → Action Bars
+  - Range 0 to 1, default 0.1
+  - At 0, buttons are invisible until mouse hover
+  - Real-time update without reload
+
+### 🐛 Bug Fixes
+- **Disable Side Panel Auto-Hide**: Added option to keep left and right action bar panels always visible (new setting in Action Bars section)
+- **Extended Bars Default**: Extended Hidden Bars (Page 7) now enabled by default for new characters
+- **Extended Mode Panel Positions**: Adjusted side panel positions in extended mode (+50px outward)
+- **ExtraAbilityContainer Taint**: Extended pcall protection to all ExtraAbilityContainer operations
+- **Hide Raid Manager**: Added option to hide Blizzard CompactRaidFrameManager
+- **Charge Cooldown Visibility**: Fixed cooldown not showing on auto-hide side panels
+- **Health Color Secret Value**: Fixed "table index is secret" error for Target of Target frames
+- **Tooltip Backdrop/Positioning**: Fixed secret value errors with tooltip dimensions in WoW 12.0
+- **Backdrop Taint**: Additional fixes for "secret number value" errors in BackdropTemplateMixin
+
+### 🌍 Localization
+- Added translations for all new settings across all 12 supported languages
+
+---
+
 ## [2.6.5] - 2026-02-25
 
 ### ✨ New Features

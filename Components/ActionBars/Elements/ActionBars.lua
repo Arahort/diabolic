@@ -66,7 +66,7 @@ local toggleUpdateAlpha = function(self)
 	if (self.mouseOver) or (IsShiftKeyDown() and IsControlKeyDown()) or (self.Bar1:IsShown()) then
 		self:SetAlpha(1)
 	else
-		self:SetAlpha(0)
+		self:SetAlpha(ns.db and ns.db.global.actionbars.sidePanelToggleAlpha or 0)
 	end
 end
 
@@ -742,6 +742,13 @@ Bars.SpawnBars = function(self)
 		RegisterStateDriver(toggle, "state-vis", "[petbattle][possessbar][overridebar][vehicleui][@vehicle,exists]hide;show")
 
 	end
+
+	-- Callback for sidePanelToggleAlpha setting change
+	Settings.SetOnValueChangedCallback("global_actionbars_sidePanelToggleAlpha", function()
+		for _, toggleBtn in ipairs(self.ToggleButtons) do
+			toggleBtn:UpdateAlpha()
+		end
+	end)
 
 	-- Callback for disableSidePanelAutoHide setting change
 	Settings.SetOnValueChangedCallback("char_actionbars_disableSidePanelAutoHide", function()

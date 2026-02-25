@@ -45,6 +45,8 @@ L["UseExtendedBars"] = "Erweiterte versteckte Leisten (Seite 7)"
 L["UseExtendedBarsDesc"] = "Ändert das Layout auf 12 Schaltflächen pro Leiste (6x2) und nutzt Aktionsleisten-Seite 7. WARNUNG: Kann mit Haltungs-/Form-Seitenwechsel bei Druiden, Kriegern, Schurken konfliktieren. Erfordert /reload"
 L["DisableSidePanelAutoHide"] = "Automatisches Ausblenden der Seitenleisten deaktivieren"
 L["DisableSidePanelAutoHideDesc"] = "Linke und rechte Aktionsleisten bleiben immer sichtbar statt automatisch auszublenden"
+L["SidePanelToggleAlpha"] = "Deckkraft der Seitenleisten-Schaltfläche"
+L["SidePanelToggleAlphaDesc"] = "Legt die Deckkraft der Schaltflächen fest, die die versteckten seitlichen Aktionsleisten öffnen. Bei 0 sind die Schaltflächen bis zum Überfahren unsichtbar."
 L["HideHotkeys"] = "Tastenkürzel-Text ausblenden"
 L["HideHotkeysDesc"] = "Tastenkürzel-Text auf Aktionsleisten-Schaltflächen ausblenden (erfordert Neustart)"
 -- Auras

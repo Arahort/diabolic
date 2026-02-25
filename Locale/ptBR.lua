@@ -45,6 +45,8 @@ L["UseExtendedBars"] = "Barras ocultas estendidas (Página 7)"
 L["UseExtendedBarsDesc"] = "Altera o layout para 12 botões por barra (6x2) e usa a página 7 das barras de ação. AVISO: Pode conflitar com a troca de páginas de posturas/formas de Druidas, Guerreiros, Ladinos. Requer /reload"
 L["DisableSidePanelAutoHide"] = "Desativar ocultação automática dos painéis laterais"
 L["DisableSidePanelAutoHideDesc"] = "As barras de ação esquerda e direita permanecem sempre visíveis em vez de se ocultar automaticamente"
+L["SidePanelToggleAlpha"] = "Opacidade do botão dos painéis laterais"
+L["SidePanelToggleAlphaDesc"] = "Define a opacidade dos botões que abrem as barras de ação laterais ocultas. Em 0, os botões ficam invisíveis até passar o cursor."
 L["HideHotkeys"] = "Ocultar texto de atalhos"
 L["HideHotkeysDesc"] = "Ocultar texto de atalhos de teclado nos botões da barra de ação (requer recarregamento)"
 -- Auras

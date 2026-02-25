@@ -78,6 +78,9 @@ local defaults = {
 		}
 	},
 	global = {
+		actionbars = {
+			sidePanelToggleAlpha = 0.1
+		},
 		core = {
 			relativeScale = 1.1,
 			minimapRelativeScale = 0.9,

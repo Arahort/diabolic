@@ -45,6 +45,8 @@ L["UseExtendedBars"] = "Barre nascoste estese (Pagina 7)"
 L["UseExtendedBarsDesc"] = "Cambia il layout a 12 pulsanti per barra (6x2) e usa la pagina 7 delle barre azioni. ATTENZIONE: Potrebbe conflittare con il cambio pagine posture/forme di Druidi, Guerrieri, Ladri. Richiede /reload"
 L["DisableSidePanelAutoHide"] = "Disattiva nascondi auto pannelli laterali"
 L["DisableSidePanelAutoHideDesc"] = "Le barre azioni sinistra e destra rimangono sempre visibili invece di nascondersi automaticamente"
+L["SidePanelToggleAlpha"] = "Opacità del pulsante dei pannelli laterali"
+L["SidePanelToggleAlphaDesc"] = "Imposta l'opacità dei pulsanti che aprono le barre azioni laterali nascoste. A 0 i pulsanti sono invisibili fino al passaggio del cursore."
 L["HideHotkeys"] = "Nascondi testo scorciatoie"
 L["HideHotkeysDesc"] = "Nascondi il testo delle scorciatoie da tastiera sui pulsanti della barra azioni (richiede ricaricamento)"
 -- Auras
