@@ -1,5 +1,27 @@
 # DiabolicUI3 Changelog
 
+## [2.6.4] - 2026-02-25
+
+### 🐛 Bug Fixes
+- **ExtraAbilityContainer Taint**: Extended pcall protection to all ExtraAbilityContainer operations
+  - Wrapped SetFrameStrata, SetFrameLevel and ignoreFramePositionManager in pcall
+  - Prevents additional taint errors from secure frame modifications in WoW 12.0
+
+---
+
+## [2.6.3] - 2026-02-24
+
+### ✨ New Features
+- **Hide Raid Manager Panel**: Added option in Experiments section to hide Blizzard CompactRaidFrameManager on left side of screen
+
+### 🐛 Bug Fixes
+- **ExtraAbilityContainer Taint**: Fixed taint error by wrapping SetObjectScale in pcall
+- **Charge Cooldown Visibility**: Fixed cooldown not showing on auto-hide side panels
+  - Changed visibility detection to use proper parent-based visibility
+  - Added visibility ticker to update cooldowns when bar becomes visible
+
+---
+
 ## [2.6.2] - 2026-02-24
 
 ### 🐛 Bug Fixes
