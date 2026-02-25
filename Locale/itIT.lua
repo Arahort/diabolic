@@ -43,6 +43,8 @@ L["UsePetOrbStyle"] = "Mostra famiglio come sfera"
 L["UsePetOrbStyleDesc"] = "Mostra la salute del famiglio come sfera invece del ritratto (richiede /reload)"
 L["UseExtendedBars"] = "Barre nascoste estese (Pagina 7)"
 L["UseExtendedBarsDesc"] = "Cambia il layout a 12 pulsanti per barra (6x2) e usa la pagina 7 delle barre azioni. ATTENZIONE: Potrebbe conflittare con il cambio pagine posture/forme di Druidi, Guerrieri, Ladri. Richiede /reload"
+L["DisableSidePanelAutoHide"] = "Disattiva nascondi auto pannelli laterali"
+L["DisableSidePanelAutoHideDesc"] = "Le barre azioni sinistra e destra rimangono sempre visibili invece di nascondersi automaticamente"
 L["HideHotkeys"] = "Nascondi testo scorciatoie"
 L["HideHotkeysDesc"] = "Nascondi il testo delle scorciatoie da tastiera sui pulsanti della barra azioni (richiede ricaricamento)"
 -- Auras

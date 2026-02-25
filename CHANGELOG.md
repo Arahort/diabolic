@@ -1,5 +1,18 @@
 # DiabolicUI3 Changelog
 
+## [2.6.5] - 2026-02-25
+
+### ✨ New Features
+- **Disable Side Panel Auto-Hide**: Added option to keep left and right action bar panels always visible
+  - New setting in Action Bars section
+  - Real-time toggle without reload required
+- **Extended Bars Enabled by Default**: Extended Hidden Bars (Page 7) now enabled by default for new characters
+
+### 🔧 Changes
+- **Extended Mode Panel Positions**: Adjusted side panel positions in extended mode (+50px outward) for better spacing
+
+---
+
 ## [2.6.4] - 2026-02-25
 
 ### 🐛 Bug Fixes

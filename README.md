@@ -1,5 +1,9 @@
 # Diabolic UI - Arahort Edition
 
+[![Downloads](https://cf.way2muchnoise.eu/full_1401738_Downloads.svg)](https://www.curseforge.com/wow/addons/diabolicui-arahort-edition)
+[![Game Version](https://cf.way2muchnoise.eu/versions/1401738_all.svg)](https://www.curseforge.com/wow/addons/diabolicui-arahort-edition)
+[![Version](https://img.shields.io/github/v/release/Arahort/diabolic?label=Version)](https://github.com/Arahort/diabolic/releases)
+
 Orb-based graphical user interface replacement for World of Warcraft, inspired by Diablo series.
 
 ## About This Fork

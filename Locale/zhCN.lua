@@ -43,6 +43,8 @@ L["UsePetOrbStyle"] = "以能量球显示宠物"
 L["UsePetOrbStyleDesc"] = "以能量球显示宠物生命值而非头像框架（需要 /reload）"
 L["UseExtendedBars"] = "扩展隐藏动作条（第7页）"
 L["UseExtendedBarsDesc"] = "将布局更改为每条12个按钮（6x2）并使用动作条第7页。警告：可能与德鲁伊、战士、盗贼的姿态/形态切换页面冲突。需要 /reload"
+L["DisableSidePanelAutoHide"] = "禁用侧边面板自动隐藏"
+L["DisableSidePanelAutoHideDesc"] = "左右动作条面板保持始终可见，而不是自动隐藏"
 L["HideHotkeys"] = "隐藏快捷键文本"
 L["HideHotkeysDesc"] = "隐藏动作条按钮上的快捷键文本 (需要重载)"
 -- Auras

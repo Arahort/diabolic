@@ -355,6 +355,17 @@ SettingsModule.OnInitialize = function(self)
 		do
 			local setting = RegisterSetting(
 				category,
+				"disableSidePanelAutoHide",
+				"char.actionbars",
+				L["DisableSidePanelAutoHide"],
+				false,
+				L["DisableSidePanelAutoHideDesc"]
+			)
+			CreateCheckbox(category, setting, L["DisableSidePanelAutoHideDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				category,
 				"hideHotkeys",
 				"char.actionbars",
 				L["HideHotkeys"],

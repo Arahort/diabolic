@@ -43,6 +43,8 @@ L["UsePetOrbStyle"] = "Afficher le familier en sphère"
 L["UsePetOrbStyleDesc"] = "Afficher la santé du familier sous forme de sphère au lieu d'un portrait (nécessite /reload)"
 L["UseExtendedBars"] = "Barres cachées étendues (Page 7)"
 L["UseExtendedBarsDesc"] = "Change la disposition en 12 boutons par barre (6x2) et utilise la page 7 des barres d'action. ATTENTION: Peut conflictuer avec le changement de pages postures/formes des Druides, Guerriers, Voleurs. Nécessite /reload"
+L["DisableSidePanelAutoHide"] = "Désactiver le masquage auto des panneaux latéraux"
+L["DisableSidePanelAutoHideDesc"] = "Les barres d'action gauche et droite restent toujours visibles au lieu de se masquer automatiquement"
 L["HideHotkeys"] = "Masquer le texte des raccourcis"
 L["HideHotkeysDesc"] = "Masquer le texte des raccourcis clavier sur les boutons de la barre d'action (nécessite rechargement)"
 -- Auras

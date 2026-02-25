@@ -43,6 +43,8 @@ L["UsePetOrbStyle"] = "以能量球顯示寵物"
 L["UsePetOrbStyleDesc"] = "以能量球顯示寵物生命值而非頭像框架（需要 /reload）"
 L["UseExtendedBars"] = "擴展隱藏動作列（第7頁）"
 L["UseExtendedBarsDesc"] = "將佈局更改為每列12個按鈕（6x2）並使用動作列第7頁。警告：可能與德魯伊、戰士、盜賊的姿態/形態切換頁面衝突。需要 /reload"
+L["DisableSidePanelAutoHide"] = "停用側邊面板自動隱藏"
+L["DisableSidePanelAutoHideDesc"] = "左右動作列面板保持始終可見，而不是自動隱藏"
 L["HideHotkeys"] = "隱藏快捷鍵文字"
 L["HideHotkeysDesc"] = "隱藏動作列按鈕上的快捷鍵文字 (需要重載)"
 -- Auras
