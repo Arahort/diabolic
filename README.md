@@ -4,13 +4,15 @@
 [![Game Version](https://cf.way2muchnoise.eu/versions/1401738_all.svg)](https://www.curseforge.com/wow/addons/diabolicui-arahort-edition)
 [![Version](https://img.shields.io/github/v/release/Arahort/diabolic?label=Version)](https://github.com/Arahort/diabolic/releases)
 
-Orb-based graphical user interface replacement for World of Warcraft, inspired by Diablo series.
+Orb-based graphical user interface replacement for World of Warcraft.
+
+If you want to help the project, the **best help** would be a **key** for Midnight! I want to play with you too :)
 
 ## About This Fork
 
-This is a **community-maintained fork** of the original [Diabolic UI 2.0](https://www.curseforge.com/wow/addons/diabolicui) by Lars Norberg and Daniel Troko.
+This is a **community-maintained fork** of the original [Diabolic UI](https://www.curseforge.com/wow/addons/diabolicui) by Lars Norberg and Daniel Troko.
 
-**Important:** The original Diabolic UI is **no longer functional** in modern World of Warcraft. This fork has been completely rebuilt to work with current game versions.
+**Important:** The original Diabolic UI is **no longer functional** in modern World of Warcraft (11.2.7+). This fork has been completely rebuilt to work with current game versions.
 
 ### Original Project Credits
 
@@ -21,80 +23,40 @@ This is a **community-maintained fork** of the original [Diabolic UI 2.0](https:
 
 ### This Fork
 
-- **Updated for WoW 12.x by:** Alex Arahort
-- **Artwork:** Alex Arahort and Karina Kisenkova
-- **Status:** Fully functional for Midnight (12.0+)
-- **License:** Community Fork
+- **Updated for WoW 11.x and 12.x by:** Alex Arahort
+- **Artwork:** Alex Arahort and [Karina Kisenkova](https://www.behance.net/kisenkova)
+- **Status:** Fully functional for The War Within (11.2.7+) and Midnight (12.x)
+- **License:** Community Fork - respecting original authors' work
 
----
+## What's Different From the Original
 
-## Features
+The original Diabolic UI **stopped working completely** after Blizzard's API changes in WoW 11.x. This edition includes:
 
-### Orb Styles
+### Core Fixes (Making it Work Again)
 
-- **Diablo 2 Resurrected Style** (default) - New orb textures inspired by D2R
-- **Classic Diablo 3 Style** - Original DiabolicUI orb textures
-- **Custom Orb Colors** - Per-character color picker for Health and Power orbs
+- Complete API migration to WoW 11.x and 12.x standards
 
-### Action Bars
+### Settings & Customization
 
-- **6 Action Bars** - Primary, Secondary, Third bars + 2 side panels + Pet bar
-- **Extended Mode** - 12 buttons per bar (6x2 layout) using action bar page 7
-- **Pet Orb Style** - Show pet health as a sphere instead of portrait frame
-- **Single-Button Assistant Support** - Dynamic icon updates during combat
-- **Stance/Form Bar** - Automatic display for classes with stances
+- Settings panel in Interface Options -> AddOns
+- Addon Compartment support for quick settings access
 
-### Unit Frames
+### UI Improvements
 
-- **Health & Power Orbs** - Diablo-style resource spheres
-- **Target Frame** - Independent scaling (0.5x - 2.0x)
-- **Target of Target** - Optional display when target attacks you
-- **Castbar Borders** - ToT-style border for player and pet castbars
-- **Debuff Filtering** - Show only your debuffs on target (boss debuffs always visible)
+- New Diablo 2 Ressurected design
 
-### Minimap
+### Quality of Life Features
 
-- **Repositioned Elements** - Mail (left), Tracking (right), LFG eye (bottom)
-- **LFG Queue Animation** - Pulsing glow when in dungeon/raid queue
-- **Coordinates Display** - Player and cursor coordinates on minimap and world map
-- **Button Collector** - All addon minimap buttons in single organized container
-- **Clean Look** - Hidden zoom buttons, AddonCompartment, EditMode clutter
-
-### Auras (Buffs/Debuffs)
-
-- **Near Minimap** - Configurable position and icon size (20-64px)
-- **Near Health Orb** - Optional display for player buffs
-- **Right-click to Cancel** - Cancel buffs on player and target frames
-
-### Performance Optimizations
-
-- Removed SetCooldown hooks (major CPU savings in combat)
-- Throttled OnUpdate for tooltips and auras (~30 fps)
-- Combat-only checks for dynamic features
-
-### Quality of Life
-
-- **Movable Windows** - Hold SHIFT and drag Character, Bags, Map, etc.
-- **Tooltips Follow Cursor** - Customizable X/Y offset
-- **Auto-fill DELETE** - No need to type "DELETE" when destroying items
-- **Server/Local Time** - Toggle between server and local time display
-- **12/24 Hour Clock** - Choose your preferred time format
-
----
+- Tooltips follow mouse cursor - integrated TTOM functionality with customizable offset
+- Auto-fill delete confirmation - no need to type "DELETE" manually when destroying items
 
 ## Requirements
 
-- World of Warcraft **Retail 12.0** or later (Midnight)
+World of Warcraft **Retail 11.2.7** (The War Within) or **12.0.0** (Midnight)
 
 ## Installation
 
-### From CurseForge (Recommended)
-
-Install via CurseForge client for automatic updates.
-
-### Manual Installation
-
-1. Download the latest release
+1. Download the addon
 2. Extract to `World of Warcraft\_retail_\Interface\AddOns`
 3. Restart WoW or type `/reload` in-game
 
@@ -102,7 +64,7 @@ Install via CurseForge client for automatic updates.
 
 ## Support
 
-This is a community-maintained fork. For issues or feature requests:
+This is a community-maintained fork. For issues or feature requests, please visit:
 
 - **GitHub:** https://github.com/Arahort/diabolic
 - **CurseForge:** https://www.curseforge.com/wow/addons/diabolicui-arahort-edition
@@ -112,7 +74,7 @@ This is a community-maintained fork. For issues or feature requests:
 - **Patreon:** https://www.patreon.com/c/Arahort
 - **Boosty:** https://boosty.to/alex_arahort
 
-#### Crypto
+#### Crypto:
 
 - USDT TRC20: `TShMCz6xGiLvtES8JquqhavrMvFnLM4UQ4`
 - USDT TON: `UQAKgkYbTk9qWICUn4O249X4F_hqPUHUpCEXNONLbHVfUjcc`
@@ -120,18 +82,40 @@ This is a community-maintained fork. For issues or feature requests:
 
 ---
 
+## List of Add-ons Present in the Video 2.2.1
+
+- Scrap
+- Almost Completed Achievements
+- BugGrabber
+- BugSack
+- DragonRider
+- AllTheThings
+- Auctinator
+- Baganator
+- Syndicator
+- Chattynator
+- Platynator
+- Better Fishing
+- BindPad
+- NotePad
+- Dialogue UI
+- Plumber
+- TomTom
+- Waypoint UI
+
+## Platynator preset By SaiyaRatt and Arahort
+
+1. Install addon SharedMedia
+2. Read `_retail_/Interface/AddOns/SharedMedia/INSTRUCTIONS for MyMedia.txt` and use `MyMedia.bat`
+3. Copy `.tga` files from `_retail_/Interface/AddOns/DiabolicUI/Assets/statusbar/` to `_retail_/Interface/AddOns/SharedMedia_MyMedia/statusbar`
+4. Use `_retail_/Interface/AddOns/DiabolicUI/Assets/statusbar/platynator_profile.txt`
+
+## UI preset
+
+`DiabolicUI/Assets/statusbar/ui_profile.txt`
+
+---
+
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
-
-### Version 2.0.0 Highlights
-
-- Diablo 2 Resurrected orb style (enabled by default)
-- Custom orb colors with per-character settings
-- Independent target frame scaling
-- Extended hidden bars option (12 buttons per bar)
-- Pet orb style display
-- Single-Button Assistant dynamic icon updates
-- Performance optimizations (removed SetCooldown hooks, OnUpdate throttling)
-- Minimap improvements (repositioned elements, LFG animation)
-- Full localization (12 languages)
