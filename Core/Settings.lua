@@ -125,11 +125,6 @@ SettingsModule.OnInitialize = function(self)
 			)
 			layout:AddInitializer(initializer)
 		end
-		local function AddInfoBlock(layout, text, height)
-			local initializer = Settings.CreateSettingInitializer("DiabolicInfoBlockTemplate", {text = text, height = height})
-			initializer.height = height
-			layout:AddInitializer(initializer)
-		end
 		--------------------------------------------
 		-- Root Category: Diabolic UI (Scale only)
 		--------------------------------------------
@@ -198,54 +193,6 @@ SettingsModule.OnInitialize = function(self)
 			end)
 			Settings.CreateSlider(category, setting, options, L["TargetFrameScaleDesc"])
 		end
-		--------------------------------------------
-		-- About / Info blocks
-		--------------------------------------------
-		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("About"))
-		AddInfoBlock(layout, table.concat({
-			"This is a community-maintained fork of the original",
-			"Diabolic UI by Lars Norberg and Daniel Troko.",
-			" ",
-			"|cffffcc00Original Project Credits|r",
-			"Original Addon: Diabolic UI",
-			"Original Code: Lars Norberg",
-			"Original Artwork: Daniel Troko and Lars Norberg",
-			" ",
-			"|cffffcc00This Fork|r",
-			"Updated for WoW 11.x and 12.x by: Alex Arahort",
-			"Artwork: Alex Arahort and Karina Kisenkova",
-		}, "\n"), 210)
-		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Support"))
-		AddInfoBlock(layout, table.concat({
-			"|cffffcc00If you want to help the project, the best help would be|r",
-			"|cffffcc00a key for Midnight! I want to play with you too :)|r",
-			" ",
-			"Patreon: https://www.patreon.com/c/Arahort",
-			"Boosty: https://boosty.to/alex_arahort",
-			" ",
-			"|cffccccccCrypto:|r",
-			"USDT TRC20: TShMCz6xGiLvtES8JquqhavrMvFnLM4UQ4",
-			"USDT TON: UQAKgkYbTk9qWICUn4O249X4F_hqPUHUpCEXNONLbHVfUjcc",
-			"BTC: bc1q89d70zz5v0f0x00pulrdggmmfav35c0nm99ua3",
-		}, "\n"), 220)
-		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Platynator"))
-		AddInfoBlock(layout, table.concat({
-			"|cffccccccBy SaiyaRatt and Arahort|r",
-			"1. Install addon SharedMedia",
-			"2. Read SharedMedia/INSTRUCTIONS, create MyMedia.txt, run MyMedia.bat",
-			"3. Copy .tga files from DiabolicUI3/Assets/statusbar/",
-			"   to SharedMedia_MyMedia/statusbar",
-			"4. Use platynator_profile.txt to import the preset",
-		}, "\n"), 150)
-		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("UI Preset"))
-		AddInfoBlock(layout, "DiabolicUI/Assets/statusbar/ui_profile.txt", 50)
-		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Thanks"))
-		AddInfoBlock(layout, table.concat({
-			"Here will be a list of players who supported the development of the addon.",
-			" ",
-			"JuNNeZ - help with testing and some bug fixes.",
-			"YOU can be HERE.",
-		}, "\n"), 100)
 		--------------------------------------------
 		-- Subcategory: Orbs (Сферы)
 		--------------------------------------------
@@ -1201,6 +1148,72 @@ SettingsModule.OnInitialize = function(self)
 			whileDead = true,
 			hideOnEscape = true,
 		}
+		--------------------------------------------
+		-- About subcategory (canvas layout)
+		--------------------------------------------
+		do
+			local canvas = CreateFrame("Frame")
+			local prev = nil
+			local function Line(text, font, gap)
+				local fs = canvas:CreateFontString(nil, "ARTWORK", font or "GameFontNormal")
+				fs:SetTextColor(1, 1, 1)
+				if prev then
+					fs:SetPoint("TOPLEFT", prev, "BOTTOMLEFT", 0, -(gap or 4))
+				else
+					fs:SetPoint("TOPLEFT", canvas, "TOPLEFT", 16, -16)
+				end
+				fs:SetPoint("RIGHT", canvas, "RIGHT", -16, 0)
+				fs:SetJustifyH("LEFT")
+				fs:SetNonSpaceWrap(true)
+				fs:SetText(text)
+				prev = fs
+			end
+			local function Header(text)
+				Line("|cffffcc00" .. text .. "|r", "GameFontNormalLarge", 16)
+			end
+			local function Label(text)
+				Line("|cffcccccc" .. text .. "|r", "GameFontNormal", 8)
+			end
+			local function Gap()
+				Line("", "GameFontNormal", 2)
+			end
+			Header("About")
+			Line("This is a community-maintained fork of the original Diabolic UI")
+			Line("by Lars Norberg and Daniel Troko.", nil, 2)
+			Gap()
+			Label("Original Project Credits")
+			Line("Code: Lars Norberg  |  Artwork: Daniel Troko & Lars Norberg")
+			Gap()
+			Label("This Fork")
+			Line("Updated for WoW 11.x and 12.x by: Alex Arahort")
+			Line("Artwork: Alex Arahort and Karina Kisenkova", nil, 2)
+			Header("Support")
+			Line("|cffffcc00If you want to help the project, the best help would be a key for Midnight!|r")
+			Line("|cffffcc00I want to play with you too :)|r", nil, 2)
+			Gap()
+			Line("Patreon: https://www.patreon.com/c/Arahort")
+			Line("Boosty: https://boosty.to/alex_arahort", nil, 2)
+			Gap()
+			Label("Crypto")
+			Line("USDT TRC20: TShMCz6xGiLvtES8JquqhavrMvFnLM4UQ4")
+			Line("USDT TON: UQAKgkYbTk9qWICUn4O249X4F_hqPUHUpCEXNONLbHVfUjcc", nil, 2)
+			Line("BTC: bc1q89d70zz5v0f0x00pulrdggmmfav35c0nm99ua3", nil, 2)
+			Header("Platynator")
+			Label("By SaiyaRatt and Arahort")
+			Line("1. Install addon SharedMedia")
+			Line("2. Read SharedMedia/INSTRUCTIONS, create MyMedia.txt, run MyMedia.bat", nil, 2)
+			Line("3. Copy .tga files from DiabolicUI3/Assets/statusbar/", nil, 2)
+			Line("   to SharedMedia_MyMedia/statusbar", nil, 2)
+			Line("4. Use platynator_profile.txt to import the preset", nil, 2)
+			Header("UI Preset")
+			Line("DiabolicUI/Assets/statusbar/ui_profile.txt")
+			Header("Thanks")
+			Line("Here will be a list of players who supported the development of the addon.")
+			Gap()
+			Line("JuNNeZ - help with testing and some bug fixes.")
+			Line("YOU can be HERE.", nil, 2)
+			Settings.RegisterCanvasLayoutSubcategory(category, canvas, "|TInterface\\AddOns\\DiabolicUI3\\Assets\\diabolic-lettermark:14:14|t  About")
+		end
 		Settings.RegisterAddOnCategory(category)
 	end)
 end
