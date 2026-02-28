@@ -641,48 +641,46 @@ SettingsModule.OnInitialize = function(self)
 			Settings.CreateSlider(catUF, setting, options, L["ClassPowerScaleDesc"])
 		end
 		--------------------------------------------
-		-- Subcategory: Other (Прочее)
-		-- Includes: Map/Minimap, Tooltips, Other
+		-- Subcategory: Map and Minimap (Карта и миникарта)
 		--------------------------------------------
-		local catOther, layoutOther = Settings.RegisterVerticalLayoutSubcategory(category, ICON .. L["OtherHeader"])
-		AddApplyButton(layoutOther)
-		layoutOther:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["MapHeader"]))
+		local catMap, layoutMap = Settings.RegisterVerticalLayoutSubcategory(category, ICON .. L["MapHeader"])
+		AddApplyButton(layoutMap)
 		do
 			local setting = RegisterSetting(
-				catOther,
+				catMap,
 				"disabled",
 				"global.minimap",
 				L["DisableMinimap"],
 				false,
 				L["DisableMinimapDesc"]
 			)
-			CreateCheckbox(catOther, setting, L["DisableMinimapDesc"])
+			CreateCheckbox(catMap, setting, L["DisableMinimapDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				catOther,
+				catMap,
 				"useServerTime",
 				"global.minimap",
 				L["UseServerTime"],
 				false,
 				L["UseServerTimeDesc"]
 			)
-			CreateCheckbox(catOther, setting, L["UseServerTimeDesc"])
+			CreateCheckbox(catMap, setting, L["UseServerTimeDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				catOther,
+				catMap,
 				"useHalfClock",
 				"global.minimap",
 				L["UseHalfClock"],
 				true,
 				L["UseHalfClockDesc"]
 			)
-			CreateCheckbox(catOther, setting, L["UseHalfClockDesc"])
+			CreateCheckbox(catMap, setting, L["UseHalfClockDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				catOther,
+				catMap,
 				"positionX",
 				"global.minimap",
 				L["MinimapPosX"],
@@ -693,11 +691,11 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
-			Settings.CreateSlider(catOther, setting, options, L["MinimapPosXDesc"])
+			Settings.CreateSlider(catMap, setting, options, L["MinimapPosXDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				catOther,
+				catMap,
 				"positionY",
 				"global.minimap",
 				L["MinimapPosY"],
@@ -708,12 +706,12 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
-			Settings.CreateSlider(catOther, setting, options, L["MinimapPosYDesc"])
+			Settings.CreateSlider(catMap, setting, options, L["MinimapPosYDesc"])
 		end
 		-- LFG Eye Scale
 		do
 			local setting = RegisterSetting(
-				catOther,
+				catMap,
 				"lfgEyeScale",
 				"global.minimap",
 				L["LFGEyeScale"],
@@ -724,55 +722,55 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return string.format("%.1f", value)
 			end)
-			Settings.CreateSlider(catOther, setting, options, L["LFGEyeScaleDesc"])
+			Settings.CreateSlider(catMap, setting, options, L["LFGEyeScaleDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				catOther,
+				catMap,
 				"worldmapCursor",
 				"char.mapcoords",
 				L["WorldMapCursor"],
 				true,
 				L["WorldMapCursorDesc"]
 			)
-			CreateCheckbox(catOther, setting, L["WorldMapCursorDesc"])
+			CreateCheckbox(catMap, setting, L["WorldMapCursorDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				catOther,
+				catMap,
 				"worldmapPlayer",
 				"char.mapcoords",
 				L["WorldMapPlayer"],
 				true,
 				L["WorldMapPlayerDesc"]
 			)
-			CreateCheckbox(catOther, setting, L["WorldMapPlayerDesc"])
+			CreateCheckbox(catMap, setting, L["WorldMapPlayerDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				catOther,
+				catMap,
 				"minimap",
 				"char.mapcoords",
 				L["MinimapCoords"],
 				true,
 				L["MinimapCoordsDesc"]
 			)
-			CreateCheckbox(catOther, setting, L["MinimapCoordsDesc"])
+			CreateCheckbox(catMap, setting, L["MinimapCoordsDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				catOther,
+				catMap,
 				"decimals",
 				"char.mapcoords",
 				L["UseDecimals"],
 				false,
 				L["UseDecimalsDesc"]
 			)
-			CreateCheckbox(catOther, setting, L["UseDecimalsDesc"])
+			CreateCheckbox(catMap, setting, L["UseDecimalsDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				catOther,
+				catMap,
 				"enabled",
 				"char.minimapbuttons",
 				L["EnableMinimapButtons"],
@@ -785,11 +783,11 @@ SettingsModule.OnInitialize = function(self)
 				end
 			end
 			Settings.SetOnValueChangedCallback("char_minimapbuttons_enabled", OnEnabledChanged)
-			CreateCheckbox(catOther, setting, L["EnableMinimapButtonsDesc"])
+			CreateCheckbox(catMap, setting, L["EnableMinimapButtonsDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				catOther,
+				catMap,
 				"mainButtonSize",
 				"char.minimapbuttons",
 				L["MainButtonSize"],
@@ -806,11 +804,11 @@ SettingsModule.OnInitialize = function(self)
 				end
 			end
 			Settings.SetOnValueChangedCallback("char_minimapbuttons_mainButtonSize", OnMainButtonSizeChanged)
-			Settings.CreateSlider(catOther, setting, options, L["MainButtonSizeDesc"])
+			Settings.CreateSlider(catMap, setting, options, L["MainButtonSizeDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				catOther,
+				catMap,
 				"buttonsPerRow",
 				"char.minimapbuttons",
 				L["ButtonsPerRow"],
@@ -821,11 +819,11 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
-			Settings.CreateSlider(catOther, setting, options, L["ButtonsPerRowDesc"])
+			Settings.CreateSlider(catMap, setting, options, L["ButtonsPerRowDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				catOther,
+				catMap,
 				"autohide",
 				"char.minimapbuttons",
 				L["AutoHideDelay"],
@@ -836,11 +834,11 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
-			Settings.CreateSlider(catOther, setting, options, L["AutoHideDelayDesc"])
+			Settings.CreateSlider(catMap, setting, options, L["AutoHideDelayDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				catOther,
+				catMap,
 				"buttonScale",
 				"char.minimapbuttons",
 				L["CollectedButtonScale"],
@@ -851,8 +849,14 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return string.format("%.2f", value)
 			end)
-			Settings.CreateSlider(catOther, setting, options, L["CollectedButtonScaleDesc"])
+			Settings.CreateSlider(catMap, setting, options, L["CollectedButtonScaleDesc"])
 		end
+		--------------------------------------------
+		-- Subcategory: Other (Прочее)
+		-- Includes: Tooltips, Other
+		--------------------------------------------
+		local catOther, layoutOther = Settings.RegisterVerticalLayoutSubcategory(category, ICON .. L["OtherHeader"])
+		AddApplyButton(layoutOther)
 		layoutOther:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["TooltipsHeader"]))
 		do
 			local setting = RegisterSetting(
