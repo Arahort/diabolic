@@ -115,7 +115,6 @@ SettingsModule.OnInitialize = function(self)
 	C_AddOns.LoadAddOn("Blizzard_Settings")
 	EventUtil.ContinueOnAddOnLoaded("Blizzard_Settings", function()
 		local CreateCheckbox = Settings.CreateCheckbox or Settings.CreateCheckBox
-		local ICON = "|TInterface\\AddOns\\DiabolicUI3\\Assets\\diabolic-lettermark:14:14:0:0|t  "
 		local function AddApplyButton(layout)
 			local initializer = CreateSettingsButtonInitializer(
 				L["ReloadButton"],
@@ -197,7 +196,7 @@ SettingsModule.OnInitialize = function(self)
 		--------------------------------------------
 		-- Subcategory: Orbs (Сферы)
 		--------------------------------------------
-		local catOrbs, layoutOrbs = Settings.RegisterVerticalLayoutSubcategory(category, ICON .. L["OrbsHeader"])
+		local catOrbs, layoutOrbs = Settings.RegisterVerticalLayoutSubcategory(category, "|TInterface\\Icons\\spell_arcane_arcane04:14:14|t  " .. L["OrbsHeader"])
 		AddApplyButton(layoutOrbs)
 		do
 			local setting = RegisterSetting(
@@ -230,43 +229,25 @@ SettingsModule.OnInitialize = function(self)
 			CreateCheckbox(catOrbs, setting, L["UseCustomOrbColorsDesc"])
 		end
 		do
-			local function CreateColorButton(key, labelKey, descKey, defaultColor, buttonLabel)
-				local function OnColorClick()
-					local color = ns.db.char.orbs[key] or defaultColor
-					local originalColor = {r = color.r, g = color.g, b = color.b}
-					local info = {
-						r = color.r,
-						g = color.g,
-						b = color.b,
-						hasOpacity = false,
-						swatchFunc = function()
-							local r, g, b = ColorPickerFrame:GetColorRGB()
-							ns.db.char.orbs[key] = {r = r, g = g, b = b}
-							ns.callbacks:Fire("OrbColors_Updated")
-						end,
-						cancelFunc = function()
-							ns.db.char.orbs[key] = originalColor
-							ns.callbacks:Fire("OrbColors_Updated")
-						end
-					}
-					ColorPickerFrame:SetupColorPickerAndShow(info)
-				end
-				local initializer = CreateSettingsButtonInitializer(
-					L[labelKey],
-					buttonLabel,
-					OnColorClick,
-					L[descKey],
-					false
-				)
+			local function CreateColorSwatch(key, labelKey, descKey, defaultColor)
+				local initializer = Settings.CreateSettingInitializer("DiabolicColorSwatchSettingTemplate", {
+					name = L[labelKey],
+					tooltip = L[descKey],
+					getColor = function() return ns.db.char.orbs[key] or defaultColor end,
+					setColor = function(r, g, b)
+						ns.db.char.orbs[key] = {r = r, g = g, b = b}
+						ns.callbacks:Fire("OrbColors_Updated")
+					end,
+				})
 				layoutOrbs:AddInitializer(initializer)
 			end
-			CreateColorButton("healthColor", "CustomHealthOrbColor", "CustomHealthOrbColorDesc", {r = 1, g = 0, b = 0}, "Health")
-			CreateColorButton("powerColor", "CustomPowerOrbColor", "CustomPowerOrbColorDesc", {r = 0, g = 0, b = 1}, "Power")
+			CreateColorSwatch("healthColor", "CustomHealthOrbColor", "CustomHealthOrbColorDesc", {r = 1, g = 0, b = 0})
+			CreateColorSwatch("powerColor", "CustomPowerOrbColor", "CustomPowerOrbColorDesc", {r = 0, g = 0, b = 1})
 		end
 		--------------------------------------------
 		-- Subcategory: Action Bars (Панели действий)
 		--------------------------------------------
-		local catBars, layoutBars = Settings.RegisterVerticalLayoutSubcategory(category, ICON .. L["ActionBarsHeader"])
+		local catBars, layoutBars = Settings.RegisterVerticalLayoutSubcategory(category, "|TInterface\\Icons\\ability_warrior_battleshout:14:14|t  " .. L["ActionBarsHeader"])
 		AddApplyButton(layoutBars)
 		do
 			local setting = RegisterSetting(
@@ -398,7 +379,7 @@ SettingsModule.OnInitialize = function(self)
 		-- Subcategory: Unit Frames (Рамки юнитов)
 		-- Includes: Auras + Unit Frames settings
 		--------------------------------------------
-		local catUF, layoutUF = Settings.RegisterVerticalLayoutSubcategory(category, ICON .. L["UnitFramesHeader"])
+		local catUF, layoutUF = Settings.RegisterVerticalLayoutSubcategory(category, "|TInterface\\Icons\\achievement_character01_male:14:14|t  " .. L["UnitFramesHeader"])
 		AddApplyButton(layoutUF)
 		layoutUF:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["AurasHeader"]))
 		local alwaysShowSetting, alwaysHideSetting
@@ -643,7 +624,7 @@ SettingsModule.OnInitialize = function(self)
 		--------------------------------------------
 		-- Subcategory: Map and Minimap (Карта и миникарта)
 		--------------------------------------------
-		local catMap, layoutMap = Settings.RegisterVerticalLayoutSubcategory(category, ICON .. L["MapHeader"])
+		local catMap, layoutMap = Settings.RegisterVerticalLayoutSubcategory(category, "|TInterface\\Icons\\INV_Misc_Map_01:14:14|t  " .. L["MapHeader"])
 		AddApplyButton(layoutMap)
 		do
 			local setting = RegisterSetting(
@@ -855,7 +836,7 @@ SettingsModule.OnInitialize = function(self)
 		-- Subcategory: Other (Прочее)
 		-- Includes: Tooltips, Other
 		--------------------------------------------
-		local catOther, layoutOther = Settings.RegisterVerticalLayoutSubcategory(category, ICON .. L["OtherHeader"])
+		local catOther, layoutOther = Settings.RegisterVerticalLayoutSubcategory(category, "|TInterface\\Icons\\trade_engineering:14:14|t  " .. L["OtherHeader"])
 		AddApplyButton(layoutOther)
 		layoutOther:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["TooltipsHeader"]))
 		do
@@ -998,7 +979,7 @@ SettingsModule.OnInitialize = function(self)
 		--------------------------------------------
 		-- Subcategory: Experimental (Экспериментальный)
 		--------------------------------------------
-		local catExp, layoutExp = Settings.RegisterVerticalLayoutSubcategory(category, ICON .. L["ExperimentsHeader"])
+		local catExp, layoutExp = Settings.RegisterVerticalLayoutSubcategory(category, "|TInterface\\Icons\\Trade_Alchemy:14:14|t  " .. L["ExperimentsHeader"])
 		AddApplyButton(layoutExp)
 		-- Hide Raid Manager Panel
 		do
