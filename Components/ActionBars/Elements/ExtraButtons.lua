@@ -89,20 +89,31 @@ ExtraButtons.UpdateButton = function(self, button)
 		--keybind:SetText(GetBindingKey(button:GetName()))
 	end
 
+	if (button:GetCheckedTexture()) then
+		button:GetCheckedTexture():SetTexture(nil)
+		button:GetCheckedTexture():SetAlpha(0)
+	end
+	if (button:GetPushedTexture()) then
+		button:GetPushedTexture():SetTexture(nil)
+	end
 	if (button:GetObjectType() == "CheckButton") then
 		if (not button.__GP_Checked) then
-			if (button:GetCheckedTexture()) then
-				button:GetCheckedTexture():SetTexture(nil)
-			end
-
 			local checkedTexture = button:CreateTexture()
 			checkedTexture:SetDrawLayer("BACKGROUND", 2)
 			checkedTexture:SetMask(GetMedia("actionbutton-mask-circular"))
 			checkedTexture:SetColorTexture(.9, .8, .1, .3)
 			button.__GP_Checked = checkedTexture
-
 			button:SetCheckedTexture(checkedTexture)
 		end
+	end
+	if not button.__GP_CTSetHooked then
+		button.__GP_CTSetHooked = true
+		hooksecurefunc(button, "SetCheckedTexture", function(b, ...)
+			local ct = b:GetCheckedTexture()
+			if ct and ct ~= b.__GP_Checked then
+				ct:SetAlpha(0)
+			end
+		end)
 	end
 
 	-- This crazy stunt is needed to be able

@@ -1,0 +1,18 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Include file="InfoBlockTemplate.lua" />
+	<Frame name="DiabolicInfoBlockTemplate" mixin="DiabolicInfoBlockMixin"
+		virtual="true">
+		<Size y="720" />
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString parentKey="Text" inherits="GameFontNormalSmall"
+					justifyH="LEFT" justifyV="TOP" wordWrap="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="8" y="-8" />
+						<Anchor point="TOPRIGHT" x="-8" y="-8" />
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+	</Frame>
+</Ui>
