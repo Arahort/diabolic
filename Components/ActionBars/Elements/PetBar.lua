@@ -763,9 +763,16 @@ end
 
 
 
-PetBar.UpdatePosition = function(self)
+PetBar.UpdatePosition = function(self, event)
 	if (not self.Bar) then
 		return
+	end
+	if InCombatLockdown() then
+		self:RegisterEvent("PLAYER_REGEN_ENABLED", "UpdatePosition")
+		return
+	end
+	if event == "PLAYER_REGEN_ENABLED" then
+		self:UnregisterEvent("PLAYER_REGEN_ENABLED", "UpdatePosition")
 	end
 	local db = ns.db.char.petbar
 	self.Bar:ClearAllPoints()
