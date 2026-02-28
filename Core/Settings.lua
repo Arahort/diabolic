@@ -1171,12 +1171,18 @@ SettingsModule.OnInitialize = function(self)
 				whileDead = true,
 				hideOnEscape = true,
 			}
-			local canvas = CreateFrame("ScrollFrame", nil, nil, "UIPanelScrollFrameTemplate")
+			local canvas = CreateFrame("ScrollFrame")
 			local content = CreateFrame("Frame", nil, canvas)
 			content:SetHeight(900)
 			canvas:SetScrollChild(content)
+			canvas:EnableMouseWheel(true)
+			canvas:SetScript("OnMouseWheel", function(self, delta)
+				local current = self:GetVerticalScroll()
+				local max = self:GetVerticalScrollRange()
+				self:SetVerticalScroll(math.max(0, math.min(max, current - delta * 30)))
+			end)
 			canvas:SetScript("OnSizeChanged", function(sf, w, h)
-				content:SetWidth(w - 24)
+				content:SetWidth(w)
 			end)
 			local prev = nil
 			local function Line(text, font, gap)
