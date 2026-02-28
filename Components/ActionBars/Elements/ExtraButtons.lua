@@ -177,56 +177,6 @@ ExtraButtons.UpdateButton = function(self, button)
 		button.__GP_Border = border
 	end
 
-	-- DEBUG: identify yellow square source
-	if not button.__GP_DebugHooked then
-		button.__GP_DebugHooked = true
-		local p = "|cffff6600[DiabolicUI ExtraBtn]|r "
-		local FIELDS = {
-			"NormalTexture","HighlightTexture","CheckedTexture","PushedTexture",
-			"Flash","style","Style","Border","FloatingBG","Background",
-			"icon","Icon","overlay","SpellActivationAlert","AutoCastOverlay",
-			"buttonArt","ActiveTexture","expirationBar","shine","Shine",
-		}
-		local function Dump(event)
-			print(p .. event)
-			pcall(function()
-				print(p .. "  NormalTex=" .. tostring(button:GetNormalTexture() and button:GetNormalTexture():GetTexture()))
-				print(p .. "  CheckedTex=" .. tostring(button:GetCheckedTexture() and button:GetCheckedTexture():GetTexture()))
-				print(p .. "  PushedTex=" .. tostring(button:GetPushedTexture() and button:GetPushedTexture():GetTexture()))
-				print(p .. "  IsChecked=" .. tostring(button:GetChecked()))
-			end)
-			for _, k in ipairs(FIELDS) do
-				local ok, err = pcall(function()
-					local v = button[k]
-					if v == nil then return end
-					local vis = (v.IsVisible and v:IsVisible()) and "SHOW" or "hide"
-					local a = (v.GetAlpha and string.format("%.2f", v:GetAlpha())) or "?"
-					local tex = (v.GetTexture and tostring(v:GetTexture())) or ""
-					print(p .. "  btn." .. k .. " [" .. vis .. "] a=" .. a .. (tex ~= "" and " tex="..tex or ""))
-				end)
-				if not ok then print(p .. "  btn." .. k .. " ERROR: " .. tostring(err)) end
-			end
-		end
-		C_Timer.After(0.5, function() Dump("INIT") end)
-		if button.SetChecked then
-			hooksecurefunc(button, "SetChecked", function(b, v)
-				if v then Dump("SetChecked(true)") end
-			end)
-		end
-		-- Hook Show on SpellActivationAlert and children separately
-		local function HookShow(frame, label)
-			if frame and frame.Show and not frame.__GP_ShowHooked then
-				frame.__GP_ShowHooked = true
-				hooksecurefunc(frame, "Show", function() Dump("Show:"..label) end)
-			end
-		end
-		C_Timer.After(1, function()
-			HookShow(button.SpellActivationAlert, "SpellActivationAlert")
-			HookShow(button.shine or button.Shine, "shine")
-			HookShow(button.overlay, "overlay")
-			HookShow(button.ActiveTexture, "ActiveTexture")
-		end)
-	end
 
 end
 
