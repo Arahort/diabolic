@@ -10,15 +10,14 @@ If you want to help the project, the **best help** would be a **key** for Midnig
 
 ## About This Fork
 
-This is a **community-maintained fork** of the original [Diabolic UI](https://www.curseforge.com/wow/addons/diabolicui) by Lars Norberg and Daniel Troko.
+This is a **community-maintained fork** of the original [Diabolic UI](https://www.curseforge.com/wow/addons/diabolicui) by Lars "Goldpaw" Norberg.
 
 **Important:** The original Diabolic UI is **no longer functional** in modern World of Warcraft (11.2.7+). This fork has been completely rebuilt to work with current game versions.
 
 ### Original Project Credits
 
 - **Original Addon:** [Diabolic UI](https://www.curseforge.com/wow/addons/diabolicui)
-- **Original Code:** Lars Norberg
-- **Original Artwork:** Daniel Troko and Lars Norberg
+- **Original Code & Artwork:** Lars "Goldpaw" Norberg
 - **Original License:** Custom License (All Rights Reserved)
 
 ### This Fork
