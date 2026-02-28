@@ -112,6 +112,7 @@ end
 SettingsModule.OnInitialize = function(self)
 	local db = ns.db
 	if not db then return end
+	C_AddOns.LoadAddOn("Blizzard_Settings")
 	EventUtil.ContinueOnAddOnLoaded("Blizzard_Settings", function()
 		local CreateCheckbox = Settings.CreateCheckbox or Settings.CreateCheckBox
 		local category, layout = Settings.RegisterVerticalLayoutCategory("|TInterface\\AddOns\\DiabolicUI3\\Assets\\diabolic-lettermark:16:16:0:0|t  Diabolic UI")
