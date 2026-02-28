@@ -172,42 +172,40 @@ ExtraButtons.UpdateButton = function(self, button)
 		button.__GP_Border = border
 	end
 
-	-- DEBUG: dump button + parent hierarchy when button activates
+	-- DEBUG: identify yellow square source
 	if not button.__GP_DebugHooked then
 		button.__GP_DebugHooked = true
-		local function DumpFrame(f, label, depth)
-			local p = "|cffff6600[DiabolicUI ExtraBtn]|r " .. string.rep("  ", depth)
-			local name = f:GetName() or ("unnamed_" .. f:GetObjectType())
-			local vis = f:IsVisible() and "SHOW" or "hide"
-			local a = string_format("%.2f", f:GetAlpha())
-			print(p .. "[" .. vis .. "] " .. label .. ": " .. name .. " alpha=" .. a)
-			for i = 1, f:GetNumRegions() do
-				local r = select(i, f:GetRegions())
-				if r then
-					local rv = r:IsVisible() and "SHOW" or "hide"
-					local ra = string_format("%.2f", r:GetAlpha())
-					local rn = r:GetName() or ("rgn"..i)
-					local rt = (r.GetTexture and tostring(r:GetTexture())) or "?"
-					print(p .. "  [" .. rv .. "] region " .. rn .. " a=" .. ra .. " tex=" .. rt)
-				end
-			end
-			for i = 1, f:GetNumChildren() do
-				local c = select(i, f:GetChildren())
-				if c then DumpFrame(c, "child"..i, depth + 1) end
+		local p = "|cffff6600[DiabolicUI ExtraBtn]|r "
+		local FIELDS = {
+			"NormalTexture","HighlightTexture","CheckedTexture","PushedTexture",
+			"Flash","style","Style","Border","FloatingBG","Background",
+			"icon","Icon","overlay","SpellActivationAlert","AutoCastOverlay",
+			"buttonArt","ActiveTexture","expirationBar","shine","Shine",
+		}
+		local function Dump(event)
+			print(p .. event)
+			pcall(function()
+				print(p .. "  NormalTex=" .. tostring(button:GetNormalTexture() and button:GetNormalTexture():GetTexture()))
+				print(p .. "  CheckedTex=" .. tostring(button:GetCheckedTexture() and button:GetCheckedTexture():GetTexture()))
+				print(p .. "  PushedTex=" .. tostring(button:GetPushedTexture() and button:GetPushedTexture():GetTexture()))
+				print(p .. "  IsChecked=" .. tostring(button:GetChecked()))
+			end)
+			for _, k in ipairs(FIELDS) do
+				local ok, err = pcall(function()
+					local v = button[k]
+					if v == nil then return end
+					local vis = (v.IsVisible and v:IsVisible()) and "SHOW" or "hide"
+					local a = (v.GetAlpha and string_format("%.2f", v:GetAlpha())) or "?"
+					local tex = (v.GetTexture and tostring(v:GetTexture())) or ""
+					print(p .. "  btn." .. k .. " [" .. vis .. "] a=" .. a .. (tex ~= "" and " tex="..tex or ""))
+				end)
+				if not ok then print(p .. "  btn." .. k .. " ERROR: " .. tostring(err)) end
 			end
 		end
-		local function DumpAll(event)
-			print("|cffff6600[DiabolicUI ExtraBtn]|r === " .. event .. " ===")
-			DumpFrame(button, "button", 0)
-			local parent = button:GetParent()
-			if parent then DumpFrame(parent, "parent", 0) end
-			local gp = parent and parent:GetParent()
-			if gp then DumpFrame(gp, "grandparent", 0) end
-		end
-		C_Timer.After(0.5, function() DumpAll("INIT") end)
+		C_Timer.After(0.5, function() Dump("INIT") end)
 		if button.SetChecked then
 			hooksecurefunc(button, "SetChecked", function(b, v)
-				if v then DumpAll("SetChecked(true)") end
+				if v then Dump("SetChecked(true)") end
 			end)
 		end
 	end
