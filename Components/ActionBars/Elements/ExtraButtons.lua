@@ -36,8 +36,21 @@ ExtraButtons.UpdateButton = function(self, button)
 
 	if (button.icon or button.Icon) then (button.icon or button.Icon):SetAlpha(0) end
 	if (button.NormalTexture) then button.NormalTexture:SetAlpha(0) end -- Zone
-	if (button.Flash) then button.Flash:SetTexture(nil) end -- Extra
-	if (button.style) then button.style:SetAlpha(0) end -- Extra
+	if (button.Flash) then
+		button.Flash:SetTexture(nil)
+		if not button.Flash.__GP_FlashHooked then
+			button.Flash.__GP_FlashHooked = true
+			hooksecurefunc(button.Flash, "Show", function(f) f:SetAlpha(0) end)
+		end
+	end
+	local style = button.style or button.Style
+	if style then
+		style:SetAlpha(0)
+		if not style.__GP_StyleHooked then
+			style.__GP_StyleHooked = true
+			hooksecurefunc(style, "Show", function(f) f:SetAlpha(0) end)
+		end
+	end
 
 	local cooldown = button.cooldown or button.Cooldown
 	if (cooldown) then

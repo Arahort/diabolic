@@ -2,7 +2,7 @@
 	<Include file="InfoBlockTemplate.lua" />
 	<Frame name="DiabolicInfoBlockTemplate" mixin="DiabolicInfoBlockMixin"
 		virtual="true">
-		<Size y="720" />
+		<Size y="26" />
 		<Layers>
 			<Layer level="ARTWORK">
 				<FontString parentKey="Text" inherits="GameFontNormal"

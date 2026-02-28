@@ -125,6 +125,11 @@ SettingsModule.OnInitialize = function(self)
 			)
 			layout:AddInitializer(initializer)
 		end
+		local function AddInfoBlock(layout, text, height)
+			local initializer = Settings.CreateSettingInitializer("DiabolicInfoBlockTemplate", {text = text, height = height})
+			initializer.height = height
+			layout:AddInitializer(initializer)
+		end
 		--------------------------------------------
 		-- Root Category: Diabolic UI (Scale only)
 		--------------------------------------------
@@ -197,65 +202,50 @@ SettingsModule.OnInitialize = function(self)
 		-- About / Info blocks
 		--------------------------------------------
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("About"))
-		layout:AddInitializer(Settings.CreateSettingInitializer("DiabolicInfoBlockTemplate", {
-			height = 210,
-			text = table.concat({
-				"This is a community-maintained fork of the original",
-				"Diabolic UI by Lars Norberg and Daniel Troko.",
-				" ",
-				"|cffffcc00Original Project Credits|r",
-				"Original Addon: Diabolic UI",
-				"Original Code: Lars Norberg",
-				"Original Artwork: Daniel Troko and Lars Norberg",
-				" ",
-				"|cffffcc00This Fork|r",
-				"Updated for WoW 11.x and 12.x by: Alex Arahort",
-				"Artwork: Alex Arahort and Karina Kisenkova",
-			}, "\n"),
-		}))
+		AddInfoBlock(layout, table.concat({
+			"This is a community-maintained fork of the original",
+			"Diabolic UI by Lars Norberg and Daniel Troko.",
+			" ",
+			"|cffffcc00Original Project Credits|r",
+			"Original Addon: Diabolic UI",
+			"Original Code: Lars Norberg",
+			"Original Artwork: Daniel Troko and Lars Norberg",
+			" ",
+			"|cffffcc00This Fork|r",
+			"Updated for WoW 11.x and 12.x by: Alex Arahort",
+			"Artwork: Alex Arahort and Karina Kisenkova",
+		}, "\n"), 210)
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Support"))
-		layout:AddInitializer(Settings.CreateSettingInitializer("DiabolicInfoBlockTemplate", {
-			height = 220,
-			text = table.concat({
-				"|cffffcc00If you want to help the project, the best help would be|r",
-				"|cffffcc00a key for Midnight! I want to play with you too :)|r",
-				" ",
-				"Patreon: https://www.patreon.com/c/Arahort",
-				"Boosty: https://boosty.to/alex_arahort",
-				" ",
-				"|cffccccccCrypto:|r",
-				"USDT TRC20: TShMCz6xGiLvtES8JquqhavrMvFnLM4UQ4",
-				"USDT TON: UQAKgkYbTk9qWICUn4O249X4F_hqPUHUpCEXNONLbHVfUjcc",
-				"BTC: bc1q89d70zz5v0f0x00pulrdggmmfav35c0nm99ua3",
-			}, "\n"),
-		}))
+		AddInfoBlock(layout, table.concat({
+			"|cffffcc00If you want to help the project, the best help would be|r",
+			"|cffffcc00a key for Midnight! I want to play with you too :)|r",
+			" ",
+			"Patreon: https://www.patreon.com/c/Arahort",
+			"Boosty: https://boosty.to/alex_arahort",
+			" ",
+			"|cffccccccCrypto:|r",
+			"USDT TRC20: TShMCz6xGiLvtES8JquqhavrMvFnLM4UQ4",
+			"USDT TON: UQAKgkYbTk9qWICUn4O249X4F_hqPUHUpCEXNONLbHVfUjcc",
+			"BTC: bc1q89d70zz5v0f0x00pulrdggmmfav35c0nm99ua3",
+		}, "\n"), 220)
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Platynator"))
-		layout:AddInitializer(Settings.CreateSettingInitializer("DiabolicInfoBlockTemplate", {
-			height = 150,
-			text = table.concat({
-				"|cffccccccBy SaiyaRatt and Arahort|r",
-				"1. Install addon SharedMedia",
-				"2. Read SharedMedia/INSTRUCTIONS, create MyMedia.txt, run MyMedia.bat",
-				"3. Copy .tga files from DiabolicUI3/Assets/statusbar/",
-				"   to SharedMedia_MyMedia/statusbar",
-				"4. Use platynator_profile.txt to import the preset",
-			}, "\n"),
-		}))
+		AddInfoBlock(layout, table.concat({
+			"|cffccccccBy SaiyaRatt and Arahort|r",
+			"1. Install addon SharedMedia",
+			"2. Read SharedMedia/INSTRUCTIONS, create MyMedia.txt, run MyMedia.bat",
+			"3. Copy .tga files from DiabolicUI3/Assets/statusbar/",
+			"   to SharedMedia_MyMedia/statusbar",
+			"4. Use platynator_profile.txt to import the preset",
+		}, "\n"), 150)
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("UI Preset"))
-		layout:AddInitializer(Settings.CreateSettingInitializer("DiabolicInfoBlockTemplate", {
-			height = 50,
-			text = "DiabolicUI/Assets/statusbar/ui_profile.txt",
-		}))
+		AddInfoBlock(layout, "DiabolicUI/Assets/statusbar/ui_profile.txt", 50)
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Thanks"))
-		layout:AddInitializer(Settings.CreateSettingInitializer("DiabolicInfoBlockTemplate", {
-			height = 100,
-			text = table.concat({
-				"Here will be a list of players who supported the development of the addon.",
-				" ",
-				"JuNNeZ - help with testing and some bug fixes.",
-				"YOU can be HERE.",
-			}, "\n"),
-		}))
+		AddInfoBlock(layout, table.concat({
+			"Here will be a list of players who supported the development of the addon.",
+			" ",
+			"JuNNeZ - help with testing and some bug fixes.",
+			"YOU can be HERE.",
+		}, "\n"), 100)
 		--------------------------------------------
 		-- Subcategory: Orbs (Сферы)
 		--------------------------------------------
