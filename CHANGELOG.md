@@ -1,5 +1,12 @@
 # DiabolicUI3 Changelog
 
+## [2.7.2] - 2026-02-28
+
+### 🐛 Bug Fixes
+- **Hide Raid Manager**: Fixed CompactRaidFrameManager reappearing in all scenarios (joining group/raid, BG entry, zone transitions). Replaced unreliable Hide()/hook approach with SetParent(UIHider) which makes the frame permanently invisible regardless of Blizzard's state drivers
+
+---
+
 ## [2.7.1] - 2026-02-28
 
 ### 🐛 Bug Fixes
