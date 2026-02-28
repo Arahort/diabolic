@@ -29,6 +29,7 @@
 	-->
 	<Script file="Widgets\Cooldowns.lua"/>
 	<Script file="Widgets\MovableFrames.lua"/>
+	<Include file="Widgets\ColorSwatchTemplate.xml"/>
 
 	<!-- Core -->
 	<Script file="Core.lua"/>
