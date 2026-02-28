@@ -1,5 +1,12 @@
 # DiabolicUI3 Changelog
 
+## [2.7.1] - 2026-02-28
+
+### 🐛 Bug Fixes
+- **Hold to Cast**: Fixed hold-to-cast not working with the addon enabled. Switched from click bindings to command bindings (SetOverrideBinding) so key presses route through Blizzard's native action system (TryUseActionButton)
+
+---
+
 ## [2.7.0] - 2026-02-25
 
 ### ✨ New Features
