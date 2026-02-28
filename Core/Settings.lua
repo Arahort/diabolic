@@ -1180,6 +1180,8 @@ SettingsModule.OnInitialize = function(self)
 				Line("", "GameFontNormal", 2)
 			end
 			Header("About")
+			local version = (C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata)("DiabolicUI3", "Version") or "?"
+			Line("|cffaaaaaa" .. "Version: " .. version .. "|r", "GameFontNormal", 2)
 			Line("This is a community-maintained fork of the original Diabolic UI")
 			Line("by Lars Norberg and Daniel Troko.", nil, 2)
 			Gap()
