@@ -1171,17 +1171,23 @@ SettingsModule.OnInitialize = function(self)
 				whileDead = true,
 				hideOnEscape = true,
 			}
-			local canvas = CreateFrame("Frame")
+			local canvas = CreateFrame("ScrollFrame", nil, nil, "UIPanelScrollFrameTemplate")
+			local content = CreateFrame("Frame", nil, canvas)
+			content:SetHeight(900)
+			canvas:SetScrollChild(content)
+			canvas:SetScript("OnSizeChanged", function(sf, w, h)
+				content:SetWidth(w - 24)
+			end)
 			local prev = nil
 			local function Line(text, font, gap)
-				local fs = canvas:CreateFontString(nil, "ARTWORK", font or "GameFontNormal")
+				local fs = content:CreateFontString(nil, "ARTWORK", font or "GameFontNormal")
 				fs:SetTextColor(1, 1, 1)
 				if prev then
 					fs:SetPoint("TOPLEFT", prev, "BOTTOMLEFT", 0, -(gap or 4))
 				else
-					fs:SetPoint("TOPLEFT", canvas, "TOPLEFT", 16, -16)
+					fs:SetPoint("TOPLEFT", content, "TOPLEFT", 16, -16)
 				end
-				fs:SetPoint("RIGHT", canvas, "RIGHT", -16, 0)
+				fs:SetPoint("RIGHT", content, "RIGHT", -16, 0)
 				fs:SetJustifyH("LEFT")
 				fs:SetNonSpaceWrap(true)
 				fs:SetText(text)
@@ -1197,13 +1203,13 @@ SettingsModule.OnInitialize = function(self)
 				Line("", "GameFontNormal", 2)
 			end
 			local function LinkButton(label, url, gap)
-				local btn = CreateFrame("Button", nil, canvas)
+				local btn = CreateFrame("Button", nil, content)
 				btn:SetHeight(22)
 				btn:SetWidth(200)
 				if prev then
 					btn:SetPoint("TOPLEFT", prev, "BOTTOMLEFT", 0, -(gap or 6))
 				else
-					btn:SetPoint("TOPLEFT", canvas, "TOPLEFT", 16, -16)
+					btn:SetPoint("TOPLEFT", content, "TOPLEFT", 16, -16)
 				end
 				local fs = btn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 				fs:SetPoint("LEFT")
