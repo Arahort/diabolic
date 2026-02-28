@@ -30,7 +30,6 @@
 	<Script file="Widgets\Cooldowns.lua"/>
 	<Script file="Widgets\MovableFrames.lua"/>
 	<Include file="Widgets\ColorSwatchTemplate.xml"/>
-	<Include file="Widgets\InfoBlockTemplate.xml"/>
 
 	<!-- Core -->
 	<Script file="Core.lua"/>
