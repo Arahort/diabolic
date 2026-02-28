@@ -195,7 +195,7 @@ ExtraButtons.UpdateButton = function(self, button)
 					local v = button[k]
 					if v == nil then return end
 					local vis = (v.IsVisible and v:IsVisible()) and "SHOW" or "hide"
-					local a = (v.GetAlpha and string_format("%.2f", v:GetAlpha())) or "?"
+					local a = (v.GetAlpha and string.format("%.2f", v:GetAlpha())) or "?"
 					local tex = (v.GetTexture and tostring(v:GetTexture())) or ""
 					print(p .. "  btn." .. k .. " [" .. vis .. "] a=" .. a .. (tex ~= "" and " tex="..tex or ""))
 				end)
@@ -208,6 +208,19 @@ ExtraButtons.UpdateButton = function(self, button)
 				if v then Dump("SetChecked(true)") end
 			end)
 		end
+		-- Hook Show on SpellActivationAlert and children separately
+		local function HookShow(frame, label)
+			if frame and frame.Show and not frame.__GP_ShowHooked then
+				frame.__GP_ShowHooked = true
+				hooksecurefunc(frame, "Show", function() Dump("Show:"..label) end)
+			end
+		end
+		C_Timer.After(1, function()
+			HookShow(button.SpellActivationAlert, "SpellActivationAlert")
+			HookShow(button.shine or button.Shine, "shine")
+			HookShow(button.overlay, "overlay")
+			HookShow(button.ActiveTexture, "ActiveTexture")
+		end)
 	end
 
 end
