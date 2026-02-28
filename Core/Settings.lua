@@ -115,26 +115,24 @@ SettingsModule.OnInitialize = function(self)
 	C_AddOns.LoadAddOn("Blizzard_Settings")
 	EventUtil.ContinueOnAddOnLoaded("Blizzard_Settings", function()
 		local CreateCheckbox = Settings.CreateCheckbox or Settings.CreateCheckBox
-		local category, layout = Settings.RegisterVerticalLayoutCategory("|TInterface\\AddOns\\DiabolicUI3\\Assets\\diabolic-lettermark:16:16:0:0|t  Diabolic UI")
-		categoryID = category.ID
-		ns.SettingsCategoryID = categoryID
-		-- Apply Button
-		do
-			local function OnReloadClick()
-				ReloadUI()
-			end
+		local ICON = "|TInterface\\AddOns\\DiabolicUI3\\Assets\\diabolic-lettermark:14:14:0:0|t  "
+		local function AddApplyButton(layout)
 			local initializer = CreateSettingsButtonInitializer(
 				L["ReloadButton"],
 				"Apply",
-				OnReloadClick,
+				function() ReloadUI() end,
 				L["ReloadButtonDesc"],
 				true
 			)
 			layout:AddInitializer(initializer)
 		end
 		--------------------------------------------
-		-- Scale Section
+		-- Root Category: Diabolic UI (Scale only)
 		--------------------------------------------
+		local category, layout = Settings.RegisterVerticalLayoutCategory("|TInterface\\AddOns\\DiabolicUI3\\Assets\\diabolic-lettermark:16:16:0:0|t  Diabolic UI")
+		categoryID = category.ID
+		ns.SettingsCategoryID = categoryID
+		AddApplyButton(layout)
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["ScaleHeader"]))
 		do
 			local setting = RegisterSetting(
@@ -197,12 +195,13 @@ SettingsModule.OnInitialize = function(self)
 			Settings.CreateSlider(category, setting, options, L["TargetFrameScaleDesc"])
 		end
 		--------------------------------------------
-		-- Orbs Section
+		-- Subcategory: Orbs (Сферы)
 		--------------------------------------------
-		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["OrbsHeader"]))
+		local catOrbs, layoutOrbs = Settings.RegisterVerticalLayoutSubcategory(category, ICON .. L["OrbsHeader"])
+		AddApplyButton(layoutOrbs)
 		do
 			local setting = RegisterSetting(
-				category,
+				catOrbs,
 				"useD2RStyle",
 				"global.orbs",
 				L["UseD2ROrbStyle"],
@@ -213,11 +212,11 @@ SettingsModule.OnInitialize = function(self)
 				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
 			end
 			Settings.SetOnValueChangedCallback("global_orbs_useD2RStyle", OnOrbStyleChanged)
-			CreateCheckbox(category, setting, L["UseD2ROrbStyleDesc"])
+			CreateCheckbox(catOrbs, setting, L["UseD2ROrbStyleDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catOrbs,
 				"useCustomColors",
 				"char.orbs",
 				L["UseCustomOrbColors"],
@@ -228,7 +227,7 @@ SettingsModule.OnInitialize = function(self)
 				ns.callbacks:Fire("OrbColors_Updated")
 			end
 			Settings.SetOnValueChangedCallback("char_orbs_useCustomColors", OnCustomColorsChanged)
-			CreateCheckbox(category, setting, L["UseCustomOrbColorsDesc"])
+			CreateCheckbox(catOrbs, setting, L["UseCustomOrbColorsDesc"])
 		end
 		do
 			local function CreateColorButton(key, labelKey, descKey, defaultColor, buttonLabel)
@@ -259,51 +258,52 @@ SettingsModule.OnInitialize = function(self)
 					L[descKey],
 					false
 				)
-				layout:AddInitializer(initializer)
+				layoutOrbs:AddInitializer(initializer)
 			end
 			CreateColorButton("healthColor", "CustomHealthOrbColor", "CustomHealthOrbColorDesc", {r = 1, g = 0, b = 0}, "Health")
 			CreateColorButton("powerColor", "CustomPowerOrbColor", "CustomPowerOrbColorDesc", {r = 0, g = 0, b = 1}, "Power")
 		end
 		--------------------------------------------
-		-- Action Bars Section
+		-- Subcategory: Action Bars (Панели действий)
 		--------------------------------------------
-		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["ActionBarsHeader"]))
+		local catBars, layoutBars = Settings.RegisterVerticalLayoutSubcategory(category, ICON .. L["ActionBarsHeader"])
+		AddApplyButton(layoutBars)
 		do
 			local setting = RegisterSetting(
-				category,
+				catBars,
 				"enableSecondary",
 				"char.actionbars",
 				L["EnableSecondary"],
 				true,
 				L["EnableSecondaryDesc"]
 			)
-			CreateCheckbox(category, setting, L["EnableSecondaryDesc"])
+			CreateCheckbox(catBars, setting, L["EnableSecondaryDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catBars,
 				"enableThird",
 				"char.actionbars",
 				L["EnableThird"] or "Enable Third ActionBar",
 				false,
 				L["EnableThirdDesc"] or "Toggle the third action bar"
 			)
-			CreateCheckbox(category, setting, L["EnableThirdDesc"] or "Toggle the third action bar")
+			CreateCheckbox(catBars, setting, L["EnableThirdDesc"] or "Toggle the third action bar")
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catBars,
 				"showPetBar",
 				"char.actionbars",
 				L["ShowPetBar"],
 				true,
 				L["ShowPetBarDesc"]
 			)
-			CreateCheckbox(category, setting, L["ShowPetBarDesc"])
+			CreateCheckbox(catBars, setting, L["ShowPetBarDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catBars,
 				"positionX",
 				"char.petbar",
 				L["PetBarPosX"],
@@ -314,11 +314,11 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
-			Settings.CreateSlider(category, setting, options, L["PetBarPosXDesc"])
+			Settings.CreateSlider(catBars, setting, options, L["PetBarPosXDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catBars,
 				"positionY",
 				"char.petbar",
 				L["PetBarPosY"],
@@ -329,44 +329,44 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
-			Settings.CreateSlider(category, setting, options, L["PetBarPosYDesc"])
+			Settings.CreateSlider(catBars, setting, options, L["PetBarPosYDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catBars,
 				"useOrbStyle",
 				"char.pet",
 				L["UsePetOrbStyle"],
 				true,
 				L["UsePetOrbStyleDesc"]
 			)
-			Settings.CreateCheckbox(category, setting, L["UsePetOrbStyleDesc"])
+			Settings.CreateCheckbox(catBars, setting, L["UsePetOrbStyleDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catBars,
 				"useExtendedBars",
 				"char.actionbars",
 				L["UseExtendedBars"],
 				false,
 				L["UseExtendedBarsDesc"]
 			)
-			CreateCheckbox(category, setting, L["UseExtendedBarsDesc"])
+			CreateCheckbox(catBars, setting, L["UseExtendedBarsDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catBars,
 				"disableSidePanelAutoHide",
 				"char.actionbars",
 				L["DisableSidePanelAutoHide"],
 				false,
 				L["DisableSidePanelAutoHideDesc"]
 			)
-			CreateCheckbox(category, setting, L["DisableSidePanelAutoHideDesc"])
+			CreateCheckbox(catBars, setting, L["DisableSidePanelAutoHideDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catBars,
 				"sidePanelToggleAlpha",
 				"global.actionbars",
 				L["SidePanelToggleAlpha"],
@@ -377,11 +377,11 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return string.format("%.1f", value)
 			end)
-			Settings.CreateSlider(category, setting, options, L["SidePanelToggleAlphaDesc"])
+			Settings.CreateSlider(catBars, setting, options, L["SidePanelToggleAlphaDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catBars,
 				"hideHotkeys",
 				"char.actionbars",
 				L["HideHotkeys"],
@@ -392,16 +392,19 @@ SettingsModule.OnInitialize = function(self)
 				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
 			end
 			Settings.SetOnValueChangedCallback("char_actionbars_hideHotkeys", OnHideHotkeysToggle)
-			CreateCheckbox(category, setting, L["HideHotkeysDesc"])
+			CreateCheckbox(catBars, setting, L["HideHotkeysDesc"])
 		end
 		--------------------------------------------
-		-- Auras Section
+		-- Subcategory: Unit Frames (Рамки юнитов)
+		-- Includes: Auras + Unit Frames settings
 		--------------------------------------------
-		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["AurasHeader"]))
+		local catUF, layoutUF = Settings.RegisterVerticalLayoutSubcategory(category, ICON .. L["UnitFramesHeader"])
+		AddApplyButton(layoutUF)
+		layoutUF:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["AurasHeader"]))
 		local alwaysShowSetting, alwaysHideSetting
 		do
 			alwaysShowSetting = RegisterSetting(
-				category,
+				catUF,
 				"alwaysShowAuras",
 				"char.auras",
 				L["AlwaysShowAuras"],
@@ -418,11 +421,11 @@ SettingsModule.OnInitialize = function(self)
 				ns.callbacks:Fire("Aura_Settings_Updated")
 			end
 			Settings.SetOnValueChangedCallback("char_auras_alwaysShowAuras", OnAlwaysShowChanged)
-			CreateCheckbox(category, alwaysShowSetting, L["AlwaysShowAurasDesc"])
+			CreateCheckbox(catUF, alwaysShowSetting, L["AlwaysShowAurasDesc"])
 		end
 		do
 			alwaysHideSetting = RegisterSetting(
-				category,
+				catUF,
 				"alwaysHideAuras",
 				"char.auras",
 				L["AlwaysHideAuras"],
@@ -439,11 +442,11 @@ SettingsModule.OnInitialize = function(self)
 				ns.callbacks:Fire("Aura_Settings_Updated")
 			end
 			Settings.SetOnValueChangedCallback("char_auras_alwaysHideAuras", OnAlwaysHideChanged)
-			CreateCheckbox(category, alwaysHideSetting, L["AlwaysHideAurasDesc"])
+			CreateCheckbox(catUF, alwaysHideSetting, L["AlwaysHideAurasDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catUF,
 				"positionX",
 				"global.auras",
 				L["AurasPosX"],
@@ -454,11 +457,11 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
-			Settings.CreateSlider(category, setting, options, L["AurasPosXDesc"])
+			Settings.CreateSlider(catUF, setting, options, L["AurasPosXDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catUF,
 				"positionY",
 				"global.auras",
 				L["AurasPosY"],
@@ -469,11 +472,11 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
-			Settings.CreateSlider(category, setting, options, L["AurasPosYDesc"])
+			Settings.CreateSlider(catUF, setting, options, L["AurasPosYDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catUF,
 				"iconSize",
 				"global.auras",
 				L["AurasIconSize"],
@@ -484,11 +487,11 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
-			Settings.CreateSlider(category, setting, options, L["AurasIconSizeDesc"])
+			Settings.CreateSlider(catUF, setting, options, L["AurasIconSizeDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catUF,
 				"twoRowsTargetAuras",
 				"global.auras",
 				L["TwoRowsTargetAuras"],
@@ -499,11 +502,11 @@ SettingsModule.OnInitialize = function(self)
 				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
 			end
 			Settings.SetOnValueChangedCallback("global_auras_twoRowsTargetAuras", OnTwoRowsChanged)
-			CreateCheckbox(category, setting, L["TwoRowsTargetAurasDesc"])
+			CreateCheckbox(catUF, setting, L["TwoRowsTargetAurasDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catUF,
 				"growUpward",
 				"char.auras",
 				L["AurasGrowUpward"],
@@ -514,48 +517,172 @@ SettingsModule.OnInitialize = function(self)
 				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
 			end
 			Settings.SetOnValueChangedCallback("char_auras_growUpward", OnGrowUpwardChanged)
-			CreateCheckbox(category, setting, L["AurasGrowUpwardDesc"])
+			CreateCheckbox(catUF, setting, L["AurasGrowUpwardDesc"])
 		end
-		--------------------------------------------
-		-- Map and Minimap Section
-		--------------------------------------------
-		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["MapHeader"]))
+		layoutUF:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["UnitFramesHeader"]))
 		do
 			local setting = RegisterSetting(
-				category,
+				catUF,
+				"useClassColorForPower",
+				"char.unitframes",
+				L["UseClassColorForPower"],
+				false,
+				L["UseClassColorForPowerDesc"]
+			)
+			CreateCheckbox(catUF, setting, L["UseClassColorForPowerDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				catUF,
+				"showPlayerBuffs",
+				"global.unitframes",
+				L["ShowPlayerBuffs"],
+				false,
+				L["ShowPlayerBuffsDesc"]
+			)
+			CreateCheckbox(catUF, setting, L["ShowPlayerBuffsDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				catUF,
+				"showPlayerInToT",
+				"global.unitframes",
+				L["ShowPlayerInToT"],
+				true,
+				L["ShowPlayerInToTDesc"]
+			)
+			CreateCheckbox(catUF, setting, L["ShowPlayerInToTDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				catUF,
+				"showOnlyMyDebuffs",
+				"char.unitframes",
+				L["ShowOnlyMyDebuffs"],
+				true,
+				L["ShowOnlyMyDebuffsDesc"]
+			)
+			CreateCheckbox(catUF, setting, L["ShowOnlyMyDebuffsDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				catUF,
+				"targetPositionX",
+				"global.unitframes",
+				L["TargetPosX"],
+				0,
+				L["TargetPosXDesc"]
+			)
+			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return tostring(value)
+			end)
+			Settings.CreateSlider(catUF, setting, options, L["TargetPosXDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				catUF,
+				"targetPositionY",
+				"global.unitframes",
+				L["TargetPosY"],
+				-40,
+				L["TargetPosYDesc"]
+			)
+			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return tostring(value)
+			end)
+			Settings.CreateSlider(catUF, setting, options, L["TargetPosYDesc"])
+		end
+		-- Class Power / Runes Position
+		do
+			local setting = RegisterSetting(
+				catUF,
+				"classpowerPositionX",
+				"global.unitframes",
+				L["ClassPowerPosX"],
+				0,
+				L["ClassPowerPosXDesc"]
+			)
+			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return tostring(value)
+			end)
+			Settings.CreateSlider(catUF, setting, options, L["ClassPowerPosXDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				catUF,
+				"classpowerPositionY",
+				"global.unitframes",
+				L["ClassPowerPosY"],
+				300,
+				L["ClassPowerPosYDesc"]
+			)
+			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return tostring(value)
+			end)
+			Settings.CreateSlider(catUF, setting, options, L["ClassPowerPosYDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				catUF,
+				"classpowerScale",
+				"global.unitframes",
+				L["ClassPowerScale"],
+				1.0,
+				L["ClassPowerScaleDesc"]
+			)
+			local options = Settings.CreateSliderOptions(0.5, 2.0, 0.05)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+				return string.format("%.2f", value)
+			end)
+			Settings.CreateSlider(catUF, setting, options, L["ClassPowerScaleDesc"])
+		end
+		--------------------------------------------
+		-- Subcategory: Other (Прочее)
+		-- Includes: Map/Minimap, Tooltips, Other
+		--------------------------------------------
+		local catOther, layoutOther = Settings.RegisterVerticalLayoutSubcategory(category, ICON .. L["OtherHeader"])
+		AddApplyButton(layoutOther)
+		layoutOther:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["MapHeader"]))
+		do
+			local setting = RegisterSetting(
+				catOther,
 				"disabled",
 				"global.minimap",
 				L["DisableMinimap"],
 				false,
 				L["DisableMinimapDesc"]
 			)
-			CreateCheckbox(category, setting, L["DisableMinimapDesc"])
+			CreateCheckbox(catOther, setting, L["DisableMinimapDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catOther,
 				"useServerTime",
 				"global.minimap",
 				L["UseServerTime"],
 				false,
 				L["UseServerTimeDesc"]
 			)
-			CreateCheckbox(category, setting, L["UseServerTimeDesc"])
+			CreateCheckbox(catOther, setting, L["UseServerTimeDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catOther,
 				"useHalfClock",
 				"global.minimap",
 				L["UseHalfClock"],
 				true,
 				L["UseHalfClockDesc"]
 			)
-			CreateCheckbox(category, setting, L["UseHalfClockDesc"])
+			CreateCheckbox(catOther, setting, L["UseHalfClockDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catOther,
 				"positionX",
 				"global.minimap",
 				L["MinimapPosX"],
@@ -566,11 +693,11 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
-			Settings.CreateSlider(category, setting, options, L["MinimapPosXDesc"])
+			Settings.CreateSlider(catOther, setting, options, L["MinimapPosXDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catOther,
 				"positionY",
 				"global.minimap",
 				L["MinimapPosY"],
@@ -581,12 +708,12 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
-			Settings.CreateSlider(category, setting, options, L["MinimapPosYDesc"])
+			Settings.CreateSlider(catOther, setting, options, L["MinimapPosYDesc"])
 		end
 		-- LFG Eye Scale
 		do
 			local setting = RegisterSetting(
-				category,
+				catOther,
 				"lfgEyeScale",
 				"global.minimap",
 				L["LFGEyeScale"],
@@ -597,55 +724,55 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return string.format("%.1f", value)
 			end)
-			Settings.CreateSlider(category, setting, options, L["LFGEyeScaleDesc"])
+			Settings.CreateSlider(catOther, setting, options, L["LFGEyeScaleDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catOther,
 				"worldmapCursor",
 				"char.mapcoords",
 				L["WorldMapCursor"],
 				true,
 				L["WorldMapCursorDesc"]
 			)
-			CreateCheckbox(category, setting, L["WorldMapCursorDesc"])
+			CreateCheckbox(catOther, setting, L["WorldMapCursorDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catOther,
 				"worldmapPlayer",
 				"char.mapcoords",
 				L["WorldMapPlayer"],
 				true,
 				L["WorldMapPlayerDesc"]
 			)
-			CreateCheckbox(category, setting, L["WorldMapPlayerDesc"])
+			CreateCheckbox(catOther, setting, L["WorldMapPlayerDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catOther,
 				"minimap",
 				"char.mapcoords",
 				L["MinimapCoords"],
 				true,
 				L["MinimapCoordsDesc"]
 			)
-			CreateCheckbox(category, setting, L["MinimapCoordsDesc"])
+			CreateCheckbox(catOther, setting, L["MinimapCoordsDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catOther,
 				"decimals",
 				"char.mapcoords",
 				L["UseDecimals"],
 				false,
 				L["UseDecimalsDesc"]
 			)
-			CreateCheckbox(category, setting, L["UseDecimalsDesc"])
+			CreateCheckbox(catOther, setting, L["UseDecimalsDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catOther,
 				"enabled",
 				"char.minimapbuttons",
 				L["EnableMinimapButtons"],
@@ -658,11 +785,11 @@ SettingsModule.OnInitialize = function(self)
 				end
 			end
 			Settings.SetOnValueChangedCallback("char_minimapbuttons_enabled", OnEnabledChanged)
-			CreateCheckbox(category, setting, L["EnableMinimapButtonsDesc"])
+			CreateCheckbox(catOther, setting, L["EnableMinimapButtonsDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catOther,
 				"mainButtonSize",
 				"char.minimapbuttons",
 				L["MainButtonSize"],
@@ -679,11 +806,11 @@ SettingsModule.OnInitialize = function(self)
 				end
 			end
 			Settings.SetOnValueChangedCallback("char_minimapbuttons_mainButtonSize", OnMainButtonSizeChanged)
-			Settings.CreateSlider(category, setting, options, L["MainButtonSizeDesc"])
+			Settings.CreateSlider(catOther, setting, options, L["MainButtonSizeDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catOther,
 				"buttonsPerRow",
 				"char.minimapbuttons",
 				L["ButtonsPerRow"],
@@ -694,11 +821,11 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
-			Settings.CreateSlider(category, setting, options, L["ButtonsPerRowDesc"])
+			Settings.CreateSlider(catOther, setting, options, L["ButtonsPerRowDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catOther,
 				"autohide",
 				"char.minimapbuttons",
 				L["AutoHideDelay"],
@@ -709,11 +836,11 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
-			Settings.CreateSlider(category, setting, options, L["AutoHideDelayDesc"])
+			Settings.CreateSlider(catOther, setting, options, L["AutoHideDelayDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catOther,
 				"buttonScale",
 				"char.minimapbuttons",
 				L["CollectedButtonScale"],
@@ -724,157 +851,12 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return string.format("%.2f", value)
 			end)
-			Settings.CreateSlider(category, setting, options, L["CollectedButtonScaleDesc"])
+			Settings.CreateSlider(catOther, setting, options, L["CollectedButtonScaleDesc"])
 		end
-		--------------------------------------------
-		-- Unit Frames Section
-		--------------------------------------------
-		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["UnitFramesHeader"]))
+		layoutOther:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["TooltipsHeader"]))
 		do
 			local setting = RegisterSetting(
-				category,
-				"useClassColorForPower",
-				"char.unitframes",
-				L["UseClassColorForPower"],
-				false,
-				L["UseClassColorForPowerDesc"]
-			)
-			CreateCheckbox(category, setting, L["UseClassColorForPowerDesc"])
-		end
-		do
-			local setting = RegisterSetting(
-				category,
-				"showPlayerBuffs",
-				"global.unitframes",
-				L["ShowPlayerBuffs"],
-				false,
-				L["ShowPlayerBuffsDesc"]
-			)
-			CreateCheckbox(category, setting, L["ShowPlayerBuffsDesc"])
-		end
-		do
-			local setting = RegisterSetting(
-				category,
-				"showPlayerInToT",
-				"global.unitframes",
-				L["ShowPlayerInToT"],
-				true,
-				L["ShowPlayerInToTDesc"]
-			)
-			CreateCheckbox(category, setting, L["ShowPlayerInToTDesc"])
-		end
-		do
-			local setting = RegisterSetting(
-				category,
-				"showOnlyMyDebuffs",
-				"char.unitframes",
-				L["ShowOnlyMyDebuffs"],
-				true,
-				L["ShowOnlyMyDebuffsDesc"]
-			)
-			CreateCheckbox(category, setting, L["ShowOnlyMyDebuffsDesc"])
-		end
-		do
-			local setting = RegisterSetting(
-				category,
-				"targetPositionX",
-				"global.unitframes",
-				L["TargetPosX"],
-				0,
-				L["TargetPosXDesc"]
-			)
-			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
-			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return tostring(value)
-			end)
-			Settings.CreateSlider(category, setting, options, L["TargetPosXDesc"])
-		end
-		do
-			local setting = RegisterSetting(
-				category,
-				"targetPositionY",
-				"global.unitframes",
-				L["TargetPosY"],
-				-40,
-				L["TargetPosYDesc"]
-			)
-			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
-			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return tostring(value)
-			end)
-			Settings.CreateSlider(category, setting, options, L["TargetPosYDesc"])
-		end
-		--[[
-		-- TargetRelativeScale disabled - not functional
-		do
-			local setting = RegisterSetting(
-				category,
-				"targetRelativeScale",
-				"global.unitframes",
-				L["TargetRelativeScale"],
-				1,
-				L["TargetRelativeScaleDesc"]
-			)
-			local options = Settings.CreateSliderOptions(0.5, 1.5, 0.05)
-			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return string.format("%.2f", value)
-			end)
-			Settings.CreateSlider(category, setting, options, L["TargetRelativeScaleDesc"])
-		end
-		--]]
-		-- Class Power / Runes Position
-		do
-			local setting = RegisterSetting(
-				category,
-				"classpowerPositionX",
-				"global.unitframes",
-				L["ClassPowerPosX"],
-				0,
-				L["ClassPowerPosXDesc"]
-			)
-			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
-			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return tostring(value)
-			end)
-			Settings.CreateSlider(category, setting, options, L["ClassPowerPosXDesc"])
-		end
-		do
-			local setting = RegisterSetting(
-				category,
-				"classpowerPositionY",
-				"global.unitframes",
-				L["ClassPowerPosY"],
-				300,
-				L["ClassPowerPosYDesc"]
-			)
-			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
-			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return tostring(value)
-			end)
-			Settings.CreateSlider(category, setting, options, L["ClassPowerPosYDesc"])
-		end
-		do
-			local setting = RegisterSetting(
-				category,
-				"classpowerScale",
-				"global.unitframes",
-				L["ClassPowerScale"],
-				1.0,
-				L["ClassPowerScaleDesc"]
-			)
-			local options = Settings.CreateSliderOptions(0.5, 2.0, 0.05)
-			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return string.format("%.2f", value)
-			end)
-			Settings.CreateSlider(category, setting, options, L["ClassPowerScaleDesc"])
-		end
-		--------------------------------------------
-		-- Tooltips Section
-		--------------------------------------------
-		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["TooltipsHeader"]))
-		do
-			local setting = RegisterSetting(
-				category,
+				catOther,
 				"x",
 				"char.tooltips",
 				L["TooltipOffsetX"],
@@ -885,11 +867,11 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
-			Settings.CreateSlider(category, setting, options, L["TooltipOffsetXDesc"])
+			Settings.CreateSlider(catOther, setting, options, L["TooltipOffsetXDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catOther,
 				"y",
 				"char.tooltips",
 				L["TooltipOffsetY"],
@@ -900,26 +882,23 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
-			Settings.CreateSlider(category, setting, options, L["TooltipOffsetYDesc"])
+			Settings.CreateSlider(catOther, setting, options, L["TooltipOffsetYDesc"])
 		end
-		--------------------------------------------
-		-- Other Section
-		--------------------------------------------
-		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["OtherHeader"]))
+		layoutOther:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["OtherHeader"]))
 		do
 			local setting = RegisterSetting(
-				category,
+				catOther,
 				"movableFrames",
 				"char.qol",
 				L["MovableFrames"],
 				true,
 				L["MovableFramesDesc"]
 			)
-			CreateCheckbox(category, setting, L["MovableFramesDesc"])
+			CreateCheckbox(catOther, setting, L["MovableFramesDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catOther,
 				"enableMicroMenu",
 				"global.micromenu",
 				L["EnableMicroMenu"],
@@ -930,11 +909,11 @@ SettingsModule.OnInitialize = function(self)
 				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
 			end
 			Settings.SetOnValueChangedCallback("global_micromenu_enableMicroMenu", OnMicroMenuToggle)
-			CreateCheckbox(category, setting, L["EnableMicroMenuDesc"])
+			CreateCheckbox(catOther, setting, L["EnableMicroMenuDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catOther,
 				"buttonSize",
 				"global.micromenu",
 				L["MicroMenuButtonSize"],
@@ -945,11 +924,11 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return string.format("%d px", value)
 			end)
-			Settings.CreateSlider(category, setting, options, L["MicroMenuButtonSizeDesc"])
+			Settings.CreateSlider(catOther, setting, options, L["MicroMenuButtonSizeDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catOther,
 				"positionX",
 				"global.micromenu",
 				L["MicroMenuPosX"],
@@ -960,11 +939,11 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
-			Settings.CreateSlider(category, setting, options, L["MicroMenuPosXDesc"])
+			Settings.CreateSlider(catOther, setting, options, L["MicroMenuPosXDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catOther,
 				"positionY",
 				"global.micromenu",
 				L["MicroMenuPosY"],
@@ -975,11 +954,11 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
-			Settings.CreateSlider(category, setting, options, L["MicroMenuPosYDesc"])
+			Settings.CreateSlider(catOther, setting, options, L["MicroMenuPosYDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catOther,
 				"toggleAlpha",
 				"global.micromenu",
 				L["MicroMenuToggleAlpha"],
@@ -994,12 +973,12 @@ SettingsModule.OnInitialize = function(self)
 				ns:Fire("MicroMenu_Settings_Updated")
 			end
 			Settings.SetOnValueChangedCallback("global_micromenu_toggleAlpha", OnToggleAlphaChanged)
-			Settings.CreateSlider(category, setting, options, L["MicroMenuToggleAlphaDesc"])
+			Settings.CreateSlider(catOther, setting, options, L["MicroMenuToggleAlphaDesc"])
 		end
 		-- BagButton
 		do
 			local setting = RegisterSetting(
-				category,
+				catOther,
 				"hideBagButton",
 				"global.bagbutton",
 				L["HideBagButton"],
@@ -1010,121 +989,17 @@ SettingsModule.OnInitialize = function(self)
 				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
 			end
 			Settings.SetOnValueChangedCallback("global_bagbutton_hideBagButton", OnBagButtonToggle)
-			CreateCheckbox(category, setting, L["HideBagButtonDesc"])
+			CreateCheckbox(catOther, setting, L["HideBagButtonDesc"])
 		end
-		--[[
-		-- Castbar position disabled
-		do
-			local setting = RegisterSetting(
-				category,
-				"positionX",
-				"global.castbar",
-				L["CastbarPosX"],
-				0,
-				L["CastbarPosXDesc"]
-			)
-			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
-			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return tostring(value)
-			end)
-			Settings.CreateSlider(category, setting, options, L["CastbarPosXDesc"])
-		end
-		do
-			local setting = RegisterSetting(
-				category,
-				"positionY",
-				"global.castbar",
-				L["CastbarPosY"],
-				-150,
-				L["CastbarPosYDesc"]
-			)
-			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
-			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return tostring(value)
-			end)
-			Settings.CreateSlider(category, setting, options, L["CastbarPosYDesc"])
-		end
-		--]]
 		--------------------------------------------
-		-- Experiments Section
+		-- Subcategory: Experimental (Экспериментальный)
 		--------------------------------------------
-		--[[ Platynator settings disabled - module moved to Disabled folder
-		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["ExperimentsHeader"]))
-		do
-			local setting = RegisterSetting(
-				category,
-				"customizePlatynator",
-				"global.experiments",
-				L["CustomizePlatynator"],
-				false,
-				L["CustomizePlatynatorDesc"]
-			)
-			local OnPlatynatorToggle = function()
-				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
-			end
-			Settings.SetOnValueChangedCallback("global_experiments_customizePlatynator", OnPlatynatorToggle)
-			CreateCheckbox(category, setting, L["CustomizePlatynatorDesc"])
-		end
-		-- Platynator frame size settings
-		do
-			local OnPlatynatorSizeChange = function()
-				ns.callbacks:Fire("Platynator_Size_Updated")
-			end
-			-- Frame width multiplier
-			local settingWidth = RegisterSetting(
-				category,
-				"platynatorFrameWidthMult",
-				"global.experiments",
-				L["PlatynatorFrameWidthMult"],
-				0.35,
-				L["PlatynatorFrameWidthMultDesc"]
-			)
-			Settings.SetOnValueChangedCallback("global_experiments_platynatorFrameWidthMult", OnPlatynatorSizeChange)
-			local optionsWidth = Settings.CreateSliderOptions(0.1, 2.0, 0.01)
-			optionsWidth:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return string.format("%.2f", value)
-			end)
-			Settings.CreateSlider(category, settingWidth, optionsWidth, L["PlatynatorFrameWidthMultDesc"])
-			-- Frame height multiplier
-			local settingHeight = RegisterSetting(
-				category,
-				"platynatorFrameHeightMult",
-				"global.experiments",
-				L["PlatynatorFrameHeightMult"],
-				0.35,
-				L["PlatynatorFrameHeightMultDesc"]
-			)
-			Settings.SetOnValueChangedCallback("global_experiments_platynatorFrameHeightMult", OnPlatynatorSizeChange)
-			local optionsHeight = Settings.CreateSliderOptions(0.1, 2.0, 0.01)
-			optionsHeight:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return string.format("%.2f", value)
-			end)
-			Settings.CreateSlider(category, settingHeight, optionsHeight, L["PlatynatorFrameHeightMultDesc"])
-			-- Extra width pixels
-			local settingExtra = RegisterSetting(
-				category,
-				"platynatorFrameWidthExtra",
-				"global.experiments",
-				L["PlatynatorFrameWidthExtra"],
-				3,
-				L["PlatynatorFrameWidthExtraDesc"]
-			)
-			Settings.SetOnValueChangedCallback("global_experiments_platynatorFrameWidthExtra", OnPlatynatorSizeChange)
-			local optionsExtra = Settings.CreateSliderOptions(0, 20, 1)
-			optionsExtra:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return string.format("%d", value)
-			end)
-			Settings.CreateSlider(category, settingExtra, optionsExtra, L["PlatynatorFrameWidthExtraDesc"])
-		end
-		--]]
-		--------------------------------------------
-		-- Experiments Section (Active)
-		--------------------------------------------
-		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["ExperimentsHeader"]))
+		local catExp, layoutExp = Settings.RegisterVerticalLayoutSubcategory(category, ICON .. L["ExperimentsHeader"])
+		AddApplyButton(layoutExp)
 		-- Hide Raid Manager Panel
 		do
 			local setting = RegisterSetting(
-				category,
+				catExp,
 				"hideRaidManager",
 				"global.experiments",
 				L["HideRaidManager"],
@@ -1135,11 +1010,11 @@ SettingsModule.OnInitialize = function(self)
 				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
 			end
 			Settings.SetOnValueChangedCallback("global_experiments_hideRaidManager", OnHideRaidManagerToggle)
-			CreateCheckbox(category, setting, L["HideRaidManagerDesc"])
+			CreateCheckbox(catExp, setting, L["HideRaidManagerDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catExp,
 				"customizeRaidFrames",
 				"global.experiments",
 				L["CustomizeRaidFrames"],
@@ -1150,14 +1025,14 @@ SettingsModule.OnInitialize = function(self)
 				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
 			end
 			Settings.SetOnValueChangedCallback("global_experiments_customizeRaidFrames", OnRaidFramesToggle)
-			CreateCheckbox(category, setting, L["CustomizeRaidFramesDesc"])
+			CreateCheckbox(catExp, setting, L["CustomizeRaidFramesDesc"])
 			-- Raid Frames sliders (only shown when customizeRaidFrames is enabled)
 			local OnRaidFramesSettingChanged = function()
 				ns:Fire("RaidFrames_Settings_Updated")
 			end
 			-- Border Size
 			local settingBorderSize = RegisterSetting(
-				category,
+				catExp,
 				"raidFramesBorderSize",
 				"global.experiments",
 				L["RaidFramesBorderSize"],
@@ -1169,10 +1044,10 @@ SettingsModule.OnInitialize = function(self)
 			optionsBorderSize:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return string.format("%d", value)
 			end)
-			Settings.CreateSlider(category, settingBorderSize, optionsBorderSize, L["RaidFramesBorderSizeDesc"])
+			Settings.CreateSlider(catExp, settingBorderSize, optionsBorderSize, L["RaidFramesBorderSizeDesc"])
 			-- Border Top
 			local settingBorderTop = RegisterSetting(
-				category,
+				catExp,
 				"raidFramesBorderTop",
 				"global.experiments",
 				L["RaidFramesBorderTop"],
@@ -1184,10 +1059,10 @@ SettingsModule.OnInitialize = function(self)
 			optionsBorderTop:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return string.format("%d", value)
 			end)
-			Settings.CreateSlider(category, settingBorderTop, optionsBorderTop, L["RaidFramesBorderTopDesc"])
+			Settings.CreateSlider(catExp, settingBorderTop, optionsBorderTop, L["RaidFramesBorderTopDesc"])
 			-- Border Bottom
 			local settingBorderBottom = RegisterSetting(
-				category,
+				catExp,
 				"raidFramesBorderBottom",
 				"global.experiments",
 				L["RaidFramesBorderBottom"],
@@ -1199,10 +1074,10 @@ SettingsModule.OnInitialize = function(self)
 			optionsBorderBottom:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return string.format("%d", value)
 			end)
-			Settings.CreateSlider(category, settingBorderBottom, optionsBorderBottom, L["RaidFramesBorderBottomDesc"])
+			Settings.CreateSlider(catExp, settingBorderBottom, optionsBorderBottom, L["RaidFramesBorderBottomDesc"])
 			-- Border Left
 			local settingBorderLeft = RegisterSetting(
-				category,
+				catExp,
 				"raidFramesBorderLeft",
 				"global.experiments",
 				L["RaidFramesBorderLeft"],
@@ -1214,10 +1089,10 @@ SettingsModule.OnInitialize = function(self)
 			optionsBorderLeft:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return string.format("%d", value)
 			end)
-			Settings.CreateSlider(category, settingBorderLeft, optionsBorderLeft, L["RaidFramesBorderLeftDesc"])
+			Settings.CreateSlider(catExp, settingBorderLeft, optionsBorderLeft, L["RaidFramesBorderLeftDesc"])
 			-- Border Right
 			local settingBorderRight = RegisterSetting(
-				category,
+				catExp,
 				"raidFramesBorderRight",
 				"global.experiments",
 				L["RaidFramesBorderRight"],
@@ -1229,10 +1104,10 @@ SettingsModule.OnInitialize = function(self)
 			optionsBorderRight:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return string.format("%d", value)
 			end)
-			Settings.CreateSlider(category, settingBorderRight, optionsBorderRight, L["RaidFramesBorderRightDesc"])
+			Settings.CreateSlider(catExp, settingBorderRight, optionsBorderRight, L["RaidFramesBorderRightDesc"])
 			-- Role Icon X Offset
 			local settingRoleOffsetX = RegisterSetting(
-				category,
+				catExp,
 				"raidFramesRoleOffsetX",
 				"global.experiments",
 				L["RaidFramesRoleOffsetX"],
@@ -1244,10 +1119,10 @@ SettingsModule.OnInitialize = function(self)
 			optionsRoleOffsetX:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return string.format("%d", value)
 			end)
-			Settings.CreateSlider(category, settingRoleOffsetX, optionsRoleOffsetX, L["RaidFramesRoleOffsetXDesc"])
+			Settings.CreateSlider(catExp, settingRoleOffsetX, optionsRoleOffsetX, L["RaidFramesRoleOffsetXDesc"])
 			-- Role Icon Y Offset
 			local settingRoleOffsetY = RegisterSetting(
-				category,
+				catExp,
 				"raidFramesRoleOffsetY",
 				"global.experiments",
 				L["RaidFramesRoleOffsetY"],
@@ -1259,11 +1134,11 @@ SettingsModule.OnInitialize = function(self)
 			optionsRoleOffsetY:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return string.format("%d", value)
 			end)
-			Settings.CreateSlider(category, settingRoleOffsetY, optionsRoleOffsetY, L["RaidFramesRoleOffsetYDesc"])
+			Settings.CreateSlider(catExp, settingRoleOffsetY, optionsRoleOffsetY, L["RaidFramesRoleOffsetYDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				category,
+				catExp,
 				"useAzeriteClassPower",
 				"char.experiments",
 				L["UseAzeriteClassPower"],
@@ -1274,9 +1149,9 @@ SettingsModule.OnInitialize = function(self)
 				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
 			end
 			Settings.SetOnValueChangedCallback("char_experiments_useAzeriteClassPower", OnAzeriteClassPowerToggle)
-			CreateCheckbox(category, setting, L["UseAzeriteClassPowerDesc"])
+			CreateCheckbox(catExp, setting, L["UseAzeriteClassPowerDesc"])
 		end
-		-- Reload UI popup for orb style changes
+		-- Reload UI popup
 		StaticPopupDialogs["DIABOLICUI3_RELOAD_UI"] = {
 			text = L["OrbStyleReloadConfirmation"] or "Changing orb style requires a UI reload. Reload now?",
 			button1 = YES,
