@@ -194,16 +194,12 @@ SettingsModule.OnInitialize = function(self)
 			Settings.CreateSlider(category, setting, options, L["TargetFrameScaleDesc"])
 		end
 		--------------------------------------------
-		-- About / Info block
+		-- About / Info blocks
 		--------------------------------------------
-		do
-			local DIV = "|cff555555" .. string.rep("─", 55) .. "|r"
-			local ABOUT_TEXT = table.concat({
-				"|cffffcc00If you want to help the project, the best help would be|r",
-				"|cffffcc00a key for Midnight! I want to play with you too \240\159\165\178|r",
-				" ",
-				DIV,
-				" ",
+		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("About"))
+		layout:AddInitializer(Settings.CreateSettingInitializer("DiabolicInfoBlockTemplate", {
+			height = 210,
+			text = table.concat({
 				"This is a community-maintained fork of the original",
 				"Diabolic UI by Lars Norberg and Daniel Troko.",
 				" ",
@@ -215,10 +211,15 @@ SettingsModule.OnInitialize = function(self)
 				"|cffffcc00This Fork|r",
 				"Updated for WoW 11.x and 12.x by: Alex Arahort",
 				"Artwork: Alex Arahort and Karina Kisenkova",
+			}, "\n"),
+		}))
+		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Support"))
+		layout:AddInitializer(Settings.CreateSettingInitializer("DiabolicInfoBlockTemplate", {
+			height = 220,
+			text = table.concat({
+				"|cffffcc00If you want to help the project, the best help would be|r",
+				"|cffffcc00a key for Midnight! I want to play with you too :)|r",
 				" ",
-				DIV,
-				" ",
-				"|cffffcc00Support the Developer|r",
 				"Patreon: https://www.patreon.com/c/Arahort",
 				"Boosty: https://boosty.to/alex_arahort",
 				" ",
@@ -226,23 +227,35 @@ SettingsModule.OnInitialize = function(self)
 				"USDT TRC20: TShMCz6xGiLvtES8JquqhavrMvFnLM4UQ4",
 				"USDT TON: UQAKgkYbTk9qWICUn4O249X4F_hqPUHUpCEXNONLbHVfUjcc",
 				"BTC: bc1q89d70zz5v0f0x00pulrdggmmfav35c0nm99ua3",
-				" ",
-				DIV,
-				" ",
-				"|cffffcc00Platynator Preset|r |cffcccccc— by SaiyaRatt and Arahort|r",
+			}, "\n"),
+		}))
+		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Platynator"))
+		layout:AddInitializer(Settings.CreateSettingInitializer("DiabolicInfoBlockTemplate", {
+			height = 150,
+			text = table.concat({
+				"|cffccccccBy SaiyaRatt and Arahort|r",
 				"1. Install addon SharedMedia",
-				"2. Read SharedMedia/INSTRUCTIONS for MyMedia.txt and use MyMedia.bat",
+				"2. Read SharedMedia/INSTRUCTIONS, create MyMedia.txt, run MyMedia.bat",
 				"3. Copy .tga files from DiabolicUI3/Assets/statusbar/",
 				"   to SharedMedia_MyMedia/statusbar",
 				"4. Use platynator_profile.txt to import the preset",
+			}, "\n"),
+		}))
+		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("UI Preset"))
+		layout:AddInitializer(Settings.CreateSettingInitializer("DiabolicInfoBlockTemplate", {
+			height = 50,
+			text = "DiabolicUI/Assets/statusbar/ui_profile.txt",
+		}))
+		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Thanks"))
+		layout:AddInitializer(Settings.CreateSettingInitializer("DiabolicInfoBlockTemplate", {
+			height = 100,
+			text = table.concat({
+				"Here will be a list of players who supported the development of the addon.",
 				" ",
-				DIV,
-				" ",
-				"|cffffcc00UI Preset|r",
-				"DiabolicUI/Assets/statusbar/ui_profile.txt",
-			}, "\n")
-			layout:AddInitializer(Settings.CreateSettingInitializer("DiabolicInfoBlockTemplate", {text = ABOUT_TEXT}))
-		end
+				"JuNNeZ - help with testing and some bug fixes.",
+				"YOU can be HERE.",
+			}, "\n"),
+		}))
 		--------------------------------------------
 		-- Subcategory: Orbs (Сферы)
 		--------------------------------------------
