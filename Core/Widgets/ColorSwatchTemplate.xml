@@ -3,7 +3,7 @@
 	<Frame name="DiabolicColorSwatchSettingTemplate" mixin="DiabolicColorSwatchSettingMixin"
 		inherits="SettingsListElementTemplate"
 		virtual="true">
-		<Size x="300" y="26" />
+		<Size y="26" />
 		<Frames>
 			<Button parentKey="ColorSwatch" inherits="ColorSwatchTemplate">
 				<Anchors>
