@@ -1,5 +1,12 @@
 # DiabolicUI3 Changelog
 
+## [2.7.3] - 2026-02-28
+
+### 🐛 Bug Fixes
+- **Settings Panel**: Fixed addon settings section not appearing in Interface Options when only DiabolicUI3 is enabled. Blizzard_Settings is now force-loaded at initialization instead of waiting for the player to open the settings panel
+
+---
+
 ## [2.7.2] - 2026-02-28
 
 ### 🐛 Bug Fixes
