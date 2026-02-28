@@ -172,6 +172,40 @@ ExtraButtons.UpdateButton = function(self, button)
 		button.__GP_Border = border
 	end
 
+	-- DEBUG: dump all visible regions/children when button activates
+	if not button.__GP_DebugHooked then
+		button.__GP_DebugHooked = true
+		local function DumpButton(b, event)
+			local p = "|cffff6600[DiabolicUI ExtraBtn]|r "
+			print(p .. event .. " btn=" .. (b:GetName() or "?") .. " type=" .. b:GetObjectType())
+			for i = 1, b:GetNumRegions() do
+				local r = select(i, b:GetRegions())
+				if r then
+					local vis = r:IsVisible() and "SHOW" or "hide"
+					local a = string_format("%.2f", r:GetAlpha())
+					local name = r:GetName() or ("rgn"..i)
+					local tex = (r.GetTexture and r:GetTexture()) or "n/a"
+					print(p .. "  [" .. vis .. "] Region " .. name .. " alpha=" .. a .. " tex=" .. tostring(tex))
+				end
+			end
+			for i = 1, b:GetNumChildren() do
+				local c = select(i, b:GetChildren())
+				if c then
+					local vis = c:IsVisible() and "SHOW" or "hide"
+					local name = c:GetName() or ("child"..i)
+					print(p .. "  [" .. vis .. "] Child " .. name .. " type=" .. c:GetObjectType())
+				end
+			end
+		end
+		C_Timer.After(0.5, function() DumpButton(button, "INIT") end)
+		if button.SetChecked then
+			hooksecurefunc(button, "SetChecked", function(b, v)
+				if v then DumpButton(b, "SetChecked(true)") end
+			end)
+		end
+		hooksecurefunc(button, "Show", function(b) DumpButton(b, "Show") end)
+	end
+
 end
 
 ExtraButtons.UpdateExtraButtons = function(self)
