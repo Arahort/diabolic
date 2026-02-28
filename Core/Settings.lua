@@ -1159,10 +1159,13 @@ SettingsModule.OnInitialize = function(self)
 				button1 = OKAY,
 				hasEditBox = true,
 				editBoxWidth = 320,
-				OnShow = function(self)
-					self.editBox:SetText(self.data)
-					self.editBox:SetFocus()
-					self.editBox:HighlightText()
+				OnShow = function(self, data)
+					local editBox = self.editBox or self.EditBox
+					if editBox then
+						editBox:SetText(data or "")
+						editBox:SetFocus()
+						editBox:HighlightText()
+					end
 				end,
 				timeout = 0,
 				whileDead = true,
