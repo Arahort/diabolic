@@ -376,16 +376,14 @@ SettingsModule.OnInitialize = function(self)
 			CreateCheckbox(catBars, setting, L["HideHotkeysDesc"])
 		end
 		--------------------------------------------
-		-- Subcategory: Unit Frames (Рамки юнитов)
-		-- Includes: Auras + Unit Frames settings
+		-- Subcategory: Auras (Ауры)
 		--------------------------------------------
-		local catUF, layoutUF = Settings.RegisterVerticalLayoutSubcategory(category, "|T341221:14:14|t  " .. L["UnitFramesHeader"])
-		AddApplyButton(layoutUF)
-		layoutUF:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["AurasHeader"]))
+		local catAuras, layoutAuras = Settings.RegisterVerticalLayoutSubcategory(category, "|T135893:14:14|t  " .. L["AurasHeader"])
+		AddApplyButton(layoutAuras)
 		local alwaysShowSetting, alwaysHideSetting
 		do
 			alwaysShowSetting = RegisterSetting(
-				catUF,
+				catAuras,
 				"alwaysShowAuras",
 				"char.auras",
 				L["AlwaysShowAuras"],
@@ -402,11 +400,11 @@ SettingsModule.OnInitialize = function(self)
 				ns.callbacks:Fire("Aura_Settings_Updated")
 			end
 			Settings.SetOnValueChangedCallback("char_auras_alwaysShowAuras", OnAlwaysShowChanged)
-			CreateCheckbox(catUF, alwaysShowSetting, L["AlwaysShowAurasDesc"])
+			CreateCheckbox(catAuras, alwaysShowSetting, L["AlwaysShowAurasDesc"])
 		end
 		do
 			alwaysHideSetting = RegisterSetting(
-				catUF,
+				catAuras,
 				"alwaysHideAuras",
 				"char.auras",
 				L["AlwaysHideAuras"],
@@ -423,11 +421,11 @@ SettingsModule.OnInitialize = function(self)
 				ns.callbacks:Fire("Aura_Settings_Updated")
 			end
 			Settings.SetOnValueChangedCallback("char_auras_alwaysHideAuras", OnAlwaysHideChanged)
-			CreateCheckbox(catUF, alwaysHideSetting, L["AlwaysHideAurasDesc"])
+			CreateCheckbox(catAuras, alwaysHideSetting, L["AlwaysHideAurasDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				catUF,
+				catAuras,
 				"positionX",
 				"global.auras",
 				L["AurasPosX"],
@@ -438,11 +436,11 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
-			Settings.CreateSlider(catUF, setting, options, L["AurasPosXDesc"])
+			Settings.CreateSlider(catAuras, setting, options, L["AurasPosXDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				catUF,
+				catAuras,
 				"positionY",
 				"global.auras",
 				L["AurasPosY"],
@@ -453,11 +451,11 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
-			Settings.CreateSlider(catUF, setting, options, L["AurasPosYDesc"])
+			Settings.CreateSlider(catAuras, setting, options, L["AurasPosYDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				catUF,
+				catAuras,
 				"iconSize",
 				"global.auras",
 				L["AurasIconSize"],
@@ -468,11 +466,11 @@ SettingsModule.OnInitialize = function(self)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
 				return tostring(value)
 			end)
-			Settings.CreateSlider(catUF, setting, options, L["AurasIconSizeDesc"])
+			Settings.CreateSlider(catAuras, setting, options, L["AurasIconSizeDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				catUF,
+				catAuras,
 				"twoRowsTargetAuras",
 				"global.auras",
 				L["TwoRowsTargetAuras"],
@@ -483,11 +481,11 @@ SettingsModule.OnInitialize = function(self)
 				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
 			end
 			Settings.SetOnValueChangedCallback("global_auras_twoRowsTargetAuras", OnTwoRowsChanged)
-			CreateCheckbox(catUF, setting, L["TwoRowsTargetAurasDesc"])
+			CreateCheckbox(catAuras, setting, L["TwoRowsTargetAurasDesc"])
 		end
 		do
 			local setting = RegisterSetting(
-				catUF,
+				catAuras,
 				"growUpward",
 				"char.auras",
 				L["AurasGrowUpward"],
@@ -498,9 +496,13 @@ SettingsModule.OnInitialize = function(self)
 				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
 			end
 			Settings.SetOnValueChangedCallback("char_auras_growUpward", OnGrowUpwardChanged)
-			CreateCheckbox(catUF, setting, L["AurasGrowUpwardDesc"])
+			CreateCheckbox(catAuras, setting, L["AurasGrowUpwardDesc"])
 		end
-		layoutUF:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["UnitFramesHeader"]))
+		--------------------------------------------
+		-- Subcategory: Unit Frames (Рамки юнитов)
+		--------------------------------------------
+		local catUF, layoutUF = Settings.RegisterVerticalLayoutSubcategory(category, "|T341221:14:14|t  " .. L["UnitFramesHeader"])
+		AddApplyButton(layoutUF)
 		do
 			local setting = RegisterSetting(
 				catUF,

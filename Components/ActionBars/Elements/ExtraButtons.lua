@@ -107,7 +107,13 @@ ExtraButtons.UpdateButton = function(self, button)
 		button:GetCheckedTexture():SetAlpha(0)
 	end
 	if (button:GetPushedTexture()) then
-		button:GetPushedTexture():SetTexture(nil)
+		local pushed = button:GetPushedTexture()
+		pushed:SetTexture(nil)
+		pushed:SetAlpha(0)
+		if not pushed.__GP_PushedHooked then
+			pushed.__GP_PushedHooked = true
+			hooksecurefunc(pushed, "Show", function(f) f:SetAlpha(0) end)
+		end
 	end
 	if (button:GetObjectType() == "CheckButton") then
 		if (not button.__GP_Checked) then
