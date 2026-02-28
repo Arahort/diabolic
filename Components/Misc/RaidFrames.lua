@@ -305,12 +305,16 @@ function RaidFrames:OnEnable()
 			C_Timer.After(1, StyleExistingFrames)
 		end
 	end)
-	self:RegisterEvent("UPDATE_BATTLEFIELD_STATUS", function()
-		-- Fires when entering/leaving BG queue or instance
+	-- Fires on all scenarios where the manager may reappear:
+	-- joining/leaving group or raid, instance/BG transitions, phase changes
+	local function OnRaidManagerEvent()
 		if ShouldHideRaidManager() then
 			C_Timer.After(0.5, HideRaidManager)
 		end
-	end)
+	end
+	self:RegisterEvent("UPDATE_BATTLEFIELD_STATUS", OnRaidManagerEvent)
+	self:RegisterEvent("GROUP_ROSTER_UPDATE", OnRaidManagerEvent)
+	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", OnRaidManagerEvent)
 	if not IsEnabled() then
 		return
 	end
