@@ -172,38 +172,44 @@ ExtraButtons.UpdateButton = function(self, button)
 		button.__GP_Border = border
 	end
 
-	-- DEBUG: dump all visible regions/children when button activates
+	-- DEBUG: dump button + parent hierarchy when button activates
 	if not button.__GP_DebugHooked then
 		button.__GP_DebugHooked = true
-		local function DumpButton(b, event)
-			local p = "|cffff6600[DiabolicUI ExtraBtn]|r "
-			print(p .. event .. " btn=" .. (b:GetName() or "?") .. " type=" .. b:GetObjectType())
-			for i = 1, b:GetNumRegions() do
-				local r = select(i, b:GetRegions())
+		local function DumpFrame(f, label, depth)
+			local p = "|cffff6600[DiabolicUI ExtraBtn]|r " .. string.rep("  ", depth)
+			local name = f:GetName() or ("unnamed_" .. f:GetObjectType())
+			local vis = f:IsVisible() and "SHOW" or "hide"
+			local a = string_format("%.2f", f:GetAlpha())
+			print(p .. "[" .. vis .. "] " .. label .. ": " .. name .. " alpha=" .. a)
+			for i = 1, f:GetNumRegions() do
+				local r = select(i, f:GetRegions())
 				if r then
-					local vis = r:IsVisible() and "SHOW" or "hide"
-					local a = string_format("%.2f", r:GetAlpha())
-					local name = r:GetName() or ("rgn"..i)
-					local tex = (r.GetTexture and r:GetTexture()) or "n/a"
-					print(p .. "  [" .. vis .. "] Region " .. name .. " alpha=" .. a .. " tex=" .. tostring(tex))
+					local rv = r:IsVisible() and "SHOW" or "hide"
+					local ra = string_format("%.2f", r:GetAlpha())
+					local rn = r:GetName() or ("rgn"..i)
+					local rt = (r.GetTexture and tostring(r:GetTexture())) or "?"
+					print(p .. "  [" .. rv .. "] region " .. rn .. " a=" .. ra .. " tex=" .. rt)
 				end
 			end
-			for i = 1, b:GetNumChildren() do
-				local c = select(i, b:GetChildren())
-				if c then
-					local vis = c:IsVisible() and "SHOW" or "hide"
-					local name = c:GetName() or ("child"..i)
-					print(p .. "  [" .. vis .. "] Child " .. name .. " type=" .. c:GetObjectType())
-				end
+			for i = 1, f:GetNumChildren() do
+				local c = select(i, f:GetChildren())
+				if c then DumpFrame(c, "child"..i, depth + 1) end
 			end
 		end
-		C_Timer.After(0.5, function() DumpButton(button, "INIT") end)
+		local function DumpAll(event)
+			print("|cffff6600[DiabolicUI ExtraBtn]|r === " .. event .. " ===")
+			DumpFrame(button, "button", 0)
+			local parent = button:GetParent()
+			if parent then DumpFrame(parent, "parent", 0) end
+			local gp = parent and parent:GetParent()
+			if gp then DumpFrame(gp, "grandparent", 0) end
+		end
+		C_Timer.After(0.5, function() DumpAll("INIT") end)
 		if button.SetChecked then
 			hooksecurefunc(button, "SetChecked", function(b, v)
-				if v then DumpButton(b, "SetChecked(true)") end
+				if v then DumpAll("SetChecked(true)") end
 			end)
 		end
-		hooksecurefunc(button, "Show", function(b) DumpButton(b, "Show") end)
 	end
 
 end
