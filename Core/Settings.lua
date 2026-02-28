@@ -1212,7 +1212,7 @@ SettingsModule.OnInitialize = function(self)
 			Gap()
 			Line("JuNNeZ - help with testing and some bug fixes.")
 			Line("YOU can be HERE.", nil, 2)
-			Settings.RegisterCanvasLayoutSubcategory(category, canvas, "|TInterface\\AddOns\\DiabolicUI3\\Assets\\diabolic-lettermark:14:14|t  About")
+			Settings.RegisterCanvasLayoutSubcategory(category, canvas, "|T1529344:14:14|t  About")
 		end
 		Settings.RegisterAddOnCategory(category)
 	end)
