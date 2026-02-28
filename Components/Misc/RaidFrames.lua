@@ -41,19 +41,14 @@ local function ShouldHideRaidManager()
 	return ns.db and ns.db.global and ns.db.global.experiments and ns.db.global.experiments.hideRaidManager
 end
 -- Hide the raid manager panel (left-side raid control panel)
+-- Safe to call multiple times: hooks are set up separately in OnInitialize
 local function HideRaidManager()
 	if not ShouldHideRaidManager() then return end
-	-- CompactRaidFrameManager is the left-side raid control panel
-	if CompactRaidFrameManager then
-		CompactRaidFrameManager:UnregisterAllEvents()
-		CompactRaidFrameManager:Hide()
-		-- Hook Show to prevent it from appearing again
-		hooksecurefunc(CompactRaidFrameManager, "Show", function(self)
-			if ShouldHideRaidManager() then
-				self:Hide()
-			end
-		end)
-	end
+	if not CompactRaidFrameManager then return end
+	-- Re-unregister all events to prevent Blizzard from showing the frame
+	-- via its own event handlers (re-registered after zone changes)
+	CompactRaidFrameManager:UnregisterAllEvents()
+	CompactRaidFrameManager:Hide()
 end
 -- Create or update border for frame (same style as Tooltips, no background)
 local function CreateBorder(frame)
@@ -278,6 +273,20 @@ end
 function RaidFrames:OnInitialize()
 	-- Hide raid manager panel (independent of customizeRaidFrames)
 	HideRaidManager()
+	if CompactRaidFrameManager then
+		-- Hook Show once to catch direct Show() calls
+		hooksecurefunc(CompactRaidFrameManager, "Show", function(self)
+			if ShouldHideRaidManager() then
+				-- Defer to avoid taint when called from secure state driver context
+				C_Timer.After(0, function()
+					if ShouldHideRaidManager() then
+						CompactRaidFrameManager:UnregisterAllEvents()
+						CompactRaidFrameManager:Hide()
+					end
+				end)
+			end
+		end)
+	end
 	if not IsEnabled() then
 		return
 	end
@@ -286,12 +295,20 @@ end
 function RaidFrames:OnEnable()
 	-- Register for PLAYER_ENTERING_WORLD to hide raid manager after reload
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", function()
-		-- Re-check hiding after entering world (frame may be recreated)
-		if ShouldHideRaidManager() and CompactRaidFrameManager and CompactRaidFrameManager:IsShown() then
-			CompactRaidFrameManager:Hide()
+		-- Re-hide raid manager after zone change: Blizzard re-registers events on the frame
+		-- and may show it after our handler runs, so we call immediately + with a delay
+		if ShouldHideRaidManager() then
+			HideRaidManager()
+			C_Timer.After(0.5, HideRaidManager)
 		end
 		if IsEnabled() then
 			C_Timer.After(1, StyleExistingFrames)
+		end
+	end)
+	self:RegisterEvent("UPDATE_BATTLEFIELD_STATUS", function()
+		-- Fires when entering/leaving BG queue or instance
+		if ShouldHideRaidManager() then
+			C_Timer.After(0.5, HideRaidManager)
 		end
 	end)
 	if not IsEnabled() then
