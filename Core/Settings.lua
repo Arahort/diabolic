@@ -1211,6 +1211,7 @@ SettingsModule.OnInitialize = function(self)
 			Line("Here will be a list of players who supported the development of the addon.")
 			Gap()
 			Line("JuNNeZ - help with testing and some bug fixes.")
+			Line("Goldpaw - For continuing the great work.")
 			Line("YOU can be HERE.", nil, 2)
 			Settings.RegisterCanvasLayoutSubcategory(category, canvas, "|T1529344:14:14|t  About")
 		end
