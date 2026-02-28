@@ -194,9 +194,59 @@ SettingsModule.OnInitialize = function(self)
 			Settings.CreateSlider(category, setting, options, L["TargetFrameScaleDesc"])
 		end
 		--------------------------------------------
+		-- About / Info block
+		--------------------------------------------
+		do
+			local DIV = "|cff555555" .. string.rep("─", 55) .. "|r"
+			local ABOUT_TEXT = table.concat({
+				"|cffffcc00If you want to help the project, the best help would be|r",
+				"|cffffcc00a key for Midnight! I want to play with you too \240\159\165\178|r",
+				" ",
+				DIV,
+				" ",
+				"This is a community-maintained fork of the original",
+				"Diabolic UI by Lars Norberg and Daniel Troko.",
+				" ",
+				"|cffffcc00Original Project Credits|r",
+				"Original Addon: Diabolic UI",
+				"Original Code: Lars Norberg",
+				"Original Artwork: Daniel Troko and Lars Norberg",
+				" ",
+				"|cffffcc00This Fork|r",
+				"Updated for WoW 11.x and 12.x by: Alex Arahort",
+				"Artwork: Alex Arahort and Karina Kisenkova",
+				" ",
+				DIV,
+				" ",
+				"|cffffcc00Support the Developer|r",
+				"Patreon: https://www.patreon.com/c/Arahort",
+				"Boosty: https://boosty.to/alex_arahort",
+				" ",
+				"|cffccccccCrypto:|r",
+				"USDT TRC20: TShMCz6xGiLvtES8JquqhavrMvFnLM4UQ4",
+				"USDT TON: UQAKgkYbTk9qWICUn4O249X4F_hqPUHUpCEXNONLbHVfUjcc",
+				"BTC: bc1q89d70zz5v0f0x00pulrdggmmfav35c0nm99ua3",
+				" ",
+				DIV,
+				" ",
+				"|cffffcc00Platynator Preset|r |cffcccccc— by SaiyaRatt and Arahort|r",
+				"1. Install addon SharedMedia",
+				"2. Read SharedMedia/INSTRUCTIONS for MyMedia.txt and use MyMedia.bat",
+				"3. Copy .tga files from DiabolicUI3/Assets/statusbar/",
+				"   to SharedMedia_MyMedia/statusbar",
+				"4. Use platynator_profile.txt to import the preset",
+				" ",
+				DIV,
+				" ",
+				"|cffffcc00UI Preset|r",
+				"DiabolicUI/Assets/statusbar/ui_profile.txt",
+			}, "\n")
+			layout:AddInitializer(Settings.CreateSettingInitializer("DiabolicInfoBlockTemplate", {text = ABOUT_TEXT}))
+		end
+		--------------------------------------------
 		-- Subcategory: Orbs (Сферы)
 		--------------------------------------------
-		local catOrbs, layoutOrbs = Settings.RegisterVerticalLayoutSubcategory(category, "|TInterface\\Icons\\spell_arcane_arcane04:14:14|t  " .. L["OrbsHeader"])
+		local catOrbs, layoutOrbs = Settings.RegisterVerticalLayoutSubcategory(category, "|T5094560:14:14|t  " .. L["OrbsHeader"])
 		AddApplyButton(layoutOrbs)
 		do
 			local setting = RegisterSetting(
@@ -247,7 +297,7 @@ SettingsModule.OnInitialize = function(self)
 		--------------------------------------------
 		-- Subcategory: Action Bars (Панели действий)
 		--------------------------------------------
-		local catBars, layoutBars = Settings.RegisterVerticalLayoutSubcategory(category, "|TInterface\\Icons\\ability_warrior_battleshout:14:14|t  " .. L["ActionBarsHeader"])
+		local catBars, layoutBars = Settings.RegisterVerticalLayoutSubcategory(category, "|T6718291:14:14|t  " .. L["ActionBarsHeader"])
 		AddApplyButton(layoutBars)
 		do
 			local setting = RegisterSetting(
@@ -379,7 +429,7 @@ SettingsModule.OnInitialize = function(self)
 		-- Subcategory: Unit Frames (Рамки юнитов)
 		-- Includes: Auras + Unit Frames settings
 		--------------------------------------------
-		local catUF, layoutUF = Settings.RegisterVerticalLayoutSubcategory(category, "|TInterface\\Icons\\achievement_character01_male:14:14|t  " .. L["UnitFramesHeader"])
+		local catUF, layoutUF = Settings.RegisterVerticalLayoutSubcategory(category, "|T341221:14:14|t  " .. L["UnitFramesHeader"])
 		AddApplyButton(layoutUF)
 		layoutUF:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["AurasHeader"]))
 		local alwaysShowSetting, alwaysHideSetting
