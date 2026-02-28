@@ -1154,6 +1154,20 @@ SettingsModule.OnInitialize = function(self)
 		-- About subcategory (canvas layout)
 		--------------------------------------------
 		do
+			StaticPopupDialogs["DIABOLICUI3_URL"] = {
+				text = "Copy link:",
+				button1 = OKAY,
+				hasEditBox = true,
+				editBoxWidth = 320,
+				OnShow = function(self)
+					self.editBox:SetText(self.data)
+					self.editBox:SetFocus()
+					self.editBox:HighlightText()
+				end,
+				timeout = 0,
+				whileDead = true,
+				hideOnEscape = true,
+			}
 			local canvas = CreateFrame("Frame")
 			local prev = nil
 			local function Line(text, font, gap)
@@ -1179,6 +1193,27 @@ SettingsModule.OnInitialize = function(self)
 			local function Gap()
 				Line("", "GameFontNormal", 2)
 			end
+			local function LinkButton(label, url, gap)
+				local btn = CreateFrame("Button", nil, canvas)
+				btn:SetHeight(22)
+				btn:SetWidth(200)
+				if prev then
+					btn:SetPoint("TOPLEFT", prev, "BOTTOMLEFT", 0, -(gap or 6))
+				else
+					btn:SetPoint("TOPLEFT", canvas, "TOPLEFT", 16, -16)
+				end
+				local fs = btn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+				fs:SetPoint("LEFT")
+				fs:SetText("|cff66aaff" .. label .. "|r")
+				fs:SetJustifyH("LEFT")
+				btn:SetFontString(fs)
+				btn:SetScript("OnEnter", function() fs:SetText("|cffffffff" .. label .. "|r") end)
+				btn:SetScript("OnLeave", function() fs:SetText("|cff66aaff" .. label .. "|r") end)
+				btn:SetScript("OnClick", function()
+					StaticPopup_Show("DIABOLICUI3_URL", nil, nil, url)
+				end)
+				prev = btn
+			end
 			Header("About")
 			local version = (C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata)("DiabolicUI3", "Version") or "?"
 			Line("|cffaaaaaa" .. "Version: " .. version .. "|r", "GameFontNormal", 2)
@@ -1195,8 +1230,9 @@ SettingsModule.OnInitialize = function(self)
 			Line("|cffffcc00If you want to help the project, the best help would be a key for Midnight!|r")
 			Line("|cffffcc00I want to play with you too :)|r", nil, 2)
 			Gap()
-			Line("Patreon: https://www.patreon.com/c/Arahort")
-			Line("Boosty: https://boosty.to/alex_arahort", nil, 2)
+			LinkButton("Patreon", "https://www.patreon.com/c/Arahort")
+			LinkButton("Boosty", "https://boosty.to/alex_arahort")
+			LinkButton("GitHub", "https://github.com/Arahort/diabolic")
 			Gap()
 			Label("Crypto")
 			Line("USDT TRC20: TShMCz6xGiLvtES8JquqhavrMvFnLM4UQ4")
