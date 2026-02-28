@@ -94,17 +94,11 @@ ActionBar.UpdateBindings = function(self)
 	for id,button in ipairs(self.buttons) do
 		local bindingAction = button.keyBoundTarget
 		if (bindingAction) then
-
-			-- iterate through the registered keys for the action
-			local buttonName = button:GetName()
 			for keyNumber = 1,select("#", GetBindingKey(bindingAction)) do
-
-				-- get a key for the action
 				local key = select(keyNumber, GetBindingKey(bindingAction))
 				if (key and (key ~= "")) then
-
-					-- this is why we need named buttons
-					SetOverrideBindingClick(self, false, key, buttonName) -- assign the key to our own button
+					-- Use command binding (not click binding) to support hold-to-cast
+					SetOverrideBinding(self, false, key, bindingAction)
 				end
 			end
 		end
