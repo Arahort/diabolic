@@ -119,8 +119,9 @@ ExtraButtons.UpdateButton = function(self, button)
 		if (not button.__GP_Checked) then
 			local checkedTexture = button:CreateTexture()
 			checkedTexture:SetDrawLayer("BACKGROUND", 2)
-			checkedTexture:SetMask(GetMedia("actionbutton-mask-circular"))
-			checkedTexture:SetColorTexture(.9, .8, .1, .3)
+			checkedTexture:SetTexture(GetMedia("actionbutton-mask-circular"))
+			checkedTexture:SetVertexColor(.9, .8, .1, .3)
+			checkedTexture:SetAllPoints(button.__GP_Icon or button)
 			button.__GP_Checked = checkedTexture
 			button:SetCheckedTexture(checkedTexture)
 		end
