@@ -206,11 +206,15 @@ BlizzKill.KillActionBars = function(self)
 
 		if PetActionBar then
 			PetActionBar.ignoreFramePositionManager = true
+			PetActionBar:SetAlpha(0)
+			hooksecurefunc(PetActionBar, "Show", function(f) f:SetAlpha(0) end)
 		end
 		if PetActionBarFrame then
 			PetActionBarFrame.ignoreFramePositionManager = true
-		RegisterAttributeDriver(PetActionBarFrame, "state-visibility", "hide")
-		PetActionBarFrame:SetAttribute("statehidden", true)
+			RegisterAttributeDriver(PetActionBarFrame, "state-visibility", "hide")
+			PetActionBarFrame:SetAttribute("statehidden", true)
+			PetActionBarFrame:SetAlpha(0)
+			hooksecurefunc(PetActionBarFrame, "Show", function(f) f:SetAlpha(0) end)
 		end
 
 		-- Hide individual pet action buttons
@@ -320,14 +324,18 @@ BlizzKill.KillActionBars = function(self)
 		-- Prevent layout manager from repositioning pet bars
 		if PetActionBarFrame then
 			PetActionBarFrame.ignoreFramePositionManager = true
-		RegisterAttributeDriver(PetActionBarFrame, "state-visibility", "hide")
-		PetActionBarFrame:SetAttribute("statehidden", true)
+			RegisterAttributeDriver(PetActionBarFrame, "state-visibility", "hide")
+			PetActionBarFrame:SetAttribute("statehidden", true)
+			PetActionBarFrame:SetAlpha(0)
+			hooksecurefunc(PetActionBarFrame, "Show", function(f) f:SetAlpha(0) end)
 		end
 
 		if PetActionBar then
 			PetActionBar.ignoreFramePositionManager = true
-		RegisterAttributeDriver(PetActionBar, "state-visibility", "hide")
-		PetActionBar:SetAttribute("statehidden", true)
+			RegisterAttributeDriver(PetActionBar, "state-visibility", "hide")
+			PetActionBar:SetAttribute("statehidden", true)
+			PetActionBar:SetAlpha(0)
+			hooksecurefunc(PetActionBar, "Show", function(f) f:SetAlpha(0) end)
 		end
 
 
