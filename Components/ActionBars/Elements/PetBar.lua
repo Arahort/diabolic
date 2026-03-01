@@ -479,7 +479,7 @@ PetBar.SpawnBar = function(self)
 
 		local bar = SetObjectScale(ns.PetBar:Create(ns.Prefix.."PetActionBar", UIParent), scale)
 
-		bar:SetFrameStrata("MEDIUM")
+		bar:SetFrameStrata("BACKGROUND")
 
 		bar:SetWidth(549)
 
