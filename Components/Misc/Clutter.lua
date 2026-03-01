@@ -110,16 +110,7 @@ Clutter.HandleTopCenterWidgets = function(self)
 		end
 	end)
 
-	local Update = function()
-		if (UnitExists("target")) then
-			scaffold:Hide()
-		else
-			scaffold:Show()
-		end
-	end
-
-	self:RegisterEvent("PLAYER_TARGET_CHANGED", Update)
-	self:RegisterEvent("PLAYER_ENTERING_WORLD", Update)
+	scaffold:Show()
 
 end
 
