@@ -182,11 +182,11 @@ MicroMenu.InitializeMicroMenu = function(self)
 			bar:Show()
 		end
 	]])
-	-- Toggle texture - config button from AzeriteUI
+	-- Toggle texture
 	local texture = toggle:CreateTexture(nil, "ARTWORK", nil, 0)
-	texture:SetSize(80, 80)
+	texture:SetSize(36, 36)
 	texture:SetPoint("CENTER")
-	texture:SetTexture(GetMedia("config_button_bright"))
+	texture:SetTexture(GetMedia("micromenu-toggle"))
 	toggle.texture = texture
 	-- Methods
 	toggle.UpdateTexture = function(self)
