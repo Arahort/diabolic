@@ -45,6 +45,11 @@ Castbar.StyleCastbar = function(self, frame)
 		frame.TextBorder:SetAlpha(0)
 		frame:HookScript("OnShow", function() frame.TextBorder:SetAlpha(0) end)
 	end
+	-- Move spell name text inside the bar
+	if frame.Text then
+		frame.Text:ClearAllPoints()
+		frame.Text:SetPoint("CENTER", frame, "CENTER", 0, 0)
+	end
 	frame.__GP_Styled = true
 	-- WoW 12.0: SetStatusBarTexture on protected frames is ignored
 	-- Alternative: hide original texture and overlay our own with proper texcoord
