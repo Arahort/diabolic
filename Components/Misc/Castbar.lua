@@ -40,9 +40,10 @@ Castbar.StyleCastbar = function(self, frame)
 	borderFrame:Hide()
 	frame.__GP_BorderFrame = borderFrame
 	frame.__GP_Border = border
-	-- Hide spell name background
+	-- Hide spell name background (hook OnShow because Blizzard resets it each cast)
 	if frame.TextBorder then
 		frame.TextBorder:SetAlpha(0)
+		frame:HookScript("OnShow", function() frame.TextBorder:SetAlpha(0) end)
 	end
 	frame.__GP_Styled = true
 	-- WoW 12.0: SetStatusBarTexture on protected frames is ignored
