@@ -27,6 +27,8 @@ L["CustomHealthOrbColor"] = "生命值能量球顏色"
 L["CustomHealthOrbColorDesc"] = "選擇生命值能量球的顏色"
 L["CustomPowerOrbColor"] = "資源能量球顏色"
 L["CustomPowerOrbColorDesc"] = "選擇法力/資源能量球的顏色"
+L["EyeGlowD2R"] = "眼部發光（D2R 風格）"
+L["EyeGlowD2RDesc"] = "以暗黑破壞神2重製版風格在生命和法力球上顯示發光眼睛效果"
 -- Action Bars
 L["ActionBarsHeader"] = "動作列"
 L["EnableSecondary"] = "啟用輔助動作列"

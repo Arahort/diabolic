@@ -1077,6 +1077,41 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	self.Power.Artwork = powerArt
 
+	-- Eye Glow D2R: Angel (celestial blue) on health, Demon (red) on power
+	--------------------------------------------
+	local healthEyeGlow = artworkOverlay:CreateTexture(nil, "OVERLAY", nil, 3)
+	healthEyeGlow:SetSize(60, 60)
+	healthEyeGlow:SetPoint("CENTER", healthArt, "CENTER", 34, 42)
+	healthEyeGlow:SetTexture(GetMedia("orb-glass"))
+	healthEyeGlow:SetVertexColor(0.5, 0.85, 1.0)
+	healthEyeGlow:SetBlendMode("ADD")
+	healthEyeGlow:Hide()
+	local healthGlowAG = healthEyeGlow:CreateAnimationGroup()
+	healthGlowAG:SetLooping("BOUNCE")
+	local healthGlowAnim = healthGlowAG:CreateAnimation("Alpha")
+	healthGlowAnim:SetFromAlpha(0.4)
+	healthGlowAnim:SetToAlpha(0.8)
+	healthGlowAnim:SetDuration(2.5)
+	healthGlowAnim:SetSmoothing("IN_OUT")
+	self.Health.EyeGlow = healthEyeGlow
+	self.Health.EyeGlowAG = healthGlowAG
+	local powerEyeGlow = artworkOverlay:CreateTexture(nil, "OVERLAY", nil, 3)
+	powerEyeGlow:SetSize(60, 60)
+	powerEyeGlow:SetPoint("CENTER", powerArt, "CENTER", -50, 15)
+	powerEyeGlow:SetTexture(GetMedia("orb-glass"))
+	powerEyeGlow:SetVertexColor(1.0, 0.1, 0.05)
+	powerEyeGlow:SetBlendMode("ADD")
+	powerEyeGlow:Hide()
+	local powerGlowAG = powerEyeGlow:CreateAnimationGroup()
+	powerGlowAG:SetLooping("BOUNCE")
+	local powerGlowAnim = powerGlowAG:CreateAnimation("Alpha")
+	powerGlowAnim:SetFromAlpha(0.4)
+	powerGlowAnim:SetToAlpha(0.8)
+	powerGlowAnim:SetDuration(2.5)
+	powerGlowAnim:SetSmoothing("IN_OUT")
+	self.Power.EyeGlow = powerEyeGlow
+	self.Power.EyeGlowAG = powerGlowAG
+
 	-- Power Value Text
 	--------------------------------------------
 	local powerValue = powerOverlay:CreateFontString(power:GetName().."ValueText", "OVERLAY", nil, 0)
@@ -1418,7 +1453,23 @@ UnitStyles["Player"] = function(self, unit, id)
 	ns.RegisterCallback(self, "OrbColors_Updated", "UpdateOrbColors")
 	self:UpdateOrbColors()
 
-	-- Class Power / Runes Position and Scale
+	self.UpdateEyeGlow = function(self)
+		local enabled = ns.db.global.orbs and ns.db.global.orbs.useD2RStyle and ns.db.global.orbs.eyeGlowD2R
+		if enabled then
+			self.Health.EyeGlow:Show()
+			self.Health.EyeGlowAG:Play()
+			self.Power.EyeGlow:Show()
+			self.Power.EyeGlowAG:Play()
+		else
+			self.Health.EyeGlowAG:Stop()
+			self.Health.EyeGlow:Hide()
+			self.Power.EyeGlowAG:Stop()
+			self.Power.EyeGlow:Hide()
+		end
+	end
+	ns.RegisterCallback(self, "OrbEyeGlow_Updated", "UpdateEyeGlow")
+	self:UpdateEyeGlow()
+-- Class Power / Runes Position and Scale
 	self.UpdateClassPowerPosition = function(self)
 		local db = ns.db.global.unitframes
 		local posX = db.classpowerPositionX or 0

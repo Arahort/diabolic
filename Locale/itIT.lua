@@ -27,6 +27,8 @@ L["CustomHealthOrbColor"] = "Colore della sfera di salute"
 L["CustomHealthOrbColorDesc"] = "Scegli il colore della sfera di salute"
 L["CustomPowerOrbColor"] = "Colore della sfera di risorsa"
 L["CustomPowerOrbColorDesc"] = "Scegli il colore della sfera di mana/risorsa"
+L["EyeGlowD2R"] = "Bagliore degli occhi (stile D2R)"
+L["EyeGlowD2RDesc"] = "Mostra effetto bagliore degli occhi sulle sfere di salute e mana nello stile Diablo 2 Resurrected"
 -- Action Bars
 L["ActionBarsHeader"] = "Barre azioni"
 L["EnableSecondary"] = "Abilita barra azioni secondaria"

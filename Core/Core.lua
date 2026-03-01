@@ -88,7 +88,8 @@ local defaults = {
 			targetFrameScale = 1.0
 		},
 		orbs = {
-			useD2RStyle = true
+			useD2RStyle = true,
+			eyeGlowD2R = false
 		},
 		chatbubbles = {
 			enableChatBubbles = true,
