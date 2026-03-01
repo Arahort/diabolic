@@ -37,3 +37,6 @@ CHANGES.txt
 
 # Claude Code local instructions
 .claude/
+
+# Local reference/research files
+old/
