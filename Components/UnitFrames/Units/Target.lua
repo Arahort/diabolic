@@ -389,8 +389,9 @@ UnitStyles["Target"] = function(self, unit, id)
 
 	self.CombatFeedback = feedbackText
 
-	-- Cast Bar
+	-- Cast Bar (temporarily disabled for testing gray overlay on health bar)
 	--------------------------------------------
+	--[[
 	local cast = self:CreateBar(self:GetName())
 	cast:SetFrameLevel(health:GetFrameLevel() + 3)
 	cast:SetSize(291,43)
@@ -423,6 +424,7 @@ UnitStyles["Target"] = function(self, unit, id)
 	cast:SetScript("OnHide", Cast_PostCastStop)
 
 	self.Castbar = cast
+	--]]
 
 	-- Auras
 	--------------------------------------------
