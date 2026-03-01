@@ -89,7 +89,7 @@ local defaults = {
 		},
 		orbs = {
 			useD2RStyle = true,
-			eyeGlowD2R = false
+			eyeGlowD2R = true
 		},
 		chatbubbles = {
 			enableChatBubbles = true,
