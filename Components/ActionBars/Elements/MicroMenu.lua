@@ -184,7 +184,7 @@ MicroMenu.InitializeMicroMenu = function(self)
 	]])
 	-- Toggle texture
 	local texture = toggle:CreateTexture(nil, "ARTWORK", nil, 0)
-	texture:SetSize(36, 36)
+	texture:SetSize(47, 47)
 	texture:SetPoint("CENTER")
 	texture:SetTexture(GetMedia("micromenu-toggle"))
 	toggle.texture = texture
