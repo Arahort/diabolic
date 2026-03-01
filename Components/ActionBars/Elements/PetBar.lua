@@ -523,6 +523,20 @@ PetBar.SpawnBar = function(self)
 
 
 
+		-- Background artwork (separate LOW strata frame to avoid secure taint)
+		local artwork = CreateFrame("Frame", nil, UIParent)
+		artwork:SetFrameStrata("LOW")
+		artwork:SetScale(scale)
+		artwork:SetSize(549, 128)
+		artwork:SetPoint("CENTER", bar, "CENTER", 0, 0)
+		local artTex = artwork:CreateTexture(nil, "BACKGROUND")
+		artTex:SetAllPoints()
+		artTex:SetTexture(GetMedia("petbar-artwork"))
+		bar:HookScript("OnShow", function() artwork:Show() end)
+		bar:HookScript("OnHide", function() artwork:Hide() end)
+		artwork:SetShown(bar:IsShown())
+		bar.__GP_Artwork = artwork
+
 		-- Create pull-out handle
 
 		local handle = SetObjectScale(CreateFrame("CheckButton", bar:GetName().."Handle", UIParent, "SecureHandlerClickTemplate"))
