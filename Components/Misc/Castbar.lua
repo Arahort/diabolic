@@ -40,6 +40,10 @@ Castbar.StyleCastbar = function(self, frame)
 	borderFrame:Hide()
 	frame.__GP_BorderFrame = borderFrame
 	frame.__GP_Border = border
+	-- Hide spell name background
+	if frame.TextBorder then
+		frame.TextBorder:SetAlpha(0)
+	end
 	frame.__GP_Styled = true
 	-- WoW 12.0: SetStatusBarTexture on protected frames is ignored
 	-- Alternative: hide original texture and overlay our own with proper texcoord
