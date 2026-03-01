@@ -27,6 +27,8 @@ L["CustomHealthOrbColor"] = "생명력 구체 색상"
 L["CustomHealthOrbColorDesc"] = "생명력 구체의 색상 선택"
 L["CustomPowerOrbColor"] = "자원 구체 색상"
 L["CustomPowerOrbColorDesc"] = "마나/자원 구체의 색상 선택"
+L["EyeGlowD2R"] = "눈 빛 효과 (D2R 스타일)"
+L["EyeGlowD2RDesc"] = "디아블로 2 레저렉션 스타일로 생명력 및 마나 구체에 빛나는 눈 효과 표시"
 -- Action Bars
 L["ActionBarsHeader"] = "행동 단축바"
 L["EnableSecondary"] = "보조 행동 단축바 활성화"

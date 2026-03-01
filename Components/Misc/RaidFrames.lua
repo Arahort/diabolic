@@ -33,6 +33,36 @@ local function GetSetting(key, default)
 end
 -- Styled frames cache (to avoid re-styling)
 local styledFrames = {}
+-- Name truncation: always-on, independent of customizeRaidFrames setting
+local nameTruncSetup = false
+local function SetupNameTruncation()
+	if nameTruncSetup then return end
+	if not CompactUnitFrame_UpdateName then return end
+	nameTruncSetup = true
+	hooksecurefunc("CompactUnitFrame_UpdateName", function(frame)
+		if not frame or frame:IsForbidden() then return end
+		local frameName = frame:GetName()
+		if frameName and frameName:match("NamePlate") then return end
+		if not frame.name then return end
+		pcall(function()
+			-- Strip realm suffix: "Player-Realm" → "Player"
+			local text = frame.name:GetText()
+			if text then
+				local shortName = text:match("^([^%-]+)")
+				if shortName and shortName ~= text then
+					frame.name:SetText(shortName)
+				end
+			end
+			-- Constrain width to frame so text never overflows
+			local w = frame:GetWidth()
+			if w and w > 0 then
+				frame.name:SetWidth(w - 20)
+				frame.name:SetWordWrap(false)
+				frame.name:SetNonSpaceWrap(false)
+			end
+		end)
+	end)
+end
 -- Check if module should be enabled
 local function IsEnabled()
 	return ns.db and ns.db.global and ns.db.global.experiments and ns.db.global.experiments.customizeRaidFrames
@@ -139,6 +169,25 @@ end
 local function StyleName(frame)
 	if frame.name and GetFont then
 		frame.name:SetFontObject(GetFont(textSettings.nameSize, true))
+		-- Strip realm suffix: "Player-Realm" → "Player"
+		pcall(function()
+			local text = frame.name:GetText()
+			if text then
+				local shortName = text:match("^([^%-]+)")
+				if shortName and shortName ~= text then
+					frame.name:SetText(shortName)
+				end
+			end
+		end)
+		-- Constrain name width to frame so it never overflows
+		pcall(function()
+			local w = frame:GetWidth()
+			if w and w > 0 then
+				frame.name:SetWidth(w - 20)
+				frame.name:SetWordWrap(false)
+				frame.name:SetNonSpaceWrap(false)
+			end
+		end)
 		-- Apply vertical offset (like line-height padding)
 		-- Store original position to avoid accumulating offset on each call
 		if textSettings.nameOffsetY ~= 0 then
@@ -275,6 +324,7 @@ local function StyleExistingFrames()
 	end
 end
 function RaidFrames:OnInitialize()
+	SetupNameTruncation()
 	HideRaidManager()
 	if not IsEnabled() then
 		return

@@ -27,6 +27,8 @@ L["CustomHealthOrbColor"] = "Gesundheitssphäre-Farbe"
 L["CustomHealthOrbColorDesc"] = "Wählen Sie die Farbe für die Gesundheitssphäre"
 L["CustomPowerOrbColor"] = "Ressourcensphäre-Farbe"
 L["CustomPowerOrbColorDesc"] = "Wählen Sie die Farbe für die Mana-/Ressourcensphäre"
+L["EyeGlowD2R"] = "Augenleuchten (D2R-Stil)"
+L["EyeGlowD2RDesc"] = "Leuchtenden Augeneffekt auf Gesundheits- und Mana-Sphären im Diablo 2 Resurrected-Stil anzeigen"
 -- Action Bars
 L["ActionBarsHeader"] = "Aktionsleisten"
 L["EnableSecondary"] = "Sekundäre Aktionsleiste aktivieren"

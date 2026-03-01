@@ -27,6 +27,8 @@ L["CustomHealthOrbColor"] = "Health Sphere Color"
 L["CustomHealthOrbColorDesc"] = "Choose custom color for health sphere"
 L["CustomPowerOrbColor"] = "Power Sphere Color"
 L["CustomPowerOrbColorDesc"] = "Choose custom color for power/mana sphere"
+L["EyeGlowD2R"] = "Eye Glow (D2R Style)"
+L["EyeGlowD2RDesc"] = "Show glowing eye effect on health and mana spheres in Diablo 2 Resurrected style"
 -- Action Bars
 L["ActionBarsHeader"] = "Action Bars"
 L["EnableSecondary"] = "Enable Secondary Action Bar"
