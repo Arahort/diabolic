@@ -1,5 +1,36 @@
 # DiabolicUI3 Changelog
 
+## [2.8.0] - 2026-03-01
+
+### ✨ New Features
+- **Eye Glow (D2R Style)**: New setting to enable pulsing glow on orb eyes (angel eye on health orb, demon eye on power orb)
+  - Positioned precisely on angel (health) and demon (power) eyes
+  - Smooth pulsing animation (40%→80% alpha, BOUNCE loop)
+  - Setting in Settings → Spheres → "Eye Glow (D2R Style)"
+  - Enabled by default (along with D2R orb style)
+
+### 🎨 UI Improvements
+- **Settings Panel Restructured**: Reorganized into subcategories (Spheres, Auras, Map, Minimap, etc.) with icons
+- **About Section**: Added About subcategory with version, author links (GitHub, Patreon, Boosty) and credits
+- **PetBar Artwork**: Added decorative background texture to pet action bar
+- **MicroMenu Icon**: Updated toggle icon to ChatMenu variant
+
+### 🐛 Bug Fixes
+- **Castbar Spell Text**: Fixed spell name resetting below the castbar on each new cast — text now stays centered on the bar
+- **Raid Frame Borders**: Fixed borders rendering above all other UI elements (map, quest journal) — now use parent-relative frame level instead of TOOLTIP strata
+- **BG Widgets Visibility**: Fixed BG score/objective widgets disappearing when selecting a target — widgets now always visible
+- **Raid Frame Name Overflow**: Name truncation now always active (independent of "Customize Raid Frames" setting) — strips realm suffix and constrains width
+- **ExtraButton Yellow Square**: Fixed yellow checked texture overlay on ZoneAbility/ExtraAction buttons
+
+### 🔧 Changes
+- D2R Orb Style and Eye Glow enabled by default for new installations
+- Platynator nameplate profile updated (DiabolicUI design with DiabolicUI textures)
+
+### 🌍 Localization
+- Added Eye Glow D2R setting strings in all 12 supported languages
+
+---
+
 ## [2.7.3] - 2026-02-28
 
 ### 🐛 Bug Fixes
