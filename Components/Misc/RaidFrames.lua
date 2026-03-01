@@ -92,10 +92,8 @@ local function CreateBorder(frame)
 		border:EnableMouse(false)
 		frame.diabolicBorder = border
 	end
-	-- Set frame strata and level every time to ensure it's on top
 	local border = frame.diabolicBorder
-	border:SetFrameStrata("TOOLTIP")
-	border:SetFrameLevel(1)
+	border:SetFrameLevel(frame:GetFrameLevel() + 5)
 	local top = GetSetting("raidFramesBorderTop", 6)
 	local bottom = GetSetting("raidFramesBorderBottom", 8)
 	local left = GetSetting("raidFramesBorderLeft", 2)
