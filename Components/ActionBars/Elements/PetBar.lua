@@ -479,7 +479,7 @@ PetBar.SpawnBar = function(self)
 
 		local bar = SetObjectScale(ns.PetBar:Create(ns.Prefix.."PetActionBar", UIParent), scale)
 
-		bar:SetFrameStrata("BACKGROUND")
+		bar:SetFrameStrata("MEDIUM")
 
 		bar:SetWidth(549)
 
@@ -525,7 +525,8 @@ PetBar.SpawnBar = function(self)
 
 		-- Background artwork (separate LOW strata frame to avoid secure taint)
 		local artwork = CreateFrame("Frame", nil, UIParent)
-		artwork:SetFrameStrata("LOW")
+		artwork:SetFrameStrata("BACKGROUND")
+		artwork:SetFrameLevel(5)
 		artwork:SetScale(scale)
 		artwork:SetSize(549, 128)
 		artwork:SetPoint("CENTER", bar, "CENTER", 0, 0)
