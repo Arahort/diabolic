@@ -1,5 +1,12 @@
 # DiabolicUI3 Changelog
 
+## [2.8.1] - 2026-03-04
+
+### 🔧 Changes
+- **About Section**: Added Discord link button in Settings → About
+
+---
+
 ## [2.8.0] - 2026-03-01
 
 ### ✨ New Features
