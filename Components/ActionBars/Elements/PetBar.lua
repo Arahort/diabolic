@@ -577,43 +577,7 @@ PetBar.SpawnBar = function(self)
 
 		-- for both the pet bar and the stance bar, if it exists.
 
-		handle:SetAttribute("_onclick", [[
-
-			local pet = self:GetFrameRef("Bar");
-
-			local stance = pet:GetFrameRef("StanceBar");
-
-			if (pet:IsShown()) then
-
-				pet:SetAttribute("showPetBar", false);
-
-			else
-
-				pet:SetAttribute("showPetBar", true);
-
-			end
-
-			-- Any click should clear this,
-
-			-- only manually showing the stance bar
-
-			-- while the pet bar is currently visible
-
-			-- should ever trigger this setting.
-
-			pet:SetAttribute("forceHide", false);
-
-			if (stance) then
-
-				stance:RunAttribute("UpdateVisibility");
-
-			end
-
-			pet:CallMethod("UpdateSettings");
-
-			pet:RunAttribute("UpdateVisibility");
-
-		]])
+		handle:SetAttribute("_onclick", "")
 
 
 
