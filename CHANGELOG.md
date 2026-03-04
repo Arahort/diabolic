@@ -1,5 +1,12 @@
 # DiabolicUI3 Changelog
 
+## [2.8.3] - 2026-03-04
+
+### 🔧 Changes
+- **About Section**: Added SaiyaRatt to Thanks (Profile for Platynator)
+
+---
+
 ## [2.8.2] - 2026-03-04
 
 ### 🐛 Bug Fixes
