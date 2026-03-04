@@ -3,6 +3,8 @@
 [![Downloads](https://cf.way2muchnoise.eu/full_1401738_Downloads.svg)](https://www.curseforge.com/wow/addons/diabolicui-arahort-edition)
 [![Game Version](https://cf.way2muchnoise.eu/versions/1401738_all.svg)](https://www.curseforge.com/wow/addons/diabolicui-arahort-edition)
 [![Version](https://img.shields.io/github/v/release/Arahort/diabolic?label=Version)](https://github.com/Arahort/diabolic/releases)
+[![Discord](https://img.shields.io/badge/Discord-5865F2?logo=discord&logoColor=white)](https://discord.com/channels/407765646634385408/1478671797695025272)
+[![Patreon](https://img.shields.io/badge/Patreon-F96854?logo=patreon&logoColor=white)](https://www.patreon.com/c/Arahort)
 
 Orb-based graphical user interface replacement for World of Warcraft.
 
@@ -67,6 +69,7 @@ This is a community-maintained fork. For issues or feature requests, please visi
 
 - **GitHub:** https://github.com/Arahort/diabolic
 - **CurseForge:** https://www.curseforge.com/wow/addons/diabolicui-arahort-edition
+- **Discord:** https://discord.com/channels/407765646634385408/1478671797695025272
 
 ### Support the Developer
 
