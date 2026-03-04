@@ -1,5 +1,12 @@
 # DiabolicUI3 Changelog
 
+## [2.8.2] - 2026-03-04
+
+### 🐛 Bug Fixes
+- **PetBar**: Fixed pet action bar permanently disappearing when accidentally clicking the invisible toggle handle above the bar — handle click now does nothing, bar always visible when pet exists
+
+---
+
 ## [2.8.1] - 2026-03-04
 
 ### 🔧 Changes
