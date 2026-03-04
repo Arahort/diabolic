@@ -1283,6 +1283,7 @@ SettingsModule.OnInitialize = function(self)
 			Gap()
 			Line("JuNNeZ - help with testing and some bug fixes.")
 			Line("Goldpaw - For continuing the great work.")
+			Line("SaiyaRatt - Profile for Platynator.")
 			Line("YOU can be HERE.", nil, 2)
 			Settings.RegisterCanvasLayoutSubcategory(category, canvas, "|T1529344:14:14|t  About")
 		end
