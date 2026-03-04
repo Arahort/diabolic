@@ -505,7 +505,8 @@ PetBar.SpawnBar = function(self)
 
 
 
-		bar:SetAttribute("showPetBar", ns.db.char.actionbars.showPetBar)
+		ns.db.char.actionbars.showPetBar = true
+		bar:SetAttribute("showPetBar", true)
 
 		bar.UpdateSettings = function(self)
 
@@ -546,9 +547,7 @@ PetBar.SpawnBar = function(self)
 
 		handle:SetFrameStrata("MEDIUM")
 
-		handle:RegisterForClicks("AnyUp")
-
-		handle:SetHitRectInsets(-20, -20, -20, 0)
+		handle:EnableMouse(false)
 
 		handle:HookScript("OnClick", handleOnClick)
 
