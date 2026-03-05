@@ -1,5 +1,17 @@
 # DiabolicUI3 Changelog
 
+## [2.8.4-alpha1] - 2026-03-05
+
+### ✨ New Features
+- **Stagger (Brewmaster Monk)**: AzeriteUI-style Stagger — 3 orbs с per-tier цветами (зелёный/жёлтый/красный), правильный frame level, UpdateColor override
+- **ClassPower (AzeriteUI)**: AzeriteUI-style орбы включены по умолчанию для всех, настройка скрыта
+
+### 🐛 Bug Fixes
+- **Player.lua**: Добавлен `local noop = ns.Noop` — stagger `SetMinMaxValues`/`SetValue` были nil (спам ошибок)
+- **Stagger**: Исправлена итерация `AzeriteStagger_SetStatusBarColor` — теперь только по числовым индексам 1–3
+
+---
+
 ## [2.8.3] - 2026-03-04
 
 ### 🔧 Changes

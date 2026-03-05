@@ -74,7 +74,7 @@ local defaults = {
 			positionY = 130
 		},
 		experiments = {
-			useAzeriteClassPower = false
+			useAzeriteClassPower = true
 		}
 	},
 	global = {

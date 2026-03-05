@@ -19,6 +19,7 @@ local GetFont = ns.API.GetFont
 local GetMedia = ns.API.GetMedia
 local IsAddOnEnabled = ns.API.IsAddOnEnabled
 local SetObjectScale = ns.API.SetUnitFramesObjectScale
+local noop = ns.Noop
 
 -- Constants
 local playerClass = ns.PlayerClass
@@ -528,16 +529,39 @@ local AzeriteStagger_PostUpdate = function(element, cur, max)
 		local value = (cur > point.max) and point.max or (cur < point.min) and point.min or cur
 		point:SetMinMaxValues(point.min, point.max)
 		point:SetValue(value)
-		if (element.inCombat) then
-			point:SetAlpha((cur == max) and 1 or (value < point.max) and .5 or 1)
+		if (element.inCombat or cur > 0) then
+			point:SetAlpha(1)
 		else
-			point:SetAlpha((cur == 0) and 0 or (value < point.max) and .5 or 1)
+			point:SetAlpha(0)
 		end
 	end
 end
 local AzeriteStagger_SetStatusBarColor = function(element, r, g, b)
-	for i, point in next, element do
-		point:SetStatusBarColor(r, g, b)
+	for i = 1, 3 do
+		local point = element[i]
+		if (point) then
+			point:SetStatusBarColor(r, g, b)
+			if (point.fg) then
+				point.fg:SetVertexColor(r, g, b, .75)
+			end
+		end
+	end
+end
+local AzeriteStagger_UpdateColor = function(self, event, unit)
+	if (unit and unit ~= self.unit) then return end
+	local element = self.Stagger
+	local colors = self.colors.power["STAGGER"]
+	if (not colors) then return end
+	for i = 1, 3 do
+		local point = element[i]
+		local color = colors[i]
+		if (point and color) then
+			local r, g, b = color:GetRGB()
+			point:SetStatusBarColor(r, g, b)
+			if (point.slot) then
+				point.slot:SetVertexColor(r * .3, g * .3, b * .3, 1)
+			end
+		end
 	end
 end
 
@@ -1239,6 +1263,7 @@ UnitStyles["Player"] = function(self, unit, id)
 	if (playerClass == "MONK") and (not SCP) then
 
 		local stagger = CreateFrame("Frame", nil, self)
+		stagger:SetFrameLevel(self:GetFrameLevel() + 10)
 		stagger.SetValue = noop
 		stagger.SetMinMaxValues = noop
 		stagger.SetStatusBarColor = useAzeriteClassPower and AzeriteStagger_SetStatusBarColor or Stagger_SetStatusBarColor
@@ -1262,6 +1287,7 @@ UnitStyles["Player"] = function(self, unit, id)
 			end
 			self.Stagger = stagger
 			self.Stagger.PostUpdate = AzeriteStagger_PostUpdate
+			self.Stagger.UpdateColor = AzeriteStagger_UpdateColor
 		else
 			stagger:SetSize(210,70)
 			stagger:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 300)

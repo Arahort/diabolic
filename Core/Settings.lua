@@ -1138,6 +1138,7 @@ SettingsModule.OnInitialize = function(self)
 			end)
 			Settings.CreateSlider(catExp, settingRoleOffsetY, optionsRoleOffsetY, L["RaidFramesRoleOffsetYDesc"])
 		end
+		--[[ useAzeriteClassPower (hidden, always enabled)
 		do
 			local setting = RegisterSetting(
 				catExp,
@@ -1153,6 +1154,7 @@ SettingsModule.OnInitialize = function(self)
 			Settings.SetOnValueChangedCallback("char_experiments_useAzeriteClassPower", OnAzeriteClassPowerToggle)
 			CreateCheckbox(catExp, setting, L["UseAzeriteClassPowerDesc"])
 		end
+		--]]
 		-- Reload UI popup
 		StaticPopupDialogs["DIABOLICUI3_RELOAD_UI"] = {
 			text = L["OrbStyleReloadConfirmation"] or "Changing orb style requires a UI reload. Reload now?",
