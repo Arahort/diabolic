@@ -3,12 +3,12 @@
 ## [2.8.4-alpha1] - 2026-03-05
 
 ### ✨ New Features
-- **Stagger (Brewmaster Monk)**: AzeriteUI-style Stagger — 3 orbs с per-tier цветами (зелёный/жёлтый/красный), правильный frame level, UpdateColor override
-- **ClassPower (AzeriteUI)**: AzeriteUI-style орбы включены по умолчанию для всех, настройка скрыта
+- **Stagger (Brewmaster Monk)**: AzeriteUI-style Stagger — 3 orbs with per-tier colors (green/yellow/red), correct frame level, UpdateColor override
+- **ClassPower (AzeriteUI)**: AzeriteUI-style orbs now enabled by default for all players, settings toggle hidden
 
 ### 🐛 Bug Fixes
-- **Player.lua**: Добавлен `local noop = ns.Noop` — stagger `SetMinMaxValues`/`SetValue` были nil (спам ошибок)
-- **Stagger**: Исправлена итерация `AzeriteStagger_SetStatusBarColor` — теперь только по числовым индексам 1–3
+- **Player.lua**: Added missing `local noop = ns.Noop` — stagger `SetMinMaxValues`/`SetValue` were nil causing error spam
+- **Stagger**: Fixed `AzeriteStagger_SetStatusBarColor` iterating over all table keys — now iterates only numeric indices 1–3
 
 ---
 
