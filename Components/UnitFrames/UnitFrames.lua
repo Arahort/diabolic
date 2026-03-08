@@ -403,21 +403,56 @@ UnitFrames.SpawnUnitFrames = function(self)
 		-- Spawn primary frames.
 		Spawn("player", "Player"):SetPoint("BOTTOM", -440, 6)
 		local db = ns.db
+		local posPoint = "TOP"
 		local posX = 0
-		local posY = -40
+		local posY = -95
 		local targetScale = 1
 		if db and db.global then
 			if db.global.unitframes then
+				posPoint = db.global.unitframes.targetPositionPoint or "TOP"
 				posX = db.global.unitframes.targetPositionX or 0
-				posY = db.global.unitframes.targetPositionY or -40
+				posY = db.global.unitframes.targetPositionY or -95
 			end
 			if db.global.core then
 				targetScale = db.global.core.targetFrameScale or 1
 			end
 		end
 		local targetFrame = Spawn("target", "Target")
-		targetFrame:SetPoint("TOP", posX, posY)
+		targetFrame:SetPoint(posPoint, posX, posY)
 		ns.API.SetTargetFrameObjectScale(targetFrame, targetScale)
+		-- Register Target frame with EditMode (LibEditMode)
+		local LibEditMode = ns.LibEditMode
+		if LibEditMode and LibEditMode.AddFrame then
+			targetFrame.editModeName = "Diabolic: Target"
+			LibEditMode:AddFrame(targetFrame, function(frame, layoutName, point, x, y)
+				if db and db.global and db.global.unitframes then
+					db.global.unitframes.targetPositionPoint = point
+					db.global.unitframes.targetPositionX = x
+					db.global.unitframes.targetPositionY = y
+				end
+			end, {point = "TOP", x = 0, y = -95})
+			LibEditMode:AddFrameSettings(targetFrame, {
+				{
+					kind = LibEditMode.SettingType.Slider,
+					name = ns.L["TargetFrameScale"] or "Target Frame Scale",
+					desc = ns.L["TargetFrameScaleDesc"] or "Independent target frame scale",
+					default = 1,
+					minValue = 0.5,
+					maxValue = 2.0,
+					valueStep = 0.05,
+					formatter = function(value) return string_format("%.2f", value) end,
+					get = function(layoutName)
+						return (db and db.global and db.global.core and db.global.core.targetFrameScale) or 1
+					end,
+					set = function(layoutName, value)
+						if db and db.global and db.global.core then
+							db.global.core.targetFrameScale = value
+							ns.API.SetTargetFrameObjectScale(targetFrame, value)
+						end
+					end,
+				}
+			})
+		end
 		Spawn("targettarget", "ToT"):SetPoint("CENTER", ns.UnitFramesByName["Target"], "CENTER", 0, -26)
 
 		-- Spawn pet frame
@@ -589,20 +624,22 @@ UnitFrames.UpdateTargetPosition = function(self)
 	local targetFrame = ns.UnitFramesByName["Target"]
 	if (targetFrame) then
 		local db = ns.db
+		local posPoint = "TOP"
 		local posX = 0
-		local posY = -40
+		local posY = -95
 		local targetScale = 1
 		if db and db.global then
 			if db.global.unitframes then
+				posPoint = db.global.unitframes.targetPositionPoint or "TOP"
 				posX = db.global.unitframes.targetPositionX or 0
-				posY = db.global.unitframes.targetPositionY or -40
+				posY = db.global.unitframes.targetPositionY or -95
 			end
 			if db.global.core then
 				targetScale = db.global.core.targetFrameScale or 1
 			end
 		end
 		targetFrame:ClearAllPoints()
-		targetFrame:SetPoint("TOP", posX, posY)
+		targetFrame:SetPoint(posPoint, posX, posY)
 		ns.API.SetTargetFrameObjectScale(targetFrame, targetScale)
 	end
 end

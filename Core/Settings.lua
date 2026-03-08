@@ -178,21 +178,7 @@ SettingsModule.OnInitialize = function(self)
 			end)
 			Settings.CreateSlider(category, setting, options, L["UnitFramesScaleDesc"])
 		end
-		do
-			local setting = RegisterSetting(
-				category,
-				"targetFrameScale",
-				"global.core",
-				L["TargetFrameScale"],
-				1,
-				L["TargetFrameScaleDesc"]
-			)
-			local options = Settings.CreateSliderOptions(0.5, 2.0, 0.05)
-			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return string.format("%.2f", value)
-			end)
-			Settings.CreateSlider(category, setting, options, L["TargetFrameScaleDesc"])
-		end
+		-- Target frame scale slider removed — now available in Edit Mode (LibEditMode)
 		--------------------------------------------
 		-- Subcategory: Orbs (Сферы)
 		--------------------------------------------
@@ -562,36 +548,7 @@ SettingsModule.OnInitialize = function(self)
 			)
 			CreateCheckbox(catUF, setting, L["ShowOnlyMyDebuffsDesc"])
 		end
-		do
-			local setting = RegisterSetting(
-				catUF,
-				"targetPositionX",
-				"global.unitframes",
-				L["TargetPosX"],
-				0,
-				L["TargetPosXDesc"]
-			)
-			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
-			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return tostring(value)
-			end)
-			Settings.CreateSlider(catUF, setting, options, L["TargetPosXDesc"])
-		end
-		do
-			local setting = RegisterSetting(
-				catUF,
-				"targetPositionY",
-				"global.unitframes",
-				L["TargetPosY"],
-				-40,
-				L["TargetPosYDesc"]
-			)
-			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
-			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return tostring(value)
-			end)
-			Settings.CreateSlider(catUF, setting, options, L["TargetPosYDesc"])
-		end
+			-- Target position sliders removed — positioning is now handled via Edit Mode (LibEditMode)
 		-- Class Power / Runes Position
 		do
 			local setting = RegisterSetting(

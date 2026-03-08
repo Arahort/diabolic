@@ -1,5 +1,21 @@
 # DiabolicUI3 Changelog
 
+## [3.0.0-alpha2] - 2026-03-09
+
+### New Features
+- **EditMode Integration**: Target frame now supports WoW Edit Mode positioning via LibEditMode (p3lim)
+- **LibEditMode**: Added library for native Edit Mode frame management
+- Target frame scale slider moved to Edit Mode dialog
+
+### Bug Fixes
+- **LAB SpellVFX**: Fixed assertion error — SpellVFX forward declarations were placed after OnEvent, making them invisible to the event handler
+- **LAB GetCount**: Fixed secret number comparison error in Action.GetCount (IsSafeNumber check)
+
+### Changes
+- Removed Target position X/Y sliders from addon settings (now in Edit Mode)
+- Removed Target frame scale slider from addon settings (now in Edit Mode)
+- Added targetPositionPoint to DB for anchor point persistence
+
 ## [3.0.0-alpha1] - 2026-03-09
 
 ### ✨ New Features

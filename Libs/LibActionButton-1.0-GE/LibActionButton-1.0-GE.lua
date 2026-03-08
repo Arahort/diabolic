@@ -1683,6 +1683,12 @@ end
 
 local ActionButtonCastType = { Cast = 1, Channel = 2, Empowered = 3 }
 local _lastFormUpdate = GetTime()
+-- Forward declarations for SpellVFX functions (used in OnEvent, defined later)
+local SpellVFX_CastingAnim_OnHide, SpellVFX_CastingAnim_Finish_OnFinished
+local SpellVFX_ClearReticle, SpellVFX_ClearInterruptDisplay
+local SpellVFX_PlaySpellCastAnim, SpellVFX_StopSpellCastAnim
+local SpellVFX_PlayTargettingReticleAnim, SpellVFX_StopTargettingReticleAnim
+local SpellVFX_PlaySpellInterruptedAnim
 function OnEvent(frame, event, arg1, arg2, arg3, arg4, ...)
 	if event == "PLAYER_LOGIN" then
 		if UseCustomFlyout then
@@ -2825,31 +2831,26 @@ end
 --[[ GE Custom End ]]--
 -----------------------------------------------------------
 --- Spell Cast VFX
-local SpellVFX_CastingAnim_OnHide, SpellVFX_CastingAnim_Finish_OnFinished
-local SpellVFX_ClearReticle, SpellVFX_ClearInterruptDisplay
-local SpellVFX_PlaySpellCastAnim, SpellVFX_StopSpellCastAnim
-local SpellVFX_PlayTargettingReticleAnim, SpellVFX_StopTargettingReticleAnim
-local SpellVFX_PlaySpellInterruptedAnim
-function SpellVFX_CastingAnim_OnHide(self)
+SpellVFX_CastingAnim_OnHide = function(self)
 	local button = self:GetParent()
 	SpellVFX_ClearReticle(button)
 	UpdateCooldown(button)
 end
-function SpellVFX_CastingAnim_Finish_OnFinished(self)
+SpellVFX_CastingAnim_Finish_OnFinished = function(self)
 	local button = self:GetParent():GetParent():GetParent()
 	SpellVFX_StopSpellCastAnim(button, true)
 end
-function SpellVFX_ClearReticle(self)
+SpellVFX_ClearReticle = function(self)
 	if self.TargetReticleAnimFrame and self.TargetReticleAnimFrame:IsShown() then
 		self.TargetReticleAnimFrame:Hide()
 	end
 end
-function SpellVFX_ClearInterruptDisplay(self)
+SpellVFX_ClearInterruptDisplay = function(self)
 	if self.InterruptDisplay and self.InterruptDisplay:IsShown() then
 		self.InterruptDisplay:Hide()
 	end
 end
-function SpellVFX_PlaySpellCastAnim(self, actionButtonCastType)
+SpellVFX_PlaySpellCastAnim = function(self, actionButtonCastType)
 	if not self.config.spellCastVFX then return end
 	if not self.SpellCastAnimFrame then return end
 	SpellVFX_ClearReticle(self)
@@ -2857,18 +2858,18 @@ function SpellVFX_PlaySpellCastAnim(self, actionButtonCastType)
 	self.SpellCastAnimFrame.actionButtonCastType = actionButtonCastType
 	self.SpellCastAnimFrame:Show()
 end
-function SpellVFX_PlayTargettingReticleAnim(self)
+SpellVFX_PlayTargettingReticleAnim = function(self)
 	if not self.config.targetReticle then return end
 	if not self.TargetReticleAnimFrame then return end
 	local actionID = self._state_type == "action" and tonumber(self._state_action)
 	if actionID and IsAssistedCombatAction and IsAssistedCombatAction(actionID) then return end
 	self.TargetReticleAnimFrame:Show()
 end
-function SpellVFX_StopTargettingReticleAnim(self)
+SpellVFX_StopTargettingReticleAnim = function(self)
 	if not self.TargetReticleAnimFrame then return end
 	self.TargetReticleAnimFrame:Hide()
 end
-function SpellVFX_StopSpellCastAnim(self, forceStop, actionButtonCastType)
+SpellVFX_StopSpellCastAnim = function(self, forceStop, actionButtonCastType)
 	if not self.SpellCastAnimFrame then return end
 	if not self.SpellCastAnimFrame:IsShown() then return end
 	if forceStop then
@@ -2877,7 +2878,7 @@ function SpellVFX_StopSpellCastAnim(self, forceStop, actionButtonCastType)
 		self.SpellCastAnimFrame.FinishCastAnim:Play()
 	end
 end
-function SpellVFX_PlaySpellInterruptedAnim(self)
+SpellVFX_PlaySpellInterruptedAnim = function(self)
 	if not self.config.spellCastVFX then return end
 	SpellVFX_StopSpellCastAnim(self, true)
 	if self.InterruptDisplay then
@@ -3305,7 +3306,7 @@ Action.GetChargeInfo           = function(self)
 end
 Action.GetCount                = function(self)
 	local count = GetActionCount(self._state_action)
-	if type(count) == "number" and count > 0 then
+	if IsSafeNumber(count) and count > 0 then
 		return count
 	end
 	local actionType, actionID, subType = GetActionInfo(self._state_action)

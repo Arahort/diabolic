@@ -113,6 +113,7 @@ local defaults = {
 			showTargetCastbar = false,
 			useHealthColorForTarget = false,
 			showThreatOnTarget = false,
+			targetPositionPoint = "TOP",
 			targetPositionX = 0,
 			targetPositionY = -95,
 			targetRelativeScale = 1.2,
