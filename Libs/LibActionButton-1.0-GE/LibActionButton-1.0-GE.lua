@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ]]
 
 local MAJOR_VERSION = "LibActionButton-1.0-GE"
-local MINOR_VERSION = 135 -- 121
+local MINOR_VERSION = 143 -- 135
 
 if not LibStub then error(MAJOR_VERSION .. " requires LibStub.") end
 local lib, oldversion = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
@@ -46,7 +46,16 @@ local WoWClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 local WoWBCC = (WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC)
 local WoWWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
 local WoWCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
-
+local function IsSafeNumber(value)
+	return type(value) == "number" and not (issecretvalue and issecretvalue(value))
+end
+local EnableActionRangeCheck = C_ActionBar and C_ActionBar.EnableActionRangeCheck
+local IsAssistedCombatAction = C_ActionBar and C_ActionBar.IsAssistedCombatAction
+local GetActionDisplayCount = C_ActionBar and C_ActionBar.GetActionDisplayCount
+local IsEquippedGearOutfitAction = C_ActionBar and C_ActionBar.IsEquippedGearOutfitAction
+local C_LevelLink_IsActionLocked = C_LevelLink and C_LevelLink.IsActionLocked
+local C_TransmogOutfitInfo_IsLockedOutfit = C_TransmogOutfitInfo and C_TransmogOutfitInfo.IsLockedOutfit
+local C_TransmogOutfitInfo_IsEquippedGearOutfitLocked = C_TransmogOutfitInfo and C_TransmogOutfitInfo.IsEquippedGearOutfitLocked
 --[[-- GE Block Start --]]--
 -- Ugly fix for 11.0.x.
 local GetNumAddOns = GetNumAddOns or C_AddOns and C_AddOns.GetNumAddOns
@@ -113,7 +122,10 @@ lib.buttonRegistry = lib.buttonRegistry or {}
 lib.activeButtons = lib.activeButtons or {}
 lib.actionButtons = lib.actionButtons or {}
 lib.nonActionButtons = lib.nonActionButtons or {}
-
+lib.activeAlerts = lib.activeAlerts or {}
+lib.activeAssist = lib.activeAssist or {}
+lib.slotByButton = lib.slotByButton or {}
+lib.buttonsBySlot = lib.buttonsBySlot or {}
 lib.ChargeCooldowns = lib.ChargeCooldowns or {}
 lib.NumChargeCooldowns = lib.NumChargeCooldowns or 0
 
@@ -141,10 +153,25 @@ else
 	GetActionCooldownInfoFallback = function() end
 end
 
+local function NormalizeChargeInfo(info)
+	if type(info) ~= "table" then
+		return info
+	end
+	return {
+		currentCharges = info.currentCharges or info.charges or info.numCharges,
+		maxCharges = info.maxCharges or info.maxCharge or info.totalCharges,
+		cooldownStartTime = info.cooldownStartTime or info.chargeStartTime or info.startTime,
+		cooldownDuration = info.cooldownDuration or info.chargeDuration or info.duration,
+		chargeModRate = info.chargeModRate or info.modRate or info.rechargeModRate
+	}
+end
 local GetActionChargeInfoFallback
 if GetActionCharges then
 	GetActionChargeInfoFallback = function(action)
 		local currentCharges, maxCharges, cooldownStart, cooldownDuration, chargeModRate = GetActionCharges(action)
+		if type(currentCharges) == "table" then
+			return NormalizeChargeInfo(currentCharges)
+		end
 		return {
 			currentCharges = currentCharges,
 			maxCharges = maxCharges,
@@ -156,7 +183,6 @@ if GetActionCharges then
 else
 	GetActionChargeInfoFallback = function() end
 end
-
 -- WoW 12.0.0: Wrapper that uses C_ActionBar API if available, otherwise fallback
 -- IMPORTANT: C_ActionBar methods can return nil, so we must check and use fallback
 local GetActionCooldownInfo = function(action)
@@ -168,12 +194,11 @@ local GetActionCooldownInfo = function(action)
 	end
 	return GetActionCooldownInfoFallback(action)
 end
-
 local GetActionChargeInfo = function(action)
 	if C_ActionBar and C_ActionBar.GetActionCharges then
 		local result = C_ActionBar.GetActionCharges(action)
 		if result then
-			return result
+			return NormalizeChargeInfo(result)
 		end
 	end
 	return GetActionChargeInfoFallback(action)
@@ -197,6 +222,8 @@ local Item_MT = {__index = Item}
 local Macro = setmetatable({}, {__index = Generic})
 local Macro_MT = {__index = Macro}
 
+local Toy = setmetatable({}, {__index = Generic})
+local Toy_MT = {__index = Toy}
 local Custom = setmetatable({}, {__index = Generic})
 local Custom_MT = {__index = Custom}
 
@@ -207,6 +234,7 @@ local type_meta_map = {
 	spell  = Spell_MT,
 	item   = Item_MT,
 	macro  = Macro_MT,
+	toy    = Toy_MT,
 	custom = Custom_MT
 }
 
@@ -217,10 +245,9 @@ local StartFlash, StopFlash, UpdateFlash, UpdateHotkeys, UpdateRangeTimer, Updat
 local UpdateFlyout, ShowGrid, HideGrid, UpdateGrid, SetupSecureSnippets, WrapOnClick
 local ShowOverlayGlow, HideOverlayGlow
 local EndChargeCooldown
-
+local UpdateRange
 local GetFlyoutHandler
-
-local InitializeEventHandler, OnEvent, ForAllButtons, OnUpdate
+local InitializeEventHandler, OnEvent, ForAllButtons, ForAllButtonsWithSpell
 
 local function GameTooltip_GetOwnerForbidden()
 	if GameTooltip:IsForbidden() then
@@ -251,6 +278,9 @@ local DefaultConfig = {
 	keyBoundClickButton = "LeftButton",
 	clickOnDown = false,
 	flyoutDirection = "UP",
+	targetReticle = false,
+	spellCastVFX = false,
+	lossOfControlCooldown = true,
 	text = {
 		hotkey = {
 			font = {
@@ -446,46 +476,48 @@ end
 function SetupSecureSnippets(button)
 	button:SetAttribute("_custom", Custom.RunCustom)
 	-- secure UpdateState(self, state)
+	-- button state for push casting
+	if C_Spell.IsPressHoldReleaseSpell then -- retail only
+		button:SetAttribute("UpdateReleaseCasting", [[
+			local type, action = ...
+			local spellID
+			if type == 'action' then
+				local actionType, id, subType = GetActionInfo(action)
+				if actionType == 'spell' then
+					spellID = id
+				elseif actionType == 'macro' and subType == 'spell' then
+					spellID = id
+				end
+			elseif type == 'spell' then
+				spellID = action
+			end
+			local pressAndHold = false
+			-- IsPressHoldReleaseSpell is on _G here not on C_Spell
+			if spellID and IsPressHoldReleaseSpell(spellID) then
+				pressAndHold = true
+			end
+			self:SetAttribute('pressAndHoldAction', pressAndHold)
+			if type == 'action' and pressAndHold then
+				self:SetAttribute('typerelease', 'actionrelease')
+			elseif self:GetAttribute('typerelease') then
+				self:SetAttribute('typerelease', nil)
+			end
+		]])
+	end
 	-- update the type and action of the button based on the state
 	button:SetAttribute("UpdateState", [[
 		local state = ...
 		self:SetAttribute("state", state)
 		local type, action = (self:GetAttribute(format("labtype-%s", state)) or "empty"), self:GetAttribute(format("labaction-%s", state))
-
 		self:SetAttribute("type", type)
 		if type ~= "empty" and type ~= "custom" then
 			local action_field = (type == "pet") and "action" or type
 			self:SetAttribute(action_field, action)
 			self:SetAttribute("action_field", action_field)
 		end
-		if IsPressHoldReleaseSpell then
-			local pressAndHold = false
-			if type == "action" then
-				self:SetAttribute("typerelease", "actionrelease")
-				local actionType, id, subType = GetActionInfo(action)
-				if actionType == "spell" then
-					pressAndHold = IsPressHoldReleaseSpell(id)
-				elseif actionType == "macro" then
-					if subType == "spell" then
-						pressAndHold = IsPressHoldReleaseSpell(id)
-					end
-					-- GetMacroSpell is not in the restricted environment
-					--[=[
-						local spellID = GetMacroSpell(id)
-						if spellID then
-							pressAndHold = IsPressHoldReleaseSpell(spellID)
-						end
-					]=]
-				end
-			elseif type == "spell" then
-				self:SetAttribute("typerelease", nil)
-				-- XXX: while we can query this attribute, there is no corresponding action to release a spell button, only "actionrelease" exists
-				pressAndHold = IsPressHoldReleaseSpell(action)
-			else
-				self:SetAttribute("typerelease", nil)
-			end
-
-			self:SetAttribute("pressAndHoldAction", pressAndHold)
+		local updateReleaseCasting = self:GetAttribute("UpdateReleaseCasting")
+		if updateReleaseCasting then
+			self:RunAttribute("UpdateReleaseCasting", type, action)
 		end
 		local onStateChanged = self:GetAttribute("OnStateChanged")
 		if onStateChanged then
@@ -649,8 +681,12 @@ function WrapOnClick(button, unwrapheader)
 			-- if this is a pickup click, disable on-down casting
 			-- it should get re-enabled in the post handler, or the OnDragStart handler, whichever occurs
 			if button ~= "Keybind" and ((self:GetAttribute("unlockedpreventdrag") and not self:GetAttribute("buttonlock")) or IsModifiedClick("PICKUPACTION")) and not self:GetAttribute("LABdisableDragNDrop") then
-				self:CallMethod("ToggleOnDownForPickup", true)
-				self:SetAttribute("LABToggledOnDown", true)
+				local useOnkeyDown = self:GetAttribute("useOnKeyDown")
+				if useOnkeyDown ~= false then
+					self:SetAttribute("LABToggledOnDown", true)
+					self:SetAttribute("LABToggledOnDownBackup", useOnkeyDown)
+					self:SetAttribute("useOnKeyDown", false)
+				end
 			end
 			return (button == "Keybind") and "LeftButton" or nil, format("%s|%s", tostring(type), tostring(action))
 		end
@@ -672,39 +708,95 @@ function WrapOnClick(button, unwrapheader)
 
 		-- re-enable ondown casting if needed
 		if self:GetAttribute("LABToggledOnDown") then
+			self:SetAttribute("useOnKeyDown", self:GetAttribute("LABToggledOnDownBackup"))
 			self:SetAttribute("LABToggledOnDown", nil)
-			self:CallMethod("ToggleOnDownForPickup", false)
+			self:SetAttribute("LABToggledOnDownBackup", nil)
 		end
 	]])
 end
 
 function Generic:OnButtonEvent(event, ...)
 	if event == "GLOBAL_MOUSE_UP" then
-		self:SetButtonState("NORMAL")
 		self:UnregisterEvent(event)
-
 		UpdateFlyout(self)
 	end
 end
 
-local _LABActionButtonUseKeyDown
-function Generic:ToggleOnDownForPickup(pre)
-	if pre then
-		if GetCVarBool("ActionButtonUseKeyDown") or _LABActionButtonUseKeyDown then
-			SetCVar("ActionButtonUseKeyDown", false)
-			_LABActionButtonUseKeyDown = true
-		else
-			_LABActionButtonUseKeyDown = false
-		end
-	elseif not pre and _LABActionButtonUseKeyDown then
-		SetCVar("ActionButtonUseKeyDown", true)
-		_LABActionButtonUseKeyDown = nil
+-----------------------------------------------------------
+--- handle AutoCastOverlay
+local function UpdateAutoCastOverlay(button, shown)
+	if not button.AutoCastOverlay then return end
+	button.AutoCastOverlay:SetShown(shown)
+	if button.AutoCastOverlay.ShowAutoCastEnabled then
+		button.AutoCastOverlay:ShowAutoCastEnabled(shown)
 	end
 end
-
+-----------------------------------------------------------
+--- retail range event api
+local function WatchRange(button, slot)
+	if not lib.buttonsBySlot[slot] then
+		lib.buttonsBySlot[slot] = {}
+	end
+	lib.buttonsBySlot[slot][button] = true
+	lib.slotByButton[button] = slot
+	if WoWRetail and EnableActionRangeCheck then
+		EnableActionRangeCheck(slot, true)
+	end
+end
+local function ClearRange(button, slot)
+	local buttons = lib.buttonsBySlot[slot]
+	if buttons then
+		buttons[button] = nil
+		if not next(buttons) then
+			if WoWRetail and EnableActionRangeCheck then
+				EnableActionRangeCheck(slot, false)
+			end
+			lib.buttonsBySlot[slot] = nil
+		end
+	end
+end
+local function SetupRange(button, hasTexture)
+	if hasTexture and button._state_type == 'action' then
+		local action = button._state_action
+		if action then
+			local slot = lib.slotByButton[button]
+			if not slot then
+				WatchRange(button, action)
+			elseif slot ~= action then
+				WatchRange(button, action)
+				ClearRange(button, slot)
+			end
+		end
+	else
+		local slot = lib.slotByButton[button]
+		if slot then
+			lib.slotByButton[button] = nil
+			ClearRange(button, slot)
+		end
+	end
+end
+-----------------------------------------------------------
+--- ability info tracking
+local function UpdateAbilityInfo(self)
+	local isTypeAction = self._state_type == "action"
+	if isTypeAction then
+		local actionType, actionID, subType = GetActionInfo(self._state_action)
+		local actionSpell, actionMacro = actionType == "spell", actionType == "macro"
+		local macroSpell = actionMacro and ((subType == "spell" and actionID) or (subType ~= "spell" and GetMacroSpell(actionID))) or nil
+		local spellID = (actionSpell and actionID) or macroSpell
+		local spell = spellID and C_Spell and C_Spell.GetSpellInfo and C_Spell.GetSpellInfo(spellID)
+		local spellName = (spell and spell.name) or nil
+		self.isFlyoutButton = actionType == "flyout"
+		self.abilityName = spellName
+		self.abilityID = spellID
+	else
+		self.isFlyoutButton = nil
+		self.abilityName = nil
+		self.abilityID = nil
+	end
+end
 -----------------------------------------------------------
 --- utility
-
 function lib:GetAllButtons()
 	local buttons = {}
 	for button in next, ButtonRegistry do
@@ -1386,11 +1478,11 @@ function Generic:UpdateConfig(config)
 	end
 
 	self:SetAttribute("flyoutDirection", self.config.flyoutDirection)
-
+	self:SetAttribute("useOnKeyDown", self.config.clickOnDown)
 	UpdateTextElements(self)
 	UpdateHotkeys(self)
 	UpdateGrid(self)
-	Update(self)
+	Update(self, "UpdateConfig")
 	if not WoWRetail then
 		self:RegisterForClicks(self.config.clickOnDown and "AnyDown" or "AnyUp")
 	end
@@ -1399,15 +1491,23 @@ end
 -----------------------------------------------------------
 --- event handler
 
-function ForAllButtons(method, onlyWithAction)
+function ForAllButtons(method, onlyWithAction, event)
 	assert(type(method) == "function")
 	for button in next, (onlyWithAction and ActiveButtons or ButtonRegistry) do
-		method(button)
+		method(button, event)
 	end
 end
-
+function ForAllButtonsWithSpell(spellID, method, ...)
+	assert(type(method) == "function")
+	for button in next, ActiveButtons do
+		if button:GetSpellId() == spellID then
+			method(button, ...)
+		end
+	end
+end
 function InitializeEventHandler()
 	lib.eventFrame:SetScript("OnEvent", OnEvent)
+	lib.eventFrame:RegisterEvent("CVAR_UPDATE")
 	lib.eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	lib.eventFrame:RegisterEvent("ACTIONBAR_SHOWGRID")
 	lib.eventFrame:RegisterEvent("ACTIONBAR_HIDEGRID")
@@ -1423,7 +1523,12 @@ function InitializeEventHandler()
 	end
 
 	lib.eventFrame:RegisterEvent("ACTIONBAR_UPDATE_STATE")
-	lib.eventFrame:RegisterEvent("ACTIONBAR_UPDATE_USABLE")
+	if WoWRetail then
+		lib.eventFrame:RegisterEvent("ACTION_USABLE_CHANGED")
+		lib.eventFrame:RegisterEvent("ACTION_RANGE_CHECK_UPDATE")
+	else
+		lib.eventFrame:RegisterEvent("ACTIONBAR_UPDATE_USABLE")
+	end
 	lib.eventFrame:RegisterEvent("ACTIONBAR_UPDATE_COOLDOWN")
 	lib.eventFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
 	lib.eventFrame:RegisterEvent("TRADE_SKILL_SHOW")
@@ -1462,7 +1567,20 @@ function InitializeEventHandler()
 
 	lib.eventFrame:RegisterEvent("LOSS_OF_CONTROL_ADDED")
 	lib.eventFrame:RegisterEvent("LOSS_OF_CONTROL_UPDATE")
-
+	if WoWRetail then
+		lib.eventFrame:RegisterEvent("UNIT_SPELLCAST_SENT")
+		lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", "player")
+		lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
+		lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_FAILED", "player")
+		lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
+		lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_STOP", "player")
+		lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_START", "player")
+		lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", "player")
+		lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_RETICLE_TARGET", "player")
+		lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_RETICLE_CLEAR", "player")
+		lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_EMPOWER_START", "player")
+		lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_EMPOWER_STOP", "player")
+	end
 	if UseCustomFlyout then
 		lib.eventFrame:RegisterEvent("PLAYER_LOGIN")
 		lib.eventFrame:RegisterEvent("SPELLS_CHANGED")
@@ -1482,7 +1600,6 @@ function InitializeEventHandler()
 	--[[ GE Custom End ]]--
 
 	lib.eventFrame:Show()
-	lib.eventFrame:SetScript("OnUpdate", OnUpdate)
 
 	if UseCustomFlyout and IsLoggedIn() then
 		DiscoverFlyoutSpells()
@@ -1564,11 +1681,16 @@ function InitializeMaxDpsIntegration()
 end
 --[[ GE Custom End ]]--
 
+local ActionButtonCastType = { Cast = 1, Channel = 2, Empowered = 3 }
 local _lastFormUpdate = GetTime()
-function OnEvent(frame, event, arg1, ...)
+function OnEvent(frame, event, arg1, arg2, arg3, arg4, ...)
 	if event == "PLAYER_LOGIN" then
 		if UseCustomFlyout then
 			DiscoverFlyoutSpells()
+		end
+	elseif event == "CVAR_UPDATE" then
+		if arg1 == "assistedCombatHighlight" then
+			wipe(lib.activeAssist)
 		end
 	elseif event == "SPELLS_CHANGED" or event == "SPELL_FLYOUT_UPDATE" then
 		if UseCustomFlyout then
@@ -1591,7 +1713,7 @@ function OnEvent(frame, event, arg1, ...)
 		lib.hastarget = UnitExists("target")
 		lib.incombat = UnitAffectingCombat("player")
 		--[[ GE Custom End ]]--
-		ForAllButtons(Update)
+		ForAllButtons(Update, nil, event)
 	elseif event == "UPDATE_SHAPESHIFT_FORM" then
 		-- XXX: throttle these updates since Blizzard broke the event and its now extremely spammy in some clients
 		local _time = GetTime()
@@ -1623,12 +1745,32 @@ function OnEvent(frame, event, arg1, ...)
 		ForAllButtons(UpdateHotkeys)
 	elseif event == "PLAYER_TARGET_CHANGED" then
 		lib.hastarget = UnitExists("target") --[[ GE Custom ]]--
-		UpdateRangeTimer()
+		if not WoWRetail then
+			for button in next, ActiveButtons do
+				UpdateRangeTimer(button)
+			end
+		end
 		ForAllButtons(UpdateUsable) --[[ GE Custom ]]--
 	elseif (event == "ACTIONBAR_UPDATE_STATE") or
 		((event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE") and (arg1 == "player")) or
 		((event == "COMPANION_UPDATE") and (arg1 == "MOUNT")) then
 		ForAllButtons(UpdateButtonState, true)
+	elseif event == "ACTION_RANGE_CHECK_UPDATE" then
+		local buttons = lib.buttonsBySlot[arg1]
+		if buttons then
+			for button in next, buttons do
+				UpdateRange(button, nil, arg2, arg3) -- inRange, checksRange
+			end
+		end
+	elseif event == "ACTION_USABLE_CHANGED" then
+		for _, change in ipairs(arg1) do
+			local buttons = change.slot and lib.buttonsBySlot[change.slot]
+			if buttons then
+				for button in next, buttons do
+					UpdateUsable(button)
+				end
+			end
+		end
 	elseif event == "ACTIONBAR_UPDATE_USABLE" then
 		for button in next, ActionButtons do
 			UpdateUsable(button)
@@ -1693,7 +1835,7 @@ function OnEvent(frame, event, arg1, ...)
 		end
 	elseif event == "STOP_AUTOREPEAT_SPELL" then
 		for button in next, ActiveButtons do
-			if button.flashing == 1 and not button:IsAttack() then
+			if button.flashing and not button:IsAttack() then
 				StopFlash(button)
 			end
 		end
@@ -1704,29 +1846,35 @@ function OnEvent(frame, event, arg1, ...)
 			UpdateFlyoutSpells()
 		end
 	elseif event == "SPELL_ACTIVATION_OVERLAY_GLOW_SHOW" then
+		lib.activeAlerts[arg1] = true
 		for button in next, ActiveButtons do
 			local spellId = button:GetSpellId()
-			if spellId and spellId == arg1 then
-				ShowOverlayGlow(button)
-			else
-				if button._state_type == "action" then
-					local actionType, id = GetActionInfo(button._state_action)
-					if actionType == "flyout" and FlyoutHasSpell(id, arg1) then
-						ShowOverlayGlow(button)
+			if not lib.activeAssist[spellId] then
+				if spellId and spellId == arg1 then
+					ShowOverlayGlow(button)
+				else
+					if button._state_type == "action" then
+						local actionType, id = GetActionInfo(button._state_action)
+						if actionType == "flyout" and FlyoutHasSpell(id, arg1) then
+							ShowOverlayGlow(button)
+						end
 					end
 				end
 			end
 		end
 	elseif event == "SPELL_ACTIVATION_OVERLAY_GLOW_HIDE" then
+		lib.activeAlerts[arg1] = nil
 		for button in next, ActiveButtons do
 			local spellId = button:GetSpellId()
-			if spellId and spellId == arg1 then
-				HideOverlayGlow(button)
-			else
-				if button._state_type == "action" then
-					local actionType, id = GetActionInfo(button._state_action)
-					if actionType == "flyout" and FlyoutHasSpell(id, arg1) then
-						HideOverlayGlow(button)
+			if not lib.activeAssist[spellId] then
+				if spellId and spellId == arg1 then
+					HideOverlayGlow(button)
+				else
+					if button._state_type == "action" then
+						local actionType, id = GetActionInfo(button._state_action)
+						if actionType == "flyout" and FlyoutHasSpell(id, arg1) then
+							HideOverlayGlow(button)
+						end
 					end
 				end
 			end
@@ -1752,7 +1900,38 @@ function OnEvent(frame, event, arg1, ...)
 			end
 		end
 	elseif event == "SPELL_UPDATE_ICON" then
-		ForAllButtons(Update, true)
+		ForAllButtons(Update, true, event)
+	elseif event == "UNIT_SPELLCAST_INTERRUPTED" then
+		ForAllButtonsWithSpell(arg3, SpellVFX_PlaySpellInterruptedAnim)
+	elseif event == "UNIT_SPELLCAST_START" then
+		ForAllButtonsWithSpell(arg3, SpellVFX_PlaySpellCastAnim, ActionButtonCastType.Cast)
+	elseif event == "UNIT_SPELLCAST_STOP" then
+		ForAllButtonsWithSpell(arg3, SpellVFX_StopSpellCastAnim, true, ActionButtonCastType.Cast)
+		ForAllButtonsWithSpell(arg3, SpellVFX_StopTargettingReticleAnim)
+	elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
+		ForAllButtonsWithSpell(arg3, SpellVFX_StopSpellCastAnim, false, ActionButtonCastType.Cast)
+		ForAllButtonsWithSpell(arg3, SpellVFX_StopTargettingReticleAnim)
+	elseif event == "UNIT_SPELLCAST_SENT" then
+		ForAllButtonsWithSpell(arg4, SpellVFX_StopTargettingReticleAnim)
+	elseif event == "UNIT_SPELLCAST_FAILED" then
+		ForAllButtonsWithSpell(arg3, SpellVFX_StopTargettingReticleAnim)
+	elseif event == "UNIT_SPELLCAST_EMPOWER_START" then
+		ForAllButtonsWithSpell(arg3, SpellVFX_PlaySpellCastAnim, ActionButtonCastType.Empowered)
+	elseif event == "UNIT_SPELLCAST_EMPOWER_STOP" then
+		local interrupted = not arg4
+		if interrupted then
+			ForAllButtonsWithSpell(arg3, SpellVFX_PlaySpellInterruptedAnim)
+		else
+			ForAllButtonsWithSpell(arg3, SpellVFX_StopSpellCastAnim, interrupted, ActionButtonCastType.Empowered)
+		end
+	elseif event == "UNIT_SPELLCAST_CHANNEL_START" then
+		ForAllButtonsWithSpell(arg3, SpellVFX_PlaySpellCastAnim, ActionButtonCastType.Channel)
+	elseif event == "UNIT_SPELLCAST_CHANNEL_STOP" then
+		ForAllButtonsWithSpell(arg3, SpellVFX_StopSpellCastAnim, false, ActionButtonCastType.Channel)
+	elseif event == "UNIT_SPELLCAST_RETICLE_TARGET" then
+		ForAllButtonsWithSpell(arg3, SpellVFX_PlayTargettingReticleAnim)
+	elseif event == "UNIT_SPELLCAST_RETICLE_CLEAR" then
+		ForAllButtonsWithSpell(arg3, SpellVFX_StopTargettingReticleAnim)
 	--[[ GE Custom Start ]]--
 	elseif event == "PLAYER_REGEN_DISABLED" then
 		lib.incombat = true
@@ -1778,88 +1957,46 @@ function OnEvent(frame, event, arg1, ...)
 	end
 end
 
-local flashTime = 0
-local rangeTimer = -1
 --[[ GE Custom Start ]]--
-local iconTimer = -1
 local ICON_UPDATE_TIME = 0.1 -- Update icons every 0.1 seconds for Single-Button Assistant support
 -- Single-Button Assistant spell ID and its texture (to be ignored during icon updates)
 local SINGLE_BUTTON_ASSISTANT_ID = 1229376
 local singleButtonAssistantTexture = nil
 --[[ GE Custom End ]]--
-function OnUpdate(_, elapsed)
-	flashTime = flashTime - elapsed
-	rangeTimer = rangeTimer - elapsed
-	iconTimer = iconTimer - elapsed --[[ GE Custom ]]--
-	-- Run the loop only when there is something to update
-	if rangeTimer <= 0 or flashTime <= 0 or iconTimer <= 0 then --[[ GE Custom: added iconTimer ]]--
-		for button in next, ActiveButtons do
-			-- Flashing
-			if button.flashing == 1 and flashTime <= 0 then
-				if button.Flash:IsShown() then
-					button.Flash:Hide()
-				else
-					button.Flash:Show()
-				end
-			end
-
-			-- Range
-			if rangeTimer <= 0 then
-				local inRange = button:IsInRange()
-				local oldRange = button.outOfRange
-				button.outOfRange = (inRange == false)
-				if oldRange ~= button.outOfRange then
-					if button.config.outOfRangeColoring == "button" then
-						UpdateUsable(button)
-					elseif button.config.outOfRangeColoring == "hotkey" then
-						local hotkey = button.HotKey
-						if hotkey:GetText() == RANGE_INDICATOR then
-							if inRange == false and not self.config.hideElements.hotkey then --[[ GE Custom ]]--
-								hotkey:Show()
-							else
-								hotkey:Hide()
-							end
-						end
-						if inRange == false then
-							hotkey:SetVertexColor(unpack(button.config.colors.range))
-						else
-							hotkey:SetVertexColor(unpack(button.config.text.hotkey.color))
-						end
-					end
-				end
-			end
-
-			--[[ GE Custom Start: Dynamic icon update for Single-Button Assistant ]]--
-			-- Only check in combat - outside combat ACTIONBAR_SLOT_CHANGED handles updates
-			-- Note: We track texture by ID because button.icon:GetTexture() returns mask paths, not numeric IDs
-			if iconTimer <= 0 and lib.incombat and button._state_type == "action" then
-				-- Cache Single-Button Assistant texture on first use
-				if not singleButtonAssistantTexture then
-					singleButtonAssistantTexture = C_Spell and C_Spell.GetSpellTexture and C_Spell.GetSpellTexture(SINGLE_BUTTON_ASSISTANT_ID) or GetSpellTexture(SINGLE_BUTTON_ASSISTANT_ID)
-				end
-				local texture = button:GetTexture()
-				-- Skip if texture is the Single-Button Assistant's own icon (we want the recommended spell icon instead)
-				if texture and texture ~= singleButtonAssistantTexture and button._lastTextureId ~= texture then
-					button._lastTextureId = texture
-					button.icon:SetTexture(texture)
-				end
-			end
-			--[[ GE Custom End ]]--
+function Generic:OnUpdate(elapsed)
+	-- Flashing
+	if self.flashing then
+		self.flashTime = (self.flashTime or 0) - elapsed
+		if self.flashTime <= 0 then
+			self.Flash:SetShown(not self.Flash:IsShown())
+			self.flashTime = self.flashTime + ATTACK_BUTTON_FLASH_TIME
 		end
-
-		-- Update values
-		if flashTime <= 0 then
-			flashTime = flashTime + ATTACK_BUTTON_FLASH_TIME
-		end
-		if rangeTimer <= 0 then
-			rangeTimer = TOOLTIP_UPDATE_TIME
-		end
-		--[[ GE Custom Start ]]--
-		if iconTimer <= 0 then
-			iconTimer = ICON_UPDATE_TIME
-		end
-		--[[ GE Custom End ]]--
 	end
+	-- Range (non-retail only, retail uses event-based range)
+	if not WoWRetail then
+		self.rangeTimer = (self.rangeTimer or 0) - elapsed
+		if self.rangeTimer <= 0 then
+			UpdateRange(self)
+			self.rangeTimer = TOOLTIP_UPDATE_TIME
+		end
+	end
+	--[[ GE Custom Start: Dynamic icon update for Single-Button Assistant ]]--
+	-- Only check in combat - outside combat ACTIONBAR_SLOT_CHANGED handles updates
+	if lib.incombat and self._state_type == "action" then
+		self.iconTimer = (self.iconTimer or 0) - elapsed
+		if self.iconTimer <= 0 then
+			self.iconTimer = ICON_UPDATE_TIME
+			if not singleButtonAssistantTexture then
+				singleButtonAssistantTexture = C_Spell and C_Spell.GetSpellTexture and C_Spell.GetSpellTexture(SINGLE_BUTTON_ASSISTANT_ID) or GetSpellTexture(SINGLE_BUTTON_ASSISTANT_ID)
+			end
+			local texture = self:GetTexture()
+			if texture and texture ~= singleButtonAssistantTexture and self._lastTextureId ~= texture then
+				self._lastTextureId = texture
+				self.icon:SetTexture(texture)
+			end
+		end
+	end
+	--[[ GE Custom End ]]--
 end
 
 local gridCounter = 0
@@ -2001,11 +2138,11 @@ function Generic:UpdateAction(force)
 			self._state_type = action_type
 		end
 		self._state_action = action
-		Update(self)
+		Update(self, "UpdateAction")
 	end
 end
 
-function Update(self)
+function Update(self, which)
 	--[[ GE Custom ]]--
 	-- Using GetTexture instead of HasAction,
 	-- as the latter fires as almost always true in vehicles,
@@ -2042,6 +2179,9 @@ function Update(self)
 		if self.LevelLinkLockIcon then
 			self.LevelLinkLockIcon:SetShown(false)
 		end
+		if self.AutoCastOverlay then
+			UpdateAutoCastOverlay(self, false)
+		end
 	end
 
 	-- Add a green border if button is an equipped item
@@ -2071,11 +2211,13 @@ function Update(self)
 	-- Update icon and hotkey
 	--local texture = self:GetTexture()
 
+	UpdateAbilityInfo(self)
 	-- Zone ability button handling
 	self.zoneAbilityDisabled = false
 	--self.icon:SetDesaturated(false) --[[ GE Custom ]]--
 
 	if texture then
+		self:SetScript("OnUpdate", Generic.OnUpdate)
 		self.icon:SetTexture(texture)
 		self.icon:Show()
 		self.rangeTimer = - 1
@@ -2110,6 +2252,7 @@ function Update(self)
 		--	end
 		--end
 	else
+		self:SetScript("OnUpdate", nil)
 		self.icon:Hide()
 		self.icon:SetDesaturation(0) --[[ GE Custom ]]--
 		self.cooldown:Hide()
@@ -2147,13 +2290,23 @@ function Update(self)
 	--UpdateNewAction(self)
 
 	UpdateSpellHighlight(self)
-
+	SetupRange(self, texture)
+	UpdateRange(self, which == "UpdateConfig")
 	if GameTooltip_GetOwnerForbidden() == self then
 		UpdateTooltip(self)
 	end
 
 	-- this could've been a spec change, need to call OnStateChanged for action buttons, if present
-	if not InCombatLockdown() and self._state_type == "action" then
+	local isTypeAction = self._state_type == "action"
+	if isTypeAction and not InCombatLockdown() then
+		local updateReleaseCasting = which == "PLAYER_ENTERING_WORLD" and self:GetAttribute("UpdateReleaseCasting")
+		if updateReleaseCasting then -- zone in dragon mount on Evokers can bug
+			self.header:SetFrameRef("updateButton", self)
+			self.header:Execute(([[
+				local frame = self:GetFrameRef("updateButton")
+				control:RunFor(frame, frame:GetAttribute("UpdateReleaseCasting"), %s, %s)
+			]]):format(formatHelper(self._state_type), formatHelper(self._state_action)))
+		end
 		local onStateChanged = self:GetAttribute("OnStateChanged")
 		if onStateChanged then
 			self.header:SetFrameRef("updateButton", self)
@@ -2163,7 +2316,7 @@ function Update(self)
 			]]):format(formatHelper(self:GetAttribute("state")), formatHelper(self._state_type), formatHelper(self._state_action)))
 		end
 	end
-	lib.callbacks:Fire("OnButtonUpdate", self)
+	lib.callbacks:Fire("OnButtonUpdate", self, which)
 end
 
 --[[ GE Custom Start ]]--
@@ -2181,6 +2334,19 @@ function UpdateButtonState(self)
 		self:SetChecked(true)
 	else
 		self:SetChecked(false)
+	end
+	-- One Punch (Assisted Combat) button
+	local actionID = WoWRetail and self._state_type == "action" and tonumber(self._state_action)
+	if actionID and IsAssistedCombatAction and IsAssistedCombatAction(actionID) then
+		UpdateAbilityInfo(self)
+		UpdateCooldown(self)
+		local texture = self:GetTexture()
+		if texture then
+			self.icon:SetTexture(texture)
+			self.icon:Show()
+		else
+			self.icon:Hide()
+		end
 	end
 	lib.callbacks:Fire("OnButtonState", self)
 end
@@ -2255,33 +2421,39 @@ function UpdateUsable(self)
 end
 
 function UpdateCount(self)
+	local cache = self.__LABCountCache
+	if not cache then
+		cache = {}
+		self.__LABCountCache = cache
+	end
 	if not self:HasAction() then
+		cache.count = nil
+		cache.charges = nil
+		cache.maxCharges = nil
 		self.Count:SetText("")
 		return
 	end
 	if self:IsConsumableOrStackable() then
 		local count = self:GetCount()
-		-- WoW 12.0.0: count can be secret value, can't compare - don't display
-		local issecretvalue = issecretvalue or function() return false end
-		if issecretvalue(count) then
-			self.Count:SetText("") -- Don't display secret values
-		elseif count > (self.maxDisplayCount or 9999) then
+		if IsSafeNumber(count) then
+			cache.count = count
+		else
+			count = cache.count
+		end
+		if not IsSafeNumber(count) then
+			self.Count:SetText("")
+			return
+		end
+		if count > (self.maxDisplayCount or 9999) then
 			self.Count:SetText("*")
 		else
 			self.Count:SetText(count > 1 and count or "") --[[-- GE Custom --]]--
 		end
-	else
-		local charges, maxCharges, _chargeStart, _chargeDuration = self:GetCharges()
-		-- WoW 12.0.0: charges can be secret value, can't compare - don't display
-		local issecretvalue = issecretvalue or function() return false end
-		if issecretvalue(charges) or issecretvalue(maxCharges) then
-			self.Count:SetText("") -- Don't display secret values
-		elseif charges and maxCharges and maxCharges > 1 then
-			self.Count:SetText(charges > 0 and charges or "") --[[-- GE Custom --]]--
-		else
-			self.Count:SetText("")
-		end
+		return
 	end
+	-- Keep the original action/spell display-count path for charge-based spells.
+	-- This uses Action.GetDisplayCount (C_ActionBar.GetActionDisplayCount) when available.
+	self.Count:SetText(self:GetDisplayCount())
 end
 
 function EndChargeCooldown(self)
@@ -2303,6 +2475,7 @@ local function StartChargeCooldown(parent, chargeStart, chargeDuration, chargeMo
 			cooldown = CreateFrame("Cooldown", "LAB10GEChargeCooldown"..lib.NumChargeCooldowns, parent, "CooldownFrameTemplate");
 			cooldown:SetScript("OnCooldownDone", EndChargeCooldown)
 		end
+		lib.callbacks:Fire("OnChargeCreated", parent)
 		-- GE Fix: Show countdown numbers for charge cooldown (like regular cooldown)
 		-- Must be called every time, not just on creation (pool reuse)
 		cooldown:SetHideCountdownNumbers(false)
@@ -2342,7 +2515,9 @@ end
 
 local function OnCooldownDone(self)
 	self:SetScript("OnCooldownDone", nil)
-	UpdateCooldown(self:GetParent())
+	local button = self:GetParent()
+	UpdateCooldown(button)
+	lib.callbacks:Fire("OnCooldownDone", button)
 end
 
 -- WoW 12.0.0: Default values for cooldown info tables
@@ -2385,6 +2560,15 @@ function UpdateCooldown(self)
 		lossOfControlInfo.startTime = locStart
 		lossOfControlInfo.duration = locDuration
 		lossOfControlInfo.modRate = cooldownInfo.modRate
+	end
+	if not lossOfControlInfo or not lossOfControlInfo.startTime or not lossOfControlInfo.duration then
+		lossOfControlInfo = defaultLossOfControlInfo
+	end
+	if not cooldownInfo or not cooldownInfo.startTime or not cooldownInfo.duration then
+		cooldownInfo = defaultCooldownInfo
+	end
+	if not chargeInfo or not chargeInfo.maxCharges or not chargeInfo.currentCharges or not chargeInfo.cooldownStartTime or not chargeInfo.cooldownDuration then
+		chargeInfo = defaultChargeInfo
 	end
 	self.cooldown:SetDrawBling(self.cooldown:GetEffectiveAlpha() > 0.5)
 	-- WoW 12.0.0: Use ActionButton_ApplyCooldown which works with Blizzard's built-in countdown
@@ -2467,18 +2651,26 @@ function UpdateCooldown(self)
 		-- If values are secret, we skip CooldownFrame_Set entirely
 		-- Blizzard's internal cooldown spiral should still work
 	end
+	lib.callbacks:Fire("OnCooldownUpdate", self, cooldownInfo, chargeInfo, lossOfControlInfo)
 end
 
 function StartFlash(self)
-	self.flashing = 1
-	flashTime = 0
-	UpdateButtonState(self)
+	local prevFlash = self.flashing
+	self.flashing = true
+	if prevFlash ~= self.flashing then
+		UpdateButtonState(self)
+	end
 end
-
 function StopFlash(self)
-	self.flashing = 0
-	self.Flash:Hide()
-	UpdateButtonState(self)
+	local prevFlash = self.flashing
+	self.flashing = false
+	self.flashTime = nil
+	if self.Flash:IsShown() then
+		self.Flash:Hide()
+	end
+	if prevFlash ~= self.flashing then
+		UpdateButtonState(self)
+	end
 end
 
 function UpdateFlash(self)
@@ -2486,6 +2678,17 @@ function UpdateFlash(self)
 		StartFlash(self)
 	else
 		StopFlash(self)
+	end
+	-- AutoCast Overlay for locked transmog outfits
+	if C_TransmogOutfitInfo_IsLockedOutfit and self.AutoCastOverlay then
+		if self._state_type == "action" then
+			local actionType, actionID = GetActionInfo(self._state_action)
+			local isLockedOutfit = actionType == "outfit" and C_TransmogOutfitInfo_IsLockedOutfit(actionID)
+			local isLockedEquippedGear = IsEquippedGearOutfitAction and IsEquippedGearOutfitAction(self._state_action) and C_TransmogOutfitInfo_IsEquippedGearOutfitLocked()
+			UpdateAutoCastOverlay(self, isLockedOutfit or isLockedEquippedGear)
+		else
+			UpdateAutoCastOverlay(self, false)
+		end
 	end
 end
 
@@ -2511,6 +2714,9 @@ function UpdateHotkeys(self)
 	else
 		self.HotKey:SetText(key)
 		self.HotKey:Show()
+	end
+	if self.postKeybind then
+		self.postKeybind(nil, self)
 	end
 end
 
@@ -2549,6 +2755,9 @@ function UpdateOverlayGlow(self)
 		return
 	end
 	local spellId = self:GetSpellId()
+	if lib.activeAssist[spellId] then
+		return
+	end
 	-- WoW 12.0.0: IsSpellOverlayed moved to C_Spell namespace
 	local isOverlayed = (C_Spell and C_Spell.IsSpellOverlayed) and C_Spell.IsSpellOverlayed(spellId) or (IsSpellOverlayed and IsSpellOverlayed(spellId))
 	if spellId and isOverlayed then
@@ -2614,7 +2823,99 @@ function lib.HideOverlayGlow(...)
 	button:HideSpellActivation()
 end
 --[[ GE Custom End ]]--
-
+-----------------------------------------------------------
+--- Spell Cast VFX
+local SpellVFX_CastingAnim_OnHide, SpellVFX_CastingAnim_Finish_OnFinished
+local SpellVFX_ClearReticle, SpellVFX_ClearInterruptDisplay
+local SpellVFX_PlaySpellCastAnim, SpellVFX_StopSpellCastAnim
+local SpellVFX_PlayTargettingReticleAnim, SpellVFX_StopTargettingReticleAnim
+local SpellVFX_PlaySpellInterruptedAnim
+function SpellVFX_CastingAnim_OnHide(self)
+	local button = self:GetParent()
+	SpellVFX_ClearReticle(button)
+	UpdateCooldown(button)
+end
+function SpellVFX_CastingAnim_Finish_OnFinished(self)
+	local button = self:GetParent():GetParent():GetParent()
+	SpellVFX_StopSpellCastAnim(button, true)
+end
+function SpellVFX_ClearReticle(self)
+	if self.TargetReticleAnimFrame and self.TargetReticleAnimFrame:IsShown() then
+		self.TargetReticleAnimFrame:Hide()
+	end
+end
+function SpellVFX_ClearInterruptDisplay(self)
+	if self.InterruptDisplay and self.InterruptDisplay:IsShown() then
+		self.InterruptDisplay:Hide()
+	end
+end
+function SpellVFX_PlaySpellCastAnim(self, actionButtonCastType)
+	if not self.config.spellCastVFX then return end
+	if not self.SpellCastAnimFrame then return end
+	SpellVFX_ClearReticle(self)
+	SpellVFX_ClearInterruptDisplay(self)
+	self.SpellCastAnimFrame.actionButtonCastType = actionButtonCastType
+	self.SpellCastAnimFrame:Show()
+end
+function SpellVFX_PlayTargettingReticleAnim(self)
+	if not self.config.targetReticle then return end
+	if not self.TargetReticleAnimFrame then return end
+	local actionID = self._state_type == "action" and tonumber(self._state_action)
+	if actionID and IsAssistedCombatAction and IsAssistedCombatAction(actionID) then return end
+	self.TargetReticleAnimFrame:Show()
+end
+function SpellVFX_StopTargettingReticleAnim(self)
+	if not self.TargetReticleAnimFrame then return end
+	self.TargetReticleAnimFrame:Hide()
+end
+function SpellVFX_StopSpellCastAnim(self, forceStop, actionButtonCastType)
+	if not self.SpellCastAnimFrame then return end
+	if not self.SpellCastAnimFrame:IsShown() then return end
+	if forceStop then
+		self.SpellCastAnimFrame:Hide()
+	elseif self.SpellCastAnimFrame.actionButtonCastType == actionButtonCastType or not actionButtonCastType then
+		self.SpellCastAnimFrame.FinishCastAnim:Play()
+	end
+end
+function SpellVFX_PlaySpellInterruptedAnim(self)
+	if not self.config.spellCastVFX then return end
+	SpellVFX_StopSpellCastAnim(self, true)
+	if self.InterruptDisplay then
+		self.InterruptDisplay:Show()
+	end
+end
+-----------------------------------------------------------
+--- UpdateRange
+UpdateRange = function(button, force, inRange, checksRange)
+	local valid = button.outOfRange ~= nil
+	if checksRange == nil then
+		checksRange = button:IsInRange()
+		if checksRange then
+			inRange = checksRange ~= false
+		end
+	end
+	if force or (checksRange ~= nil and button.outOfRange ~= not inRange) then
+		button.outOfRange = not inRange
+		if button.config.outOfRangeColoring == "button" then
+			UpdateUsable(button)
+		elseif button.config.outOfRangeColoring == "hotkey" then
+			local hotkey = button.HotKey
+			if hotkey:GetText() == _G.RANGE_INDICATOR then
+				hotkey:SetShown(button.outOfRange)
+			end
+			if button.outOfRange then
+				hotkey:SetVertexColor(unpack(button.config.colors.range))
+			else
+				hotkey:SetVertexColor(unpack(button.config.text.hotkey.color))
+			end
+		end
+	end
+	if not valid and not checksRange then
+		button.outOfRange = nil
+	end
+	lib.callbacks:Fire("OnUpdateRange", button)
+end
+-----------------------------------------------------------
 --[[--
 function ClearNewActionHighlight(action, preventIdenticalActionsFromClearing, value)
 	lib.ACTION_HIGHLIGHT_MARKS[action] = value
@@ -2857,8 +3158,8 @@ else
 end
 Generic.UpdateFlyout = UpdateFlyout
 
-function UpdateRangeTimer()
-	rangeTimer = -1
+function UpdateRangeTimer(self)
+	self.rangeTimer = -1
 end
 
 -----------------------------------------------------------
@@ -2894,6 +3195,83 @@ Generic.GetSpellId              = function(self) return nil end
 Generic.GetLossOfControlCooldown = function(self) return 0, 0 end
 Generic.GetPassiveCooldownSpellID = function(self) return nil end
 
+local function GetSpellChargeInfo(spellID)
+	if not spellID then
+		return nil
+	end
+	if C_Spell and C_Spell.GetSpellCharges then
+		local info = C_Spell.GetSpellCharges(spellID)
+		if info then
+			return NormalizeChargeInfo(info)
+		end
+	elseif GetSpellCharges then
+		local currentCharges, maxCharges, cooldownStartTime, cooldownDuration, chargeModRate = GetSpellCharges(spellID)
+		if type(currentCharges) == "table" then
+			return NormalizeChargeInfo(currentCharges)
+		end
+		if currentCharges ~= nil then
+			return {
+				currentCharges = currentCharges,
+				maxCharges = maxCharges,
+				cooldownStartTime = cooldownStartTime,
+				cooldownDuration = cooldownDuration,
+				chargeModRate = chargeModRate
+			}
+		end
+	end
+end
+local ResolveOverrideSpellID = function(spellID)
+	if not IsSafeNumber(spellID) or spellID <= 0 then
+		return nil
+	end
+	if not (C_Spell and C_Spell.GetOverrideSpell) then
+		return spellID
+	end
+	local resolvedSpellID = spellID
+	local seen = {}
+	for _ = 1, 5 do
+		if seen[resolvedSpellID] then
+			break
+		end
+		seen[resolvedSpellID] = true
+		local ok, overrideSpellID = pcall(C_Spell.GetOverrideSpell, resolvedSpellID)
+		if not ok or not IsSafeNumber(overrideSpellID) or overrideSpellID <= 0 or overrideSpellID == resolvedSpellID then
+			break
+		end
+		resolvedSpellID = overrideSpellID
+	end
+	return resolvedSpellID
+end
+local ResolveActionSpellID = function(actionSlot, fallbackSpellID)
+	local spellID = fallbackSpellID
+	if C_ActionBar and C_ActionBar.GetSpell and IsSafeNumber(actionSlot) and actionSlot > 0 then
+		local ok, actionSpellID = pcall(C_ActionBar.GetSpell, actionSlot)
+		if ok and IsSafeNumber(actionSpellID) and actionSpellID > 0 then
+			spellID = actionSpellID
+		end
+	end
+	if not IsSafeNumber(spellID) or spellID <= 0 then
+		return nil
+	end
+	return ResolveOverrideSpellID(spellID) or spellID
+end
+local function HasActiveChargeRecharge(info)
+	if type(info) ~= "table" then
+		return false
+	end
+	local currentCharges = info.currentCharges
+	local maxCharges = info.maxCharges
+	local cooldownStartTime = info.cooldownStartTime
+	local cooldownDuration = info.cooldownDuration
+	return IsSafeNumber(currentCharges)
+		and IsSafeNumber(maxCharges)
+		and maxCharges > 1
+		and currentCharges < maxCharges
+		and IsSafeNumber(cooldownStartTime)
+		and IsSafeNumber(cooldownDuration)
+		and cooldownStartTime > 0
+		and cooldownDuration > 0
+end
 -----------------------------------------------------------
 --- Action Button
 Action.HasAction               = function(self) return HasAction(self._state_action) end
@@ -2903,10 +3281,52 @@ Action.GetCharges              = function(self)
 	return GetActionCharges(self._state_action)
 end
 Action.GetChargeInfo           = function(self)
-	-- WoW 12.0.0: Returns table which converts secret values to normal values
-	return GetActionChargeInfo(self._state_action)
+	local actionInfo = GetActionChargeInfo(self._state_action)
+	local actionType, actionID, subType = GetActionInfo(self._state_action)
+	local spellID
+	if actionType == "spell" then
+		spellID = ResolveActionSpellID(self._state_action, actionID)
+	elseif actionType == "macro" and subType == "spell" then
+		spellID = ResolveActionSpellID(self._state_action, actionID)
+	end
+	local spellInfo = GetSpellChargeInfo(spellID)
+	if spellInfo then
+		if HasActiveChargeRecharge(spellInfo) and not HasActiveChargeRecharge(actionInfo) then
+			return spellInfo
+		end
+		if type(actionInfo) ~= "table"
+			or (not IsSafeNumber(actionInfo.currentCharges))
+			or (not IsSafeNumber(actionInfo.maxCharges))
+		then
+			return spellInfo
+		end
+	end
+	return actionInfo
 end
-Action.GetCount                = function(self) return GetActionCount(self._state_action) end
+Action.GetCount                = function(self)
+	local count = GetActionCount(self._state_action)
+	if type(count) == "number" and count > 0 then
+		return count
+	end
+	local actionType, actionID, subType = GetActionInfo(self._state_action)
+	if (actionType == "item") or (actionType == "macro" and subType == "item") then
+		if C_Item and C_Item.GetItemCount then
+			local itemCount = C_Item.GetItemCount(actionID, nil, true)
+			if type(itemCount) == "number" then
+				return itemCount
+			end
+		elseif GetItemCount then
+			local itemCount = GetItemCount(actionID, nil, true)
+			if type(itemCount) == "number" then
+				return itemCount
+			end
+		end
+	end
+	if type(count) == "number" then
+		return count
+	end
+	return 0
+end
 Action.GetCooldown             = function(self)
 	return GetActionCooldown(self._state_action)
 end
@@ -3108,7 +3528,51 @@ Custom.SetTooltip              = function(self) return GameTooltip:SetText(self.
 Custom.GetSpellId              = function(self) return nil end
 Custom.RunCustom               = function(self, unit, button) return self._state_action.func(self, unit, button) end
 Custom.GetPassiveCooldownSpellID = function(self) return nil end
-
+-----------------------------------------------------------
+--- Toy Button
+Toy.HasAction               = function(self) return true end
+Toy.GetActionText           = function(self) return "" end
+Toy.GetTexture              = function(self) return select(3, C_ToyBox.GetToyInfo(self._state_action)) end
+Toy.GetCharges              = function(self) return nil end
+Toy.GetCount                = function(self) return 0 end
+Toy.GetCooldown             = function(self) return nil end
+Toy.GetCooldownInfo         = function(self) return nil end
+Toy.GetChargeInfo           = function(self) return nil end
+Toy.IsAttack                = function(self) return nil end
+Toy.IsEquipped              = function(self) return nil end
+Toy.IsCurrentlyActive       = function(self) return nil end
+Toy.IsAutoRepeat            = function(self) return nil end
+Toy.IsUsable                = function(self) return nil end
+Toy.IsConsumableOrStackable = function(self) return nil end
+Toy.IsUnitInRange           = function(self, unit) return nil end
+Toy.SetTooltip              = function(self) return GameTooltip:SetToyByItemID(self._state_action) end
+Toy.GetSpellId              = function(self) return nil end
+Toy.GetPassiveCooldownSpellID = function(self) return nil end
+-----------------------------------------------------------
+--- GetDisplayCount
+Generic.GetDisplayCount = function(self)
+	if self:IsConsumableOrStackable() then
+		local count = self:GetCount()
+		if IsSafeNumber(count) then
+			return count > 1 and count or ""
+		end
+	end
+	local charges = self:GetChargeInfo()
+	if charges and charges.currentCharges and charges.maxCharges then
+		if IsSafeNumber(charges.currentCharges) and IsSafeNumber(charges.maxCharges) then
+			if charges.currentCharges ~= charges.maxCharges then
+				return charges.currentCharges
+			end
+		end
+	end
+	return ""
+end
+if GetActionDisplayCount then
+	Action.GetDisplayCount = function(self) return GetActionDisplayCount(self._state_action) end
+end
+if C_Spell and C_Spell.GetSpellDisplayCount then
+	Spell.GetDisplayCount = function(self) return C_Spell.GetSpellDisplayCount(self._state_action) end
+end
 --- WoW Classic overrides
 if not WoWRetail and not WoWCata then
 	UpdateOverlayGlow = function() end
