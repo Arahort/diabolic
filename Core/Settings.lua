@@ -35,8 +35,6 @@ local function OnSettingChanged(_, setting, value)
 			ns:SetMinimapScale(tostring(value))
 		elseif variable:match("unitframesRelativeScale$") then
 			ns:SetUnitFramesScale(tostring(value))
-		elseif variable:match("targetFrameScale$") then
-			ns.UpdateTargetFrameScale()
 		end
 		ns.callbacks:Fire("Core_Settings_Updated")
 	elseif variable:match("^global_minimap_") then
@@ -47,13 +45,11 @@ local function OnSettingChanged(_, setting, value)
 	elseif variable:match("^global_castbar_") then
 		ns.callbacks:Fire("Castbar_Settings_Updated")
 	elseif variable:match("^global_unitframes_") then
-		if variable:match("targetPosition") or variable:match("targetRelativeScale") then
-			ns.callbacks:Fire("Target_Position_Updated")
-		end
-		if variable:match("classpowerPosition") or variable:match("classpowerScale") then
-			ns.callbacks:Fire("ClassPower_Position_Updated")
-		end
 		ns.callbacks:Fire("UnitFrames_Settings_Updated")
+	elseif variable:match("^char_target_") then
+		ns.callbacks:Fire("Target_Position_Updated")
+	elseif variable:match("^char_classpower_") then
+		ns.callbacks:Fire("ClassPower_Position_Updated")
 	elseif variable:match("^char_petbar_") then
 		ns.callbacks:Fire("PetBar_Position_Updated")
 	elseif variable:match("^global_stancebar_") then
@@ -283,36 +279,7 @@ SettingsModule.OnInitialize = function(self)
 			)
 			CreateCheckbox(catBars, setting, L["ShowPetBarDesc"])
 		end
-		do
-			local setting = RegisterSetting(
-				catBars,
-				"positionX",
-				"char.petbar",
-				L["PetBarPosX"],
-				4,
-				L["PetBarPosXDesc"]
-			)
-			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
-			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return tostring(value)
-			end)
-			Settings.CreateSlider(catBars, setting, options, L["PetBarPosXDesc"])
-		end
-		do
-			local setting = RegisterSetting(
-				catBars,
-				"positionY",
-				"char.petbar",
-				L["PetBarPosY"],
-				84,
-				L["PetBarPosYDesc"]
-			)
-			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
-			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return tostring(value)
-			end)
-			Settings.CreateSlider(catBars, setting, options, L["PetBarPosYDesc"])
-		end
+		-- Pet bar position sliders removed — positioning is now handled via Edit Mode (LibEditMode)
 		do
 			local setting = RegisterSetting(
 				catBars,
@@ -549,52 +516,7 @@ SettingsModule.OnInitialize = function(self)
 			CreateCheckbox(catUF, setting, L["ShowOnlyMyDebuffsDesc"])
 		end
 			-- Target position sliders removed — positioning is now handled via Edit Mode (LibEditMode)
-		-- Class Power / Runes Position
-		do
-			local setting = RegisterSetting(
-				catUF,
-				"classpowerPositionX",
-				"global.unitframes",
-				L["ClassPowerPosX"],
-				0,
-				L["ClassPowerPosXDesc"]
-			)
-			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
-			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return tostring(value)
-			end)
-			Settings.CreateSlider(catUF, setting, options, L["ClassPowerPosXDesc"])
-		end
-		do
-			local setting = RegisterSetting(
-				catUF,
-				"classpowerPositionY",
-				"global.unitframes",
-				L["ClassPowerPosY"],
-				300,
-				L["ClassPowerPosYDesc"]
-			)
-			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
-			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return tostring(value)
-			end)
-			Settings.CreateSlider(catUF, setting, options, L["ClassPowerPosYDesc"])
-		end
-		do
-			local setting = RegisterSetting(
-				catUF,
-				"classpowerScale",
-				"global.unitframes",
-				L["ClassPowerScale"],
-				1.0,
-				L["ClassPowerScaleDesc"]
-			)
-			local options = Settings.CreateSliderOptions(0.5, 2.0, 0.05)
-			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return string.format("%.2f", value)
-			end)
-			Settings.CreateSlider(catUF, setting, options, L["ClassPowerScaleDesc"])
-		end
+		-- Class Power / Runes sliders removed — positioning is now handled via Edit Mode (LibEditMode)
 		--------------------------------------------
 		-- Subcategory: Map and Minimap (Карта и миникарта)
 		--------------------------------------------

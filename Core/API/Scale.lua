@@ -15,6 +15,7 @@ local ScaledToUIParent = {}
 local MinimapScaled = {}
 local UnitFramesScaled = {}
 local TargetFrameScaled = {}
+local EditModeUFScaled = {}
 
 -- Scaling Functions
 ---------------------------------------------------------
@@ -105,13 +106,33 @@ API.SetUnitFramesObjectScale = function(object, factor)
 	return object
 end
 
--- Register target frame with independent scaling (uses base UI scale, not unitframes scale)
-API.SetTargetFrameObjectScale = function(object, factor)
+-- EditMode-compatible scaling (without SetIgnoreParentScale)
+-- Used for frames registered with LibEditMode
+API.SetEditModeObjectScale = function(object, factor)
 	if (object and object.SetScale) then
+		Scaled[object] = nil
 		UnitFramesScaled[object] = nil
+		EditModeUFScaled[object] = nil
 		TargetFrameScaled[object] = factor or 1
-		object:SetIgnoreParentScale(true)
-		object:SetScale(API.GetScale() * (factor or 1))
+		object:SetIgnoreParentScale(false)
+		object:SetScale(API.GetEffectiveScale() * (factor or 1))
+	end
+	return object
+end
+API.SetTargetFrameObjectScale = API.SetEditModeObjectScale
+-- EditMode-compatible scaling based on UnitFramesScale
+-- Same visual size as SetUnitFramesObjectScale but without SetIgnoreParentScale
+API.GetUnitFramesEffectiveScale = function()
+	return API.GetUnitFramesScale() * 1/UIParent:GetScale()
+end
+API.SetEditModeUFObjectScale = function(object, factor)
+	if (object and object.SetScale) then
+		Scaled[object] = nil
+		UnitFramesScaled[object] = nil
+		TargetFrameScaled[object] = nil
+		EditModeUFScaled[object] = factor or 1
+		object:SetIgnoreParentScale(false)
+		object:SetScale(API.GetUnitFramesEffectiveScale() * (factor or 1))
 	end
 	return object
 end
@@ -142,10 +163,18 @@ API.UpdateObjectScales = function()
 		object:SetIgnoreParentScale(true)
 		object:SetScale(unitframesScale * factor)
 	end
+	-- Update EditMode UnitFrames objects (PetBar etc.)
+	-- Same visual as UnitFramesScaled but without SetIgnoreParentScale for LibEditMode
+	local ufEffectiveScale = API.GetUnitFramesEffectiveScale()
+	for object, factor in next,EditModeUFScaled do
+		object:SetIgnoreParentScale(false)
+		object:SetScale(ufEffectiveScale * factor)
+	end
 	-- Update target frame objects (independent from unitframes scale)
-	local baseScale = API.GetScale()
+	-- Uses effective scale (without SetIgnoreParentScale) for LibEditMode compatibility
+	local targetScale = API.GetEffectiveScale()
 	for object, factor in next,TargetFrameScaled do
-		object:SetIgnoreParentScale(true)
-		object:SetScale(baseScale * factor)
+		object:SetIgnoreParentScale(false)
+		object:SetScale(targetScale * factor)
 	end
 end

@@ -474,18 +474,19 @@ PetBar.SpawnBar = function(self)
 
 
 		-- Create pet bar
-
-		local scale = .8
-
-		local bar = SetObjectScale(ns.PetBar:Create(ns.Prefix.."PetActionBar", UIParent), scale)
-
+		local db = ns.db.char.petbar
+		local scale = db.scale or .8
+		local bar = ns.PetBar:Create(ns.Prefix.."PetActionBar", UIParent)
 		bar:SetFrameStrata("MEDIUM")
-
 		bar:SetWidth(549)
-
 		bar:SetHeight(54)
-
+		ns.API.SetEditModeUFObjectScale(bar, scale)
 		bar.scale = scale
+		-- Set initial position from DB
+		local posPoint = db.positionPoint or "BOTTOM"
+		local posX = db.positionX or 4
+		local posY = db.positionY or 163
+		bar:SetPoint(posPoint, posX, posY)
 
 
 
@@ -538,7 +539,40 @@ PetBar.SpawnBar = function(self)
 		bar:HookScript("OnHide", function() artwork:Hide() end)
 		artwork:SetShown(bar:IsShown())
 		bar.__GP_Artwork = artwork
-
+		-- Register PetBar with EditMode (LibEditMode)
+		local LibEditMode = ns.LibEditMode
+		if LibEditMode and LibEditMode.AddFrame then
+			local L = ns.L
+			bar.editModeName = "Diabolic: Pet Bar"
+			LibEditMode:AddFrame(bar, function(frame, layoutName, point, x, y)
+				db.positionPoint = point
+				db.positionX = x
+				db.positionY = y
+			end, {point = "BOTTOM", x = 4, y = 163})
+			LibEditMode:AddFrameSettings(bar, {
+				{
+					kind = LibEditMode.SettingType.Slider,
+					name = L["PetBarScale"] or "Pet Bar Scale",
+					desc = L["PetBarScaleDesc"] or "Pet bar scale",
+					default = 0.8,
+					minValue = 0.4,
+					maxValue = 1.5,
+					valueStep = 0.05,
+					formatter = function(value) return string.format("%.2f", value) end,
+					get = function(layoutName)
+						return db.scale or 0.8
+					end,
+					set = function(layoutName, value)
+						db.scale = value
+						bar.scale = value
+						ns.API.SetEditModeUFObjectScale(bar, value)
+						if bar.__GP_Artwork then
+							bar.__GP_Artwork:SetScale(value)
+						end
+					end,
+				}
+			})
+		end
 		-- Create pull-out handle
 
 		local handle = SetObjectScale(CreateFrame("CheckButton", bar:GetName().."Handle", UIParent, "SecureHandlerClickTemplate"))
@@ -754,7 +788,7 @@ PetBar.UpdatePosition = function(self, event)
 	end
 	local db = ns.db.char.petbar
 	self.Bar:ClearAllPoints()
-	self.Bar:SetPoint("BOTTOM", db.positionX or 4, (db.positionY or 84 + ActionBars:GetBarOffset()) / self.Bar.scale)
+	self.Bar:SetPoint(db.positionPoint or "BOTTOM", db.positionX or 4, db.positionY or 163)
 end
 
 
@@ -819,6 +853,9 @@ PetBar.OnEvent = function(self, event, ...)
 			end
 
 			self.Bar:Enable()
+			-- Recalculate scale now that UIParent is fully initialized
+			local petScale = ns.db.char.petbar.scale or .8
+			ns.API.SetEditModeUFObjectScale(self.Bar, petScale)
 
 		end
 

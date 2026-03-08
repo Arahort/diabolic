@@ -70,8 +70,22 @@ local defaults = {
 			useOrbStyle = true
 		},
 		petbar = {
+			positionPoint = "BOTTOM",
 			positionX = 4,
-			positionY = 130
+			positionY = 163,
+			scale = 0.8
+		},
+		classpower = {
+			positionPoint = "BOTTOM",
+			positionX = 0,
+			positionY = 300,
+			scale = 1.0
+		},
+		target = {
+			positionPoint = "TOP",
+			positionX = 0,
+			positionY = -95,
+			scale = 1.0
 		},
 		experiments = {
 			useAzeriteClassPower = true
@@ -84,8 +98,7 @@ local defaults = {
 		core = {
 			relativeScale = 1.1,
 			minimapRelativeScale = 0.9,
-			unitframesRelativeScale = 0.85,
-			targetFrameScale = 1.0
+			unitframesRelativeScale = 0.85
 		},
 		orbs = {
 			useD2RStyle = true,
@@ -113,13 +126,7 @@ local defaults = {
 			showTargetCastbar = false,
 			useHealthColorForTarget = false,
 			showThreatOnTarget = false,
-			targetPositionPoint = "TOP",
-			targetPositionX = 0,
-			targetPositionY = -95,
-			targetRelativeScale = 1.2,
-			classpowerPositionX = 0,
-			classpowerPositionY = 300,
-			classpowerScale = 1.0
+			targetRelativeScale = 1.2
 		},
 		micromenu = {
 			enableMicroMenu = true,
@@ -316,8 +323,8 @@ ns.UpdateTargetFrameScale = function()
 	local targetFrame = ns.UnitFramesByName and ns.UnitFramesByName["Target"]
 	if (targetFrame) then
 		local db = ns.db
-		if (db and db.global and db.global.core) then
-			local targetScale = db.global.core.targetFrameScale or 1
+		if (db and db.char and db.char.target) then
+			local targetScale = db.char.target.scale or 1
 			ns.API.SetTargetFrameObjectScale(targetFrame, targetScale)
 		end
 	end

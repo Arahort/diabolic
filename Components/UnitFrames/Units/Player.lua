@@ -432,6 +432,7 @@ local AzeriteClassPower_CreatePoint = function(self)
 	return point
 end
 local AzeriteClassPower_PostUpdate = function(element, cur, max, hasMaxChanged, powerType)
+	if (element.inEditMode) then return end
 	if (not cur or not max) then
 		return
 	end
@@ -493,6 +494,7 @@ local AzeriteClassPower_PostUpdateColor = function(element, r, g, b)
 	end
 end
 local AzeriteRunes_PostUpdate = function(element, runemap, hasVehicle, allReady)
+	if (element.inEditMode) then return end
 	for i = 1, #element do
 		local rune = element[i]
 		if (rune:IsShown()) then
@@ -518,6 +520,7 @@ local AzeriteRunes_PostUpdateColor = function(element, r, g, b, color, rune)
 	end
 end
 local AzeriteStagger_PostUpdate = function(element, cur, max)
+	if (element.inEditMode) then return end
 	element[1].min = 0
 	element[1].max = max * .3
 	element[2].min = element[1].max
@@ -580,6 +583,7 @@ local ClassPower_OnDisplayValueChanged = function(point)
 	end
 end
 local ClassPower_PostUpdate = function(element, cur, max, hasMaxChanged, powerType)
+	if (element.inEditMode) then return end
 	-- Resize the holder frame to keep points centered
 	if (hasMaxChanged) then
 		element:SetWidth(max * element.pointWidth)
@@ -617,6 +621,7 @@ local ClassPower_PostUpdateColor = function(element, r, g, b)
 end
 
 local Runes_PostUpdate = function(element, runemap, hasVehicle, allReady)
+	if (element.inEditMode) then return end
 	for i = 1, #element do
 		local rune = element[i]
 		if (rune:IsShown()) then
@@ -660,7 +665,7 @@ local Stagger_SetStatusBarColor = function(element, r, g, b)
 end
 
 local Stagger_PostUpdate = function(element, cur, max)
-
+	if (element.inEditMode) then return end
 	element[1].min = 0
 	element[1].max = max * .3
 	element[2].min = element[1].max
@@ -1222,8 +1227,9 @@ UnitStyles["Player"] = function(self, unit, id)
 	local SCP = IsAddOnEnabled("SimpleClassPower")
 	if (not SCP) then
 
-		local classpower = CreateFrame("Frame", nil, self)
-		classpower:SetFrameLevel(self:GetFrameLevel() + 10)
+		local classpower = CreateFrame("Frame", nil, UIParent)
+		classpower:SetFrameStrata("MEDIUM")
+		classpower:SetFrameLevel(100)
 		if (useAzeriteClassPower) then
 			classpower:SetSize(124, 168)
 			classpower:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 300)
@@ -1262,8 +1268,9 @@ UnitStyles["Player"] = function(self, unit, id)
 	--------------------------------------------
 	if (playerClass == "MONK") and (not SCP) then
 
-		local stagger = CreateFrame("Frame", nil, self)
-		stagger:SetFrameLevel(self:GetFrameLevel() + 10)
+		local stagger = CreateFrame("Frame", nil, UIParent)
+		stagger:SetFrameStrata("MEDIUM")
+		stagger:SetFrameLevel(100)
 		stagger.SetValue = noop
 		stagger.SetMinMaxValues = noop
 		stagger.SetStatusBarColor = useAzeriteClassPower and AzeriteStagger_SetStatusBarColor or Stagger_SetStatusBarColor
@@ -1313,7 +1320,9 @@ UnitStyles["Player"] = function(self, unit, id)
 	--------------------------------------------
 	if (playerClass == "DEATHKNIGHT") and ((ns.IsWrath) or (ns.IsRetail and not SCP)) then
 
-		local runes = CreateFrame("Frame", nil, self)
+		local runes = CreateFrame("Frame", nil, UIParent)
+		runes:SetFrameStrata("MEDIUM")
+		runes:SetFrameLevel(100)
 		runes.sortOrder = "ASC"
 		if (useAzeriteClassPower) then
 			runes:SetSize(124, 168)
@@ -1497,30 +1506,84 @@ UnitStyles["Player"] = function(self, unit, id)
 	self:UpdateEyeGlow()
 -- Class Power / Runes Position and Scale
 	self.UpdateClassPowerPosition = function(self)
-		local db = ns.db.global.unitframes
-		local posX = db.classpowerPositionX or 0
-		local posY = db.classpowerPositionY or 300
-		local scale = db.classpowerScale or 1.0
-		-- Update ClassPower
+		local db = ns.db.char.classpower
+		local posPoint = db.positionPoint or "BOTTOM"
+		local posX = db.positionX or 0
+		local posY = db.positionY or 300
+		local scale = db.scale or 1.0
+		-- All three parented to UIParent
 		if self.ClassPower then
 			self.ClassPower:ClearAllPoints()
-			self.ClassPower:SetPoint("BOTTOM", UIParent, "BOTTOM", posX, posY)
+			self.ClassPower:SetPoint(posPoint, posX, posY)
 			self.ClassPower:SetScale(scale)
 		end
-		-- Update Runes (Death Knight)
 		if self.Runes then
 			self.Runes:ClearAllPoints()
-			self.Runes:SetPoint("BOTTOM", UIParent, "BOTTOM", posX, posY)
+			self.Runes:SetPoint(posPoint, posX, posY)
 			self.Runes:SetScale(scale)
 		end
-		-- Update Stagger (Monk)
 		if self.Stagger then
 			self.Stagger:ClearAllPoints()
-			self.Stagger:SetPoint("BOTTOM", UIParent, "BOTTOM", posX, posY)
+			self.Stagger:SetPoint(posPoint, posX, posY)
 			self.Stagger:SetScale(scale)
 		end
 	end
 	ns.RegisterCallback(self, "ClassPower_Position_Updated", "UpdateClassPowerPosition")
 	self:UpdateClassPowerPosition()
+	-- Register ClassPower with EditMode (LibEditMode)
+	local LibEditMode = ns.LibEditMode
+	if LibEditMode and LibEditMode.AddFrame and self.ClassPower then
+		local cpDb = ns.db.char.classpower
+		self.ClassPower.editModeName = "Diabolic: Class Resources"
+		LibEditMode:AddFrame(self.ClassPower, function(frame, layoutName, point, x, y)
+			cpDb.positionPoint = point
+			cpDb.positionX = x
+			cpDb.positionY = y
+			self:UpdateClassPowerPosition()
+		end, {point = "BOTTOM", x = 0, y = 300})
+		LibEditMode:AddFrameSettings(self.ClassPower, {
+			{
+				kind = LibEditMode.SettingType.Slider,
+				name = ns.L["ClassPowerScale"] or "Class Resources Scale",
+				desc = ns.L["ClassPowerScaleDesc"] or "Scale of class resources",
+				default = 1.0,
+				minValue = 0.5,
+				maxValue = 2.0,
+				valueStep = 0.05,
+				formatter = function(value) return string.format("%.2f", value) end,
+				get = function(layoutName) return cpDb.scale or 1.0 end,
+				set = function(layoutName, value)
+					cpDb.scale = value
+					self:UpdateClassPowerPosition()
+				end,
+			}
+		})
+		-- Show ClassPower/Stagger/Runes during EditMode so user can see and drag it
+		local cp = self.ClassPower
+		local stg = self.Stagger
+		local rns = self.Runes
+		EditModeManagerFrame:HookScript("OnShow", function()
+			if cp then
+				cp.inEditMode = true
+				cp:Show()
+				for i = 1, #cp do if cp[i] then cp[i]:Show(); cp[i]:SetAlpha(1) end end
+			end
+			if stg then
+				stg.inEditMode = true
+				stg:Show()
+				for i = 1, #stg do if stg[i] then stg[i]:Show(); stg[i]:SetAlpha(1) end end
+			end
+			if rns then
+				rns.inEditMode = true
+				rns:Show()
+				for i = 1, #rns do if rns[i] then rns[i]:Show(); rns[i]:SetAlpha(1) end end
+			end
+		end)
+		EditModeManagerFrame:HookScript("OnHide", function()
+			if cp then cp.inEditMode = nil; cp:Hide() end
+			if stg then stg.inEditMode = nil; stg:Hide() end
+			if rns then rns.inEditMode = nil; rns:Hide() end
+		end)
+	end
 
 end
