@@ -1,5 +1,35 @@
 # DiabolicUI3 Changelog
 
+## [3.0.0-alpha1] - 2026-03-09
+
+### ✨ New Features
+- **LibActionButton-1.0-GE**: Major update — ported fixes from AzeriteUI v143
+- **Toy Button Type**: Added support for Toy items on action bars
+- **GetDisplayCount**: New display count system for charge-based spells
+- **Spell Cast VFX**: Visual casting animations on action buttons (configurable)
+- **AutoCast Overlay**: Visual indicator for locked transmog outfits
+- **Assisted Combat (One Punch)**: Button state updates for assisted combat actions
+- **Event-based Range**: Retail now uses ACTION_RANGE_CHECK_UPDATE instead of polling
+- **Per-button OnUpdate**: Replaced global OnUpdate with per-button for better performance
+
+### 🐛 Bug Fixes
+- **PressHoldRelease**: Extracted to separate UpdateReleaseCasting attribute, fixes Evoker zone-in bug
+- **OnDown Pickup**: Replaced global CVar toggle with per-button useOnKeyDown attribute
+- **Count Caching**: Added __LABCountCache for secret value resilience in combat
+- **Cooldown Validation**: Added nil-checks for cooldownInfo/chargeInfo/lossOfControlInfo
+- **ChargeInfo Resolution**: Added NormalizeChargeInfo and spell fallback chain
+- **Action.GetCount**: Added item count fallback via C_Item.GetItemCount for macros
+- **Overlay Glow**: Added activeAssist filtering for One Punch compatibility
+- **UpdateRangeTimer**: Fixed to use per-button timer instead of global
+
+### 🔧 Changes
+- **LAB Version**: Bumped MINOR_VERSION from 135 to 143
+- **New Callbacks**: OnButtonUpdate, OnButtonState, OnButtonUsable, OnCooldownUpdate, OnCooldownDone, OnChargeCreated, OnUpdateRange
+- **Config Options**: Added targetReticle, spellCastVFX, lossOfControlCooldown
+- **CVAR_UPDATE**: Handler for assistedCombatHighlight changes
+
+---
+
 ## [2.8.4-alpha1] - 2026-03-05
 
 ### ✨ New Features
