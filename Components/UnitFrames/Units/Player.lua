@@ -432,12 +432,14 @@ local AzeriteClassPower_CreatePoint = function(self)
 	return point
 end
 local AzeriteClassPower_PostUpdate = function(element, cur, max, hasMaxChanged, powerType)
-	if (element.inEditMode) then return end
+	local isEditMode = element.inEditMode
 	if (not cur or not max) then
 		return
 	end
 	if (type(cur) ~= "number" or cur <= 0) then
-		return element:Hide()
+		if (not isEditMode) then
+			return element:Hide()
+		end
 	end
 	local style
 	if (max >= 6) then
@@ -450,20 +452,25 @@ local AzeriteClassPower_PostUpdate = function(element, cur, max, hasMaxChanged, 
 		style = "Stagger"
 	end
 	if (not style) then
-		return element:Hide()
+		if (not isEditMode) then
+			return element:Hide()
+		end
+		return
 	end
 	if (not element:IsShown()) then
 		element:Show()
 	end
-	for i = 1, #element do
-		local point = element[i]
-		if (point:IsShown()) then
-			local value = point:GetValue()
-			local _, pmax = point:GetMinMaxValues()
-			if (element.inCombat) then
-				point:SetAlpha((cur == max) and 1 or (value < pmax) and .5 or 1)
-			else
-				point:SetAlpha((cur == max) and 0 or (value < pmax) and .5 or 1)
+	if (not isEditMode) then
+		for i = 1, #element do
+			local point = element[i]
+			if (point:IsShown()) then
+				local value = point:GetValue()
+				local _, pmax = point:GetMinMaxValues()
+				if (element.inCombat) then
+					point:SetAlpha((cur == max) and 1 or (value < pmax) and .5 or 1)
+				else
+					point:SetAlpha((cur == max) and 0 or (value < pmax) and .5 or 1)
+				end
 			end
 		end
 	end
@@ -478,8 +485,10 @@ local AzeriteClassPower_PostUpdate = function(element, cur, max, hasMaxChanged, 
 					id = id + 1
 				end
 			end
-			for i = id + 1, #element do
-				element[i]:Hide()
+			if (not isEditMode) then
+				for i = id + 1, #element do
+					element[i]:Hide()
+				end
 			end
 		end
 		element.style = style
@@ -1558,31 +1567,39 @@ UnitStyles["Player"] = function(self, unit, id)
 				end,
 			}
 		})
-		-- Show ClassPower/Stagger/Runes during EditMode so user can see and drag it
+		-- Force-show ClassPower/Stagger/Runes during EditMode
+		-- PostUpdate functions skip hide/alpha when inEditMode but still apply layout
 		local cp = self.ClassPower
 		local stg = self.Stagger
 		local rns = self.Runes
+		local editModeElements = {}
+		for _, el in next, {cp, stg, rns} do
+			if (el) then
+				editModeElements[#editModeElements + 1] = el
+			end
+		end
 		EditModeManagerFrame:HookScript("OnShow", function()
-			if cp then
-				cp.inEditMode = true
-				cp:Show()
-				for i = 1, #cp do if cp[i] then cp[i]:Show(); cp[i]:SetAlpha(1) end end
-			end
-			if stg then
-				stg.inEditMode = true
-				stg:Show()
-				for i = 1, #stg do if stg[i] then stg[i]:Show(); stg[i]:SetAlpha(1) end end
-			end
-			if rns then
-				rns.inEditMode = true
-				rns:Show()
-				for i = 1, #rns do if rns[i] then rns[i]:Show(); rns[i]:SetAlpha(1) end end
+			for _, el in next, editModeElements do
+				el.inEditMode = true
+				-- ForceUpdate triggers PostUpdate which applies Azerite layout
+				-- PostUpdate skips hide/alpha when inEditMode
+				if (el.ForceUpdate) then el:ForceUpdate() end
+				el:Show()
+				for i = 1, 10 do
+					local pt = el[i]
+					if (pt) then
+						pt:Show()
+						pt:SetAlpha(1)
+						if (pt.SetValue) then pt:SetMinMaxValues(0, 1); pt:SetValue(1) end
+					end
+				end
 			end
 		end)
 		EditModeManagerFrame:HookScript("OnHide", function()
-			if cp then cp.inEditMode = nil; cp:Hide() end
-			if stg then stg.inEditMode = nil; stg:Hide() end
-			if rns then rns.inEditMode = nil; rns:Hide() end
+			for _, el in next, editModeElements do
+				el.inEditMode = nil
+				el:Hide()
+			end
 		end)
 	end
 
