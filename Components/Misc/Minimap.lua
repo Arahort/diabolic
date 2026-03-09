@@ -315,6 +315,15 @@ MinimapMod.RepositionMailFrame = function(self)
 			blizzardMail:HookScript("OnHide", UpdateBorderVisibility)
 			blizzardMail.__GP_BorderAdded = true
 		end
+		-- Force-show mail icon if Blizzard's EditMode layout reset it
+		if HasNewMail() then
+			blizzardMail:Show()
+			local icon = blizzardMail.MailIcon or blizzardMail.Icon
+			if (icon) then
+				icon:Show()
+				icon:SetAlpha(1)
+			end
+		end
 	end
 end
 
@@ -1054,6 +1063,14 @@ MinimapMod.OnInitialize = function(self)
 				end,
 			}
 		})
+		-- Re-apply repositioned elements after EditMode exit
+		-- Blizzard's layout cleanup can reset MailFrame/Tracking state
+		LibEditMode:RegisterCallback("exit", function()
+			C_Timer.After(0.1, function()
+				MinimapMod:RepositionMailFrame()
+				MinimapMod:RepositionTracking()
+			end)
+		end)
 	end
 end
 
