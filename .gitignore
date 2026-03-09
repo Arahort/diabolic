@@ -28,6 +28,27 @@ API_CHANGES_12.0.0.md
 
 # Assets source files
 Assets/**/*.psd
+# Unused asset files (kept locally, excluded from releases)
+Assets/Blip-Nandini-Extended-905.tga
+Assets/IconAlert-Circle.tga
+Assets/IconAlertAnts-Circle.tga
+Assets/actionbutton-border.tga
+Assets/actionbutton-spellhighlight.tga
+Assets/actionbutton-spellhighlight-square.tga
+Assets/bar-overlay-small.tga
+Assets/border-small.tga
+Assets/button-toggle-minus.tga
+Assets/chatbutton-minimize.tga
+Assets/config_button_bright.tga
+Assets/expander-arrow.tga
+Assets/orb-border-2.tga
+Assets/orb-glass-1.tga
+Assets/orb1.tga
+Assets/orb3.tga
+Assets/orb4.tga
+Assets/plus.tga
+Assets/power-crystal.png
+Assets/power-crystal-front.png
 
 #Other
 DiabolicUI3_Wrath.toc
