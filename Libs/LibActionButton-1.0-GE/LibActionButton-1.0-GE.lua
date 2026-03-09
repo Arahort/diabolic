@@ -2738,8 +2738,12 @@ function ShowOverlayGlow(self)
 	if self.CustomSpellActivationAlert then
 		self.CustomSpellActivationAlert:SetVertexColor(249/255, 188/255, 65/255)
 		self.CustomSpellActivationAlert:Show()
-	elseif self.useBlizzardOverlayGlow and ActionButton_ShowOverlayGlow then
+	elseif ActionButton_ShowOverlayGlow then
 		ActionButton_ShowOverlayGlow(self)
+	elseif ActionButtonSpellAlertManager and ActionButtonSpellAlertManager.ShowAlert then
+		ActionButtonSpellAlertManager:ShowAlert(self)
+	elseif self.SpellActivationAlert then
+		self.SpellActivationAlert:Show()
 	end
 end
 
@@ -2754,8 +2758,12 @@ function HideOverlayGlow(self)
 	self.queueSpellActivationUpdate = nil
 	if self.CustomSpellActivationAlert then
 		self.CustomSpellActivationAlert:Hide()
-	elseif self.useBlizzardOverlayGlow and ActionButton_HideOverlayGlow then
+	elseif ActionButton_HideOverlayGlow then
 		ActionButton_HideOverlayGlow(self)
+	elseif ActionButtonSpellAlertManager and ActionButtonSpellAlertManager.HideAlert then
+		ActionButtonSpellAlertManager:HideAlert(self)
+	elseif self.SpellActivationAlert then
+		self.SpellActivationAlert:Hide()
 	end
 end
 

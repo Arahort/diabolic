@@ -757,21 +757,6 @@ SettingsModule.OnInitialize = function(self)
 			Settings.SetOnValueChangedCallback("global_experiments_hideRaidManager", OnHideRaidManagerToggle)
 			CreateCheckbox(catExp, setting, L["HideRaidManagerDesc"])
 		end
-		-- DONT CLICK! Restore Blizzard button effects
-		do
-			local setting = RegisterSetting(
-				catExp,
-				"enableBlizzardButtonEffects",
-				"global.experiments",
-				L["EnableBlizzardButtonEffects"],
-				false,
-				L["EnableBlizzardButtonEffectsDesc"]
-			)
-			Settings.SetOnValueChangedCallback("global_experiments_enableBlizzardButtonEffects", function()
-				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
-			end)
-			CreateCheckbox(catExp, setting, L["EnableBlizzardButtonEffectsDesc"])
-		end
 		do
 			local setting = RegisterSetting(
 				catExp,

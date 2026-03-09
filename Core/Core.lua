@@ -181,8 +181,7 @@ local defaults = {
 			raidFramesBorderRight = 1,
 			raidFramesRoleOffsetX = 5,
 			raidFramesRoleOffsetY = 5,
-			hideRaidManager = false,
-			enableBlizzardButtonEffects = false
+			hideRaidManager = false
 		}
 	}
 }
