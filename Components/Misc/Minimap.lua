@@ -302,27 +302,36 @@ MinimapMod.RepositionMailFrame = function(self)
 			shade:SetPoint("CENTER")
 			shade:SetSize(buttonSize, buttonSize)
 			blizzardMail.__GP_Shade = shade
-			-- Hide/show border and shade with mail icon
+			-- Hide/show border, shade and mail icon together
+			local mailIcon = blizzardMail.MailIcon
 			local function UpdateBorderVisibility()
 				local hasMail = HasNewMail()
 				border:SetShown(hasMail)
 				shade:SetShown(hasMail)
+				if (hasMail and mailIcon) then
+					mailIcon:Show()
+					mailIcon:SetAlpha(1)
+				end
 			end
 			-- Initial state
 			UpdateBorderVisibility()
 			-- Hook mail updates
 			blizzardMail:HookScript("OnShow", UpdateBorderVisibility)
 			blizzardMail:HookScript("OnHide", UpdateBorderVisibility)
-			blizzardMail.__GP_BorderAdded = true
-		end
-		-- Force-show mail icon if Blizzard's EditMode layout reset it
-		if HasNewMail() then
-			blizzardMail:Show()
-			local icon = blizzardMail.MailIcon or blizzardMail.Icon
-			if (icon) then
-				icon:Show()
-				icon:SetAlpha(1)
+			-- Prevent Blizzard from hiding the mail icon while there's mail
+			if (mailIcon) then
+				hooksecurefunc(mailIcon, "Hide", function(self)
+					if (HasNewMail()) then
+						C_Timer.After(0, function()
+							if (HasNewMail()) then
+								self:Show()
+								self:SetAlpha(1)
+							end
+						end)
+					end
+				end)
 			end
+			blizzardMail.__GP_BorderAdded = true
 		end
 	end
 end
