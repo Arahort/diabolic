@@ -77,6 +77,20 @@ local style = function(button)
 		--[[ WoW10 ]] "CheckedTexture", "HighlightTexture", "BottomDivider", "RightDivider", "SlotArt", "SlotBackground" } do
 		if (button[i] and button[i].Stop) then button[i]:Stop() elseif button[i] then button[i]:SetParent(UIHider) end
 	end
+	-- Restore Blizzard button effects if experimental setting enabled
+	local showEffects = ns.db and ns.db.global.experiments.enableBlizzardButtonEffects
+	if (showEffects) then
+		if (button.SpellHighlightTexture) then
+			button.SpellHighlightTexture:SetParent(button)
+			button.SpellHighlightTexture:ClearAllPoints()
+			button.SpellHighlightTexture:SetPoint("TOPLEFT", button, "TOPLEFT", 1, -1)
+			button.SpellHighlightTexture:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -1, 1)
+		end
+		if (button.NewActionTexture) then
+			button.NewActionTexture:SetParent(button)
+		end
+		button.useBlizzardOverlayGlow = true
+	end
 
 	local m = GetMedia("actionbutton-mask-square-rounded")
 	local b = GetMedia("blank")
