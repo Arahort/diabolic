@@ -66,6 +66,7 @@ Castbar.StyleCastbar = function(self, frame)
 		overlay:SetPoint("TOPLEFT", frame, "TOPLEFT")
 		overlay:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT")
 		overlay:SetVertexColor(0.2, 0.5, 1.0) -- Blue color
+		overlay:SetWidth(0.01)
 		frame.__GP_BarOverlay = overlay
 		-- Update overlay width and texcoord based on progress
 		frame:HookScript("OnUpdate", function(self)
@@ -76,6 +77,8 @@ Castbar.StyleCastbar = function(self, frame)
 				local fullWidth = self:GetWidth()
 				overlay:SetWidth(fullWidth * progress)
 				overlay:SetTexCoord(0, progress, 0, 1)
+			else
+				overlay:SetWidth(0.01)
 			end
 		end)
 	end
