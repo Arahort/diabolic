@@ -33,9 +33,10 @@ end
 
 MicroMenu.GetPosition = function(self)
 	local db = ns.db
+	local point = (db and db.global.micromenu.positionPoint) or "BOTTOMRIGHT"
 	local posX = (db and db.global.micromenu.positionX) or -11
 	local posY = (db and db.global.micromenu.positionY) or 11
-	return posX, posY
+	return point, posX, posY
 end
 
 MicroMenu.GetToggleAlpha = function(self)
@@ -164,12 +165,12 @@ MicroMenu.InitializeMicroMenu = function(self)
 	local barWidth = btnSize + PADDING_H * 2
 	bar:SetSize(barWidth, totalHeight)
 	-- Toggle button
-	local posX, posY = self:GetPosition()
+	local posPoint, posX, posY = self:GetPosition()
 	local toggle = SetObjectScale(CreateFrame("CheckButton", ns.Prefix.."MicroMenuToggle", UIParent, "SecureHandlerClickTemplate"))
 	toggle:SetFrameStrata("HIGH")
 	toggle:RegisterForClicks("AnyUp")
 	toggle:SetSize(TOGGLE_SIZE, TOGGLE_SIZE)
-	toggle:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", posX, posY)
+	toggle:SetPoint(posPoint, UIParent, posPoint, posX, posY)
 	self.toggle = toggle
 	-- Anchor menu above toggle
 	bar:SetPoint("BOTTOM", toggle, "TOP", 0, -4)
@@ -278,6 +279,7 @@ MicroMenu.InitializeMicroMenu = function(self)
 		LibEditMode:AddFrame(toggle, function(frame, layoutName, point, x, y)
 			if (InCombatLockdown()) then return end
 			local db = ns.db.global.micromenu
+			db.positionPoint = point
 			db.positionX = x
 			db.positionY = y
 		end, {point = "BOTTOMRIGHT", x = -11, y = 11})
@@ -325,6 +327,12 @@ MicroMenu.InitializeMicroMenu = function(self)
 				end,
 			}
 		})
+	end
+	-- Handle Bartender4 deferred init: if OnEnable already ran, apply EditMode scaling now
+	if (self:IsEnabled()) then
+		ns.API.SetEditModeUFObjectScale(toggle)
+		toggle:ClearAllPoints()
+		toggle:SetPoint(posPoint, UIParent, posPoint, posX, posY)
 	end
 end
 
@@ -390,6 +398,10 @@ MicroMenu.OnEnable = function(self)
 	-- Switch to EditMode-compatible scaling (UIParent:GetScale() is valid by PLAYER_LOGIN)
 	if (self.toggle) then
 		ns.API.SetEditModeUFObjectScale(self.toggle)
+		-- Re-apply position after scale switch to prevent visual drift
+		local posPoint, posX, posY = self:GetPosition()
+		self.toggle:ClearAllPoints()
+		self.toggle:SetPoint(posPoint, UIParent, posPoint, posX, posY)
 	end
 end
 MicroMenu.OnInitialize = function(self)

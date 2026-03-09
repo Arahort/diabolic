@@ -130,6 +130,7 @@ local defaults = {
 		},
 		micromenu = {
 			enableMicroMenu = true,
+			positionPoint = "BOTTOMRIGHT",
 			positionX = -11,
 			positionY = 11,
 			buttonSize = 34,
@@ -138,6 +139,7 @@ local defaults = {
 		minimap = {
 			useServerTime = false,
 			useHalfClock = false,
+			positionPoint = "TOPRIGHT",
 			positionX = -30,
 			positionY = -40,
 			lfgEyeScale = 1.0
@@ -153,6 +155,7 @@ local defaults = {
 			zonePositionY = 162
 		},
 		auras = {
+			positionPoint = "TOPRIGHT",
 			positionX = -290,
 			positionY = -5,
 			iconSize = 36,

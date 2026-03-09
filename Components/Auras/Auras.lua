@@ -453,7 +453,8 @@ Auras.UpdatePosition = function(self)
 	end
 	local db = ns.db.global.auras
 	buffs:ClearAllPoints()
-	buffs:SetPoint("TOPRIGHT", db.positionX or -380, db.positionY or -66)
+	local posPoint = db.positionPoint or "TOPRIGHT"
+	buffs:SetPoint(posPoint, db.positionX or -380, db.positionY or -66)
 end
 Auras.UpdateIconSize = function(self)
 	if (InCombatLockdown()) then
@@ -557,7 +558,8 @@ Auras.SpawnAuras = function(self)
 		local db = ns.db.global.auras
 		local iconSize = db.iconSize or 36
 		buffs:SetSize(iconSize, iconSize)
-		buffs:SetPoint("TOPRIGHT", db.positionX or -380, db.positionY or -66)
+		local posPoint = db.positionPoint or "TOPRIGHT"
+		buffs:SetPoint(posPoint, db.positionX or -380, db.positionY or -66)
 		SetObjectScale(buffs)
 		buffs:SetAttribute("weaponTemplate", "DiabolicAuraTemplate")
 		buffs:SetAttribute("template", "DiabolicAuraTemplate")
@@ -898,6 +900,7 @@ Auras.OnInitialize = function(self)
 		LibEditMode:AddFrame(buffs, function(frame, layoutName, point, x, y)
 			if (InCombatLockdown()) then return end
 			local db = ns.db.global.auras
+			db.positionPoint = point
 			db.positionX = x
 			db.positionY = y
 		end, {point = "TOPRIGHT", x = -380, y = -66})

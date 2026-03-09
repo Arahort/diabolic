@@ -530,7 +530,8 @@ MinimapMod.UpdatePosition = function(self)
 	Minimap:SetParent(PetHider)
 	local db = ns.db.global.minimap
 	Minimap:ClearAllPoints()
-	Minimap:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", db.positionX or -60, db.positionY or -60)
+	local posPoint = db.positionPoint or "TOPRIGHT"
+	Minimap:SetPoint(posPoint, UIParent, posPoint, db.positionX or -60, db.positionY or -60)
 	Minimap:SetMovable(true)
 	-- Update LFG Eye scale
 	self:UpdateLFGEyeScale()
@@ -1032,6 +1033,7 @@ MinimapMod.OnInitialize = function(self)
 		LibEditMode:AddFrame(Minimap, function(frame, layoutName, point, x, y)
 			if (InCombatLockdown()) then return end
 			local db = ns.db.global.minimap
+			db.positionPoint = point
 			db.positionX = x
 			db.positionY = y
 		end, {point = "TOPRIGHT", x = -60, y = -60})
