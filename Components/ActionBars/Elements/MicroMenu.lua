@@ -80,10 +80,13 @@ MicroMenu.UpdateLayout = function(self)
 	totalHeight = totalHeight + PADDING_V
 	local barWidth = btnSize + PADDING_H * 2
 	self.bar:SetSize(barWidth, totalHeight)
+	-- Resize toggle proportionally to button size
 	if (self.toggle) then
-		local posX, posY = self:GetPosition()
-		self.toggle:ClearAllPoints()
-		self.toggle:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", posX, posY)
+		local toggleScale = btnSize / 34
+		self.toggle:SetSize(TOGGLE_SIZE * toggleScale, TOGGLE_SIZE * toggleScale)
+		if (self.toggle.texture) then
+			self.toggle.texture:SetSize(60 * toggleScale, 60 * toggleScale)
+		end
 	end
 end
 
@@ -238,6 +241,7 @@ MicroMenu.InitializeMicroMenu = function(self)
 	end
 	bar:SetScript("OnUpdate", function(self, elapsed)
 		if (not self:IsShown()) then return end
+		if (self.inEditMode) then return end
 		if (IsMouseOverWidget(self) or IsMouseOverWidget(toggle)) then
 			hideTimer = 0
 		else
@@ -266,6 +270,62 @@ MicroMenu.InitializeMicroMenu = function(self)
 	end
 	self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnCombatEnd")
 	ns.RegisterCallback(self, "MicroMenu_Settings_Updated", "OnSettingsUpdated")
+	-- EditMode integration
+	local LibEditMode = ns.LibEditMode
+	if (LibEditMode and LibEditMode.AddFrame) then
+		local L = ns.L
+		toggle.editModeName = "Diabolic: Micro Menu"
+		LibEditMode:AddFrame(toggle, function(frame, layoutName, point, x, y)
+			if (InCombatLockdown()) then return end
+			local db = ns.db.global.micromenu
+			db.positionX = x
+			db.positionY = y
+		end, {point = "BOTTOMRIGHT", x = -11, y = 11})
+		-- Disable toggle click handling in EditMode so LibEditMode's
+		-- selection overlay can capture mouse events for dragging
+		LibEditMode:RegisterCallback("enter", function()
+			toggle:EnableMouse(false)
+			bar.inEditMode = true
+			if (not InCombatLockdown()) then bar:Show() end
+		end)
+		LibEditMode:RegisterCallback("exit", function()
+			toggle:EnableMouse(true)
+			bar.inEditMode = nil
+			if (not InCombatLockdown()) then bar:Hide() end
+		end)
+		LibEditMode:AddFrameSettings(toggle, {
+			{
+				kind = LibEditMode.SettingType.Slider,
+				name = L["MicroMenuButtonSize"],
+				desc = L["MicroMenuButtonSizeDesc"],
+				default = 34,
+				minValue = 20,
+				maxValue = 50,
+				valueStep = 1,
+				formatter = function(value) return tostring(math_floor(value)) end,
+				get = function() return ns.db.global.micromenu.buttonSize or 34 end,
+				set = function(layoutName, value)
+					ns.db.global.micromenu.buttonSize = value
+					MicroMenu:UpdateLayout()
+				end,
+			},
+			{
+				kind = LibEditMode.SettingType.Slider,
+				name = L["MicroMenuToggleAlpha"],
+				desc = L["MicroMenuToggleAlphaDesc"],
+				default = 0.3,
+				minValue = 0.1,
+				maxValue = 1.0,
+				valueStep = 0.1,
+				formatter = function(value) return string.format("%.1f", value) end,
+				get = function() return ns.db.global.micromenu.toggleAlpha or 0.3 end,
+				set = function(layoutName, value)
+					ns.db.global.micromenu.toggleAlpha = value
+					MicroMenu:OnSettingsUpdated()
+				end,
+			}
+		})
+	end
 end
 
 MicroMenu.OnSettingsUpdated = function(self)
@@ -326,6 +386,12 @@ MicroMenu.OnCombatEnd = function(self)
 	end
 end
 
+MicroMenu.OnEnable = function(self)
+	-- Switch to EditMode-compatible scaling (UIParent:GetScale() is valid by PLAYER_LOGIN)
+	if (self.toggle) then
+		ns.API.SetEditModeUFObjectScale(self.toggle)
+	end
+end
 MicroMenu.OnInitialize = function(self)
 	local db = ns:GetSettings()
 	if (not db.global.micromenu.enableMicroMenu) then
