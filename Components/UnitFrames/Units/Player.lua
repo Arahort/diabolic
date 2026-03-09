@@ -907,9 +907,9 @@ UnitStyles["Player"] = function(self, unit, id)
 	self:SetSize(200,200)
 	self:SetFrameLevel(self:GetFrameLevel() + 1)
 
-	-- Holders for always visible elements
+	-- Holders for always visible elements (hidden during pet battles via PetHider)
 	--------------------------------------------
-	local artworkHolder = SetObjectScale(CreateFrame("Frame", nil, UIParent))
+	local artworkHolder = SetObjectScale(CreateFrame("Frame", nil, ns.PetHider))
 	artworkHolder:SetAllPoints(self)
 	artworkHolder:SetFrameStrata(self:GetFrameStrata())
 	artworkHolder:SetFrameLevel(self:GetFrameLevel())
