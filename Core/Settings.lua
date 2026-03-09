@@ -526,52 +526,8 @@ SettingsModule.OnInitialize = function(self)
 			)
 			CreateCheckbox(catMap, setting, L["UseHalfClockDesc"])
 		end
-		do
-			local setting = RegisterSetting(
-				catMap,
-				"positionX",
-				"global.minimap",
-				L["MinimapPosX"],
-				-60,
-				L["MinimapPosXDesc"]
-			)
-			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
-			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return tostring(value)
-			end)
-			Settings.CreateSlider(catMap, setting, options, L["MinimapPosXDesc"])
-		end
-		do
-			local setting = RegisterSetting(
-				catMap,
-				"positionY",
-				"global.minimap",
-				L["MinimapPosY"],
-				-60,
-				L["MinimapPosYDesc"]
-			)
-			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
-			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return tostring(value)
-			end)
-			Settings.CreateSlider(catMap, setting, options, L["MinimapPosYDesc"])
-		end
-		-- LFG Eye Scale
-		do
-			local setting = RegisterSetting(
-				catMap,
-				"lfgEyeScale",
-				"global.minimap",
-				L["LFGEyeScale"],
-				1.0,
-				L["LFGEyeScaleDesc"]
-			)
-			local options = Settings.CreateSliderOptions(0.5, 2.0, 0.1)
-			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return string.format("%.1f", value)
-			end)
-			Settings.CreateSlider(catMap, setting, options, L["LFGEyeScaleDesc"])
-		end
+		-- Minimap position sliders removed — positioning is now handled via Edit Mode (LibEditMode)
+		-- LFG Eye Scale removed — now handled via Edit Mode (LibEditMode)
 		do
 			local setting = RegisterSetting(
 				catMap,

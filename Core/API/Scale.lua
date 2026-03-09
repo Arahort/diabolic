@@ -16,6 +16,7 @@ local MinimapScaled = {}
 local UnitFramesScaled = {}
 local TargetFrameScaled = {}
 local EditModeUFScaled = {}
+local EditModeMinimapScaled = {}
 
 -- Scaling Functions
 ---------------------------------------------------------
@@ -125,6 +126,19 @@ API.SetTargetFrameObjectScale = API.SetEditModeObjectScale
 API.GetUnitFramesEffectiveScale = function()
 	return API.GetUnitFramesScale() * 1/UIParent:GetScale()
 end
+-- EditMode-compatible scaling based on MinimapScale
+API.GetMinimapEffectiveScale = function()
+	return API.GetMinimapScale() * 1/UIParent:GetScale()
+end
+API.SetEditModeMinimapObjectScale = function(object, factor)
+	if (object and object.SetScale) then
+		MinimapScaled[object] = nil
+		EditModeMinimapScaled[object] = factor or 1
+		object:SetIgnoreParentScale(false)
+		object:SetScale(API.GetMinimapEffectiveScale() * (factor or 1))
+	end
+	return object
+end
 API.SetEditModeUFObjectScale = function(object, factor)
 	if (object and object.SetScale) then
 		Scaled[object] = nil
@@ -162,6 +176,12 @@ API.UpdateObjectScales = function()
 	for object, factor in next,UnitFramesScaled do
 		object:SetIgnoreParentScale(true)
 		object:SetScale(unitframesScale * factor)
+	end
+	-- Update EditMode minimap objects
+	local minimapEffective = API.GetMinimapEffectiveScale()
+	for object, factor in next,EditModeMinimapScaled do
+		object:SetIgnoreParentScale(false)
+		object:SetScale(minimapEffective * factor)
 	end
 	-- Update EditMode UnitFrames objects (PetBar etc.)
 	-- Same visual as UnitFramesScaled but without SetIgnoreParentScale for LibEditMode

@@ -528,22 +528,9 @@ end
 
 MinimapMod.UpdatePosition = function(self)
 	Minimap:SetParent(PetHider)
-	if ns.IsRetail and EditModeManagerFrame then
-		if EditModeManagerFrame:IsEditModeActive() then
-			Minimap:SetMovable(true)
-			return
-		else
-			local point, relativeTo, relativePoint, xOfs, yOfs = Minimap:GetPoint()
-			if point and relativeTo and xOfs and yOfs then
-				local db = ns.db.global.minimap
-				db.positionX = xOfs
-				db.positionY = yOfs
-			end
-		end
-	end
 	local db = ns.db.global.minimap
 	Minimap:ClearAllPoints()
-	Minimap:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", db.positionX or -20, db.positionY or -20)
+	Minimap:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", db.positionX or -60, db.positionY or -60)
 	Minimap:SetMovable(true)
 	-- Update LFG Eye scale
 	self:UpdateLFGEyeScale()
@@ -1037,10 +1024,40 @@ MinimapMod.OnInitialize = function(self)
 			end
 		end
 	end
-
+	-- EditMode integration
+	local LibEditMode = ns.LibEditMode
+	if (LibEditMode and LibEditMode.AddFrame) then
+		local L = ns.L
+		Minimap.editModeName = "Diabolic: Minimap"
+		LibEditMode:AddFrame(Minimap, function(frame, layoutName, point, x, y)
+			if (InCombatLockdown()) then return end
+			local db = ns.db.global.minimap
+			db.positionX = x
+			db.positionY = y
+		end, {point = "TOPRIGHT", x = -60, y = -60})
+		LibEditMode:AddFrameSettings(Minimap, {
+			{
+				kind = LibEditMode.SettingType.Slider,
+				name = L["LFGEyeScale"],
+				desc = L["LFGEyeScaleDesc"],
+				default = 1.0,
+				minValue = 0.5,
+				maxValue = 2.0,
+				valueStep = 0.1,
+				formatter = function(value) return string.format("%.1f", value) end,
+				get = function() return ns.db.global.minimap.lfgEyeScale or 1.0 end,
+				set = function(layoutName, value)
+					ns.db.global.minimap.lfgEyeScale = value
+					MinimapMod:UpdateLFGEyeScale()
+				end,
+			}
+		})
+	end
 end
 
 MinimapMod.OnEnable = function(self)
+	-- Switch to EditMode-compatible scaling (UIParent:GetScale() is valid by PLAYER_LOGIN)
+	ns.API.SetEditModeMinimapObjectScale(Minimap)
 	if ns.RegisterCallback then
 		ns.RegisterCallback(self, "Minimap_Settings_Updated", "UpdatePosition")
 	end
