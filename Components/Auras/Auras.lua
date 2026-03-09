@@ -552,12 +552,13 @@ Auras.SpawnAuras = function(self)
 		-- Header
 		-----------------------------------------
 		-- The primary buff window.
-		local buffs = SetObjectScale(CreateFrame("Frame", ns.Prefix.."BuffHeader", UIParent, "SecureAuraHeaderTemplate"))
+		local buffs = CreateFrame("Frame", ns.Prefix.."BuffHeader", UIParent, "SecureAuraHeaderTemplate")
 		buffs:SetFrameLevel(10)
 		local db = ns.db.global.auras
 		local iconSize = db.iconSize or 36
 		buffs:SetSize(iconSize, iconSize)
 		buffs:SetPoint("TOPRIGHT", db.positionX or -380, db.positionY or -66)
+		SetObjectScale(buffs)
 		buffs:SetAttribute("weaponTemplate", "DiabolicAuraTemplate")
 		buffs:SetAttribute("template", "DiabolicAuraTemplate")
 		buffs:SetAttribute("minHeight", iconSize)
@@ -888,9 +889,43 @@ end
 Auras.OnInitialize = function(self)
 	self:SpawnAuras()
 	self:RegisterChatCommand("auras", "OnChatCommand")
+	-- EditMode integration
+	local LibEditMode = ns.LibEditMode
+	if (LibEditMode and LibEditMode.AddFrame) then
+		local L = ns.L
+		local buffs = self.buffs
+		buffs.editModeName = "Diabolic: Buffs"
+		LibEditMode:AddFrame(buffs, function(frame, layoutName, point, x, y)
+			if (InCombatLockdown()) then return end
+			local db = ns.db.global.auras
+			db.positionX = x
+			db.positionY = y
+		end, {point = "TOPRIGHT", x = -380, y = -66})
+		LibEditMode:AddFrameSettings(buffs, {
+			{
+				kind = LibEditMode.SettingType.Slider,
+				name = L["AurasIconSize"],
+				desc = L["AurasIconSizeDesc"],
+				default = 36,
+				minValue = 20,
+				maxValue = 64,
+				valueStep = 1,
+				formatter = function(value) return tostring(math.floor(value)) end,
+				get = function() return ns.db.global.auras.iconSize or 36 end,
+				set = function(layoutName, value)
+					ns.db.global.auras.iconSize = value
+					Auras:UpdateIconSize()
+				end,
+			}
+		})
+	end
 end
 
 Auras.OnEnable = function(self)
+	-- Switch to EditMode-compatible scaling (UIParent:GetScale() is valid by PLAYER_LOGIN)
+	if (self.buffs) then
+		ns.API.SetEditModeObjectScale(self.buffs)
+	end
 	if ns.RegisterCallback then
 		ns.RegisterCallback(self, "Auras_Position_Updated", "UpdatePosition")
 		ns.RegisterCallback(self, "Aura_Settings_Updated", "UpdateSettings")

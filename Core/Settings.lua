@@ -391,36 +391,7 @@ SettingsModule.OnInitialize = function(self)
 			Settings.SetOnValueChangedCallback("char_auras_alwaysHideAuras", OnAlwaysHideChanged)
 			CreateCheckbox(catAuras, alwaysHideSetting, L["AlwaysHideAurasDesc"])
 		end
-		do
-			local setting = RegisterSetting(
-				catAuras,
-				"positionX",
-				"global.auras",
-				L["AurasPosX"],
-				-380,
-				L["AurasPosXDesc"]
-			)
-			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
-			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return tostring(value)
-			end)
-			Settings.CreateSlider(catAuras, setting, options, L["AurasPosXDesc"])
-		end
-		do
-			local setting = RegisterSetting(
-				catAuras,
-				"positionY",
-				"global.auras",
-				L["AurasPosY"],
-				-66,
-				L["AurasPosYDesc"]
-			)
-			local options = Settings.CreateSliderOptions(-5000, 5000, 5)
-			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return tostring(value)
-			end)
-			Settings.CreateSlider(catAuras, setting, options, L["AurasPosYDesc"])
-		end
+		-- Auras position sliders removed — positioning is now handled via Edit Mode (LibEditMode)
 		do
 			local setting = RegisterSetting(
 				catAuras,
