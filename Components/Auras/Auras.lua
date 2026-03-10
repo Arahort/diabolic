@@ -451,10 +451,10 @@ Auras.UpdatePosition = function(self)
 	if (not buffs) then
 		return
 	end
-	local db = ns.db.global.auras
+	local db = ns.db.char.auras
 	buffs:ClearAllPoints()
 	local posPoint = db.positionPoint or "TOPRIGHT"
-	buffs:SetPoint(posPoint, db.positionX or -380, db.positionY or -66)
+	buffs:SetPoint(posPoint, db.positionX or -290, db.positionY or -5)
 end
 Auras.UpdateIconSize = function(self)
 	if (InCombatLockdown()) then
@@ -555,11 +555,12 @@ Auras.SpawnAuras = function(self)
 		-- The primary buff window.
 		local buffs = CreateFrame("Frame", ns.Prefix.."BuffHeader", UIParent, "SecureAuraHeaderTemplate")
 		buffs:SetFrameLevel(10)
-		local db = ns.db.global.auras
-		local iconSize = db.iconSize or 36
+		local gDb = ns.db.global.auras
+		local cDb = ns.db.char.auras
+		local iconSize = gDb.iconSize or 36
 		buffs:SetSize(iconSize, iconSize)
-		local posPoint = db.positionPoint or "TOPRIGHT"
-		buffs:SetPoint(posPoint, db.positionX or -380, db.positionY or -66)
+		local posPoint = cDb.positionPoint or "TOPRIGHT"
+		buffs:SetPoint(posPoint, cDb.positionX or -290, cDb.positionY or -5)
 		SetObjectScale(buffs)
 		buffs:SetAttribute("weaponTemplate", "DiabolicAuraTemplate")
 		buffs:SetAttribute("template", "DiabolicAuraTemplate")
@@ -899,11 +900,11 @@ Auras.OnInitialize = function(self)
 		buffs.editModeName = "Diabolic: Buffs"
 		LibEditMode:AddFrame(buffs, function(frame, layoutName, point, x, y)
 			if (InCombatLockdown()) then return end
-			local db = ns.db.global.auras
+			local db = ns.db.char.auras
 			db.positionPoint = point
 			db.positionX = x
 			db.positionY = y
-		end, {point = "TOPRIGHT", x = -380, y = -66})
+		end, {point = "TOPRIGHT", x = -290, y = -5})
 		LibEditMode:AddFrameSettings(buffs, {
 			{
 				kind = LibEditMode.SettingType.Slider,

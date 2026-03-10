@@ -33,9 +33,9 @@ end
 
 MicroMenu.GetPosition = function(self)
 	local db = ns.db
-	local point = (db and db.global.micromenu.positionPoint) or "BOTTOMRIGHT"
-	local posX = (db and db.global.micromenu.positionX) or -11
-	local posY = (db and db.global.micromenu.positionY) or 11
+	local point = (db and db.char.micromenu.positionPoint) or "BOTTOMRIGHT"
+	local posX = (db and db.char.micromenu.positionX) or -11
+	local posY = (db and db.char.micromenu.positionY) or 11
 	return point, posX, posY
 end
 
@@ -278,7 +278,7 @@ MicroMenu.InitializeMicroMenu = function(self)
 		toggle.editModeName = "Diabolic: Micro Menu"
 		LibEditMode:AddFrame(toggle, function(frame, layoutName, point, x, y)
 			if (InCombatLockdown()) then return end
-			local db = ns.db.global.micromenu
+			local db = ns.db.char.micromenu
 			db.positionPoint = point
 			db.positionX = x
 			db.positionY = y

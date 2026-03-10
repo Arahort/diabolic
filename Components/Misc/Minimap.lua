@@ -546,10 +546,10 @@ end
 
 MinimapMod.UpdatePosition = function(self)
 	Minimap:SetParent(PetHider)
-	local db = ns.db.global.minimap
+	local db = ns.db.char.minimap
 	Minimap:ClearAllPoints()
 	local posPoint = db.positionPoint or "TOPRIGHT"
-	Minimap:SetPoint(posPoint, UIParent, posPoint, db.positionX or -60, db.positionY or -60)
+	Minimap:SetPoint(posPoint, UIParent, posPoint, db.positionX or -30, db.positionY or -40)
 	Minimap:SetMovable(true)
 	-- Update LFG Eye scale
 	self:UpdateLFGEyeScale()
@@ -1050,11 +1050,11 @@ MinimapMod.OnInitialize = function(self)
 		Minimap.editModeName = "Diabolic: Minimap"
 		LibEditMode:AddFrame(Minimap, function(frame, layoutName, point, x, y)
 			if (InCombatLockdown()) then return end
-			local db = ns.db.global.minimap
+			local db = ns.db.char.minimap
 			db.positionPoint = point
 			db.positionX = x
 			db.positionY = y
-		end, {point = "TOPRIGHT", x = -60, y = -60})
+		end, {point = "TOPRIGHT", x = -30, y = -40})
 		LibEditMode:AddFrameSettings(Minimap, {
 			{
 				kind = LibEditMode.SettingType.Slider,

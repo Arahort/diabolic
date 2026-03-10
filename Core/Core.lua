@@ -31,7 +31,20 @@ local defaults = {
 		auras = {
 			alwaysHideAuras = false,
 			alwaysShowAuras = true,
-			growUpward = false
+			growUpward = false,
+			positionPoint = "TOPRIGHT",
+			positionX = -290,
+			positionY = -5
+		},
+		minimap = {
+			positionPoint = "TOPRIGHT",
+			positionX = -30,
+			positionY = -40
+		},
+		micromenu = {
+			positionPoint = "BOTTOMRIGHT",
+			positionX = -11,
+			positionY = 11
 		},
 		tooltips = {
 			enabled = true,
@@ -130,18 +143,12 @@ local defaults = {
 		},
 		micromenu = {
 			enableMicroMenu = true,
-			positionPoint = "BOTTOMRIGHT",
-			positionX = -11,
-			positionY = 11,
 			buttonSize = 34,
 			toggleAlpha = 0.3
 		},
 		minimap = {
 			useServerTime = false,
 			useHalfClock = false,
-			positionPoint = "TOPRIGHT",
-			positionX = -30,
-			positionY = -40,
 			lfgEyeScale = 1.0
 		},
 		talkinghead = {
@@ -155,9 +162,6 @@ local defaults = {
 			zonePositionY = 162
 		},
 		auras = {
-			positionPoint = "TOPRIGHT",
-			positionX = -290,
-			positionY = -5,
 			iconSize = 36,
 			twoRowsTargetAuras = false
 		},
