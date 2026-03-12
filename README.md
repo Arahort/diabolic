@@ -52,6 +52,7 @@ The original Diabolic UI **stopped working completely** after Blizzard's API cha
 
 - Tooltips follow mouse cursor - integrated TTOM functionality with customizable offset
 - Auto-fill delete confirmation - no need to type "DELETE" manually when destroying items
+- Minimap button collector - integrated MinimapButtonButton functionality, addon buttons are organized into a compact dropdown near the minimap
 
 ## Requirements
 
