@@ -1,4 +1,6 @@
-# Diabolic UI - Arahort Edition
+<p align="center">
+  <img src="DiabolicUI_logo.png" alt="Diabolic UI" />
+</p>
 
 [![Downloads](https://cf.way2muchnoise.eu/full_1401738_Downloads.svg)](https://www.curseforge.com/wow/addons/diabolicui-arahort-edition)
 [![Game Version](https://cf.way2muchnoise.eu/versions/1401738_all.svg)](https://www.curseforge.com/wow/addons/diabolicui-arahort-edition)
