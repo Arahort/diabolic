@@ -209,6 +209,20 @@ SettingsModule.OnInitialize = function(self)
 			CreateCheckbox(catOrbs, setting, L["EyeGlowD2RDesc"])
 		end
 		do
+			local setting = RegisterSetting(
+				catOrbs,
+				"actionBarsGlow",
+				"global.orbs",
+				L["ActionBarsGlow"],
+				true,
+				L["ActionBarsGlowDesc"]
+			)
+			Settings.SetOnValueChangedCallback("global_orbs_actionBarsGlow", function()
+				ns.callbacks:Fire("ActionBarsGlow_Updated")
+			end)
+			CreateCheckbox(catOrbs, setting, L["ActionBarsGlowDesc"])
+		end
+		do
 			local function CreateColorSwatch(key, labelKey, descKey, defaultColor)
 				local initializer = Settings.CreateSettingInitializer("DiabolicColorSwatchSettingTemplate", {
 					name = L[labelKey],

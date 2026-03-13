@@ -821,18 +821,73 @@ Bars.SpawnArtwork = function(self)
 	triple:SetTexture(GetMedia("bars-triple"))
 	triple:SetAlpha(0)
 
-	local left = scaffold:CreateTexture(nil, "BACKGROUND", nil, -7)
+	local left = scaffold:CreateTexture(nil, "BACKGROUND", nil, -8)
 	left:SetSize(128,128)
 	left:SetPoint("BOTTOM", UIParent, "BOTTOM", -364, -29)
 	left:SetTexture(GetMedia("bars-glow-diabolic"))
 	left:SetTexCoord(1,0,0,1)
 	left:SetVertexColor(25/255, 20/255, 15/255, 1)
 
-	local right = scaffold:CreateTexture(nil, "BACKGROUND", nil, -7)
+	local right = scaffold:CreateTexture(nil, "BACKGROUND", nil, -8)
 	right:SetSize(128,128)
 	right:SetPoint("BOTTOM", UIParent, "BOTTOM", 364, -29)
 	right:SetTexture(GetMedia("bars-glow-diabolic"))
 	right:SetVertexColor(25/255, 20/255, 15/255, 1)
+
+	local leftBase = scaffold:CreateTexture(nil, "BACKGROUND", nil, -8)
+	leftBase:SetSize(128, 128)
+	leftBase:SetPoint("BOTTOM", UIParent, "BOTTOM", -364, -29)
+	leftBase:SetTexture(GetMedia("bars-glow-diabolic"))
+	leftBase:SetTexCoord(1,0,0,1)
+	leftBase:SetVertexColor(0.5, 0.22, 0.04)
+
+	local leftHighlight = scaffold:CreateTexture(nil, "BACKGROUND", nil, -7)
+	leftHighlight:SetSize(128, 128)
+	leftHighlight:SetPoint("BOTTOM", UIParent, "BOTTOM", -364, -29)
+	leftHighlight:SetTexture(GetMedia("bars-glow-diabolic"))
+	leftHighlight:SetTexCoord(1,0,0,1)
+	leftHighlight:SetVertexColor(0.9, 0.4, 0.05)
+	leftHighlight:SetBlendMode("ADD")
+	local leftAG = leftHighlight:CreateAnimationGroup()
+	leftAG:SetLooping("BOUNCE")
+	local leftAnim = leftAG:CreateAnimation("Alpha")
+	leftAnim:SetFromAlpha(0)
+	leftAnim:SetToAlpha(0.7)
+	leftAnim:SetDuration(2.5)
+	leftAnim:SetSmoothing("IN_OUT")
+
+	local rightBase = scaffold:CreateTexture(nil, "BACKGROUND", nil, -8)
+	rightBase:SetSize(128, 128)
+	rightBase:SetPoint("BOTTOM", UIParent, "BOTTOM", 364, -29)
+	rightBase:SetTexture(GetMedia("bars-glow-diabolic"))
+	rightBase:SetVertexColor(0.5, 0.22, 0.04)
+
+	local rightHighlight = scaffold:CreateTexture(nil, "BACKGROUND", nil, -7)
+	rightHighlight:SetSize(128, 128)
+	rightHighlight:SetPoint("BOTTOM", UIParent, "BOTTOM", 364, -29)
+	rightHighlight:SetTexture(GetMedia("bars-glow-diabolic"))
+	rightHighlight:SetVertexColor(0.9, 0.4, 0.05)
+	rightHighlight:SetBlendMode("ADD")
+	local rightAG = rightHighlight:CreateAnimationGroup()
+	rightAG:SetLooping("BOUNCE")
+	local rightAnim = rightAG:CreateAnimation("Alpha")
+	rightAnim:SetFromAlpha(0)
+	rightAnim:SetToAlpha(0.7)
+	rightAnim:SetDuration(2.5)
+	rightAnim:SetSmoothing("IN_OUT")
+
+	local useGlow = ns.db and ns.db.global.orbs.actionBarsGlow
+	if (useGlow) then
+		left:Hide()
+		right:Hide()
+		leftAG:Play()
+		rightAG:Play()
+	else
+		leftBase:Hide()
+		leftHighlight:Hide()
+		rightBase:Hide()
+		rightHighlight:Hide()
+	end
 
 	self.Artwork = scaffold
 	self.Artwork.Single = single
@@ -840,6 +895,12 @@ Bars.SpawnArtwork = function(self)
 	self.Artwork.Triple = triple
 	self.Artwork.LeftFill = left
 	self.Artwork.RightFill = right
+	self.Artwork.LeftBase = leftBase
+	self.Artwork.LeftHighlight = leftHighlight
+	self.Artwork.LeftGlowAG = leftAG
+	self.Artwork.RightBase = rightBase
+	self.Artwork.RightHighlight = rightHighlight
+	self.Artwork.RightGlowAG = rightAG
 	self.SpawnArtwork = nil
 
 	RegisterStateDriver(scaffold, "visibility", "[petbattle]hide;show")
@@ -1086,12 +1147,37 @@ Bars.OnInitialize = function(self)
 	self:RegisterChatCommand("togglethird", "ToggleThird")
 end
 
+Bars.UpdateActionBarsGlow = function(self)
+	if (not self.Artwork) then return end
+	local useGlow = ns.db and ns.db.global.orbs.actionBarsGlow
+	if (useGlow) then
+		self.Artwork.LeftFill:Hide()
+		self.Artwork.RightFill:Hide()
+		self.Artwork.LeftBase:Show()
+		self.Artwork.LeftHighlight:Show()
+		self.Artwork.LeftGlowAG:Play()
+		self.Artwork.RightBase:Show()
+		self.Artwork.RightHighlight:Show()
+		self.Artwork.RightGlowAG:Play()
+	else
+		self.Artwork.LeftGlowAG:Stop()
+		self.Artwork.LeftBase:Hide()
+		self.Artwork.LeftHighlight:Hide()
+		self.Artwork.RightGlowAG:Stop()
+		self.Artwork.RightBase:Hide()
+		self.Artwork.RightHighlight:Hide()
+		self.Artwork.LeftFill:Show()
+		self.Artwork.RightFill:Show()
+	end
+end
+
 Bars.OnEnable = function(self)
 	if ns.RegisterCallback then
 		ns.RegisterCallback(self, "ActionBars_SecondaryBar_Updated", "UpdateArtwork")
 		ns.RegisterCallback(self, "ActionBars_ThirdBar_Updated", "UpdateArtwork")
 		ns.RegisterCallback(self, "Saved_Settings_Updated", "UpdateSettings")
 		ns.RegisterCallback(self, "ActionBar_Settings_Updated", "UpdateSettings")
+		ns.RegisterCallback(self, "ActionBarsGlow_Updated", "UpdateActionBarsGlow")
 	end
 
 	self:UpdateSettings()

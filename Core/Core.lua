@@ -115,7 +115,8 @@ local defaults = {
 		},
 		orbs = {
 			useD2RStyle = true,
-			eyeGlowD2R = true
+			eyeGlowD2R = true,
+			actionBarsGlow = true
 		},
 		chatbubbles = {
 			enableChatBubbles = true,

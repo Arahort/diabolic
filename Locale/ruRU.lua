@@ -29,6 +29,8 @@ L["CustomPowerOrbColor"] = "Цвет сферы ресурса"
 L["CustomPowerOrbColorDesc"] = "Выберите цвет сферы маны/ресурса"
 L["EyeGlowD2R"] = "Свет глаз (стиль D2R)"
 L["EyeGlowD2RDesc"] = "Показывать эффект светящихся глаз на сферах здоровья и маны в стиле Diablo 2 Resurrected"
+L["ActionBarsGlow"] = "Свечение Action Bars"
+L["ActionBarsGlowDesc"] = "Показывать тёмное декоративное свечение в углах рамки панели действий"
 -- Action Bars
 L["ActionBarsHeader"] = "Панели действий"
 L["EnableSecondary"] = "Включить вторичную панель действий"

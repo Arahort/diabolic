@@ -29,6 +29,8 @@ L["CustomPowerOrbColor"] = "Color de la esfera de recurso"
 L["CustomPowerOrbColorDesc"] = "Elija el color de la esfera de maná/recurso"
 L["EyeGlowD2R"] = "Brillo de ojos (estilo D2R)"
 L["EyeGlowD2RDesc"] = "Mostrar efecto de ojos brillantes en las esferas de salud y maná al estilo Diablo 2 Resurrected"
+L["ActionBarsGlow"] = "Brillo de barras de acción"
+L["ActionBarsGlowDesc"] = "Mostrar el brillo decorativo oscuro en las esquinas del marco de la barra de acción"
 -- Action Bars
 L["ActionBarsHeader"] = "Barras de acción"
 L["EnableSecondary"] = "Activar barra de acción secundaria"
