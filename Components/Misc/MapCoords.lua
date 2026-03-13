@@ -143,16 +143,17 @@ MapCoords.SetupMinimapCoords = function(self)
 	minimapFrame:SetAllPoints(Minimap)
 	self.minimapFrame = minimapFrame
 	local minimapText = minimapFrame:CreateFontString(nil, "OVERLAY")
-	minimapText:SetFontObject(GetFont(12, true))
-	minimapText:SetTextColor(unpack(Colors.offwhite))
-	minimapText:SetAlpha(.75)
+	minimapText:SetDrawLayer("OVERLAY", 1)
+	minimapText:SetFontObject(GetFont(13, true))
+	minimapText:SetTextColor(.53, .53, .53, .85)
 	minimapText:SetJustifyH("CENTER")
 	minimapText:SetJustifyV("BOTTOM")
-	-- Try to anchor to MinimapCompassTexture like original MapCoords
-	if MinimapCompassTexture then
-		minimapText:SetPoint("TOP", MinimapCompassTexture, "BOTTOM", 0, 5)
+	-- Anchor below performance text (FPS/latency)
+	local minimapModule = ns:GetModule("Minimap", true)
+	if minimapModule and minimapModule.performance then
+		minimapText:SetPoint("TOP", minimapModule.performance, "BOTTOM", 0, -4)
 	else
-		minimapText:SetPoint("BOTTOM", Minimap, "BOTTOM", 0, 30)
+		minimapText:SetPoint("TOP", Minimap, "BOTTOM", 0, -56)
 	end
 	self.minimapText = minimapText
 	-- Immediate update
