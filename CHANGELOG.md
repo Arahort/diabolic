@@ -1,5 +1,43 @@
 # DiabolicUI3 Changelog
 
+## [3.0.0] - 2026-03-13
+
+### New Features
+- **EditMode Integration**: Full Edit Mode support for Minimap, MicroMenu, Auras, PetBar, ClassPower, Target frame and Castbar via LibEditMode
+- **Key Bindings for Side Panels**: Assign hotkeys to toggle left/right side panels via WoW Key Bindings UI (DiabolicUI category)
+- **Action Bars Glow**: New animated breathing glow effect under action bar frame corners, synced with D2R eye glow animation (toggleable in Orbs settings)
+- **Minimap Scale in EditMode**: Minimap scale slider moved to EditMode per-character settings
+- **Blizzard Button Effects**: SpellHighlight, proc overlay glow and NewAction effects now always active on action buttons
+- **MinimapButtonButton Integration**: Built-in support for MinimapButtonButton addon
+- **WoW 12.0.5 Support**: Added interface version 120005
+
+### Bug Fixes
+- **Death Knight Runes**: Fixed Azerite-style runes not appearing on retail (removed ns.IsRetail condition check)
+- **DK Runes PostUpdate**: Fixed allReady always nil — now computed locally since oUF only passes runemap
+- **Minimap Coordinates**: Fixed coordinates drifting when minimap scale changes — now anchored below FPS text
+- **EditMode Positions**: All frame positions moved from global to per-character DB for proper multi-character support
+- **Mail Icon**: Fixed mail icon being hidden by Blizzard layout updates
+- **Orb Artwork**: Hidden during pet battles
+- **Castbar Overlay**: Fixed width in EditMode
+- **ClassPower/Stagger/Runes**: Fixed EditMode visibility
+
+### Changes
+- Per-character EditMode positions for all frames (Minimap, MicroMenu, Auras, PetBar, ClassPower, Target)
+- Minimap scale setting removed from main settings panel (now in EditMode)
+- Removed experimental Blizzard button effects toggle (now always enabled)
+- Action bars glow uses two-layer rendering (dark base + ADD highlight) under bar frame textures
+
+### LibActionButton-1.0-GE
+- Major update from AzeriteUI v143
+- Toy button type support
+- Spell Cast VFX on action buttons
+- Event-based range checking (ACTION_RANGE_CHECK_UPDATE)
+- Per-button OnUpdate for better performance
+- Multi-fallback overlay glow chain for proc effects
+
+### Localization
+- All 12 languages updated: enUS, ruRU, deDE, esES, esMX, frFR, itIT, koKR, ptBR, ptPT, zhCN, zhTW
+
 ## [3.0.0-alpha2] - 2026-03-09
 
 ### New Features
