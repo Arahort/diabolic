@@ -178,3 +178,6 @@ L["HideRaidManager"] = "隱藏團隊管理器"
 L["HideRaidManagerDesc"] = "隱藏螢幕左側的暴雪團隊控制面板（需要重載）"
 L["UseAzeriteClassPower"] = "AzeriteUI 風格的 ClassPower"
 L["UseAzeriteClassPowerDesc"] = "以 AzeriteUI 風格顯示職業資源（連擊點、符文、神聖能量等）（需要重載）"
+-- Key Bindings (global variables for Blizzard Key Bindings UI)
+BINDING_NAME_DIABOLICUI3_TOGGLE_LEFT_PANEL = "顯示/隱藏左側面板"
+BINDING_NAME_DIABOLICUI3_TOGGLE_RIGHT_PANEL = "顯示/隱藏右側面板"

@@ -749,6 +749,23 @@ Bars.SpawnBars = function(self)
 
 	end
 
+	-- Key binding integration: map Bindings.xml keys directly to toggle buttons via C-level
+	local bindingOwner = CreateFrame("Frame")
+	local function UpdateSidePanelBindings()
+		ClearOverrideBindings(bindingOwner)
+		local sides = {
+			{ "DIABOLICUI3_TOGGLE_LEFT_PANEL", self.ToggleButtons[1]:GetName() },
+			{ "DIABOLICUI3_TOGGLE_RIGHT_PANEL", self.ToggleButtons[2]:GetName() }
+		}
+		for _, info in next, sides do
+			local key1, key2 = GetBindingKey(info[1])
+			if key1 then SetOverrideBindingClick(bindingOwner, false, key1, info[2], "LeftButton") end
+			if key2 then SetOverrideBindingClick(bindingOwner, false, key2, info[2], "LeftButton") end
+		end
+	end
+	bindingOwner:RegisterEvent("UPDATE_BINDINGS")
+	bindingOwner:RegisterEvent("PLAYER_ENTERING_WORLD")
+	bindingOwner:SetScript("OnEvent", UpdateSidePanelBindings)
 	-- Callback for sidePanelToggleAlpha setting change
 	Settings.SetOnValueChangedCallback("global_actionbars_sidePanelToggleAlpha", function()
 		for _, toggleBtn in ipairs(self.ToggleButtons) do

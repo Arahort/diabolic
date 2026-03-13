@@ -87,7 +87,7 @@ This is a community-maintained fork. For issues or feature requests, please visi
 
 ---
 
-## List of Add-ons Present in the Video 2.2.1
+## List of Add-ons Present in the Video 3.0
 
 - Scrap
 - Almost Completed Achievements

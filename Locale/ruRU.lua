@@ -178,3 +178,6 @@ L["HideRaidManager"] = "Скрыть панель управления рейд�
 L["HideRaidManagerDesc"] = "Скрыть боковую панель Blizzard для управления рейдом (требуется перезагрузка)"
 L["UseAzeriteClassPower"] = "ClassPower в стиле AzeriteUI"
 L["UseAzeriteClassPowerDesc"] = "Отображать ресурсы класса (комбо-поинты, руны, святая сила и т.д.) в стиле AzeriteUI (требуется перезагрузка)"
+-- Key Bindings (global variables for Blizzard Key Bindings UI)
+BINDING_NAME_DIABOLICUI3_TOGGLE_LEFT_PANEL = "Показать/скрыть левую панель"
+BINDING_NAME_DIABOLICUI3_TOGGLE_RIGHT_PANEL = "Показать/скрыть правую панель"

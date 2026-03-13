@@ -1,0 +1,6 @@
+<Bindings>
+	<Binding name="DIABOLICUI3_TOGGLE_LEFT_PANEL" category="DiabolicUI">
+	</Binding>
+	<Binding name="DIABOLICUI3_TOGGLE_RIGHT_PANEL" category="DiabolicUI">
+	</Binding>
+</Bindings>

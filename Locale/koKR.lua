@@ -178,3 +178,6 @@ L["HideRaidManager"] = "공격대 관리자 숨기기"
 L["HideRaidManagerDesc"] = "화면 왼쪽에 있는 블리자드 공격대 제어판을 숨깁니다 (새로고침 필요)"
 L["UseAzeriteClassPower"] = "AzeriteUI 스타일 ClassPower"
 L["UseAzeriteClassPowerDesc"] = "클래스 자원(연계 점수, 룬, 신성한 힘 등)을 AzeriteUI 스타일로 표시 (새로고침 필요)"
+-- Key Bindings (global variables for Blizzard Key Bindings UI)
+BINDING_NAME_DIABOLICUI3_TOGGLE_LEFT_PANEL = "왼쪽 사이드 패널 전환"
+BINDING_NAME_DIABOLICUI3_TOGGLE_RIGHT_PANEL = "오른쪽 사이드 패널 전환"

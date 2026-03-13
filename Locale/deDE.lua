@@ -178,3 +178,6 @@ L["HideRaidManager"] = "Schlachtzug-Manager ausblenden"
 L["HideRaidManagerDesc"] = "Die Blizzard-Schlachtzugsteuerungsleiste am linken Bildschirmrand ausblenden (erfordert Neuladen)"
 L["UseAzeriteClassPower"] = "ClassPower im AzeriteUI-Stil"
 L["UseAzeriteClassPowerDesc"] = "Klassenressourcen (Kombopunkte, Runen, Heilige Kraft usw.) im AzeriteUI-Stil anzeigen (erfordert Neuladen)"
+-- Key Bindings (global variables for Blizzard Key Bindings UI)
+BINDING_NAME_DIABOLICUI3_TOGGLE_LEFT_PANEL = "Linke Seitenleiste umschalten"
+BINDING_NAME_DIABOLICUI3_TOGGLE_RIGHT_PANEL = "Rechte Seitenleiste umschalten"

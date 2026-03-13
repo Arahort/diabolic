@@ -178,3 +178,6 @@ L["HideRaidManager"] = "Masquer le gestionnaire de raid"
 L["HideRaidManagerDesc"] = "Masquer le panneau de contrôle de raid Blizzard sur le côté gauche de l'écran (nécessite un rechargement)"
 L["UseAzeriteClassPower"] = "ClassPower style AzeriteUI"
 L["UseAzeriteClassPowerDesc"] = "Afficher les ressources de classe (points de combo, runes, puissance sacrée, etc.) dans le style AzeriteUI (nécessite un rechargement)"
+-- Key Bindings (global variables for Blizzard Key Bindings UI)
+BINDING_NAME_DIABOLICUI3_TOGGLE_LEFT_PANEL = "Afficher/masquer le panneau gauche"
+BINDING_NAME_DIABOLICUI3_TOGGLE_RIGHT_PANEL = "Afficher/masquer le panneau droit"

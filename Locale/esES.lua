@@ -178,3 +178,6 @@ L["HideRaidManager"] = "Ocultar gestor de banda"
 L["HideRaidManagerDesc"] = "Ocultar el panel de control de banda de Blizzard en el lado izquierdo de la pantalla (requiere recarga)"
 L["UseAzeriteClassPower"] = "ClassPower estilo AzeriteUI"
 L["UseAzeriteClassPowerDesc"] = "Mostrar recursos de clase (puntos de combo, runas, poder sagrado, etc.) en estilo AzeriteUI (requiere recarga)"
+-- Key Bindings (global variables for Blizzard Key Bindings UI)
+BINDING_NAME_DIABOLICUI3_TOGGLE_LEFT_PANEL = "Mostrar/ocultar panel izquierdo"
+BINDING_NAME_DIABOLICUI3_TOGGLE_RIGHT_PANEL = "Mostrar/ocultar panel derecho"
