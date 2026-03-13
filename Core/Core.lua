@@ -39,7 +39,8 @@ local defaults = {
 		minimap = {
 			positionPoint = "TOPRIGHT",
 			positionX = -30,
-			positionY = -40
+			positionY = -40,
+			minimapScale = 0.9
 		},
 		micromenu = {
 			positionPoint = "BOTTOMRIGHT",
@@ -110,7 +111,6 @@ local defaults = {
 		},
 		core = {
 			relativeScale = 1.1,
-			minimapRelativeScale = 0.9,
 			unitframesRelativeScale = 0.85
 		},
 		orbs = {
@@ -291,16 +291,16 @@ ns.SetMinimapScale = function(self, input)
 	if (InCombatLockdown()) then
 		return
 	end
-	local scale = tonumber((self:GetArgs(string_lower(input))))
+	local scale = tonumber(type(input) == "string" and (self:GetArgs(string_lower(input))) or input)
 	if (scale) then
 		local db = self.db
-		local oldScale = db.global.core.minimapRelativeScale
+		local oldScale = db.char.minimap.minimapScale
 		scale = math_min(1.25, math_max(.75, scale))
 		if (oldScale ~= scale) then
-			db.global.core.minimapRelativeScale = scale
+			db.char.minimap.minimapScale = scale
 			SetMinimapRelativeScale(scale)
 			UpdateObjectScales()
-			ns.callbacks:Fire("Minimap_Scale_Updated", db.global.core.minimapRelativeScale)
+			ns.callbacks:Fire("Minimap_Scale_Updated", scale)
 		end
 	end
 end
@@ -408,8 +408,8 @@ ns.OnInitialize = function(self)
 	if (self.db.global.core.relativeScale) then
 		SetRelativeScale(self.db.global.core.relativeScale)
 	end
-	if (self.db.global.core.minimapRelativeScale) then
-		SetMinimapRelativeScale(self.db.global.core.minimapRelativeScale)
+	if (self.db.char.minimap.minimapScale) then
+		SetMinimapRelativeScale(self.db.char.minimap.minimapScale)
 	end
 	if (self.db.global.core.unitframesRelativeScale) then
 		SetUnitFramesRelativeScale(self.db.global.core.unitframesRelativeScale)

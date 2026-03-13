@@ -31,8 +31,6 @@ local function OnSettingChanged(_, setting, value)
 	elseif variable:match("^global_core_") then
 		if variable:match("relativeScale$") then
 			ns:SetScale(tostring(value))
-		elseif variable:match("minimapRelativeScale$") then
-			ns:SetMinimapScale(tostring(value))
 		elseif variable:match("unitframesRelativeScale$") then
 			ns:SetUnitFramesScale(tostring(value))
 		end
@@ -143,21 +141,6 @@ SettingsModule.OnInitialize = function(self)
 				return string.format("%.2f", value)
 			end)
 			Settings.CreateSlider(category, setting, options, L["UIScaleDesc"])
-		end
-		do
-			local setting = RegisterSetting(
-				category,
-				"minimapRelativeScale",
-				"global.core",
-				L["MinimapScale"],
-				1,
-				L["MinimapScaleDesc"]
-			)
-			local options = Settings.CreateSliderOptions(0.75, 1.25, 0.05)
-			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-				return string.format("%.2f", value)
-			end)
-			Settings.CreateSlider(category, setting, options, L["MinimapScaleDesc"])
 		end
 		do
 			local setting = RegisterSetting(

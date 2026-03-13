@@ -1058,6 +1058,20 @@ MinimapMod.OnInitialize = function(self)
 		LibEditMode:AddFrameSettings(Minimap, {
 			{
 				kind = LibEditMode.SettingType.Slider,
+				name = L["MinimapScale"],
+				desc = L["MinimapScaleDesc"],
+				default = 0.9,
+				minValue = 0.75,
+				maxValue = 1.25,
+				valueStep = 0.05,
+				formatter = function(value) return string.format("%.2f", value) end,
+				get = function() return ns.db.char.minimap.minimapScale or 0.9 end,
+				set = function(layoutName, value)
+					ns:SetMinimapScale(value)
+				end,
+			},
+			{
+				kind = LibEditMode.SettingType.Slider,
 				name = L["LFGEyeScale"],
 				desc = L["LFGEyeScaleDesc"],
 				default = 1.0,
