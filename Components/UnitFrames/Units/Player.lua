@@ -502,8 +502,21 @@ local AzeriteClassPower_PostUpdateColor = function(element, r, g, b)
 		element[i]:SetStatusBarColor(r, g, b)
 	end
 end
-local AzeriteRunes_PostUpdate = function(element, runemap, hasVehicle, allReady)
+local AzeriteRunes_PostUpdate = function(element, runemap)
 	if (element.inEditMode) then return end
+	-- oUF only passes runemap, compute allReady ourselves
+	local allReady = true
+	for i = 1, #element do
+		local rune = element[i]
+		if (rune:IsShown()) then
+			local value = rune:GetValue()
+			local _, max = rune:GetMinMaxValues()
+			if (value < max) then
+				allReady = false
+				break
+			end
+		end
+	end
 	for i = 1, #element do
 		local rune = element[i]
 		if (rune:IsShown()) then
@@ -1327,7 +1340,7 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	-- Runes (Death Knight)
 	--------------------------------------------
-	if (playerClass == "DEATHKNIGHT") and ((ns.IsWrath) or (ns.IsRetail and not SCP)) then
+	if (playerClass == "DEATHKNIGHT") and (not SCP) then
 
 		local runes = CreateFrame("Frame", nil, UIParent)
 		runes:SetFrameStrata("MEDIUM")
