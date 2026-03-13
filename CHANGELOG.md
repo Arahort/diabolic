@@ -1,6 +1,6 @@
 # DiabolicUI3 Changelog
 
-## [3.0.3] - 2026-03-13
+## [3.0.4] - 2026-03-13
 
 All changes since 2.8.3:
 
