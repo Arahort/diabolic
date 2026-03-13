@@ -1,42 +1,190 @@
 # DiabolicUI3 Changelog
 
-## [3.0.0] - 2026-03-13
+## [3.0.3] - 2026-03-13
+
+All changes since 2.8.3:
 
 ### New Features
-- **EditMode Integration**: Full Edit Mode support for Minimap, MicroMenu, Auras, PetBar, ClassPower, Target frame and Castbar via LibEditMode
-- **Key Bindings for Side Panels**: Assign hotkeys to toggle left/right side panels via WoW Key Bindings UI (DiabolicUI category)
-- **Action Bars Glow**: New animated breathing glow effect under action bar frame corners, synced with D2R eye glow animation (toggleable in Orbs settings)
-- **Minimap Scale in EditMode**: Minimap scale slider moved to EditMode per-character settings
-- **Blizzard Button Effects**: SpellHighlight, proc overlay glow and NewAction effects now always active on action buttons
-- **MinimapButtonButton Integration**: Built-in support for MinimapButtonButton addon
-- **WoW 12.0.5 Support**: Added interface version 120005
-
-### Bug Fixes
-- **Death Knight Runes**: Fixed Azerite-style runes not appearing on retail (removed ns.IsRetail condition check)
-- **DK Runes PostUpdate**: Fixed allReady always nil — now computed locally since oUF only passes runemap
-- **Minimap Coordinates**: Fixed coordinates drifting when minimap scale changes — now anchored below FPS text
-- **EditMode Positions**: All frame positions moved from global to per-character DB for proper multi-character support
-- **Mail Icon**: Fixed mail icon being hidden by Blizzard layout updates
-- **Orb Artwork**: Hidden during pet battles
-- **Castbar Overlay**: Fixed width in EditMode
-- **ClassPower/Stagger/Runes**: Fixed EditMode visibility
-
-### Changes
-- Per-character EditMode positions for all frames (Minimap, MicroMenu, Auras, PetBar, ClassPower, Target)
-- Minimap scale setting removed from main settings panel (now in EditMode)
-- Removed experimental Blizzard button effects toggle (now always enabled)
-- Action bars glow uses two-layer rendering (dark base + ADD highlight) under bar frame textures
+- EditMode Integration: Full native Edit Mode support for Minimap, MicroMenu, Auras, PetBar, ClassPower, Target frame and Castbar via LibEditMode (p3lim)
+- Register Minimap with LibEditMode for drag positioning
+- Add SetEditModeMinimapObjectScale for LibEditMode-compatible scaling
+- Add LFG Eye Scale slider to EditMode settings
+- Register MicroMenu toggle with LibEditMode for drag positioning
+- Show micro menu bar during EditMode for visual feedback
+- Add buttonSize and toggleAlpha sliders to EditMode settings
+- Register auras frame with LibEditMode as "Diabolic: Buffs"
+- Add icon size slider to EditMode settings
+- PetBar: EditMode integration with LibEditMode, artwork scale fix
+- ClassPower/Stagger/Runes: EditMode integration, reparented to UIParent
+- Target frame: EditMode integration with position and scale controls
+- LibEditMode: Added library for native Edit Mode frame management
+- Add "Action Bars Glow" setting in Orbs category with animated breathing glow effect under the action bar frame (synced with eye glow animation, 2.5s BOUNCE cycle)
+- When disabled, original static dark corner fills are restored
+- Setting works in real-time without /reload
+- Add configurable key bindings for left/right side panel toggle via Blizzard Key Bindings UI (SetOverrideBindingClick)
+- Move minimap scale slider from main settings panel to EditMode minimap frame settings
+- Scale is now stored in char.minimap.minimapScale instead of global.core.minimapRelativeScale, allowing per-character minimap sizing
+- Restore Blizzard button effects for all users: SpellHighlight, proc overlay glow and NewAction sparkle
+- Add multi-fallback chain for overlay glow (ActionButton_ShowOverlayGlow → ActionButtonSpellAlertManager → SpellActivationAlert) for compatibility across WoW versions
+- Parent artworkHolder to PetHider instead of UIParent so angel/demon statues and orb backgrounds are hidden during pet battles
+- Stagger (Brewmaster Monk): AzeriteUI-style Stagger — 3 orbs with per-tier colors (green/yellow/red), correct frame level, UpdateColor override
+- ClassPower (AzeriteUI): AzeriteUI-style orbs now enabled by default for all players, settings toggle hidden
+- Add WoW 12.0.5 interface version support
 
 ### LibActionButton-1.0-GE
-- Major update from AzeriteUI v143
-- Toy button type support
-- Spell Cast VFX on action buttons
-- Event-based range checking (ACTION_RANGE_CHECK_UPDATE)
-- Per-button OnUpdate for better performance
-- Multi-fallback overlay glow chain for proc effects
+- LibActionButton-1.0-GE: Major update — ported fixes from AzeriteUI v143
+- Toy Button Type: Added support for Toy items on action bars
+- GetDisplayCount: New display count system for charge-based spells
+- Spell Cast VFX: Visual casting animations on action buttons (configurable)
+- AutoCast Overlay: Visual indicator for locked transmog outfits
+- Assisted Combat (One Punch): Button state updates for assisted combat actions
+- Event-based Range: Retail now uses ACTION_RANGE_CHECK_UPDATE instead of polling
+- Per-button OnUpdate: Replaced global OnUpdate with per-button for better performance
+- LAB Version: Bumped MINOR_VERSION from 135 to 143
+- New Callbacks: OnButtonUpdate, OnButtonState, OnButtonUsable, OnCooldownUpdate, OnCooldownDone, OnChargeCreated, OnUpdateRange
+- Config Options: Added targetReticle, spellCastVFX, lossOfControlCooldown
+- CVAR_UPDATE: Handler for assistedCombatHighlight changes
+
+### Bug Fixes
+- Fix Death Knight runes not appearing with Azerite style by removing ns.IsRetail condition check
+- Fix AzeriteRunes_PostUpdate: compute allReady locally since oUF runes element only passes runemap to PostUpdate callback
+- Anchor coordinates below FPS/latency text instead of MinimapCompassTexture which drifts when minimap scale changes
+- Match font and color with performance text for visual consistency
+- Fix mail icon disappearing after EditMode exit: Blizzard's EditMode layout cleanup resets MailFrame state. Added LibEditMode exit callback to re-apply RepositionMailFrame
+- Hook MailIcon:Hide to re-show the icon on next frame when there's mail
+- Show MailIcon in UpdateBorderVisibility alongside custom border/shade textures
+- Re-apply Tracking repositioning after EditMode exit
+- Fix EditMode position not persisting across reloads: save anchor point from normalizePosition alongside x/y
+- Fix MicroMenu Bartender4 deferred init case where EditMode scale switch was never applied
+- Fix castbar overlay width in EditMode: set initial overlay width and reset it when no cast is active, preventing texture from expanding to 558px during EditMode
+- Reparent Stagger and Runes to UIParent (fixes horizontal offset)
+- Restructure AzeriteClassPower_PostUpdate to apply layout during EditMode even when cur=0
+- Add inEditMode guards to all PostUpdate functions (Azerite + standard)
+- Include Stagger/Runes in EditMode OnShow/OnHide hooks
+- LAB SpellVFX: Fixed assertion error — SpellVFX forward declarations were placed after OnEvent, making them invisible to the event handler
+- LAB GetCount: Fixed secret number comparison error in Action.GetCount (IsSafeNumber check)
+- PressHoldRelease: Extracted to separate UpdateReleaseCasting attribute, fixes Evoker zone-in bug
+- OnDown Pickup: Replaced global CVar toggle with per-button useOnKeyDown attribute
+- Count Caching: Added __LABCountCache for secret value resilience in combat
+- Cooldown Validation: Added nil-checks for cooldownInfo/chargeInfo/lossOfControlInfo
+- ChargeInfo Resolution: Added NormalizeChargeInfo and spell fallback chain
+- Action.GetCount: Added item count fallback via C_Item.GetItemCount for macros
+- Overlay Glow: Added activeAssist filtering for One Punch compatibility
+- UpdateRangeTimer: Fixed to use per-button timer instead of global
+- Player.lua: Added missing local noop = ns.Noop — stagger SetMinMaxValues/SetValue were nil causing error spam
+- Stagger: Fixed AzeriteStagger_SetStatusBarColor iterating over all table keys — now iterates only numeric indices 1–3
+
+### Changes
+- Moved Target and ClassPower positions from global to per-character DB scope
+- Move Auras, Minimap, MicroMenu EditMode positions to per-character DB
+- Removed position/scale sliders replaced by EditMode (Settings.lua cleanup)
+- Remove Minimap position and LFG Eye Scale sliders from addon Settings (now handled via Edit Mode)
+- Remove MicroMenu position/size/alpha sliders from addon Settings (now handled via Edit Mode)
+- Remove position sliders from addon settings (now via EditMode)
+- Removed Target position X/Y sliders from addon settings (now in Edit Mode)
+- Removed Target frame scale slider from addon settings (now in Edit Mode)
+- Added targetPositionPoint to DB for anchor point persistence
+- Disable toggle click handling in EditMode so selection overlay captures mouse events for dragging
 
 ### Localization
-- All 12 languages updated: enUS, ruRU, deDE, esES, esMX, frFR, itIT, koKR, ptBR, ptPT, zhCN, zhTW
+- Localization for all 12 languages
+- Localized binding names for all 12 languages
+- Localization: added ClassPower scale strings for all 12 locales
+
+## [3.0.2] - 2026-03-13
+- Fix GitHub Actions workflow not setting release as Latest (added make_latest: true)
+
+## [3.0.1] - 2026-03-13
+- Version bump release
+
+## [3.0.0] - 2026-03-13
+- Initial 3.0 release with all alpha changes
+
+## [3.0.0-alpha19] - 2026-03-13
+- Anchor coordinates below FPS/latency text instead of MinimapCompassTexture which drifts when minimap scale changes
+- Match font and color with performance text for visual consistency
+
+## [3.0.0-alpha18] - 2026-03-13
+- Add "Action Bars Glow" setting in Orbs category with animated breathing glow effect under the action bar frame (synced with eye glow animation, 2.5s BOUNCE cycle)
+- When disabled, original static dark corner fills are restored
+- Setting works in real-time without /reload
+- Fix Death Knight runes not appearing with Azerite style by removing ns.IsRetail condition check
+- Fix AzeriteRunes_PostUpdate: compute allReady locally since oUF runes element only passes runemap to PostUpdate callback
+- Localization for all 12 languages
+
+## [3.0.0-alpha17] - 2026-03-13
+- Remove ns.IsRetail condition check that prevented DK runes from being created on retail client
+- Fix AzeriteRunes_PostUpdate: compute allReady locally since oUF runes element only passes runemap to PostUpdate callback
+
+## [3.0.0-alpha16] - 2026-03-13
+- Move minimap scale slider from main settings panel to EditMode minimap frame settings
+- Scale is now stored in char.minimap.minimapScale instead of global.core.minimapRelativeScale, allowing per-character minimap sizing
+
+## [3.0.0-alpha15] - 2026-03-12
+- Add configurable key bindings for left/right side panel toggle via Blizzard Key Bindings UI (SetOverrideBindingClick)
+- Localized binding names for all 12 languages
+- Add WoW 12.0.5 interface version support
+
+## [3.0.0-alpha14] - 2026-03-12
+- Restore Blizzard button effects for all users: SpellHighlight, proc overlay glow and NewAction sparkle
+- Multi-fallback overlay glow for WoW 11.x/12.0+ compatibility
+- Move Auras, Minimap, MicroMenu EditMode positions to per-character DB
+
+## [3.0.0-alpha13] - 2026-03-12
+- Restore SpellHighlight, proc overlay glow and NewAction sparkle effects as default behavior instead of experimental setting
+- Add multi-fallback chain for overlay glow (ActionButton_ShowOverlayGlow → ActionButtonSpellAlertManager → SpellActivationAlert) for compatibility across WoW versions
+
+## [3.0.0-alpha12] - 2026-03-11
+- New "DONT CLICK!" toggle in Experiments restores spell highlight, native Blizzard proc overlay glow, and new action sparkle effects
+
+## [3.0.0-alpha11] - 2026-03-11
+- Parent artworkHolder to PetHider instead of UIParent so angel/demon statues and orb backgrounds are hidden during pet battles
+
+## [3.0.0-alpha10] - 2026-03-11
+- Fix mail icon disappearing after EditMode exit: Blizzard's EditMode layout cleanup resets MailFrame state. Added LibEditMode exit callback to re-apply RepositionMailFrame
+- Hook MailIcon:Hide to re-show the icon on next frame when there's mail
+- Show MailIcon in UpdateBorderVisibility alongside custom border/shade textures
+- Re-apply Tracking repositioning after EditMode exit
+
+## [3.0.0-alpha9] - 2026-03-11
+- Fix EditMode position not persisting across reloads: save anchor point from normalizePosition alongside x/y
+- Applied to MicroMenu, Minimap, and Auras modules
+- Fix MicroMenu Bartender4 deferred init case where EditMode scale switch was never applied
+
+## [3.0.0-alpha8] - 2026-03-10
+- Register Minimap with LibEditMode for drag positioning
+- Add SetEditModeMinimapObjectScale for LibEditMode-compatible scaling
+- Add LFG Eye Scale slider to EditMode settings
+- Remove Minimap position and LFG Eye Scale sliders from addon Settings (now handled via Edit Mode)
+
+## [3.0.0-alpha7] - 2026-03-10
+- Register MicroMenu toggle with LibEditMode for drag positioning
+- Disable toggle click handling in EditMode so selection overlay captures mouse events for dragging
+- Show micro menu bar during EditMode for visual feedback
+- Add buttonSize and toggleAlpha sliders to EditMode settings
+- Remove MicroMenu position/size/alpha sliders from addon Settings (now handled via Edit Mode)
+
+## [3.0.0-alpha6] - 2026-03-10
+- Register auras frame with LibEditMode as "Diabolic: Buffs"
+- Add icon size slider to EditMode settings
+- Remove position sliders from addon settings (now via EditMode)
+
+## [3.0.0-alpha5] - 2026-03-10
+- Fix castbar overlay width in EditMode: set initial overlay width and reset it when no cast is active, preventing texture from expanding to 558px during EditMode
+
+## [3.0.0-alpha4] - 2026-03-10
+- Reparent Stagger and Runes to UIParent (fixes horizontal offset)
+- Restructure AzeriteClassPower_PostUpdate to apply layout during EditMode even when cur=0
+- Add inEditMode guards to all PostUpdate functions (Azerite + standard)
+- Include Stagger/Runes in EditMode OnShow/OnHide hooks
+
+## [3.0.0-alpha3] - 2026-03-09
+- PetBar: EditMode integration with LibEditMode, artwork scale fix
+- ClassPower/Stagger/Runes: EditMode integration, reparented to UIParent
+- Target frame: EditMode integration with position and scale controls
+- Moved Target and ClassPower positions from global to per-character DB scope
+- Removed position/scale sliders replaced by EditMode (Settings.lua cleanup)
+- Localization: added ClassPower scale strings for all 12 locales
 
 ## [3.0.0-alpha2] - 2026-03-09
 
