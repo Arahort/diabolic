@@ -26,5 +26,6 @@ jobs:
         with:
           files: package/DiabolicUI3.zip
           generate_release_notes: true
+          make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
