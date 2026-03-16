@@ -1751,15 +1751,21 @@ function OnEvent(frame, event, arg1, arg2, arg3, arg4, ...)
 		ForAllButtons(UpdateHotkeys)
 	elseif event == "PLAYER_TARGET_CHANGED" then
 		lib.hastarget = UnitExists("target") --[[ GE Custom ]]--
-		if not WoWRetail then
-			for button in next, ActiveButtons do
+		for button in next, ActiveButtons do
+			if not WoWRetail then
 				UpdateRangeTimer(button)
 			end
+			UpdateRange(button, true) -- force immediate re-check with new target
 		end
 		ForAllButtons(UpdateUsable) --[[ GE Custom ]]--
 	elseif (event == "ACTIONBAR_UPDATE_STATE") or
 		((event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE") and (arg1 == "player")) or
 		((event == "COMPANION_UPDATE") and (arg1 == "MOUNT")) then
+		if event == "UNIT_EXITED_VEHICLE" then
+			for button in next, ActiveButtons do
+				button.outOfRange = nil
+			end
+		end
 		ForAllButtons(UpdateButtonState, true)
 	elseif event == "ACTION_RANGE_CHECK_UPDATE" then
 		local buttons = lib.buttonsBySlot[arg1]
@@ -1787,6 +1793,7 @@ function OnEvent(frame, event, arg1, arg2, arg3, arg4, ...)
 		end
 	elseif event == "PLAYER_MOUNT_DISPLAY_CHANGED" then
 		for button in next, ActiveButtons do
+			button.outOfRange = nil
 			UpdateUsable(button)
 		end
 	elseif event == "ACTIONBAR_UPDATE_COOLDOWN" then
@@ -2923,7 +2930,7 @@ UpdateRange = function(button, force, inRange, checksRange)
 			end
 		end
 	end
-	if not valid and not checksRange then
+	if checksRange == nil then
 		button.outOfRange = nil
 	end
 	lib.callbacks:Fire("OnUpdateRange", button)

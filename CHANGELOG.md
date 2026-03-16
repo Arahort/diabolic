@@ -1,5 +1,15 @@
 # DiabolicUI3 Changelog
 
+## [3.0.6] - 2026-03-16
+
+### 🔧 Fixes
+- **LibActionButton**: Fixed stale `outOfRange` flag persisting when mounting (override bar) — buttons no longer show red incorrectly when on mount
+- **LibActionButton**: Fixed stale `outOfRange` on `PLAYER_TARGET_CHANGED` — force range re-check on target switch; classic uses synchronous `UpdateRange`, retail resets and relies on `ACTION_RANGE_CHECK_UPDATE`
+- **LibActionButton**: Fixed stale `outOfRange` on `UNIT_EXITED_VEHICLE` — range state cleared when exiting vehicle/transport
+- **LibActionButton**: Fixed `UpdateRange` stale cleanup — when `checksRange` is nil (no target, range undetermined) the flag is now properly cleared instead of persisting
+
+---
+
 ## [3.0.5] - 2026-03-16
 
 ### 🔧 Changes
