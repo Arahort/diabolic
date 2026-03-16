@@ -1,5 +1,12 @@
 # DiabolicUI3 Changelog
 
+## [3.0.5] - 2026-03-16
+
+### 🔧 Changes
+- **Castbar**: Cast timer text (`CastTimeText`) moved inside the progress bar, right-aligned with 10px padding, font size matched to spell name text
+
+---
+
 ## [3.0.4] - 2026-03-13
 
 All changes since 2.8.3:

@@ -54,6 +54,21 @@ Castbar.StyleCastbar = function(self, frame)
 		RepositionText()
 		frame:HookScript("OnShow", RepositionText)
 	end
+	-- Move timer text inside the bar, right-aligned, same font size as spell name
+	if frame.CastTimeText then
+		if frame.Text then
+			local fontPath, fontSize, fontFlags = frame.Text:GetFont()
+			if fontPath then
+				frame.CastTimeText:SetFont(fontPath, fontSize, fontFlags)
+			end
+		end
+		local function RepositionTimer()
+			frame.CastTimeText:ClearAllPoints()
+			frame.CastTimeText:SetPoint("RIGHT", frame, "RIGHT", -10, 0)
+		end
+		RepositionTimer()
+		frame:HookScript("OnShow", RepositionTimer)
+	end
 	frame.__GP_Styled = true
 	-- WoW 12.0: SetStatusBarTexture on protected frames is ignored
 	-- Alternative: hide original texture and overlay our own with proper texcoord
