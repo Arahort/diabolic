@@ -39,20 +39,18 @@ The original Diabolic UI **stopped working completely** after Blizzard's API cha
 
 - Complete API migration to WoW 11.x and 12.x standards
 
-### Settings & Customization
-
-- Settings panel in Interface Options -> AddOns
-- Addon Compartment support for quick settings access
-
 ### UI Improvements
 
 - New Diablo 2 Ressurected design
 
-### Quality of Life Features
+### Features
 
 - Tooltips follow mouse cursor - integrated TTOM functionality with customizable offset
 - Auto-fill delete confirmation - no need to type "DELETE" manually when destroying items
 - Minimap button collector - integrated MinimapButtonButton functionality, addon buttons are organized into a compact dropdown near the minimap
+- EditMode support
+- Native real-time settings
+- Hotkeys for hidden actionbars
 
 ## Requirements
 
