@@ -1,5 +1,16 @@
 # DiabolicUI3 Changelog
 
+## [3.0.7] - 2026-03-20
+
+### ✨ Changes
+- **ActionButton**: Out-of-range buttons now display as grayscale instead of red tint
+
+### 🔧 Fixes
+- **LibActionButton**: Fixed `UpdateRange` logic for manual vs event call paths — `IsInRange()` returning `false` (out of range) was incorrectly treated as "no range requirement", causing buttons to show white when they should be gray
+- **LibActionButton**: Fixed bar 2 losing red state after dismount — range state for regular bars is no longer cleared on `PLAYER_MOUNT_DISPLAY_CHANGED`, only override bar slots (121+) are reset
+
+---
+
 ## [3.0.6] - 2026-03-16
 
 ### 🔧 Fixes
