@@ -1,6 +1,6 @@
 # DiabolicUI3 Changelog
 
-## [3.0.7] - 2026-03-20
+## [6.6.6-r445] - 2026-03-20
 
 ### ✨ Changes
 - **ActionButton**: Out-of-range buttons now display as grayscale instead of red tint
@@ -11,7 +11,7 @@
 
 ---
 
-## [3.0.6] - 2026-03-16
+## [6.6.6-r441] - 2026-03-16
 
 ### 🔧 Fixes
 - **LibActionButton**: Fixed stale `outOfRange` flag persisting when mounting (override bar) — buttons no longer show red incorrectly when on mount
@@ -21,7 +21,7 @@
 
 ---
 
-## [3.0.5] - 2026-03-16
+## [6.6.6-r440] - 2026-03-16
 
 ### 🔧 Changes
 - **Castbar**: Cast timer text (`CastTimeText`) moved inside the progress bar, right-aligned with 10px padding, font size matched to spell name text
