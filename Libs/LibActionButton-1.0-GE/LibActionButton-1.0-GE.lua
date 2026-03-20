@@ -261,7 +261,7 @@ local DefaultConfig = {
 	tooltip = "enabled",
 	showGrid = false,
 	colors = {
-		range = { 1, 0.15, 0.15 },
+		range = { 1, 1, 1 },
 		mana = { 0.25, 0.25, 1 },
 		disabled = { 0.4, 0.36, 0.32 }
 	},
@@ -1793,7 +1793,12 @@ function OnEvent(frame, event, arg1, arg2, arg3, arg4, ...)
 		end
 	elseif event == "PLAYER_MOUNT_DISPLAY_CHANGED" then
 		for button in next, ActiveButtons do
-			button.outOfRange = nil
+			-- Only clear stale range state for override bar buttons (slots 121+)
+			-- Regular bars keep their range state — ACTION_RANGE_CHECK_UPDATE updates them continuously
+			local action = tonumber(button._state_action)
+			if action and action >= 121 then
+				button.outOfRange = nil
+			end
 			UpdateUsable(button)
 		end
 	elseif event == "ACTIONBAR_UPDATE_COOLDOWN" then
@@ -2908,14 +2913,24 @@ end
 --- UpdateRange
 UpdateRange = function(button, force, inRange, checksRange)
 	local valid = button.outOfRange ~= nil
-	if checksRange == nil then
-		checksRange = button:IsInRange()
-		if checksRange then
-			inRange = checksRange ~= false
+	-- fromEvent: ACTION_RANGE_CHECK_UPDATE passed args explicitly
+	--   checksRange=false → spell has NO range requirement (e.g. flight ability)
+	--   checksRange=true  → spell checks range; inRange=bool says if we're in range
+	-- manual path: IsInRange() returns true=in range, false=out of range, nil=no check/no target
+	local fromEvent = checksRange ~= nil
+	if not fromEvent then
+		local isInRange = button:IsInRange()
+		if isInRange ~= nil then
+			-- Spell has range check; normalize to same semantics as event path
+			checksRange = true
+			inRange = isInRange
 		end
+		-- if isInRange==nil: checksRange stays nil → no range check, outOfRange cleared below
 	end
-	if force or (checksRange ~= nil and button.outOfRange ~= not inRange) then
-		button.outOfRange = not inRange
+	-- noRangeCheck: nil (manual, no check) or false (event, no req) → never show as out of range
+	local noRangeCheck = checksRange == nil or checksRange == false
+	if force or (not noRangeCheck and button.outOfRange ~= not inRange) then
+		button.outOfRange = not noRangeCheck and not inRange or nil
 		if button.config.outOfRangeColoring == "button" then
 			UpdateUsable(button)
 		elseif button.config.outOfRangeColoring == "hotkey" then
@@ -2930,7 +2945,7 @@ UpdateRange = function(button, force, inRange, checksRange)
 			end
 		end
 	end
-	if checksRange == nil then
+	if noRangeCheck then
 		button.outOfRange = nil
 	end
 	lib.callbacks:Fire("OnUpdateRange", button)

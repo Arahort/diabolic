@@ -27,7 +27,7 @@ local buttonConfig = {
 	tooltip = "enabled",
 	showGrid = true,
 	colors = {
-		range = { 1, .15, .15 },
+		range = { 1, 1, 1 },
 		mana = { .25, .25, 1 },
 		disabled = { .4, .36, .32 }
 	},
