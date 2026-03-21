@@ -1,5 +1,17 @@
 # DiabolicUI3 Changelog
 
+## [6.6.6-r451] - 2026-03-21
+
+### ✨ Changes
+- **Settings / About**: WoW game version now displayed alongside addon version
+- **Settings / Auras**: Added "Hide Target Auras" toggle — hides aura display on target frame in real-time
+- **ActionButton**: Release tag format updated to `6.6.6-rXXX` (dropped `release-` prefix)
+
+### 🔧 Fixes
+- **README**: Restructured "What's Different" section, added EditMode, real-time settings and hotkeys entries
+
+---
+
 ## [6.6.6-r445] - 2026-03-20
 
 ### ✨ Changes
