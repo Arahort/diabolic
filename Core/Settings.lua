@@ -1002,7 +1002,8 @@ SettingsModule.OnInitialize = function(self)
 			end
 			Header("About")
 			local version = (C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata)("DiabolicUI3", "Version") or "?"
-			Line("|cffaaaaaa" .. "Version: " .. version .. "|r", "GameFontNormal", 2)
+			local wowVersion = select(1, GetBuildInfo()) or "?"
+			Line("|cffaaaaaa" .. "Version: " .. version .. "    |cff888888WoW: " .. wowVersion .. "|r", "GameFontNormal", 2)
 			Line("This is a community-maintained fork of the original Diabolic UI")
 			Line("by Lars \"Goldpaw\" Norberg.", nil, 2)
 			Gap()
