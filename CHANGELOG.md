@@ -1,6 +1,6 @@
 # DiabolicUI3 Changelog
 
-## [6.6.6-r451] - 2026-03-21
+## [6.6.6-r452] - 2026-03-21
 
 ### ✨ Changes
 - **Settings / About**: WoW game version now displayed alongside addon version
