@@ -69,6 +69,8 @@ L["AurasIconSize"] = "Aura-Symbol-Größe"
 L["AurasIconSizeDesc"] = "Größe der Aura-Symbole bei der Minikarte anpassen (20-64 Pixel)"
 L["TwoRowsTargetAuras"] = "Zwei Reihen Ziel-Auren"
 L["TwoRowsTargetAurasDesc"] = "14 Auren in 2 Reihen unter dem Zielrahmen statt 7 anzeigen (erfordert Neuladen)"
+L["HideTargetAuras"] = "Ziel-Auren ausblenden"
+L["HideTargetAurasDesc"] = "Die Aura-Anzeige im Zielrahmen ausblenden"
 L["AurasGrowUpward"] = "Auren nach oben wachsen"
 L["AurasGrowUpwardDesc"] = "Neue Aurenreihen erscheinen oberhalb statt unterhalb (erfordert Neuladen)"
 -- Map and Minimap

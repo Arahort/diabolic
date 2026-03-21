@@ -464,4 +464,15 @@ UnitStyles["Target"] = function(self, unit, id)
 
 	self.UpdateHealthColor = UpdateHealthColor
 
+	self.UpdateTargetAurasVisibility = function(self)
+		local hide = ns.db and ns.db.global and ns.db.global.auras and ns.db.global.auras.hideTargetAuras
+		if hide then
+			self.Auras:Hide()
+		else
+			self.Auras:Show()
+		end
+	end
+	self:UpdateTargetAurasVisibility()
+	ns.RegisterCallback(self, "TargetAuras_Visibility_Updated", "UpdateTargetAurasVisibility")
+
 end

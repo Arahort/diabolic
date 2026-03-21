@@ -69,6 +69,8 @@ L["AurasIconSize"] = "Tamaño de iconos de aura"
 L["AurasIconSizeDesc"] = "Ajustar el tamaño de los iconos de aura cerca del minimapa (20-64 píxeles)"
 L["TwoRowsTargetAuras"] = "Dos filas de auras del objetivo"
 L["TwoRowsTargetAurasDesc"] = "Mostrar 14 auras en 2 filas bajo el marco del objetivo en lugar de 7 (requiere recarga)"
+L["HideTargetAuras"] = "Ocultar auras del objetivo"
+L["HideTargetAurasDesc"] = "Ocultar la visualización de auras en el marco del objetivo"
 L["AurasGrowUpward"] = "Auras crecen hacia arriba"
 L["AurasGrowUpwardDesc"] = "Las nuevas filas de auras aparecen arriba en lugar de abajo (requiere recarga)"
 -- Map and Minimap

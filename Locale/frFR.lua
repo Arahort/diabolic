@@ -69,6 +69,8 @@ L["AurasIconSize"] = "Taille des icônes d'aura"
 L["AurasIconSizeDesc"] = "Ajuster la taille des icônes d'aura près de la minicarte (20-64 pixels)"
 L["TwoRowsTargetAuras"] = "Deux rangées d'auras de cible"
 L["TwoRowsTargetAurasDesc"] = "Afficher 14 auras sur 2 rangées sous le cadre de cible au lieu de 7 (nécessite un rechargement)"
+L["HideTargetAuras"] = "Masquer les auras de cible"
+L["HideTargetAurasDesc"] = "Masquer l'affichage des auras dans le cadre de cible"
 L["AurasGrowUpward"] = "Auras vers le haut"
 L["AurasGrowUpwardDesc"] = "Les nouvelles rangées d'auras apparaissent au-dessus au lieu de dessous (nécessite rechargement)"
 -- Map and Minimap

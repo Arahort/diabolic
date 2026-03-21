@@ -164,7 +164,8 @@ local defaults = {
 		},
 		auras = {
 			iconSize = 36,
-			twoRowsTargetAuras = false
+			twoRowsTargetAuras = false,
+			hideTargetAuras = false
 		},
 		stancebar = {
 			positionX = 380,
@@ -442,6 +443,7 @@ ns.OnInitialize = function(self)
 	self:RegisterChatCommand("togglechat", "ToggleChat")
 	self:RegisterChatCommand("disablechat", function() self:ToggleChat("0") end)
 	self:RegisterChatCommand("enablechat", function() self:ToggleChat("1") end)
+
 
 	-- In case some other jokers have disabled these, we add them back to avoid a World of Bugs.
 	-- RothUI used to remove the two first, and a lot of people missed his documentation on how to get them back.

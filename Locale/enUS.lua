@@ -69,6 +69,8 @@ L["AurasIconSize"] = "Aura Icon Size"
 L["AurasIconSizeDesc"] = "Adjust aura icon size near minimap (20-64 pixels)"
 L["TwoRowsTargetAuras"] = "Two Rows of Target Auras"
 L["TwoRowsTargetAurasDesc"] = "Display 14 auras in 2 rows under the target frame instead of 7 (requires reload)"
+L["HideTargetAuras"] = "Hide Target Auras"
+L["HideTargetAurasDesc"] = "Hide the aura display on the target frame"
 L["AurasGrowUpward"] = "Grow Auras Upward"
 L["AurasGrowUpwardDesc"] = "New aura rows appear above instead of below (requires reload)"
 -- Map and Minimap

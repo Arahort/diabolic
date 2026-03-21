@@ -422,6 +422,20 @@ SettingsModule.OnInitialize = function(self)
 		do
 			local setting = RegisterSetting(
 				catAuras,
+				"hideTargetAuras",
+				"global.auras",
+				L["HideTargetAuras"],
+				false,
+				L["HideTargetAurasDesc"]
+			)
+			Settings.SetOnValueChangedCallback("global_auras_hideTargetAuras", function()
+				ns.callbacks:Fire("TargetAuras_Visibility_Updated")
+			end)
+			CreateCheckbox(catAuras, setting, L["HideTargetAurasDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				catAuras,
 				"growUpward",
 				"char.auras",
 				L["AurasGrowUpward"],

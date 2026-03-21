@@ -69,6 +69,8 @@ L["AurasIconSize"] = "오라 아이콘 크기"
 L["AurasIconSizeDesc"] = "미니맵 근처 오라 아이콘 크기 조정 (20-64 픽셀)"
 L["TwoRowsTargetAuras"] = "대상 오라 두 줄 표시"
 L["TwoRowsTargetAurasDesc"] = "대상 프레임 아래에 7개 대신 14개의 오라를 2줄로 표시 (재시작 필요)"
+L["HideTargetAuras"] = "대상 오라 숨기기"
+L["HideTargetAurasDesc"] = "대상 프레임의 오라 표시를 숨깁니다"
 L["AurasGrowUpward"] = "오라 위로 성장"
 L["AurasGrowUpwardDesc"] = "새 오라 행이 아래 대신 위에 나타남 (재시작 필요)"
 -- Map and Minimap

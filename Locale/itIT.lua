@@ -69,6 +69,8 @@ L["AurasIconSize"] = "Dimensione icone aura"
 L["AurasIconSizeDesc"] = "Regola la dimensione delle icone aura vicino alla minimappa (20-64 pixel)"
 L["TwoRowsTargetAuras"] = "Due righe di aure bersaglio"
 L["TwoRowsTargetAurasDesc"] = "Mostra 14 aure su 2 righe sotto il riquadro bersaglio invece di 7 (richiede ricaricamento)"
+L["HideTargetAuras"] = "Nascondi aure bersaglio"
+L["HideTargetAurasDesc"] = "Nasconde la visualizzazione delle aure nel riquadro bersaglio"
 L["AurasGrowUpward"] = "Aure verso l'alto"
 L["AurasGrowUpwardDesc"] = "Le nuove righe di aure appaiono sopra invece che sotto (richiede ricaricamento)"
 -- Map and Minimap

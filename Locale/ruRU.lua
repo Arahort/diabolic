@@ -69,6 +69,8 @@ L["AurasIconSize"] = "Размер иконок аур"
 L["AurasIconSizeDesc"] = "Настройка размера иконок аур возле миникарты (20-64 пикселя)"
 L["TwoRowsTargetAuras"] = "Два ряда аур цели"
 L["TwoRowsTargetAurasDesc"] = "Показывать 14 аур в 2 ряда под фреймом цели вместо 7 (требуется перезагрузка)"
+L["HideTargetAuras"] = "Скрыть ауры цели"
+L["HideTargetAurasDesc"] = "Скрыть отображение аур во фрейме цели"
 L["AurasGrowUpward"] = "Рост аур вверх"
 L["AurasGrowUpwardDesc"] = "Новые строки аур появляются выше вместо ниже (требуется перезагрузка)"
 -- Map and Minimap

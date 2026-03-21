@@ -69,6 +69,8 @@ L["AurasIconSize"] = "光环图标大小"
 L["AurasIconSizeDesc"] = "调整小地图附近光环图标大小 (20-64像素)"
 L["TwoRowsTargetAuras"] = "目标光环显示两行"
 L["TwoRowsTargetAurasDesc"] = "在目标框架下显示14个光环（2行）而不是7个（需要重载）"
+L["HideTargetAuras"] = "隐藏目标光环"
+L["HideTargetAurasDesc"] = "隐藏目标框架中的光环显示"
 L["AurasGrowUpward"] = "向上增长光环"
 L["AurasGrowUpwardDesc"] = "新的光环行向上显示而不是向下 (需要重载)"
 -- Map and Minimap
