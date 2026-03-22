@@ -467,8 +467,10 @@ UnitStyles["Target"] = function(self, unit, id)
 	self.UpdateTargetAurasVisibility = function(self)
 		local hide = ns.db and ns.db.global and ns.db.global.auras and ns.db.global.auras.hideTargetAuras
 		if hide then
+			self.Auras.Show = function() end  -- prevent oUF/any code from showing it back
 			self.Auras:Hide()
 		else
+			self.Auras.Show = nil  -- restore default Show
 			self.Auras:Show()
 		end
 	end
