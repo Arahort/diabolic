@@ -1,5 +1,16 @@
 # DiabolicUI3 Changelog
 
+## [6.6.6-r456] - 2026-03-22
+
+### 🔧 Fixes
+- **Target frame**: Hide Target Auras setting now persists correctly after clicking Apply in settings
+
+### 📦 Assets
+- Updated Platynator preset profile
+- Updated UI preset profile
+
+---
+
 ## [6.6.6-r452] - 2026-03-21
 
 ### ✨ Changes
