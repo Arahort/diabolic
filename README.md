@@ -85,7 +85,7 @@ This is a community-maintained fork. For issues or feature requests, please visi
 
 ---
 
-## List of Add-ons Present in the Video 3.0
+## List of Add-ons Present in the Video
 
 - Scrap
 - Almost Completed Achievements
@@ -105,7 +105,6 @@ This is a community-maintained fork. For issues or feature requests, please visi
 - Plumber
 - TomTom
 - Waypoint UI
-- Opulent Casting Bars
 
 ## Platynator preset By SaiyaRatt and Arahort
 
