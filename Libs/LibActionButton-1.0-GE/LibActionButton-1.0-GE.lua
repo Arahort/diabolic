@@ -2530,6 +2530,32 @@ local function StartChargeCooldown(parent, chargeStart, chargeDuration, chargeMo
 		EndChargeCooldown(parent.chargeCooldown)
 	end
 end
+-- WoW 12.0.1: StartChargeCooldown variant using duration objects
+local function StartChargeCooldownFromDuration(parent, durationObject)
+	if not parent.chargeCooldown then
+		local cooldown = tremove(lib.ChargeCooldowns)
+		if not cooldown then
+			lib.NumChargeCooldowns = lib.NumChargeCooldowns + 1
+			cooldown = CreateFrame("Cooldown", "LAB10GEChargeCooldown"..lib.NumChargeCooldowns, parent, "CooldownFrameTemplate");
+			cooldown:SetScript("OnCooldownDone", EndChargeCooldown)
+		end
+		lib.callbacks:Fire("OnChargeCreated", parent)
+		cooldown:SetHideCountdownNumbers(false)
+		cooldown:SetParent(parent)
+		cooldown:SetAllPoints(parent)
+		cooldown:SetIgnoreParentAlpha(false)
+		cooldown:Show()
+		cooldown:SetDrawSwipe(true)
+		parent.chargeCooldown = cooldown
+		cooldown.parent = parent
+	end
+	parent.chargeCooldown:SetDrawBling(parent:IsVisible())
+	parent.chargeCooldown:SetDrawSwipe(parent:IsVisible())
+	if parent.UpdateCharge then
+		parent:UpdateCharge()
+	end
+	parent.chargeCooldown:SetCooldownFromDurationObject(durationObject)
+end
 
 local function OnCooldownDone(self)
 	self:SetScript("OnCooldownDone", nil)
@@ -2542,6 +2568,12 @@ end
 local defaultCooldownInfo = { startTime = 0; duration = 0; isEnabled = false; modRate = 0 }
 local defaultChargeInfo = { currentCharges = 0; maxCharges = 0; cooldownStartTime = 0; cooldownDuration = 0; chargeModRate = 0 }
 local defaultLossOfControlInfo = { startTime = 0; duration = 0; modRate = 0 }
+-- WoW 12.0.1 Hotfix: Check for duration object APIs (SetCooldownFromDurationObject)
+-- ActionButton_ApplyCooldown no longer routes through secure delegate,
+-- so tainted code can no longer pass secret values through it.
+-- The only way for tainted code to configure cooldowns with secret values
+-- is via Cooldown:SetCooldownFromDurationObject(durationObject).
+local HAS_DURATION_OBJECT_API = C_ActionBar and C_ActionBar.GetActionCooldownDuration and true or false
 
 function UpdateCooldown(self)
 	local chargeInfo
@@ -2588,34 +2620,176 @@ function UpdateCooldown(self)
 	if not chargeInfo or not chargeInfo.maxCharges or not chargeInfo.currentCharges or not chargeInfo.cooldownStartTime or not chargeInfo.cooldownDuration then
 		chargeInfo = defaultChargeInfo
 	end
-	self.cooldown:SetDrawBling(self.cooldown:GetEffectiveAlpha() > 0.5)
-	-- WoW 12.0.0: Use ActionButton_ApplyCooldown which works with Blizzard's built-in countdown
-	if ActionButton_ApplyCooldown then
-		-- GE Fix: Pre-create lossOfControlCooldown as child of button to prevent
-		-- C++ from creating orphaned frames parented to UIParent
+	-- WoW 12.0.1: Compute isActive booleans if not provided by API
+	-- New cooldown APIs return isActive (non-secret), but auraData path doesn't
+	if cooldownInfo.isActive == nil then
+		local issv = issecretvalue or function() return false end
+		local s, d, e = cooldownInfo.startTime, cooldownInfo.duration, cooldownInfo.isEnabled
+		if not issv(s) and not issv(d) and not issv(e) then
+			cooldownInfo.isActive = e and s and d and s > 0 and d > 0
+		else
+			cooldownInfo.isActive = cooldownInfo.isEnabled and true or false
+		end
+	end
+	if lossOfControlInfo.isActive == nil then
+		local issv = issecretvalue or function() return false end
+		local s, d = lossOfControlInfo.startTime, lossOfControlInfo.duration
+		if not issv(s) and not issv(d) then
+			lossOfControlInfo.isActive = s and d and s > 0 and d > 0
+		else
+			lossOfControlInfo.isActive = false
+		end
+	end
+	if lossOfControlInfo.shouldReplaceNormalCooldown == nil then
+		lossOfControlInfo.shouldReplaceNormalCooldown = lossOfControlInfo.isActive
+	end
+	-- GE Fix: GetEffectiveAlpha returns nil when secret aspects are assigned (12.0.1)
+	local effectiveAlpha = self.cooldown:GetEffectiveAlpha()
+	self.cooldown:SetDrawBling(effectiveAlpha and effectiveAlpha > 0.5 or false)
+	-- WoW 12.0.1: Use SetCooldownFromDurationObject with duration objects
+	-- ActionButton_ApplyCooldown no longer routes through secure delegate,
+	-- so tainted code cannot pass secret values through it anymore.
+	if HAS_DURATION_OBJECT_API then
+		-- Pre-create lossOfControlCooldown as child of button
 		if not self.lossOfControlCooldown then
 			local loc = CreateFrame("Cooldown", nil, self, "CooldownFrameTemplate")
 			loc:SetAllPoints(self.cooldown)
 			loc:SetDrawEdge(false)
 			loc:SetDrawBling(false)
 			loc:SetHideCountdownNumbers(true)
-			-- GE Fix: Ensure cooldown inherits parent alpha (for auto-hide panels)
 			loc:SetIgnoreParentAlpha(false)
 			self.lossOfControlCooldown = loc
 		end
-		ActionButton_ApplyCooldown(self.cooldown, cooldownInfo, self.chargeCooldown, chargeInfo, self.lossOfControlCooldown, lossOfControlInfo)
-		-- GE Fix: C++ ActionButton_ApplyCooldown enables edge internally
-		-- bypassing Lua SetDrawEdge hooks. Force disable after every call.
+		-- Get duration objects (opaque objects that carry secret start/duration internally)
+		local cooldownDuration = self:GetCooldownDurationObject()
+		local chargeDuration = self:GetChargeDurationObject()
+		local locDuration = self:GetLossOfControlDurationObject()
+		-- Use non-secret booleans to decide what to display
+		local cooldownIsActive = cooldownInfo.isActive
+		local locIsActive = lossOfControlInfo.isActive
+		local shouldReplaceCooldown = lossOfControlInfo.shouldReplaceNormalCooldown
+		-- Determine charge state from non-secret fields
+		local maxCharges = chargeInfo.maxCharges or 0
+		local hasCharges = maxCharges > 1
+		local chargeIsActive = false
+		if hasCharges then
+			local currentCharges = chargeInfo.currentCharges
+			local issv = issecretvalue or function() return false end
+			if issv(currentCharges) then
+				-- In combat: currentCharges is secret, infer from cooldown state
+				chargeIsActive = cooldownIsActive
+			else
+				chargeIsActive = currentCharges and currentCharges < maxCharges
+			end
+		end
+		-- Apply LoC cooldown
+		if locIsActive and shouldReplaceCooldown then
+			-- LoC replaces normal cooldown on main frame
+			if self.cooldown.currentCooldownType ~= COOLDOWN_TYPE_LOSS_OF_CONTROL then
+				self.cooldown:SetEdgeTexture("Interface\\Cooldown\\edge-LoC")
+				self.cooldown:SetSwipeColor(0.17, 0, 0)
+				self.cooldown.currentCooldownType = COOLDOWN_TYPE_LOSS_OF_CONTROL
+			end
+			if locDuration then
+				self.cooldown:SetCooldownFromDurationObject(locDuration)
+			else
+				-- Fallback for button types without LoC duration object API
+				local locStart, locDur = lossOfControlInfo.startTime, lossOfControlInfo.duration
+				local issv = issecretvalue or function() return false end
+				if not issv(locStart) and not issv(locDur) then
+					CooldownFrame_Set(self.cooldown, locStart, locDur, true, false, lossOfControlInfo.modRate)
+				end
+			end
+			if self.chargeCooldown then
+				EndChargeCooldown(self.chargeCooldown)
+			end
+			if self.lossOfControlCooldown then
+				self.lossOfControlCooldown:Clear()
+			end
+		else
+			-- Normal cooldown type
+			if self.cooldown.currentCooldownType ~= COOLDOWN_TYPE_NORMAL then
+				self.cooldown:SetEdgeTexture("Interface\\Cooldown\\edge")
+				self.cooldown:SetSwipeColor(0, 0, 0)
+				self.cooldown.currentCooldownType = COOLDOWN_TYPE_NORMAL
+			end
+			if cooldownIsActive and cooldownDuration then
+				self.cooldown:SetCooldownFromDurationObject(cooldownDuration)
+			elseif cooldownIsActive then
+				-- Fallback for button types without duration object API (Item, Toy, etc.)
+				local start, duration, modRate = cooldownInfo.startTime, cooldownInfo.duration, cooldownInfo.modRate
+				local issv = issecretvalue or function() return false end
+				if not issv(start) and not issv(duration) then
+					CooldownFrame_Set(self.cooldown, start, duration, true, false, modRate)
+				else
+					self.cooldown:Clear()
+				end
+			else
+				self.cooldown:Clear()
+			end
+			-- Charge cooldown
+			if chargeIsActive and chargeDuration then
+				StartChargeCooldownFromDuration(self, chargeDuration)
+			elseif chargeIsActive then
+				-- Fallback for button types without charge duration object API
+				local chargeStart, chargeDuration, chargeModRate = chargeInfo.cooldownStartTime, chargeInfo.cooldownDuration, chargeInfo.chargeModRate
+				local issv = issecretvalue or function() return false end
+				if not issv(chargeStart) and not issv(chargeDuration) then
+					StartChargeCooldown(self, chargeStart, chargeDuration, chargeModRate)
+				elseif self.chargeCooldown then
+					EndChargeCooldown(self.chargeCooldown)
+				end
+			elseif self.chargeCooldown then
+				EndChargeCooldown(self.chargeCooldown)
+			end
+			-- LoC on separate frame (doesn't replace normal)
+			if locIsActive and locDuration then
+				self.lossOfControlCooldown:SetCooldownFromDurationObject(locDuration)
+			elseif locIsActive then
+				-- Fallback for button types without LoC duration object API
+				local locStart, locDur = lossOfControlInfo.startTime, lossOfControlInfo.duration
+				local issv = issecretvalue or function() return false end
+				if not issv(locStart) and not issv(locDur) then
+					CooldownFrame_Set(self.lossOfControlCooldown, locStart, locDur, true, false, lossOfControlInfo.modRate)
+				else
+					self.lossOfControlCooldown:Clear()
+				end
+			else
+				self.lossOfControlCooldown:Clear()
+			end
+		end
+		-- GE Fix: Force disable edge rendering
 		self.cooldown:SetDrawEdge(false)
 		if self.lossOfControlCooldown then
 			self.lossOfControlCooldown:SetDrawEdge(false)
 		end
 		if self.chargeCooldown then
 			self.chargeCooldown:SetDrawEdge(false)
-			-- GE Fix: Enable swipe for charge cooldown to show recovery animation
 			self.chargeCooldown:SetDrawSwipe(self:IsVisible())
-			-- GE Fix: Ensure chargeCooldown is properly parented to button (not UIParent)
-			-- This makes it inherit visibility from the button automatically
+			if self.chargeCooldown:GetParent() ~= self then
+				self.chargeCooldown:SetParent(self)
+				self.chargeCooldown:SetAllPoints(self.cooldown)
+			end
+		end
+	elseif ActionButton_ApplyCooldown then
+		-- Legacy path: ActionButton_ApplyCooldown still works as secure delegate (pre-hotfix)
+		if not self.lossOfControlCooldown then
+			local loc = CreateFrame("Cooldown", nil, self, "CooldownFrameTemplate")
+			loc:SetAllPoints(self.cooldown)
+			loc:SetDrawEdge(false)
+			loc:SetDrawBling(false)
+			loc:SetHideCountdownNumbers(true)
+			loc:SetIgnoreParentAlpha(false)
+			self.lossOfControlCooldown = loc
+		end
+		ActionButton_ApplyCooldown(self.cooldown, cooldownInfo, self.chargeCooldown, chargeInfo, self.lossOfControlCooldown, lossOfControlInfo)
+		self.cooldown:SetDrawEdge(false)
+		if self.lossOfControlCooldown then
+			self.lossOfControlCooldown:SetDrawEdge(false)
+		end
+		if self.chargeCooldown then
+			self.chargeCooldown:SetDrawEdge(false)
+			self.chargeCooldown:SetDrawSwipe(self:IsVisible())
 			if self.chargeCooldown:GetParent() ~= self then
 				self.chargeCooldown:SetParent(self)
 				self.chargeCooldown:SetAllPoints(self.cooldown)
@@ -3228,6 +3402,9 @@ end
 Generic.SetTooltip              = function(self) return nil end
 Generic.GetSpellId              = function(self) return nil end
 Generic.GetLossOfControlCooldown = function(self) return 0, 0 end
+Generic.GetCooldownDurationObject = function(self) return nil end
+Generic.GetChargeDurationObject = function(self) return nil end
+Generic.GetLossOfControlDurationObject = function(self) return nil end
 Generic.GetPassiveCooldownSpellID = function(self) return nil end
 
 local function GetSpellChargeInfo(spellID)
@@ -3396,6 +3573,22 @@ Action.GetSpellId              = function(self)
 	end
 end
 Action.GetLossOfControlCooldown = function(self) return GetActionLossOfControlCooldown(self._state_action) end
+-- WoW 12.0.1: Duration object getters for SetCooldownFromDurationObject
+if C_ActionBar and C_ActionBar.GetActionCooldownDuration then
+	Action.GetCooldownDurationObject = function(self)
+		return C_ActionBar.GetActionCooldownDuration(self._state_action)
+	end
+end
+if C_ActionBar and C_ActionBar.GetActionChargeDuration then
+	Action.GetChargeDurationObject = function(self)
+		return C_ActionBar.GetActionChargeDuration(self._state_action)
+	end
+end
+if C_ActionBar and C_ActionBar.GetActionLossOfControlCooldownDuration then
+	Action.GetLossOfControlDurationObject = function(self)
+		return C_ActionBar.GetActionLossOfControlCooldownDuration(self._state_action)
+	end
+end
 if C_UnitAuras and C_UnitAuras.GetCooldownAuraBySpellID and C_ActionBar and C_ActionBar.GetItemActionOnEquipSpellID then
 	Action.GetPassiveCooldownSpellID = function(self)
 		local _actionType, actionID = GetActionInfo(self._state_action)
@@ -3478,6 +3671,22 @@ Spell.GetChargeInfo           = function(self)
 	return nil
 end
 Spell.GetLossOfControlCooldown = function(self) return GetSpellLossOfControlCooldown(self._state_action) end
+-- WoW 12.0.1: Duration object getters for SetCooldownFromDurationObject
+if C_Spell and C_Spell.GetSpellCooldownDuration then
+	Spell.GetCooldownDurationObject = function(self)
+		return C_Spell.GetSpellCooldownDuration(self._state_action)
+	end
+end
+if C_Spell and C_Spell.GetSpellChargeDuration then
+	Spell.GetChargeDurationObject = function(self)
+		return C_Spell.GetSpellChargeDuration(self._state_action)
+	end
+end
+if C_Spell and C_Spell.GetSpellLossOfControlCooldownDuration then
+	Spell.GetLossOfControlDurationObject = function(self)
+		return C_Spell.GetSpellLossOfControlCooldownDuration(self._state_action)
+	end
+end
 if C_UnitAuras then
 	Spell.GetPassiveCooldownSpellID = function(self)
 		if self._state_action then

@@ -2,7 +2,7 @@
 
 ## Title: |cffaa0022Diabolic|r |cfffafafaUI|r |cffcccccc3.0 Arahort Edition|r
 ## Notes: Orb based graphical user interface replacement for WoW|n|nMaintained by Arahort (arahort.pro)|n|nBased on original DiabolicUI by Lars "Goldpaw" Norberg
-## Version: 6.6.6
+## Version: 6.6.6-r458
 ## Author: Arahort
 ## IconTexture: Interface\AddOns\DiabolicUI3\Assets\diabolic-lettermark
 

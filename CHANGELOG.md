@@ -1,5 +1,18 @@
 # DiabolicUI3 Changelog
 
+## [6.6.6-r458] - 2026-03-25
+
+### 🔧 Fixes
+- **ActionButton Cooldowns**: Fixed critical error with secret values in cooldown display after WoW 12.0.1 hotfix
+  - `ActionButton_ApplyCooldown` no longer routes through secure delegate — tainted code can no longer pass secret values to `SetCooldown`
+  - Replaced with `SetCooldownFromDurationObject()` using new duration object APIs (`C_ActionBar.GetActionCooldownDuration`, `C_ActionBar.GetActionChargeDuration`, `C_ActionBar.GetActionLossOfControlCooldownDuration`, `C_Spell` equivalents)
+  - Added fallback for Item/Toy/Macro buttons that lack duration object APIs
+  - Fixed `currentCharges` secret value comparison error in charge cooldown logic
+  - Fixed `GetEffectiveAlpha()` returning nil when secret aspects are assigned
+  - Three-tier cooldown system: duration objects → legacy `ActionButton_ApplyCooldown` → manual `CooldownFrame_Set`
+
+---
+
 ## [6.6.6-r456] - 2026-03-22
 
 ### 🔧 Fixes
