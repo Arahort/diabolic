@@ -11,10 +11,8 @@ ignore:
   - .git
   - .gitignore
   - .pkgmeta
+  - .claude
   - DiabolicUI3.rar
-  - DiabolicUI3_Wrath.toc
-  - Libs/Libs_Wrath.xml
-  - Libs/oUF.old
   - Components/Misc/Disabled
 
 enable-nolib-creation: no

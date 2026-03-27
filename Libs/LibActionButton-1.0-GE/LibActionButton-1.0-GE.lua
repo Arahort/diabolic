@@ -41,11 +41,7 @@ local type, error, tostring, tonumber, assert, select = type, error, tostring, t
 local setmetatable, wipe, unpack, pairs, next = setmetatable, wipe, unpack, pairs, next
 local str_match, format, tinsert, tremove = string.match, format, tinsert, tremove
 
-local WoWRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
-local WoWClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
-local WoWBCC = (WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC)
-local WoWWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
-local WoWCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
+local WoWRetail = true
 local function IsSafeNumber(value)
 	return type(value) == "number" and not (issecretvalue and issecretvalue(value))
 end
@@ -348,20 +344,9 @@ function lib:CreateButton(id, name, header, config)
 
 	local button = setmetatable(CreateFrame("CheckButton", name, header, "ActionButtonTemplate, SecureActionButtonTemplate"), Generic_MT)
 	button:RegisterForDrag("LeftButton", "RightButton")
-	if WoWRetail then
-		button:RegisterForClicks("AnyDown", "AnyUp")
-	else
-		button:RegisterForClicks("AnyUp")
-	end
+	button:RegisterForClicks("AnyDown", "AnyUp")
 
 	--[[-- GE Block Start --]]--
-	-- Blizzard cross-flavor mapping
-	if not WoWRetail then
-		button.PushedTexture = button:GetPushedTexture()
-		button.HighlightTexture = button:GetHighlightTexture()
-		button.CheckedTexture = button:GetCheckedTexture()
-	end
-
 	-- Hide unused elements
 	-- *Various elements removed in 11.0.0.
 	if button.AutoCastShine then
@@ -739,7 +724,7 @@ local function WatchRange(button, slot)
 	end
 	lib.buttonsBySlot[slot][button] = true
 	lib.slotByButton[button] = slot
-	if WoWRetail and EnableActionRangeCheck then
+	if EnableActionRangeCheck then
 		EnableActionRangeCheck(slot, true)
 	end
 end
@@ -748,7 +733,7 @@ local function ClearRange(button, slot)
 	if buttons then
 		buttons[button] = nil
 		if not next(buttons) then
-			if WoWRetail and EnableActionRangeCheck then
+			if EnableActionRangeCheck then
 				EnableActionRangeCheck(slot, false)
 			end
 			lib.buttonsBySlot[slot] = nil
@@ -1483,9 +1468,6 @@ function Generic:UpdateConfig(config)
 	UpdateHotkeys(self)
 	UpdateGrid(self)
 	Update(self, "UpdateConfig")
-	if not WoWRetail then
-		self:RegisterForClicks(self.config.clickOnDown and "AnyDown" or "AnyUp")
-	end
 end
 
 -----------------------------------------------------------
@@ -1518,17 +1500,11 @@ function InitializeEventHandler()
 	lib.eventFrame:RegisterEvent("GAME_PAD_ACTIVE_CHANGED")
 	lib.eventFrame:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
 	lib.eventFrame:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED")
-	if not WoWClassic and not WoWBCC then
-		lib.eventFrame:RegisterEvent("UPDATE_VEHICLE_ACTIONBAR")
-	end
+	lib.eventFrame:RegisterEvent("UPDATE_VEHICLE_ACTIONBAR")
 
 	lib.eventFrame:RegisterEvent("ACTIONBAR_UPDATE_STATE")
-	if WoWRetail then
-		lib.eventFrame:RegisterEvent("ACTION_USABLE_CHANGED")
-		lib.eventFrame:RegisterEvent("ACTION_RANGE_CHECK_UPDATE")
-	else
-		lib.eventFrame:RegisterEvent("ACTIONBAR_UPDATE_USABLE")
-	end
+	lib.eventFrame:RegisterEvent("ACTION_USABLE_CHANGED")
+	lib.eventFrame:RegisterEvent("ACTION_RANGE_CHECK_UPDATE")
 	lib.eventFrame:RegisterEvent("ACTIONBAR_UPDATE_COOLDOWN")
 	lib.eventFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
 	lib.eventFrame:RegisterEvent("TRADE_SKILL_SHOW")
@@ -1548,17 +1524,13 @@ function InitializeEventHandler()
 	lib.eventFrame:RegisterEvent("PET_STABLE_SHOW")
 	lib.eventFrame:RegisterEvent("SPELL_UPDATE_CHARGES")
 	lib.eventFrame:RegisterEvent("SPELL_UPDATE_ICON")
-	if not WoWClassic and not WoWBCC then
-		if not WoWWrath then
-			lib.eventFrame:RegisterEvent("ARCHAEOLOGY_CLOSED")
-			lib.eventFrame:RegisterEvent("UPDATE_SUMMONPETS_ACTION")
-			lib.eventFrame:RegisterEvent("SPELL_ACTIVATION_OVERLAY_GLOW_SHOW")
-			lib.eventFrame:RegisterEvent("SPELL_ACTIVATION_OVERLAY_GLOW_HIDE")
-		end
-		lib.eventFrame:RegisterEvent("UNIT_ENTERED_VEHICLE")
-		lib.eventFrame:RegisterEvent("UNIT_EXITED_VEHICLE")
-		lib.eventFrame:RegisterEvent("COMPANION_UPDATE")
-	end
+	lib.eventFrame:RegisterEvent("ARCHAEOLOGY_CLOSED")
+	lib.eventFrame:RegisterEvent("UPDATE_SUMMONPETS_ACTION")
+	lib.eventFrame:RegisterEvent("SPELL_ACTIVATION_OVERLAY_GLOW_SHOW")
+	lib.eventFrame:RegisterEvent("SPELL_ACTIVATION_OVERLAY_GLOW_HIDE")
+	lib.eventFrame:RegisterEvent("UNIT_ENTERED_VEHICLE")
+	lib.eventFrame:RegisterEvent("UNIT_EXITED_VEHICLE")
+	lib.eventFrame:RegisterEvent("COMPANION_UPDATE")
 
 	-- With those two, do we still need the ACTIONBAR equivalents of them?
 	lib.eventFrame:RegisterEvent("SPELL_UPDATE_COOLDOWN")
@@ -1567,20 +1539,18 @@ function InitializeEventHandler()
 
 	lib.eventFrame:RegisterEvent("LOSS_OF_CONTROL_ADDED")
 	lib.eventFrame:RegisterEvent("LOSS_OF_CONTROL_UPDATE")
-	if WoWRetail then
-		lib.eventFrame:RegisterEvent("UNIT_SPELLCAST_SENT")
-		lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", "player")
-		lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
-		lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_FAILED", "player")
-		lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
-		lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_STOP", "player")
-		lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_START", "player")
-		lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", "player")
-		lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_RETICLE_TARGET", "player")
-		lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_RETICLE_CLEAR", "player")
-		lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_EMPOWER_START", "player")
-		lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_EMPOWER_STOP", "player")
-	end
+	lib.eventFrame:RegisterEvent("UNIT_SPELLCAST_SENT")
+	lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", "player")
+	lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
+	lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_FAILED", "player")
+	lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
+	lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_STOP", "player")
+	lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_START", "player")
+	lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", "player")
+	lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_RETICLE_TARGET", "player")
+	lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_RETICLE_CLEAR", "player")
+	lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_EMPOWER_START", "player")
+	lib.eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_EMPOWER_STOP", "player")
 	if UseCustomFlyout then
 		lib.eventFrame:RegisterEvent("PLAYER_LOGIN")
 		lib.eventFrame:RegisterEvent("SPELLS_CHANGED")
@@ -1752,9 +1722,6 @@ function OnEvent(frame, event, arg1, arg2, arg3, arg4, ...)
 	elseif event == "PLAYER_TARGET_CHANGED" then
 		lib.hastarget = UnitExists("target") --[[ GE Custom ]]--
 		for button in next, ActiveButtons do
-			if not WoWRetail then
-				UpdateRangeTimer(button)
-			end
 			UpdateRange(button, true) -- force immediate re-check with new target
 		end
 		ForAllButtons(UpdateUsable) --[[ GE Custom ]]--
@@ -1990,14 +1957,7 @@ function Generic:OnUpdate(elapsed)
 			self.flashTime = self.flashTime + ATTACK_BUTTON_FLASH_TIME
 		end
 	end
-	-- Range (non-retail only, retail uses event-based range)
-	if not WoWRetail then
-		self.rangeTimer = (self.rangeTimer or 0) - elapsed
-		if self.rangeTimer <= 0 then
-			UpdateRange(self)
-			self.rangeTimer = TOOLTIP_UPDATE_TIME
-		end
-	end
+	-- Range is event-based on retail (ACTION_RANGE_CHECK_UPDATE)
 	--[[ GE Custom Start: Dynamic icon update for Single-Button Assistant ]]--
 	-- Only check in combat - outside combat ACTIONBAR_SLOT_CHANGED handles updates
 	if lib.incombat and self._state_type == "action" then
@@ -2354,7 +2314,7 @@ function UpdateButtonState(self)
 		self:SetChecked(false)
 	end
 	-- One Punch (Assisted Combat) button
-	local actionID = WoWRetail and self._state_type == "action" and tonumber(self._state_action)
+	local actionID = self._state_type == "action" and tonumber(self._state_action)
 	if actionID and IsAssistedCombatAction and IsAssistedCombatAction(actionID) then
 		UpdateAbilityInfo(self)
 		UpdateCooldown(self)
@@ -3607,23 +3567,6 @@ if C_UnitAuras and C_UnitAuras.GetCooldownAuraBySpellID and C_ActionBar and C_Ac
 	end
 end
 
--- Classic overrides for item count breakage
-if WoWClassic then
-	-- if the library is present, simply use it to override action counts
-	local LibClassicSpellActionCount = LibStub("LibClassicSpellActionCount-1.0", true)
-	if LibClassicSpellActionCount then
-		Action.GetCount = function(self) return LibClassicSpellActionCount:GetActionCount(self._state_action) end
-	else
-		-- if we don't have the library, only show count for items, like the default UI
-		Action.IsConsumableOrStackable = function(self) return IsItemAction(self._state_action) and (IsConsumableAction(self._state_action) or IsStackableAction(self._state_action)) end
-	end
-end
-
-if not WoWRetail then
-	-- disable loss of control cooldown on classic
-	Action.GetLossOfControlCooldown = function(self) return 0,0 end
-end
-
 local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
 local GetSpellCastCount = C_Spell and C_Spell.GetSpellCastCount or GetSpellCount
 local IsAttackSpell = C_SpellBook and C_SpellBook.IsAutoAttackSpellBookItem or IsAttackSpell
@@ -3817,11 +3760,6 @@ end
 if C_Spell and C_Spell.GetSpellDisplayCount then
 	Spell.GetDisplayCount = function(self) return C_Spell.GetSpellDisplayCount(self._state_action) end
 end
---- WoW Classic overrides
-if not WoWRetail and not WoWCata then
-	UpdateOverlayGlow = function() end
-end
-
 -----------------------------------------------------------
 --- Update old Buttons
 if oldversion and next(lib.buttonRegistry) then
