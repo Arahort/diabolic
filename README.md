@@ -38,6 +38,7 @@ The original Diabolic UI **stopped working completely** after Blizzard's API cha
 ### Core Fixes (Making it Work Again)
 
 - Complete API migration to WoW 11.x and 12.x standards
+- Removed legacy code 
 
 ### UI Improvements
 

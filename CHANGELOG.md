@@ -1,5 +1,20 @@
 # DiabolicUI3 Changelog
 
+## [6.6.6-r461] - 2026-03-27
+
+### 🧹 Cleanup
+- **Removed legacy code for Classic, TBC, Wrath, Cataclysm** — addon now targets only Retail (11.x / 12.x)
+  - Deleted unused libraries: LibActionButton-1.0.OLD, LibHealComm-4.0, Libs_Vanilla.xml, Libs_TBC.xml
+  - Deleted Classic aura system (AuraFilters, AuraStyles)
+  - Deleted Wrath-only MultiCast bar (Shaman totem bar)
+  - Cleaned `WoWClassic`/`WoWBCC`/`WoWWrath`/`WoWCata` branches from LibActionButton
+  - Cleaned `ns.IsWrath`/`ns.IsClassic`/`ns.IsTBC` blocks from Components and Core
+  - Removed Wrath addon list from Debugging, Wrath color logic from Colors, stale dates from Time
+- **Misc fixes**: fixed duplicate esMX locale loading, added `.claude` to .pkgmeta ignore, cleaned orphaned references
+- **README**: Updated with legacy code removal note
+
+---
+
 ## [6.6.6-r458] - 2026-03-25
 
 ### 🔧 Fixes
