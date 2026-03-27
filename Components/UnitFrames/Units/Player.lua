@@ -659,21 +659,15 @@ local Runes_PostUpdate = function(element, runemap, hasVehicle, allReady)
 end
 
 local Runes_PostUpdateColor = function(element, r, g, b, color, rune)
-	local m = ns.IsWrath and .5 or 1 -- Probably only needed on our current runes
+	local m = 1
 	if (rune) then
 		rune:SetStatusBarColor(r * m, g * m, b * m)
 		rune.fg:SetVertexColor(r * m, g * m, b * m)
 	else
-		if (not ns.IsWrath) then
-			color = element.__owner.colors.power.RUNES
-			r, g, b = color[1] * m, color[2] * m, color[3] * m
-		end
+		color = element.__owner.colors.power.RUNES
+		r, g, b = color[1] * m, color[2] * m, color[3] * m
 		for i = 1, #element do
 			local rune = element[i]
-			if (ns.IsWrath) then
-				color = element.__owner.colors.runes[rune.runeType]
-				r, g, b = color[1] * m, color[2] * m, color[3] * m
-			end
 			rune:SetStatusBarColor(r, g, b)
 			rune.fg:SetVertexColor(r, g, b)
 		end
@@ -1007,11 +1001,7 @@ UnitStyles["Player"] = function(self, unit, id)
 	healthValue:SetAlpha(.85)
 	healthValue:SetPoint("BOTTOM", health, "TOP", 0, 16)
 
-	if (ns.IsWrath) then
-		self:Tag(healthValue, "["..ns.Prefix..":Health:Full]")
-	else
-		self:Tag(healthValue, "["..ns.Prefix..":Health:Full]["..ns.Prefix..":Absorb]")
-	end
+	self:Tag(healthValue, "["..ns.Prefix..":Health:Full]["..ns.Prefix..":Absorb]")
 
 	self.Health.Value = healthValue
 

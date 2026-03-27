@@ -80,17 +80,12 @@ end
 -- LeftButton is handled by Blizzard's original handler (ping)
 local Minimap_OnMouseUp_Hook = function(self, button)
 	if (button == "RightButton") then
-		if (ns.IsWrath) then
-			ToggleDropDownMenu(1, nil, MiniMapTrackingDropDown, "MiniMapTracking", 8, 5)
-			PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON, "SFX")
-		else
-			local trackingBtn = MinimapCluster and MinimapCluster.Tracking and MinimapCluster.Tracking.Button
-			if trackingBtn then
-				if trackingBtn.OnMouseDown then
-					trackingBtn:OnMouseDown()
-				elseif trackingBtn.Click then
-					trackingBtn:Click()
-				end
+		local trackingBtn = MinimapCluster and MinimapCluster.Tracking and MinimapCluster.Tracking.Button
+		if trackingBtn then
+			if trackingBtn.OnMouseDown then
+				trackingBtn:OnMouseDown()
+			elseif trackingBtn.Click then
+				trackingBtn:Click()
 			end
 		end
 	elseif (button == "MiddleButton" and ns.IsRetail) then
@@ -822,66 +817,39 @@ MinimapMod.StyleMinimap = function(self)
 	eyeFrame:SetSize(64,64)
 	self.eyeFrame = eyeFrame
 
-	if (ns.IsWrath) then
-		if (MiniMapBattlefieldFrame) then
+	if (not ns.IsRetail) and QueueStatusMinimapButton then
 
-			local eyeTexture = MiniMapBattlefieldFrame:CreateTexture()
-			eyeTexture:SetDrawLayer("ARTWORK", 1)
-			eyeTexture:SetPoint("CENTER", 0, 0)
-			eyeTexture:SetSize(64,64)
-			eyeTexture:SetTexture(GetMedia("group-finder-eye-orange"))
-			eyeTexture:SetVertexColor(.8, .76, .72)
-			eyeTexture:SetShown(MiniMapBattlefieldFrame:IsShown())
-			self.eyeTexture = eyeTexture
+		local eyeTexture = QueueStatusMinimapButton.Eye:CreateTexture()
+		eyeTexture:SetDrawLayer("ARTWORK", 1)
+		eyeTexture:SetPoint("CENTER", 0, 0)
+		eyeTexture:SetSize(64,64)
+		eyeTexture:SetTexture(GetMedia("group-finder-eye-orange"))
+		eyeTexture:SetVertexColor(.8, .76, .72)
+		self.eyeTexture = eyeTexture
 
-			MiniMapBattlefieldFrame:SetParent(eyeFrame)
-			MiniMapBattlefieldFrame:ClearAllPoints()
-			MiniMapBattlefieldFrame:SetPoint("CENTER", 0, 0)
+		QueueStatusMinimapButton:SetHighlightTexture("")
 
-			MiniMapBattlefieldFrame:SetFrameLevel(MiniMapBattlefieldFrame:GetFrameLevel() + 10)
-			MiniMapBattlefieldFrame:ClearAllPoints()
-			MiniMapBattlefieldFrame:SetHitRectInsets(-8, -8, -8, -8)
+		QueueStatusMinimapButtonBorder:SetAlpha(0)
+		QueueStatusMinimapButtonBorder:SetTexture(nil)
+		QueueStatusMinimapButtonGroupSize:SetFontObject(GetFont(15,true))
+		QueueStatusMinimapButtonGroupSize:ClearAllPoints()
+		QueueStatusMinimapButtonGroupSize:SetPoint("BOTTOMRIGHT", 0, 0)
 
-			MiniMapBattlefieldBorder:Hide()
-			MiniMapBattlefieldIcon:SetAlpha(0)
-		end
+		QueueStatusMinimapButton:SetParent(eyeFrame)
+		QueueStatusMinimapButton:ClearAllPoints()
+		QueueStatusMinimapButton:SetPoint("CENTER", 0, 0)
 
-	else
+		QueueStatusMinimapButton.Eye:SetSize(64,64)
+		QueueStatusMinimapButton.Eye.texture:SetParent(UIHider)
+		QueueStatusMinimapButton.Eye.texture:SetAlpha(0)
 
-		if (not ns.IsRetail) and QueueStatusMinimapButton then
+		QueueStatusMinimapButton.Highlight:SetAlpha(0)
+		QueueStatusMinimapButton.Highlight:SetTexture(nil)
 
-			local eyeTexture = QueueStatusMinimapButton.Eye:CreateTexture()
-			eyeTexture:SetDrawLayer("ARTWORK", 1)
-			eyeTexture:SetPoint("CENTER", 0, 0)
-			eyeTexture:SetSize(64,64)
-			eyeTexture:SetTexture(GetMedia("group-finder-eye-orange"))
-			eyeTexture:SetVertexColor(.8, .76, .72)
-			self.eyeTexture = eyeTexture
-
-			QueueStatusMinimapButton:SetHighlightTexture("")
-
-			QueueStatusMinimapButtonBorder:SetAlpha(0)
-			QueueStatusMinimapButtonBorder:SetTexture(nil)
-			QueueStatusMinimapButtonGroupSize:SetFontObject(GetFont(15,true))
-			QueueStatusMinimapButtonGroupSize:ClearAllPoints()
-			QueueStatusMinimapButtonGroupSize:SetPoint("BOTTOMRIGHT", 0, 0)
-
-			QueueStatusMinimapButton:SetParent(eyeFrame)
-			QueueStatusMinimapButton:ClearAllPoints()
-			QueueStatusMinimapButton:SetPoint("CENTER", 0, 0)
-
-			QueueStatusMinimapButton.Eye:SetSize(64,64)
-			QueueStatusMinimapButton.Eye.texture:SetParent(UIHider)
-			QueueStatusMinimapButton.Eye.texture:SetAlpha(0)
-
-			QueueStatusMinimapButton.Highlight:SetAlpha(0)
-			QueueStatusMinimapButton.Highlight:SetTexture(nil)
-
-			QueueStatusFrame:ClearAllPoints()
-			QueueStatusFrame:SetPoint("TOPRIGHT", QueueStatusMinimapButton, "BOTTOMLEFT", 0, 0)
-		end
-
+		QueueStatusFrame:ClearAllPoints()
+		QueueStatusFrame:SetPoint("TOPRIGHT", QueueStatusMinimapButton, "BOTTOMLEFT", 0, 0)
 	end
+
 end
 
 MinimapMod.InitializeMBB = function(self)

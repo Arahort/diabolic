@@ -18,7 +18,6 @@
 	<Script file="Elements\ExtraButtons.lua"/>
 	<Script file="Elements\StatusBars.lua"/>
 	<Script file="Elements\MicroMenu.lua"/>
-	<Script file="Elements\MultiCast.lua"/>
 	<Script file="Elements\BagButton.lua"/>
 
 	<Script file="Compatibility\Bartender.lua"/>

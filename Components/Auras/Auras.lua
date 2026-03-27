@@ -697,12 +697,6 @@ Auras.SpawnAuras = function(self)
 		-- visibility mode is set to auto.
 		local visdriver = "[petbattle]hide;"
 
-		-- In Wrath we still buff people before pulling,
-		-- so this seems like a reasonable compromise.
-		if (ns.IsWrath) then
-			visdriver = visdriver .. "[group,nocombat]show;"
-		end
-
 		visdriver = visdriver .. "[mod:ctrl/shift]show;"
 		visdriver = visdriver .. "hide"
 

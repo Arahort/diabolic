@@ -33,17 +33,6 @@ local Spawn = function(unit, name)
 	local fullName = ns.Prefix.."UnitFrame"..name
 	local frame = oUF:Spawn(unit, fullName)
 
-	-- Vehicle switching is currently broken in Wrath.
-	if (ns.IsWrath) then
-		if (unit == "player") then
-			frame:SetAttribute("toggleForVehicle", false)
-			RegisterAttributeDriver(frame, "unit", "[vehicleui] vehicle; player")
-		elseif (unit == "pet") then
-			frame:SetAttribute("toggleForVehicle", false)
-			RegisterAttributeDriver(frame, "unit", "[vehicleui] player; pet")
-		end
-	end
-
 	-- WoW 12.0.0: Apply custom HealthPrediction override for secret values compatibility
 	if frame.HealthPrediction and ns.HealthPrediction_Update_Diabolic then
 		frame.HealthPrediction.Override = ns.HealthPrediction_Update_Diabolic

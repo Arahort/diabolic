@@ -258,12 +258,6 @@ Clutter.HandleArcheologyBar = function(self, event, ...)
 end
 
 Clutter.HandleVehicleSeatIndicator = function(self)
-	-- No vehicle seat indicator in Wrath yet,
-	-- or at least not under this name.
-	if (ns.IsWrath) then
-		return
-	end
-
 	local VehicleSeatIndicator = SetObjectScale(_G.VehicleSeatIndicator)
 	VehicleSeatIndicator:SetParent(UIParent)
 	VehicleSeatIndicator:SetFrameStrata("BACKGROUND")

@@ -4,7 +4,5 @@
 	<Script file="Shared\AuraStyles.lua"/>
 	<Script file="Retail\AuraFilters.lua"/>
 	<Script file="Retail\AuraStyles.lua"/>
-	<Script file="Classic\AuraFilters.lua"/>
-	<Script file="Classic\AuraStyles.lua"/>
 
 </Ui>

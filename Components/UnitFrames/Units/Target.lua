@@ -271,10 +271,8 @@ local UpdateArtwork = function(self)
 		return
 	end
 	local l = UnitLevel(unit)
-	if (not ns.IsWrath) then
-		if (UnitIsWildBattlePet(unit) or UnitIsBattlePetCompanion(unit)) then
-			l = UnitBattlePetLevel(unit)
-		end
+	if (UnitIsWildBattlePet(unit) or UnitIsBattlePetCompanion(unit)) then
+		l = UnitBattlePetLevel(unit)
 	end
 	local c = UnitClassification(unit)
 	if (c == "worldboss" or (l and l < 1) or c == "elite" or c == "rareelite" or c == "rare") then

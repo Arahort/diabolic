@@ -17,14 +17,10 @@ local GetMedia = ns.API.GetMedia
 
 local UpdateTooltip = function(self)
 	if (GameTooltip:IsForbidden()) then return end
-	if (ns.IsWrath) then
-		GameTooltip:SetUnitAura(self:GetParent().__owner.unit, self:GetID(), self.filter)
+	if (self.isHarmful) then
+		GameTooltip:SetUnitDebuffByAuraInstanceID(self:GetParent().__owner.unit, self.auraInstanceID)
 	else
-		if (self.isHarmful) then
-			GameTooltip:SetUnitDebuffByAuraInstanceID(self:GetParent().__owner.unit, self.auraInstanceID)
-		else
-			GameTooltip:SetUnitBuffByAuraInstanceID(self:GetParent().__owner.unit, self.auraInstanceID)
-		end
+		GameTooltip:SetUnitBuffByAuraInstanceID(self:GetParent().__owner.unit, self.auraInstanceID)
 	end
 end
 
