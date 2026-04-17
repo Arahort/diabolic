@@ -102,11 +102,11 @@ ExtraButtons.UpdateButton = function(self, button)
 		--keybind:SetText(GetBindingKey(button:GetName()))
 	end
 
-	if (button:GetCheckedTexture()) then
+	if (button.GetCheckedTexture and button:GetCheckedTexture()) then
 		button:GetCheckedTexture():SetTexture(nil)
 		button:GetCheckedTexture():SetAlpha(0)
 	end
-	if (button:GetPushedTexture()) then
+	if (button.GetPushedTexture and button:GetPushedTexture()) then
 		local pushed = button:GetPushedTexture()
 		pushed:SetTexture(nil)
 		pushed:SetAlpha(0)
@@ -123,15 +123,15 @@ ExtraButtons.UpdateButton = function(self, button)
 			button.__GP_Checked = checkedTexture
 			button:SetCheckedTexture(checkedTexture)
 		end
-	end
-	if not button.__GP_CTSetHooked then
-		button.__GP_CTSetHooked = true
-		hooksecurefunc(button, "SetCheckedTexture", function(b, ...)
-			local ct = b:GetCheckedTexture()
-			if ct and ct ~= b.__GP_Checked then
-				ct:SetAlpha(0)
-			end
-		end)
+		if not button.__GP_CTSetHooked then
+			button.__GP_CTSetHooked = true
+			hooksecurefunc(button, "SetCheckedTexture", function(b, ...)
+				local ct = b:GetCheckedTexture()
+				if ct and ct ~= b.__GP_Checked then
+					ct:SetAlpha(0)
+				end
+			end)
+		end
 	end
 
 	-- This crazy stunt is needed to be able

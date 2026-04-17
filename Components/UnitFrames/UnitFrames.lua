@@ -504,19 +504,73 @@ UnitFrames.SpawnUnitFrames = function(self)
 	end)
 end
 
+UnitFrames.HideBlizzardPartyFrames = function(self)
+	-- Hide only Blizzard's CompactPartyFrame (party-specific)
+	-- Raid frame (CompactRaidFrameContainer) stays standard/untouched
+	local UIHider = ns.Hider or CreateFrame("Frame")
+	if (not ns.Hider) then
+		UIHider:Hide()
+		ns.Hider = UIHider
+	end
+	local CompactPartyFrame = _G.CompactPartyFrame
+	if (CompactPartyFrame) then
+		CompactPartyFrame:UnregisterAllEvents()
+		CompactPartyFrame:SetParent(UIHider)
+	end
+end
+
 UnitFrames.SpawnGroupFrames = function(self)
+	-- Only spawn if experimental AzeriteUI group frames are enabled
+	local enabled = ns.db and ns.db.char and ns.db.char.experiments and ns.db.char.experiments.azeriteGroupFrames
+	if (not enabled) then
+		return
+	end
+
+	self:HideBlizzardPartyFrames()
+
 	oUF:Factory(function(oUF)
 		oUF:SetActiveStyle(ns.Prefix)
 
-		-- oUF:SpawnHeader(overrideName, overrideTemplate, visibility, attributes ...)
-		--local party = oUF:SpawnHeader(nil, nil, "raid,party,solo",
-		--		-- http://wowprogramming.com/docs/secure_template/Group_Headers
-		--		-- Set header attributes
-		--		"showParty", true,
-		--		"showPlayer", true,
-		--		"yOffset", -20
-		--)
-		--party:SetPoint("TOPLEFT", 30, -30)
+		-- http://wowprogramming.com/docs/secure_template/Group_Headers
+		local party = oUF:SpawnHeader(ns.Prefix.."Party", nil,
+			"showParty", true,
+			"showPlayer", false,
+			"showSolo", false,
+			"showRaid", false,
+			"xOffset", 0,
+			"yOffset", 0,
+			"point", "LEFT",
+			"unitsPerColumn", 5,
+			"maxColumns", 1,
+			"columnSpacing", 0,
+			"columnAnchorPoint", "TOP",
+			"oUF-initialConfigFunction", [[
+				self:SetWidth(130)
+				self:SetHeight(140)
+			]]
+		)
+		-- Restore saved position (per-character)
+		local gDb = ns.db and ns.db.char and ns.db.char.groupFrames
+		local posPoint = (gDb and gDb.partyPoint) or "TOPLEFT"
+		local posX = (gDb and gDb.partyX) or 50
+		local posY = (gDb and gDb.partyY) or -42
+		party:SetPoint(posPoint, UIParent, posPoint, posX, posY)
+		RegisterStateDriver(party, "visibility", "[group:party,nogroup:raid]show;hide")
+
+		ns.PartyHeader = party
+
+		-- Register with EditMode (LibEditMode) if available
+		local LibEditMode = ns.LibEditMode
+		if (LibEditMode and LibEditMode.AddFrame) then
+			party.editModeName = "Diabolic: Party"
+			LibEditMode:AddFrame(party, function(frame, layoutName, point, x, y)
+				if (ns.db and ns.db.char and ns.db.char.groupFrames) then
+					ns.db.char.groupFrames.partyPoint = point
+					ns.db.char.groupFrames.partyX = x
+					ns.db.char.groupFrames.partyY = y
+				end
+			end, {point = posPoint, x = posX, y = posY})
+		end
 	end)
 end
 

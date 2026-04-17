@@ -102,7 +102,13 @@ local defaults = {
 			scale = 1.0
 		},
 		experiments = {
-			useAzeriteClassPower = true
+			useAzeriteClassPower = true,
+			azeriteGroupFrames = false
+		},
+		groupFrames = {
+			partyPoint = "TOPLEFT",
+			partyX = 50,
+			partyY = -42
 		}
 	},
 	global = {

@@ -10,6 +10,11 @@ local string_format = string.format
 local unpack = unpack
 
 -- WoW API
+local HasOverrideActionBar = HasOverrideActionBar
+local HasTempShapeshiftActionBar = HasTempShapeshiftActionBar
+local HasVehicleActionBar = HasVehicleActionBar
+local IsPossessBarVisible = IsPossessBarVisible
+local UnitHasVehicleUI = UnitHasVehicleUI
 local GetFactionInfo = GetFactionInfo
 local GetFactionParagonInfo = C_Reputation and C_Reputation.GetFactionParagonInfo
 local C_GossipInfo_GetFriendshipReputation = C_GossipInfo and C_GossipInfo.GetFriendshipReputation
@@ -178,12 +183,34 @@ StatusBars.CreateBars = function(self)
 	ns:Fire("StatusTrackingBar_Created", Bars[1]:GetName())
 end
 
+-- Hide XP/reputation bar when action bars are overridden (vehicle, special mount, possess, temp shapeshift)
+-- These states replace the main action bar position - XP bar floating alone looks wrong
+local IsSpecialBarActive = function()
+	if UnitHasVehicleUI and UnitHasVehicleUI("player") then return true end
+	if HasVehicleActionBar and HasVehicleActionBar() then return true end
+	if HasOverrideActionBar and HasOverrideActionBar() then return true end
+	if HasTempShapeshiftActionBar and HasTempShapeshiftActionBar() then return true end
+	if IsPossessBarVisible and IsPossessBarVisible() then return true end
+	return false
+end
+
 StatusBars.UpdateBars = function(self, event, ...)
 	if (not Bars) then
 		return
 	end
 	local bar,bonus = Bars[1],Bars[2]
 	local bonusShown = bonus:IsShown()
+
+	-- Hide XP/reputation bar when action bars are swapped (vehicle, override, etc.)
+	if (IsSpecialBarActive()) then
+		bar:Hide()
+		if (bonusShown) then
+			bonus:Hide()
+			bonus:SetValue(0, true)
+			bonus:SetMinMaxValues(0, 1, true)
+		end
+		return
+	end
 
 	local factionData = C_Reputation.GetWatchedFactionData()
 	if (factionData) then
@@ -361,4 +388,11 @@ StatusBars.OnEnable = function(self)
 	self:RegisterEvent("PLAYER_UPDATE_RESTING", "UpdateBars")
 	self:RegisterEvent("UPDATE_EXHAUSTION", "UpdateBars")
 	self:RegisterEvent("UPDATE_FACTION", "UpdateBars")
+	self:RegisterEvent("UNIT_ENTERED_VEHICLE", "UpdateBars")
+	self:RegisterEvent("UNIT_EXITED_VEHICLE", "UpdateBars")
+	self:RegisterEvent("UPDATE_VEHICLE_ACTIONBAR", "UpdateBars")
+	self:RegisterEvent("UPDATE_OVERRIDE_ACTIONBAR", "UpdateBars")
+	self:RegisterEvent("UPDATE_POSSESS_BAR", "UpdateBars")
+	self:RegisterEvent("UPDATE_SHAPESHIFT_FORM", "UpdateBars")
+	self:RegisterEvent("ACTIONBAR_PAGE_CHANGED", "UpdateBars")
 end

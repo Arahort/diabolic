@@ -152,7 +152,8 @@ ActionBar.UpdateVisibilityDriver = function(self)
 		if (self.id == 1) then
 			visdriver = "[petbattle]hide;show"
 		else
-			visdriver = "[petbattle][possessbar][overridebar][vehicleui][@vehicle,exists]hide;show"
+			-- Hide only during petbattle and vehicle UI (keep visible during stun/polymorph/override)
+			visdriver = "[petbattle][vehicleui][@vehicle,exists]hide;show"
 		end
 	end
 
