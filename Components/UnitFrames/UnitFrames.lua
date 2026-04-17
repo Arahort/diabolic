@@ -570,6 +570,42 @@ UnitFrames.SpawnGroupFrames = function(self)
 					ns.db.char.groupFrames.partyY = y
 				end
 			end, {point = posPoint, x = posX, y = posY})
+			-- Checkbox: Show HP as percent vs number
+			LibEditMode:AddFrameSettings(party, {
+				{
+					kind = LibEditMode.SettingType.Checkbox,
+					name = ns.L and ns.L["PartyShowHealthPercent"] or "Show HP as Percentage",
+					desc = ns.L and ns.L["PartyShowHealthPercentDesc"] or "Display HP as % (e.g. 85%) instead of abbreviated number (e.g. 170K)",
+					default = true,
+					get = function(layoutName)
+						if (ns.db and ns.db.char and ns.db.char.groupFrames) then
+							local v = ns.db.char.groupFrames.showPercent
+							if (v == nil) then return true end
+							return v
+						end
+						return true
+					end,
+					set = function(layoutName, value)
+						if (ns.db and ns.db.char and ns.db.char.groupFrames) then
+							ns.db.char.groupFrames.showPercent = value and true or false
+						end
+						-- Apply to all active party frames
+						if (oUF and oUF.objects) then
+							for _, frame in ipairs(oUF.objects) do
+								if (frame.unit and type(frame.unit) == "string" and frame.unit:match("^party%d*$")
+										and frame.Health and frame.Health.Value) then
+									local tag = value and frame.Health.TagPercent or frame.Health.TagNumber
+									if (tag) then
+										frame:Untag(frame.Health.Value)
+										frame:Tag(frame.Health.Value, tag)
+										frame:UpdateTags()
+									end
+								end
+							end
+						end
+					end,
+				}
+			})
 		end
 	end)
 end

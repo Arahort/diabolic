@@ -109,17 +109,18 @@ local GroupRoleIndicator_Override = function(self, event)
 		element:Hide()
 	end
 end
--- Target highlight update
+-- Target highlight update: color the portrait border golden when unit is targeted
 local TargetHighlight_Update = function(self, event, unit)
 	if (unit and unit ~= self.unit) then return end
-	local element = self.TargetHighlight
-	if (not element) then return end
 	unit = unit or self.unit
+	if (not self.Portrait or not self.Portrait.Border) then return end
+	local border = self.Portrait.Border
 	if (unit and UnitIsUnit(unit, "target")) then
-		element:SetVertexColor(unpack(element.colorTarget))
-		element:Show()
+		-- Golden target color
+		border:SetVertexColor(1, .94, .66, 1)
 	else
-		element:Hide()
+		-- Default silver
+		border:SetVertexColor(UI_R, UI_G, UI_B, 1)
 	end
 end
 -- Style function
@@ -233,19 +234,25 @@ UnitStyles["Party"] = function(self, unit, id)
 		healAbsorbBar = healAbsorb,
 		maxOverflow = 1
 	}
-	-- HP value text (abbreviated) centered in HP bar
+	-- HP text (percent or number based on setting)
 	local healthValue = overlay:CreateFontString(nil, "OVERLAY")
 	healthValue:SetPoint("CENTER", health, "CENTER", 0, 0)
-	healthValue:SetFontObject(GetFont(12, true))
-	healthValue:SetTextColor(Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3], .9)
+	healthValue:SetFontObject(GetFont(15, true))
+	healthValue:SetTextColor(Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3], 1)
 	healthValue:SetJustifyH("CENTER")
-	self:Tag(healthValue, "[dead][offline]["..ns.Prefix..":Health:Smart]")
+	-- Our tags internally handle dead/offline state, don't prefix with [dead][offline]
+	local tagPercent = "["..ns.Prefix..":HealthPercent]"
+	local tagNumber = "["..ns.Prefix..":Health:Smart]"
+	-- TEMP: always percent for testing
+	self:Tag(healthValue, tagPercent)
 	self.Health.Value = healthValue
+	self.Health.TagPercent = tagPercent
+	self.Health.TagNumber = tagNumber
 	-- Name just above HP bar (bigger font)
 	local name = overlay:CreateFontString(nil, "OVERLAY")
 	name:SetFontObject(GetFont(14, true))
 	name:SetTextColor(unpack(Colors.offwhite))
-	name:SetPoint("BOTTOM", health, "TOP", 0, 2)
+	name:SetPoint("BOTTOM", health, "TOP", 0, 3)
 	name:SetJustifyH("CENTER")
 	self:Tag(name, "["..ns.Prefix..":Name]")
 	self.Name = name
@@ -274,15 +281,7 @@ UnitStyles["Party"] = function(self, unit, id)
 	castbar:SetFrameLevel(health:GetFrameLevel() + 2)
 	castbar:Hide()
 	self.Castbar = castbar
-	-- Target Highlight (outline when this unit is your target)
-	local targetHighlight = overlay:CreateTexture(nil, "OVERLAY", nil, 2)
-	targetHighlight:SetSize(PLATE_WIDTH + 6, PLATE_HEIGHT + 4)
-	targetHighlight:SetPoint("CENTER", healthBackdrop, "CENTER", 0, 0)
-	targetHighlight:SetTexture(GetMedia("UnitFrames/Group/nameplate_outline"))
-	targetHighlight:SetVertexColor(1, .94, .66, 1)
-	targetHighlight:Hide()
-	targetHighlight.colorTarget = { 1, .94, .66, 1 }
-	self.TargetHighlight = targetHighlight
+	-- Target highlight via portrait border color (no rectangle texture)
 	self:RegisterEvent("PLAYER_TARGET_CHANGED", TargetHighlight_Update, true)
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", TargetHighlight_Update, true)
 	-- (ThreatIndicator element removed — colorThreat=true on Health already handles aggro coloring)
@@ -356,8 +355,22 @@ UnitStyles["Party"] = function(self, unit, id)
 	auras.disableMouse = false
 	auras.showStealableBuffs = false
 	auras.onlyShowPlayer = false
-	if (ns.AuraStyles and ns.AuraStyles.CreateButton) then
-		auras.CreateButton = ns.AuraStyles.CreateButton
+	-- Custom aura button creator with stance-style button-big border
+	auras.CreateButton = function(element, position)
+		local btn = ns.AuraStyles.CreateButton(element, position)
+		if (btn and not btn.__partyBorderApplied) then
+			btn.__partyBorderApplied = true
+			if (btn.Border) then
+				btn.Border:Hide()
+			end
+			-- Add stance-style backdrop (button-big texture)
+			local backdrop = btn:CreateTexture(nil, "BACKGROUND", nil, -1)
+			backdrop:SetSize(AURA_SIZE + 9, AURA_SIZE + 9)
+			backdrop:SetPoint("CENTER")
+			backdrop:SetTexture(GetMedia("button-big"))
+			btn.partyBackdrop = backdrop
+		end
+		return btn
 	end
 	if (ns.AuraStyles and ns.AuraStyles.TargetPostUpdateButton) then
 		auras.PostUpdateButton = ns.AuraStyles.TargetPostUpdateButton
@@ -423,15 +436,17 @@ SlashCmdList["DAZPARTY"] = function(msg)
 			if (not btn) then
 				btn = CreateFrame("Frame", nil, frame.Auras)
 				btn:SetSize(AURA_SIZE, AURA_SIZE)
+				-- Stance-style backdrop (button-big) behind icon
+				local backdrop = btn:CreateTexture(nil, "BACKGROUND", nil, -1)
+				backdrop:SetSize(AURA_SIZE + 9, AURA_SIZE + 9)
+				backdrop:SetPoint("CENTER")
+				backdrop:SetTexture(GetMedia("button-big"))
+				btn.partyBackdrop = backdrop
 				local icon = btn:CreateTexture(nil, "ARTWORK")
-				icon:SetAllPoints()
+				icon:SetPoint("TOPLEFT", 2, -2)
+				icon:SetPoint("BOTTOMRIGHT", -2, 2)
 				icon:SetTexCoord(.08, .92, .08, .92)
 				btn.icon = icon
-				local border = btn:CreateTexture(nil, "OVERLAY")
-				border:SetPoint("TOPLEFT", -1, 1)
-				border:SetPoint("BOTTOMRIGHT", 1, -1)
-				border:SetColorTexture(0, 0, 0, 1)
-				border:SetDrawLayer("BACKGROUND", -1)
 				buttons[i] = btn
 			end
 			if (i <= count) then

@@ -146,6 +146,37 @@ Methods[ns.Prefix..":Health:Smart"] = function(unit)
 	end
 end
 
+-- WoW 12.0+: UnitHealthPercent + CurveConstants.ScaleTo100 returns scaled 0-100 value.
+-- The value may still be secret/curved — must use C_StringUtil.RoundToNearestString
+-- (Pattern used by Platynator addon for nameplate HP text in Midnight)
+Events[ns.Prefix..":HealthPercent"] = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_CONNECTION PLAYER_ENTERING_WORLD"
+Methods[ns.Prefix..":HealthPercent"] = function(unit)
+	if (not unit) then return "" end
+	if (not UnitIsConnected(unit)) then
+		return PLAYER_OFFLINE or "Offline"
+	end
+	if (UnitIsDeadOrGhost(unit)) then
+		return L_DEAD
+	end
+	-- Midnight API path: UnitHealthPercent + ScaleTo100 + RoundToNearestString
+	if (UnitHealthPercent and CurveConstants and CurveConstants.ScaleTo100
+			and C_StringUtil and C_StringUtil.RoundToNearestString) then
+		local ok, pct = pcall(UnitHealthPercent, unit, true, CurveConstants.ScaleTo100)
+		if (ok and pct) then
+			return C_StringUtil.RoundToNearestString(pct) .. "%"
+		end
+	end
+	-- Fallback: direct calculation if values aren't secret
+	local health = UnitHealth(unit)
+	local maxHealth = UnitHealthMax(unit)
+	if (not issecretvalue(health) and not issecretvalue(maxHealth)
+			and maxHealth and maxHealth > 0) then
+		local pct = health / maxHealth * 100 + .5
+		return (pct - pct % 1) .. "%"
+	end
+	return ""
+end
+
 Events[ns.Prefix..":Level"] = "UNIT_LEVEL PLAYER_LEVEL_UP UNIT_CLASSIFICATION_CHANGED"
 if (oUF.isClassic or oUF.isTBC or oUF.isWrath) then
 	Methods[ns.Prefix..":Level"] = function(unit, asPrefix)
