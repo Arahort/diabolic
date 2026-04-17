@@ -120,6 +120,15 @@ This is a community-maintained fork. For issues or feature requests, please visi
 
 ---
 
+## Special thanks
+
+- Anlorian
+- JuNNeZ
+- Goldpaw
+- SaiyaRat
+
+---
+
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
