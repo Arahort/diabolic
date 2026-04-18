@@ -44,8 +44,8 @@ local HEALTH_HEIGHT = 16
 local HEALTH_OFFSET_Y = 28
 -- Power bar (thicker, borders touch HP border - no gap)
 local POWER_WIDTH = 100
-local POWER_HEIGHT = 12
-local POWER_OFFSET_Y = 8
+local POWER_HEIGHT = 10
+local POWER_OFFSET_Y = 10
 -- Role icon
 local ROLE_ICON_SIZE = 34
 local ROLE_BACKDROP_SIZE = 77
@@ -234,10 +234,14 @@ UnitStyles["Party"] = function(self, unit, id)
 		healAbsorbBar = healAbsorb,
 		maxOverflow = 1
 	}
-	-- HP text (percent or number based on setting)
+	-- HP text (percent or number based on setting) - font size configurable in EditMode
+	local healthFontSize = 17
+	if (ns.db and ns.db.char and ns.db.char.groupFrames and ns.db.char.groupFrames.healthFontSize) then
+		healthFontSize = ns.db.char.groupFrames.healthFontSize
+	end
 	local healthValue = overlay:CreateFontString(nil, "OVERLAY")
 	healthValue:SetPoint("CENTER", health, "CENTER", 0, 0)
-	healthValue:SetFontObject(GetFont(15, true))
+	healthValue:SetFontObject(GetFont(healthFontSize, true))
 	healthValue:SetTextColor(Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3], 1)
 	healthValue:SetJustifyH("CENTER")
 	-- Our tags internally handle dead/offline state, don't prefix with [dead][offline]
@@ -248,9 +252,13 @@ UnitStyles["Party"] = function(self, unit, id)
 	self.Health.Value = healthValue
 	self.Health.TagPercent = tagPercent
 	self.Health.TagNumber = tagNumber
-	-- Name just above HP bar (bigger font)
+	-- Name just above HP bar - font size configurable in EditMode
+	local nameFontSize = 16
+	if (ns.db and ns.db.char and ns.db.char.groupFrames and ns.db.char.groupFrames.nameFontSize) then
+		nameFontSize = ns.db.char.groupFrames.nameFontSize
+	end
 	local name = overlay:CreateFontString(nil, "OVERLAY")
-	name:SetFontObject(GetFont(14, true))
+	name:SetFontObject(GetFont(nameFontSize, true))
 	name:SetTextColor(unpack(Colors.offwhite))
 	name:SetPoint("BOTTOM", health, "TOP", 0, 3)
 	name:SetJustifyH("CENTER")
@@ -378,7 +386,7 @@ UnitStyles["Party"] = function(self, unit, id)
 	self.Auras = auras
 	return self
 end
--- Test mode: show fake debuff buttons on party frames to verify layout
+--[[ Test mode: show fake debuff buttons on party frames to verify layout
 -- Usage: /dazparty test [N]  (N = 1..9, default 9)
 -- Clear: /dazparty clear
 local PartyTest = {}
@@ -467,3 +475,4 @@ SlashCmdList["DAZPARTY"] = function(msg)
 	print(string.format("|cff00ff00DiabolicUI3:|r showing %d test debuffs on %d party frames", count, found))
 end
 print("|cff00ff00DiabolicUI3:|r /dazparty test [N] or /dazparty clear")
+--]]

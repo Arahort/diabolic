@@ -212,6 +212,9 @@ StatusBars.UpdateBars = function(self, event, ...)
 		return
 	end
 
+	-- Reposition XP bar in case action bar state changed
+	self:UpdatePosition()
+
 	local factionData = C_Reputation.GetWatchedFactionData()
 	if (factionData) then
 		local name, reaction, min, max, current, factionID = factionData.name, factionData.reaction, factionData.currentReactionThreshold, factionData.nextReactionThreshold, factionData.currentStanding, factionData.factionID
@@ -372,6 +375,9 @@ end
 StatusBars.OnInitialize = function(self)
 	self:CreateBars()
 	ns.RegisterCallback(self, "ActionBars_SecondaryBar_Updated", "UpdatePosition")
+	ns.RegisterCallback(self, "ActionBars_ThirdBar_Updated", "UpdatePosition")
+	ns.RegisterCallback(self, "ActionBar_Settings_Updated", "UpdatePosition")
+	ns.RegisterCallback(self, "Saved_Settings_Updated", "UpdatePosition")
 end
 
 StatusBars.OnEnable = function(self)

@@ -570,8 +570,19 @@ UnitFrames.SpawnGroupFrames = function(self)
 					ns.db.char.groupFrames.partyY = y
 				end
 			end, {point = posPoint, x = posX, y = posY})
-			-- Checkbox: Show HP as percent vs number
+			-- Helper: iterate party frames
+			local ForEachPartyFrame = function(fn)
+				if (not oUF or not oUF.objects) then return end
+				for _, frame in ipairs(oUF.objects) do
+					if (frame.unit and type(frame.unit) == "string" and frame.unit:match("^party%d*$")) then
+						fn(frame)
+					end
+				end
+			end
+			-- GetFont helper
+			local GetFont = ns.API.GetFont
 			LibEditMode:AddFrameSettings(party, {
+				-- Checkbox: Show HP as percent vs number
 				{
 					kind = LibEditMode.SettingType.Checkbox,
 					name = ns.L and ns.L["PartyShowHealthPercent"] or "Show HP as Percentage",
@@ -589,22 +600,72 @@ UnitFrames.SpawnGroupFrames = function(self)
 						if (ns.db and ns.db.char and ns.db.char.groupFrames) then
 							ns.db.char.groupFrames.showPercent = value and true or false
 						end
-						-- Apply to all active party frames
-						if (oUF and oUF.objects) then
-							for _, frame in ipairs(oUF.objects) do
-								if (frame.unit and type(frame.unit) == "string" and frame.unit:match("^party%d*$")
-										and frame.Health and frame.Health.Value) then
-									local tag = value and frame.Health.TagPercent or frame.Health.TagNumber
-									if (tag) then
-										frame:Untag(frame.Health.Value)
-										frame:Tag(frame.Health.Value, tag)
-										frame:UpdateTags()
-									end
+						ForEachPartyFrame(function(frame)
+							if (frame.Health and frame.Health.Value) then
+								local tag = value and frame.Health.TagPercent or frame.Health.TagNumber
+								if (tag) then
+									frame:Untag(frame.Health.Value)
+									frame:Tag(frame.Health.Value, tag)
+									frame:UpdateTags()
 								end
 							end
-						end
+						end)
 					end,
-				}
+				},
+				-- Slider: HP font size
+				{
+					kind = LibEditMode.SettingType.Slider,
+					name = ns.L and ns.L["PartyHealthFontSize"] or "HP Font Size",
+					desc = ns.L and ns.L["PartyHealthFontSizeDesc"] or "Adjust the font size of HP/percent text on party frames",
+					default = 17,
+					minValue = 8,
+					maxValue = 24,
+					valueStep = 1,
+					formatter = function(value) return string_format("%d", value) end,
+					get = function(layoutName)
+						if (ns.db and ns.db.char and ns.db.char.groupFrames and ns.db.char.groupFrames.healthFontSize) then
+							return ns.db.char.groupFrames.healthFontSize
+						end
+						return 17
+					end,
+					set = function(layoutName, value)
+						if (ns.db and ns.db.char and ns.db.char.groupFrames) then
+							ns.db.char.groupFrames.healthFontSize = value
+						end
+						ForEachPartyFrame(function(frame)
+							if (frame.Health and frame.Health.Value) then
+								frame.Health.Value:SetFontObject(GetFont(value, true))
+							end
+						end)
+					end,
+				},
+				-- Slider: Name font size
+				{
+					kind = LibEditMode.SettingType.Slider,
+					name = ns.L and ns.L["PartyNameFontSize"] or "Name Font Size",
+					desc = ns.L and ns.L["PartyNameFontSizeDesc"] or "Adjust the font size of the name text on party frames",
+					default = 16,
+					minValue = 8,
+					maxValue = 24,
+					valueStep = 1,
+					formatter = function(value) return string_format("%d", value) end,
+					get = function(layoutName)
+						if (ns.db and ns.db.char and ns.db.char.groupFrames and ns.db.char.groupFrames.nameFontSize) then
+							return ns.db.char.groupFrames.nameFontSize
+						end
+						return 16
+					end,
+					set = function(layoutName, value)
+						if (ns.db and ns.db.char and ns.db.char.groupFrames) then
+							ns.db.char.groupFrames.nameFontSize = value
+						end
+						ForEachPartyFrame(function(frame)
+							if (frame.Name) then
+								frame.Name:SetFontObject(GetFont(value, true))
+							end
+						end)
+					end,
+				},
 			})
 		end
 	end)

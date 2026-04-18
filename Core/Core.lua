@@ -109,7 +109,9 @@ local defaults = {
 			partyPoint = "TOPLEFT",
 			partyX = 50,
 			partyY = -42,
-			showPercent = true
+			showPercent = true,
+			healthFontSize = 17,
+			nameFontSize = 16
 		}
 	},
 	global = {
