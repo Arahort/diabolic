@@ -73,6 +73,7 @@ local defaults = {
 		},
 		minimapbuttons = {
 			enabled = true,
+			collectMailAndTracking = false,
 			direction = "leftdown",
 			buttonsPerRow = 5,
 			autohide = 2,

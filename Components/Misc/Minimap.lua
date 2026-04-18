@@ -264,6 +264,10 @@ MinimapMod.UpdateClock = function(self)
 end
 
 MinimapMod.RepositionMailFrame = function(self)
+	-- Skip if mail/tracking should be collected into the minimap buttons bag
+	if (ns.db and ns.db.char and ns.db.char.minimapbuttons and ns.db.char.minimapbuttons.collectMailAndTracking) then
+		return
+	end
 	-- WoW 12.0: MailFrame is at MinimapCluster.IndicatorFrame.MailFrame
 	local blizzardMail = MinimapCluster and MinimapCluster.IndicatorFrame and MinimapCluster.IndicatorFrame.MailFrame
 	if blizzardMail then
@@ -402,6 +406,10 @@ MinimapMod.RepositionQueueStatus = function(self)
 end
 
 MinimapMod.RepositionTracking = function(self)
+	-- Skip if mail/tracking should be collected into the minimap buttons bag
+	if (ns.db and ns.db.char and ns.db.char.minimapbuttons and ns.db.char.minimapbuttons.collectMailAndTracking) then
+		return
+	end
 	-- WoW 12.0: Tracking is at MinimapCluster.Tracking
 	local tracking = MinimapCluster and MinimapCluster.Tracking
 	if tracking then

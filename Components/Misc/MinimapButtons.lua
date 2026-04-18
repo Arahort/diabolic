@@ -285,12 +285,70 @@ MinimapButtons.ToggleContainer = function(self)
 		end
 	end
 end
+-- Inline collect (bypasses blacklist check) - used for nameless Blizzard frames
+local function collectSpecialButton(button)
+	if not button or not isValidFrame(button) then return false end
+	if collectedButtonMap[button] ~= nil then return false end
+	buttonOriginalFunctions[button] = {
+		ClearAllPoints = button.ClearAllPoints,
+		SetPoint = button.SetPoint,
+		SetParent = button.SetParent,
+		SetScale = button.SetScale
+	}
+	button:SetParent(buttonContainer)
+	button:SetFrameStrata("HIGH")
+	button:SetFrameLevel(25)
+	button:SetScript('OnDragStart', nil)
+	button:SetScript('OnDragStop', nil)
+	button:SetIgnoreParentScale(false)
+	local buttonScale = 1
+	if ns.db and ns.db.char and ns.db.char.minimapbuttons then
+		buttonScale = ns.db.char.minimapbuttons.buttonScale or 1
+	end
+	button:SetScale(buttonScale)
+	button:ClearAllPoints()
+	button:Hide()
+	button.ClearAllPoints = doNothing
+	button.SetPoint = doNothing
+	button.SetParent = doNothing
+	button.SetScale = doNothing
+	tinsert(collectedButtons, button)
+	collectedButtonMap[button] = true -- always-visible in bag (mail shown when present, tracking always)
+	return true
+end
+-- Collect MailFrame and Tracking button (3 and 9 o'clock icons).
+local function collectMailAndTrackingButtons()
+	if not (ns.db and ns.db.char and ns.db.char.minimapbuttons and ns.db.char.minimapbuttons.collectMailAndTracking) then
+		return
+	end
+	local mailFrame = MinimapCluster and MinimapCluster.IndicatorFrame and MinimapCluster.IndicatorFrame.MailFrame
+	local tracking = MinimapCluster and MinimapCluster.Tracking
+	if mailFrame then
+		if collectSpecialButton(mailFrame) then
+			-- Mail shown only when HasNewMail() is true (original minimap behavior).
+			-- Track mail state in collectedButtonMap so UpdateLayout includes/excludes it.
+			collectedButtonMap[mailFrame] = HasNewMail and HasNewMail() or false
+			-- Register event to update layout when mail state changes
+			if not MinimapButtons.__mailEventRegistered then
+				MinimapButtons.__mailEventRegistered = true
+				MinimapButtons:RegisterEvent("UPDATE_PENDING_MAIL", function()
+					collectedButtonMap[mailFrame] = HasNewMail and HasNewMail() or false
+					MinimapButtons:UpdateLayout()
+				end)
+			end
+		end
+	end
+	if tracking then
+		collectSpecialButton(tracking)
+	end
+end
 -- Collect all buttons
 MinimapButtons.CollectButtons = function(self)
 	collectLibDBIconButtons()
 	collectLibMapButtonButtons()
 	collectMinimapChildren()
 	collectExpansionLandingButton()
+	collectMailAndTrackingButtons()
 	self:UpdateLayout()
 end
 -- Update main button size
@@ -362,6 +420,8 @@ MinimapButtons.CreateContainer = function(self)
 	if buttonContainer then return end
 	-- Create container frame with backdrop
 	buttonContainer = CreateFrame("Frame", "DiabolicUI3MinimapButtonsContainer", UIParent, ns.BackdropTemplate)
+	-- Stub Layout() method — Blizzard's MailFrame script calls parent:Layout() on UPDATE_PENDING_MAIL
+	buttonContainer.Layout = function() end
 	buttonContainer:SetParent(mainButton)
 	buttonContainer:SetSize(200, 200)
 	buttonContainer:SetPoint("TOPRIGHT", mainButton, "TOPLEFT", -5, 0)

@@ -386,7 +386,7 @@ UnitStyles["Party"] = function(self, unit, id)
 	self.Auras = auras
 	return self
 end
---[[ Test mode: show fake debuff buttons on party frames to verify layout
+--[==[ Test mode: show fake debuff buttons on party frames to verify layout
 -- Usage: /dazparty test [N]  (N = 1..9, default 9)
 -- Clear: /dazparty clear
 local PartyTest = {}
@@ -475,4 +475,4 @@ SlashCmdList["DAZPARTY"] = function(msg)
 	print(string.format("|cff00ff00DiabolicUI3:|r showing %d test debuffs on %d party frames", count, found))
 end
 print("|cff00ff00DiabolicUI3:|r /dazparty test [N] or /dazparty clear")
---]]
+--]==]

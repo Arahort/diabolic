@@ -603,6 +603,21 @@ SettingsModule.OnInitialize = function(self)
 		do
 			local setting = RegisterSetting(
 				catMap,
+				"collectMailAndTracking",
+				"char.minimapbuttons",
+				L["CollectMailAndTracking"],
+				false,
+				L["CollectMailAndTrackingDesc"]
+			)
+			local OnCollectChanged = function()
+				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
+			end
+			Settings.SetOnValueChangedCallback("char_minimapbuttons_collectMailAndTracking", OnCollectChanged)
+			CreateCheckbox(catMap, setting, L["CollectMailAndTrackingDesc"])
+		end
+		do
+			local setting = RegisterSetting(
+				catMap,
 				"mainButtonSize",
 				"char.minimapbuttons",
 				L["MainButtonSize"],
