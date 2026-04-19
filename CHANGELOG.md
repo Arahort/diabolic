@@ -1,5 +1,51 @@
 # DiabolicUI3 Changelog
 
+## [6.6.6-r468] - 2026-04-19
+
+### ✨ New Features
+- **AzeriteUI-style Group Frames** (per-character, default **on**, in Settings → Unit Frames)
+  - Custom Party frames replacing Blizzard CompactPartyFrame (raid frames untouched)
+  - **Focus** and **FocusTarget** frames with identical visual
+  - Portrait, role icon, health/power bars with separate decorative borders (Health-Bar-Border2)
+  - HP text as percent or abbreviated number (toggle in EditMode)
+  - 3×3 debuff grid under each frame (up to 40 auras, with stance-style `button-big` borders)
+  - HealthPrediction overlays (incoming heals, absorbs, heal-absorbs)
+  - Target highlight via golden portrait border tint
+  - Castbar, LeaderIndicator, RaidTargetIndicator, PhaseIndicator, ReadyCheck, Resurrect
+  - Player included in party (`showPlayer=true`)
+  - HP % uses WoW 12.0 `UnitHealthPercent` + `CurveConstants.ScaleTo100` + `C_StringUtil.RoundToNearestString` for combat-safe display
+
+- **EditMode integration for group frames**
+  - Position saved per-character (party / focus / focustarget independently)
+  - Checkbox: Show HP as Percentage (default on)
+  - Sliders: HP Font Size (8–24, default 17), Name Font Size (8–24, default 16)
+  - Sliders: HP Bar Height (8–30, default 16), Power Bar Height (4–24, default 10) — borders auto-align
+  - Slider: Scale (0.5–1.5, default 1) — applies to party + focus + focustarget together
+  - Force-show party header in EditMode so it's configurable solo
+
+- **Minimap button collector: Mail + Tracking icons** (optional, in Settings → Map and Minimap)
+  - When enabled, the Blizzard mail (9 o'clock) and tracking (3 o'clock) icons move into the bag
+  - Mail slot appears/disappears with `HasNewMail()` via `UPDATE_PENDING_MAIL`
+
+### 🔧 Fixes
+- **Pet battle**: ClassPower, Stagger and Runes frames now properly hide during pet battles
+- **XP bar**: hides on vehicle / override / possess / temp shapeshift action bars
+- **Secondary action bars**: no longer hide during stun/polymorph override (keep visible)
+- **ExtraButtons**: Guard `GetCheckedTexture` / `GetPushedTexture` for non-CheckButton buttons (fixes BetterHomes spam)
+- **Portrait PostUpdate**: skips expensive `ClearModel+SetUnit` when unit GUID unchanged — prevents FocusTarget animation restart loop
+- **FocusTarget/Focus drag**: use `SetEditModeUFObjectScale` so LibEditMode drag calculates position correctly (prevents teleport on release)
+- **Party frame visibility**: state driver `[group:party,nogroup:raid]show;hide` — shows only in 5-man parties, raid uses Blizzard default
+- **Lua warning**: fixed `nesting of [[...]] is deprecated` in commented `/dazparty` test block
+
+### 🌐 Localization
+- Added translations for new settings in all 12 locales:
+  - `AzeriteGroupFrames`, `CollectMailAndTracking`
+  - `PartyShowHealthPercent`, `PartyHealthFontSize`, `PartyNameFontSize`
+  - `PartyHealthBarHeight`, `PartyPowerBarHeight`, `PartyScale`
+- New `:HealthPercent` tag (WoW 12.0 combat-safe percent display)
+
+---
+
 ## [6.6.6-r461] - 2026-03-27
 
 ### 🧹 Cleanup
