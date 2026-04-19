@@ -497,6 +497,22 @@ SettingsModule.OnInitialize = function(self)
 			)
 			CreateCheckbox(catUF, setting, L["ShowOnlyMyDebuffsDesc"])
 		end
+		-- AzeriteUI style Group Frames (party + focus + focustarget)
+		do
+			local setting = RegisterSetting(
+				catUF,
+				"azeriteGroupFrames",
+				"char.experiments",
+				L["AzeriteGroupFrames"],
+				true,
+				L["AzeriteGroupFramesDesc"]
+			)
+			local OnAzeriteGroupFramesToggle = function()
+				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
+			end
+			Settings.SetOnValueChangedCallback("char_experiments_azeriteGroupFrames", OnAzeriteGroupFramesToggle)
+			CreateCheckbox(catUF, setting, L["AzeriteGroupFramesDesc"])
+		end
 			-- Target position sliders removed — positioning is now handled via Edit Mode (LibEditMode)
 		-- Class Power / Runes sliders removed — positioning is now handled via Edit Mode (LibEditMode)
 		--------------------------------------------
@@ -907,22 +923,7 @@ SettingsModule.OnInitialize = function(self)
 			end)
 			Settings.CreateSlider(catExp, settingRoleOffsetY, optionsRoleOffsetY, L["RaidFramesRoleOffsetYDesc"])
 		end
-		-- AzeriteUI style Group Frames
-		do
-			local setting = RegisterSetting(
-				catExp,
-				"azeriteGroupFrames",
-				"char.experiments",
-				L["AzeriteGroupFrames"],
-				false,
-				L["AzeriteGroupFramesDesc"]
-			)
-			local OnAzeriteGroupFramesToggle = function()
-				StaticPopup_Show("DIABOLICUI3_RELOAD_UI")
-			end
-			Settings.SetOnValueChangedCallback("char_experiments_azeriteGroupFrames", OnAzeriteGroupFramesToggle)
-			CreateCheckbox(catExp, setting, L["AzeriteGroupFramesDesc"])
-		end
+		-- (AzeriteGroupFrames moved to Unit Frames subcategory)
 		--[[ useAzeriteClassPower (hidden, always enabled)
 		do
 			local setting = RegisterSetting(

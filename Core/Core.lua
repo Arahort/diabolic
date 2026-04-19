@@ -104,15 +104,24 @@ local defaults = {
 		},
 		experiments = {
 			useAzeriteClassPower = true,
-			azeriteGroupFrames = false
+			azeriteGroupFrames = true
 		},
 		groupFrames = {
 			partyPoint = "TOPLEFT",
 			partyX = 50,
 			partyY = -42,
+			focusPoint = "TOPLEFT",
+			focusX = 200,
+			focusY = -42,
+			focusTargetPoint = "TOPLEFT",
+			focusTargetX = 350,
+			focusTargetY = -42,
 			showPercent = true,
 			healthFontSize = 17,
-			nameFontSize = 16
+			nameFontSize = 16,
+			healthBarHeight = 16,
+			powerBarHeight = 10,
+			scale = 1
 		}
 	},
 	global = {

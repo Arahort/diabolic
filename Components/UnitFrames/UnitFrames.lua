@@ -534,8 +534,8 @@ UnitFrames.SpawnGroupFrames = function(self)
 		-- http://wowprogramming.com/docs/secure_template/Group_Headers
 		local party = oUF:SpawnHeader(ns.Prefix.."Party", nil,
 			"showParty", true,
-			"showPlayer", false,
-			"showSolo", false,
+			"showPlayer", true,
+			"showSolo", true,
 			"showRaid", false,
 			"xOffset", 0,
 			"yOffset", 0,
@@ -555,13 +555,31 @@ UnitFrames.SpawnGroupFrames = function(self)
 		local posX = (gDb and gDb.partyX) or 50
 		local posY = (gDb and gDb.partyY) or -42
 		party:SetPoint(posPoint, UIParent, posPoint, posX, posY)
-		RegisterStateDriver(party, "visibility", "[group:party,nogroup:raid]show;hide")
+		local partyVisDriver = "[group:party,nogroup:raid]show;hide"
+		RegisterStateDriver(party, "visibility", partyVisDriver)
+		party.__visDriver = partyVisDriver
 
 		ns.PartyHeader = party
 
 		-- Register with EditMode (LibEditMode) if available
 		local LibEditMode = ns.LibEditMode
 		if (LibEditMode and LibEditMode.AddFrame) then
+			-- Force-show the party header while EditMode is open so user can
+			-- configure it even when solo / not in a party
+			if (LibEditMode.RegisterCallback) then
+				LibEditMode:RegisterCallback("enter", function()
+					if (not InCombatLockdown()) then
+						UnregisterStateDriver(party, "visibility")
+						RegisterStateDriver(party, "visibility", "show")
+					end
+				end)
+				LibEditMode:RegisterCallback("exit", function()
+					if (not InCombatLockdown()) then
+						UnregisterStateDriver(party, "visibility")
+						RegisterStateDriver(party, "visibility", party.__visDriver or "[group:party,nogroup:raid]show;hide")
+					end
+				end)
+			end
 			party.editModeName = "Diabolic: Party"
 			LibEditMode:AddFrame(party, function(frame, layoutName, point, x, y)
 				if (ns.db and ns.db.char and ns.db.char.groupFrames) then
@@ -570,11 +588,12 @@ UnitFrames.SpawnGroupFrames = function(self)
 					ns.db.char.groupFrames.partyY = y
 				end
 			end, {point = posPoint, x = posX, y = posY})
-			-- Helper: iterate party frames
+			-- Helper: iterate all AzeriteUI-style group frames (party/player in header, focus, focustarget)
+			-- Uses a tag set by Party.lua style function — works regardless of unit token.
 			local ForEachPartyFrame = function(fn)
 				if (not oUF or not oUF.objects) then return end
 				for _, frame in ipairs(oUF.objects) do
-					if (frame.unit and type(frame.unit) == "string" and frame.unit:match("^party%d*$")) then
+					if (frame.__isDiabolicGroupFrame) then
 						fn(frame)
 					end
 				end
@@ -639,6 +658,94 @@ UnitFrames.SpawnGroupFrames = function(self)
 						end)
 					end,
 				},
+				-- Slider: HP bar height
+				{
+					kind = LibEditMode.SettingType.Slider,
+					name = ns.L and ns.L["PartyHealthBarHeight"] or "HP Bar Height",
+					desc = ns.L and ns.L["PartyHealthBarHeightDesc"] or "Adjust HP bar height (border and position adjust automatically)",
+					default = 16,
+					minValue = 8,
+					maxValue = 30,
+					valueStep = 1,
+					formatter = function(value) return string_format("%d", value) end,
+					get = function(layoutName)
+						if (ns.db and ns.db.char and ns.db.char.groupFrames and ns.db.char.groupFrames.healthBarHeight) then
+							return ns.db.char.groupFrames.healthBarHeight
+						end
+						return 16
+					end,
+					set = function(layoutName, value)
+						if (ns.db and ns.db.char and ns.db.char.groupFrames) then
+							ns.db.char.groupFrames.healthBarHeight = value
+						end
+						if (ns.PartyLayout and ns.PartyLayout.ApplyBarHeights) then
+							local hp = value
+							local pwr = (ns.db and ns.db.char and ns.db.char.groupFrames and ns.db.char.groupFrames.powerBarHeight) or 10
+							ForEachPartyFrame(function(frame)
+								ns.PartyLayout.ApplyBarHeights(frame, hp, pwr)
+							end)
+						end
+					end,
+				},
+				-- Slider: Power bar height
+				{
+					kind = LibEditMode.SettingType.Slider,
+					name = ns.L and ns.L["PartyPowerBarHeight"] or "Power Bar Height",
+					desc = ns.L and ns.L["PartyPowerBarHeightDesc"] or "Adjust Power bar height (HP position adjusts to keep borders flush)",
+					default = 10,
+					minValue = 4,
+					maxValue = 24,
+					valueStep = 1,
+					formatter = function(value) return string_format("%d", value) end,
+					get = function(layoutName)
+						if (ns.db and ns.db.char and ns.db.char.groupFrames and ns.db.char.groupFrames.powerBarHeight) then
+							return ns.db.char.groupFrames.powerBarHeight
+						end
+						return 10
+					end,
+					set = function(layoutName, value)
+						if (ns.db and ns.db.char and ns.db.char.groupFrames) then
+							ns.db.char.groupFrames.powerBarHeight = value
+						end
+						if (ns.PartyLayout and ns.PartyLayout.ApplyBarHeights) then
+							local hp = (ns.db and ns.db.char and ns.db.char.groupFrames and ns.db.char.groupFrames.healthBarHeight) or 16
+							local pwr = value
+							ForEachPartyFrame(function(frame)
+								ns.PartyLayout.ApplyBarHeights(frame, hp, pwr)
+							end)
+						end
+					end,
+				},
+				-- Slider: Scale (applies to all AzeriteUI group frames)
+				{
+					kind = LibEditMode.SettingType.Slider,
+					name = ns.L and ns.L["PartyScale"] or "Scale",
+					desc = ns.L and ns.L["PartyScaleDesc"] or "Adjust the scale of party/focus/focustarget frames",
+					default = 1,
+					minValue = 0.5,
+					maxValue = 1.5,
+					valueStep = 0.05,
+					formatter = function(value) return string_format("%.2f", value) end,
+					get = function(layoutName)
+						if (ns.db and ns.db.char and ns.db.char.groupFrames and ns.db.char.groupFrames.scale) then
+							return ns.db.char.groupFrames.scale
+						end
+						return 1
+					end,
+					set = function(layoutName, value)
+						if (ns.db and ns.db.char and ns.db.char.groupFrames) then
+							ns.db.char.groupFrames.scale = value
+						end
+						-- Apply to all AzeriteUI group frames via EditMode-compatible UF scale
+						ForEachPartyFrame(function(frame)
+							if (ns.API.SetEditModeUFObjectScale) then
+								ns.API.SetEditModeUFObjectScale(frame, value)
+							else
+								frame:SetScale(value)
+							end
+						end)
+					end,
+				},
 				-- Slider: Name font size
 				{
 					kind = LibEditMode.SettingType.Slider,
@@ -668,6 +775,40 @@ UnitFrames.SpawnGroupFrames = function(self)
 				},
 			})
 		end
+		-- Spawn Focus and FocusTarget frames with the same visual as Party.
+		-- Mirror Target's setup exactly (which works with LibEditMode drag):
+		-- bare Spawn + SetPoint + AddFrame. No state driver toggling, no enter/exit callbacks.
+		-- User needs to have focus set (/focus) to see the frame for positioning,
+		-- just like user needs a target to position Target frame.
+		local SpawnFocusFrame = function(unitToken, styleName, editName, dbPointKey, dbXKey, dbYKey, defX, defY)
+			local f = Spawn(unitToken, styleName)
+			if (not f) then return end
+			-- Override the default SetUnitFramesObjectScale (which calls SetIgnoreParentScale(true))
+			-- with EditMode-compatible UnitFrames scale so drag works AND visual size matches Party.
+			local savedScale = (gDb and gDb.scale) or 1
+			if (ns.API.SetEditModeUFObjectScale) then
+				ns.API.SetEditModeUFObjectScale(f, savedScale)
+			end
+			local pt = (gDb and gDb[dbPointKey]) or "TOPLEFT"
+			local fx = (gDb and gDb[dbXKey]) or defX
+			local fy = (gDb and gDb[dbYKey]) or defY
+			f:SetPoint(pt, fx, fy)
+			if (LibEditMode and LibEditMode.AddFrame) then
+				f.editModeName = editName
+				LibEditMode:AddFrame(f, function(frame, layoutName, point, x, y)
+					if (ns.db and ns.db.char and ns.db.char.groupFrames) then
+						ns.db.char.groupFrames[dbPointKey] = point
+						ns.db.char.groupFrames[dbXKey] = x
+						ns.db.char.groupFrames[dbYKey] = y
+					end
+				end, {point = pt, x = fx, y = fy})
+			end
+			return f
+		end
+		ns.FocusFrame = SpawnFocusFrame("focus", "Focus", "Diabolic: Focus",
+			"focusPoint", "focusX", "focusY", 200, -42)
+		ns.FocusTargetFrame = SpawnFocusFrame("focustarget", "FocusTarget", "Diabolic: FocusTarget",
+			"focusTargetPoint", "focusTargetX", "focusTargetY", 350, -42)
 	end)
 end
 

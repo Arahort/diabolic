@@ -46,6 +46,54 @@ local HEALTH_OFFSET_Y = 28
 local POWER_WIDTH = 100
 local POWER_HEIGHT = 10
 local POWER_OFFSET_Y = 10
+-- Border/BG padding relative to bar size
+local BAR_BORDER_PAD_X = 10 -- border +10 wider than bar
+local BAR_BORDER_PAD_Y = 8  -- border +8 taller than bar
+local BAR_BG_PAD_X = 2      -- inner bg +2 wider
+local BAR_BG_PAD_Y = 2
+-- Shared namespace export (for EditMode runtime updates from UnitFrames.lua)
+ns.PartyLayout = ns.PartyLayout or {}
+ns.PartyLayout.HEALTH_WIDTH = HEALTH_WIDTH
+ns.PartyLayout.POWER_WIDTH = POWER_WIDTH
+ns.PartyLayout.POWER_OFFSET_Y = POWER_OFFSET_Y
+ns.PartyLayout.BORDER_PAD_X = BAR_BORDER_PAD_X
+ns.PartyLayout.BORDER_PAD_Y = BAR_BORDER_PAD_Y
+ns.PartyLayout.BG_PAD_X = BAR_BG_PAD_X
+ns.PartyLayout.BG_PAD_Y = BAR_BG_PAD_Y
+-- Compute HP offset such that HP border touches Power border with no gap
+-- HP border bottom = HP_OFFSET_Y - BORDER_PAD_Y/2
+-- Power border top = POWER_OFFSET_Y + POWER_HEIGHT + BORDER_PAD_Y/2
+-- For contact: HP_OFFSET_Y = POWER_OFFSET_Y + POWER_HEIGHT + BORDER_PAD_Y
+ns.PartyLayout.ComputeHpOffset = function(powerHeight)
+	return POWER_OFFSET_Y + powerHeight + BAR_BORDER_PAD_Y
+end
+-- Apply new HP/Power heights to a single party frame at runtime
+ns.PartyLayout.ApplyBarHeights = function(frame, hpHeight, powerHeight)
+	if (not frame or not frame.Health) then return end
+	local hpOffset = ns.PartyLayout.ComputeHpOffset(powerHeight)
+	-- Power bar + its decorations
+	if (frame.Power) then
+		frame.Power:SetHeight(powerHeight)
+		frame.Power:ClearAllPoints()
+		frame.Power:SetPoint("BOTTOM", 0, POWER_OFFSET_Y)
+	end
+	if (frame.PowerBackdrop) then
+		frame.PowerBackdrop:SetSize(POWER_WIDTH + BAR_BORDER_PAD_X, powerHeight + BAR_BORDER_PAD_Y)
+	end
+	if (frame.PowerBarBackground) then
+		frame.PowerBarBackground:SetSize(POWER_WIDTH + BAR_BG_PAD_X, powerHeight + BAR_BG_PAD_Y)
+	end
+	-- HP bar + its decorations
+	frame.Health:SetHeight(hpHeight)
+	frame.Health:ClearAllPoints()
+	frame.Health:SetPoint("BOTTOM", 0, hpOffset)
+	if (frame.HealthBackdrop) then
+		frame.HealthBackdrop:SetSize(HEALTH_WIDTH + BAR_BORDER_PAD_X, hpHeight + BAR_BORDER_PAD_Y)
+	end
+	if (frame.HealthBarBackground) then
+		frame.HealthBarBackground:SetSize(HEALTH_WIDTH + BAR_BG_PAD_X, hpHeight + BAR_BG_PAD_Y)
+	end
+end
 -- Role icon
 local ROLE_ICON_SIZE = 34
 local ROLE_BACKDROP_SIZE = 77
@@ -65,20 +113,30 @@ local Health_PostUpdateColor = function(element, unit, r, g, b)
 	end
 end
 -- Portrait post-update (handles offline/OOR state)
+-- Skip expensive ClearModel+SetUnit when unit GUID hasn't changed (prevents
+-- animation restart on units like focustarget that get frequent updates).
 local Portrait_PostUpdate = function(element, unit, hasStateChanged)
 	if (not element.state) then
-		element:ClearModel()
 		if (not element.fallback2DTexture) then
 			element.fallback2DTexture = element:CreateTexture()
 			element.fallback2DTexture:SetDrawLayer("ARTWORK")
 			element.fallback2DTexture:SetAllPoints()
 			element.fallback2DTexture:SetTexCoord(.1, .9, .1, .9)
 		end
-		SetPortraitTexture(element.fallback2DTexture, unit)
+		local newGuid = UnitGUID(unit)
+		if (element.guid ~= newGuid) then
+			element:ClearModel()
+			SetPortraitTexture(element.fallback2DTexture, unit)
+			element.guid = newGuid
+		end
 		element.fallback2DTexture:Show()
 	else
 		if (element.fallback2DTexture) then
 			element.fallback2DTexture:Hide()
+		end
+		local newGuid = UnitGUID(unit)
+		if (element.guid == newGuid) then
+			return -- same unit — don't restart animation
 		end
 		element:SetCamDistanceScale(1)
 		element:SetPortraitZoom(1)
@@ -86,7 +144,7 @@ local Portrait_PostUpdate = function(element, unit, hasStateChanged)
 		element:SetRotation(0)
 		element:ClearModel()
 		element:SetUnit(unit)
-		element.guid = UnitGUID(unit)
+		element.guid = newGuid
 	end
 end
 -- Power post-update (hide when dead/disconnected)
@@ -126,6 +184,13 @@ end
 -- Style function
 UnitStyles["Party"] = function(self, unit, id)
 	self:SetSize(FRAME_WIDTH, FRAME_HEIGHT)
+	-- Tag this frame so ForEachPartyFrame (in UnitFrames.lua) can find it
+	-- regardless of unit token (party/player/focus/focustarget/etc.)
+	self.__isDiabolicGroupFrame = true
+	-- Apply saved scale from char.groupFrames (EditMode slider)
+	if (ns.db and ns.db.char and ns.db.char.groupFrames and ns.db.char.groupFrames.scale and ns.API.SetEditModeUFObjectScale) then
+		ns.API.SetEditModeUFObjectScale(self, ns.db.char.groupFrames.scale)
+	end
 	-- Overlay (for text/icons on top)
 	local overlay = CreateFrame("Frame", nil, self)
 	overlay:SetFrameLevel(self:GetFrameLevel() + 7)
@@ -171,30 +236,38 @@ UnitStyles["Party"] = function(self, unit, id)
 	local backdropFrame = CreateFrame("Frame", nil, self)
 	backdropFrame:SetFrameLevel(self:GetFrameLevel() + 2)
 	backdropFrame:SetAllPoints()
+	-- Read HP/Power heights from saved settings (fallback to defaults)
+	local initHpHeight = HEALTH_HEIGHT
+	local initPowerHeight = POWER_HEIGHT
+	if (ns.db and ns.db.char and ns.db.char.groupFrames) then
+		initHpHeight = ns.db.char.groupFrames.healthBarHeight or HEALTH_HEIGHT
+		initPowerHeight = ns.db.char.groupFrames.powerBarHeight or POWER_HEIGHT
+	end
 	-- HP bar background fill (Heath-Bar-Back)
 	local healthBarBack = backdropFrame:CreateTexture(nil, "ARTWORK", nil, -2)
-	healthBarBack:SetSize(HEALTH_WIDTH + 2, HEALTH_HEIGHT + 2)
+	healthBarBack:SetSize(HEALTH_WIDTH + BAR_BG_PAD_X, initHpHeight + BAR_BG_PAD_Y)
 	healthBarBack:SetTexture(GetMedia("statusbar/Heath-Bar-Back"))
 	self.HealthBarBackground = healthBarBack
-	-- HP decorative border (Health-Bar-Border2) - tighter fit
+	-- HP decorative border (Health-Bar-Border2)
 	local healthBackdrop = backdropFrame:CreateTexture(nil, "ARTWORK", nil, 2)
-	healthBackdrop:SetSize(HEALTH_WIDTH + 10, HEALTH_HEIGHT + 8)
+	healthBackdrop:SetSize(HEALTH_WIDTH + BAR_BORDER_PAD_X, initHpHeight + BAR_BORDER_PAD_Y)
 	healthBackdrop:SetTexture(GetMedia("statusbar/Health-Bar-Border2"))
 	self.HealthBackdrop = healthBackdrop
 	-- Power bar background fill
 	local powerBarBack = backdropFrame:CreateTexture(nil, "ARTWORK", nil, -2)
-	powerBarBack:SetSize(POWER_WIDTH + 2, POWER_HEIGHT + 2)
+	powerBarBack:SetSize(POWER_WIDTH + BAR_BG_PAD_X, initPowerHeight + BAR_BG_PAD_Y)
 	powerBarBack:SetTexture(GetMedia("statusbar/Heath-Bar-Back"))
 	self.PowerBarBackground = powerBarBack
 	-- Power decorative border
 	local powerBackdrop = backdropFrame:CreateTexture(nil, "ARTWORK", nil, 2)
-	powerBackdrop:SetSize(POWER_WIDTH + 10, POWER_HEIGHT + 8)
+	powerBackdrop:SetSize(POWER_WIDTH + BAR_BORDER_PAD_X, initPowerHeight + BAR_BORDER_PAD_Y)
 	powerBackdrop:SetTexture(GetMedia("statusbar/Health-Bar-Border2"))
 	self.PowerBackdrop = powerBackdrop
-	-- Health Bar (wide, thick — inside cast_back frame)
+	-- Health Bar (size/offset from saved settings)
+	local initHpOffset = ns.PartyLayout.ComputeHpOffset(initPowerHeight)
 	local health = self:CreateBar(self:GetName().."HealthBar")
-	health:SetSize(HEALTH_WIDTH, HEALTH_HEIGHT)
-	health:SetPoint("BOTTOM", 0, HEALTH_OFFSET_Y)
+	health:SetSize(HEALTH_WIDTH, initHpHeight)
+	health:SetPoint("BOTTOM", 0, initHpOffset)
 	health:SetStatusBarTexture(GetMedia("statusbar/Heath-Bar"))
 	health:SetSparkTexture(GetMedia("blank"))
 	health:SetFrameLevel(self:GetFrameLevel() + 3)
@@ -266,7 +339,7 @@ UnitStyles["Party"] = function(self, unit, id)
 	self.Name = name
 	-- Power Bar (thin mana bar below HP inside plate)
 	local power = self:CreateBar(self:GetName().."PowerBar")
-	power:SetSize(POWER_WIDTH, POWER_HEIGHT)
+	power:SetSize(POWER_WIDTH, initPowerHeight)
 	power:SetPoint("BOTTOM", 0, POWER_OFFSET_Y)
 	power:SetStatusBarTexture(GetMedia("statusbar/Heath-Bar"))
 	power:SetSparkTexture(GetMedia("blank"))
@@ -281,8 +354,8 @@ UnitStyles["Party"] = function(self, unit, id)
 	powerBarBack:SetPoint("CENTER", power, "CENTER", 0, 0)
 	-- Castbar (shown when unit is casting) - overlays HP bar
 	local castbar = self:CreateBar(self:GetName().."Castbar")
-	castbar:SetSize(HEALTH_WIDTH, HEALTH_HEIGHT)
-	castbar:SetPoint("BOTTOM", 0, HEALTH_OFFSET_Y)
+	castbar:SetSize(HEALTH_WIDTH, initHpHeight)
+	castbar:SetPoint("BOTTOM", 0, initHpOffset)
 	castbar:SetStatusBarTexture(GetMedia("statusbar/Heath-Bar"))
 	castbar:SetStatusBarColor(1, 1, 1, .25)
 	castbar:SetSparkTexture(GetMedia("blank"))

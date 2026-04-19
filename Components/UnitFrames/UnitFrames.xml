@@ -14,5 +14,7 @@
 	<Script file="Units\Boss.lua"/>
 	<Script file="Units\NamePlates.lua"/>
 	<Script file="Units\Group\Party.lua"/>
+	<Script file="Units\Group\Focus.lua"/>
+	<Script file="Units\Group\FocusTarget.lua"/>
 
 </Ui>

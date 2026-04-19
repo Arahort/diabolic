@@ -1274,6 +1274,8 @@ UnitStyles["Player"] = function(self, unit, id)
 		if (not useAzeriteClassPower) then
 			self.ClassPower:Hide()
 		end
+		-- Hide during pet battles
+		RegisterStateDriver(classpower, "visibility", "[petbattle]hide;show")
 	end
 
 	-- Stagger (Monk)
@@ -1326,6 +1328,8 @@ UnitStyles["Player"] = function(self, unit, id)
 		if (not useAzeriteClassPower) then
 			self.Stagger:Hide()
 		end
+		-- Hide during pet battles
+		RegisterStateDriver(stagger, "visibility", "[petbattle]hide;show")
 	end
 
 	-- Runes (Death Knight)
@@ -1377,6 +1381,8 @@ UnitStyles["Player"] = function(self, unit, id)
 		if (not useAzeriteClassPower) then
 			self.Runes:Hide()
 		end
+		-- Hide during pet battles
+		RegisterStateDriver(runes, "visibility", "[petbattle]hide;show")
 	end
 
 	-- Auras
