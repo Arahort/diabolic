@@ -441,7 +441,12 @@ end
 Tooltips.OnTooltipSetUnit = function(self, tooltip)
 	if (not tooltip) or (tooltip:IsForbidden()) then return end
 
-	local _, unit = tooltip:GetUnit()
+	-- WoW 12.0: GameTooltip:GetUnit() calls UnitName() internally which throws on
+	-- secret values for hostile unseen units; guard everything with pcall to keep
+	-- the taint from propagating into Blizzard's shared tooltip pipeline.
+	local ok, _, unit = pcall(tooltip.GetUnit, tooltip)
+	if (not ok) then unit = nil end
+	if (unit) and issecretvalue(unit) then unit = nil end
 	if (not unit) then
 		local focus = GetMouseFocus()
 		if (focus) and (focus.GetAttribute) then
@@ -451,12 +456,21 @@ Tooltips.OnTooltipSetUnit = function(self, tooltip)
 	if (not unit) and (UnitExists("mouseover")) then
 		unit = "mouseover"
 	end
-	if (unit) and UnitIsUnit(unit, "mouseover") then
-		unit = "mouseover"
+	if (unit) then
+		local okUnit, isMouse = pcall(UnitIsUnit, unit, "mouseover")
+		if (okUnit and isMouse and not issecretvalue(isMouse)) then
+			unit = "mouseover"
+		end
 	end
 	unit = UnitExists(unit) and unit
 	if (not unit) then
 		tooltip:Hide()
+		return
+	end
+	-- Final guard: if any further UnitName() on this unit would return a secret,
+	-- bail out — Blizzard can't build the tooltip safely, and trying just spams errors.
+	local okName, testName = pcall(UnitName, unit)
+	if (not okName) or (testName and issecretvalue(testName)) then
 		return
 	end
 

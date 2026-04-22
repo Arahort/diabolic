@@ -157,6 +157,50 @@ SettingsModule.OnInitialize = function(self)
 			end)
 			Settings.CreateSlider(category, setting, options, L["UnitFramesScaleDesc"])
 		end
+		-- Custom font toggle + dropdown (affects "Normal" fonts only; Chat/Number untouched)
+		do
+			-- Checkbox: enable custom font
+			local setCustomEnabled = Settings.RegisterProxySetting(
+				category,
+				"global_fonts_customEnabled",
+				"boolean",
+				L["UseCustomFont"],
+				false,
+				function() return ns.db.global.fonts.customEnabled end,
+				function(value)
+					ns.db.global.fonts.customEnabled = value
+					if (ns.API.ApplyActiveFont) then ns.API.ApplyActiveFont() end
+				end
+			)
+			if setCustomEnabled then
+				CreateCheckbox(category, setCustomEnabled, L["UseCustomFontDesc"])
+			end
+			-- Dropdown: font face
+			local setFontName = Settings.RegisterProxySetting(
+				category,
+				"global_fonts_fontName",
+				"string",
+				L["FontFace"],
+				"Default (game)",
+				function() return ns.db.global.fonts.fontName or "Default (game)" end,
+				function(value)
+					ns.db.global.fonts.fontName = value
+					ns.db.global.fonts.fontPath = ns.API.ResolveFontPath and ns.API.ResolveFontPath(value) or nil
+					if (ns.API.ApplyActiveFont) then ns.API.ApplyActiveFont() end
+				end
+			)
+			if setFontName and Settings.CreateDropdown then
+				local function GetOptions()
+					local container = Settings.CreateControlTextContainer()
+					local fonts = (ns.API.GetAvailableFonts and ns.API.GetAvailableFonts()) or {}
+					for _, entry in ipairs(fonts) do
+						container:Add(entry.name, entry.name)
+					end
+					return container:GetData()
+				end
+				Settings.CreateDropdown(category, setFontName, GetOptions, L["FontFaceDesc"])
+			end
+		end
 		-- Target frame scale slider removed — now available in Edit Mode (LibEditMode)
 		--------------------------------------------
 		-- Subcategory: Orbs (Сферы)

@@ -103,6 +103,14 @@ BagButton.SetupBagsBar = function(self)
 	if not db then return end
 	local settings = db.global.bagbutton
 	if not settings then return end
+	-- WoW 12.0: BagsBar is a secure frame — SetParent/Hide on it taints in combat.
+	-- Defer the change until combat ends if we're locked down right now.
+	if (InCombatLockdown()) then
+		self.__pendingSetup = true
+		self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnRegenEnabled")
+		return
+	end
+	self.__pendingSetup = nil
 	if settings.hideBagButton then
 		if BagsBar then
 			BagsBar:SetParent(ns.Hider)
@@ -119,6 +127,12 @@ BagButton.SetupBagsBar = function(self)
 	local bagButton = MainMenuBarBackpackButton
 	if bagButton then
 		self:StyleButton(bagButton)
+	end
+end
+BagButton.OnRegenEnabled = function(self)
+	if (self.__pendingSetup) then
+		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+		self:SetupBagsBar()
 	end
 end
 BagButton.OnInitialize = function(self)

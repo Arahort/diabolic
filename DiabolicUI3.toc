@@ -2,7 +2,7 @@
 
 ## Title: |cffaa0022Diabolic|r |cfffafafaUI|r |cffcccccc3.0 Arahort Edition|r
 ## Notes: Orb based graphical user interface replacement for WoW|n|nMaintained by Arahort (arahort.pro)|n|nBased on original DiabolicUI by Lars "Goldpaw" Norberg
-## Version: 6.6.6-r469
+## Version: 6.6.6-r470
 ## Author: Arahort
 ## IconTexture: Interface\AddOns\DiabolicUI3\Assets\diabolic-lettermark
 
@@ -13,7 +13,7 @@
 
 ## SavedVariables: DiabolicUI3_DB
 ## SavedVariablesPerCharacter: DiabolicUI3_BagDump
-## OptionalDeps: Ace3, Clique, LibKeyBound-1.0
+## OptionalDeps: Ace3, LibSharedMedia-3.0
 
 # TaintLess
 # https://www.townlong-yak.com/addons/taintless/release/22-09-15

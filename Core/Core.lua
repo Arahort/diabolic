@@ -187,6 +187,11 @@ local defaults = {
 			zonePositionY = 162,
 			zoneSize = 60
 		},
+		fonts = {
+			customEnabled = false,
+			fontName = "Default (game)",
+			fontPath = nil
+		},
 		auras = {
 			iconSize = 36,
 			twoRowsTargetAuras = false,

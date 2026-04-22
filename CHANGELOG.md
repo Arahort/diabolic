@@ -1,5 +1,31 @@
 # DiabolicUI3 Changelog
 
+## [6.6.6-r470] - 2026-04-23
+
+### ✨ New Features
+- **Custom font selector** in Settings → Diabolic UI → Scale
+  - Checkbox **Use custom font** (default off — keeps current behavior)
+  - **Font dropdown** with built-in Blizzard fonts (Friz Quadrata, Morpheus, Skurri, Arial Narrow) + any fonts registered through **LibSharedMedia-3.0** (if installed)
+  - Applies instantly to all Diabolic UI elements (unit frames, tooltips, castbars, action bar text, minimap, etc.) — no `/reload` required
+  - Chat and number fonts are **not** affected (they intentionally stay on ARIAL Narrow)
+  - Settings saved globally (per account)
+
+### 🐛 Bug Fixes
+- **`BagsBar:SetParent` taint in combat** (`BagButton.lua`)
+  - The "Hide backpack" setting could trigger ADDON_ACTION_BLOCKED and silently fail to apply during combat. The update is now deferred to `PLAYER_REGEN_ENABLED` and re-applied safely when combat ends.
+- **`OnTooltipSetUnit` secret-value handling** (`Tooltips.lua`)
+  - Wrapped `GameTooltip:GetUnit()`, `UnitIsUnit` and `UnitName` calls in `pcall` + `issecretvalue` checks. Reduces the Blizzard `TooltipUtil.lua:39` error spam caused by our tooltip hook passing secret values further down the pipeline (notably visible when AllTheThings is installed).
+- **Custom font revert** (`Core/API/Assets.lua`)
+  - Turning off "Use custom font" now correctly reverts to the inherited `Game16Font` path immediately. Previously `fontObject:GetFont()` kept returning the overridden path, so the revert was a silent no-op until `/reload`.
+
+### 🔧 Changes
+- **TOC `OptionalDeps`** cleaned up: removed `Clique` (unused) and `LibKeyBound-1.0` (bundled in `Libs/`, not optional). Added `LibSharedMedia-3.0`.
+
+### 🌍 Localization
+- Added `UseCustomFont` / `UseCustomFontDesc` / `FontFace` / `FontFaceDesc` strings across all 12 locales
+
+---
+
 ## [6.6.6-r469] - 2026-04-22
 
 ### ✨ New Features
