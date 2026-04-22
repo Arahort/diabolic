@@ -180,15 +180,28 @@ local function UpdateColor(self, event, unit)
 	elseif(element.colorClass and (UnitIsPlayer(unit) or UnitInPartyIsAI(unit)))
 		or (element.colorClassNPC and not (UnitIsPlayer(unit) or UnitInPartyIsAI(unit)))
 		or (element.colorClassPet and UnitPlayerControlled(unit) and not UnitIsPlayer(unit)) then
-		local _, class = UnitClass(unit)
-		color = self.colors.class[class]
+		-- WoW 12.0: UnitClass can return secret value for target-of-target units in combat.
+		local okCls, _, class = pcall(UnitClass, unit)
+		if (okCls and class and not (issecretvalue and issecretvalue(class))) then
+			color = self.colors.class[class]
+		end
 	elseif(element.colorSelection and unitSelectionType(unit, element.considerSelectionInCombatHostile)) then
 		color = self.colors.selection[unitSelectionType(unit, element.considerSelectionInCombatHostile)]
 	elseif(element.colorReaction and UnitReaction(unit, 'player')) then
-		color = self.colors.reaction[UnitReaction(unit, 'player')]
+		-- WoW 12.0: UnitReaction can return secret value.
+		local okR, reaction = pcall(UnitReaction, unit, 'player')
+		if (okR and reaction and not (issecretvalue and issecretvalue(reaction))) then
+			color = self.colors.reaction[reaction]
+		end
 	elseif(element.colorSmooth and self.colors.health:GetCurve()) then
 		color = self.values:EvaluateCurrentHealthPercent(self.colors.health:GetCurve())
 	elseif(element.colorHealth) then
+		color = self.colors.health
+	end
+
+	-- WoW 12.0 fallback: when all above branches failed (e.g. secret values on focustarget),
+	-- fall back to the generic health color so the bar is never left transparent.
+	if(not color) then
 		color = self.colors.health
 	end
 

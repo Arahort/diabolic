@@ -225,8 +225,14 @@ end
 
 Events[ns.Prefix..":Name"] = "UNIT_NAME_UPDATE"
 Methods[ns.Prefix..":Name"] = function(unit, realUnit)
-	local name = UnitName(realUnit or unit)
-	if (name and string_find(name, "%s")) then
+	-- WoW 12.0: UnitName() returns a secret value for hostile/unseen units in combat
+	-- (e.g. focustarget when target is an enemy NPC). string_find on a secret string
+	-- raises "attempt to perform string conversion on a secret string value".
+	local ok, name = pcall(UnitName, realUnit or unit)
+	if (not ok) or (not name) then return end
+	-- issecretvalue check: returning a secret string from a tag method would taint the FontString.
+	if (issecretvalue and issecretvalue(name)) then return end
+	if (string_find(name, "%s")) then
 		name = AbbreviateName(name)
 	end
 	return name

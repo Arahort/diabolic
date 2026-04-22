@@ -14,6 +14,8 @@ local UnitGroupRolesAssigned = UnitGroupRolesAssigned
 local UnitIsConnected = UnitIsConnected
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local UnitIsUnit = UnitIsUnit
+local UnitPowerMax = UnitPowerMax
+local issecretvalue = issecretvalue or function() return false end
 -- Addon API
 local Colors = ns.Colors
 local GetFont = ns.API.GetFont
@@ -116,44 +118,81 @@ end
 -- Skip expensive ClearModel+SetUnit when unit GUID hasn't changed (prevents
 -- animation restart on units like focustarget that get frequent updates).
 local Portrait_PostUpdate = function(element, unit, hasStateChanged)
+	-- WoW 12.0: UnitGUID can return secret value for focustarget/targettarget in combat.
+	-- Comparing or storing secret values would taint the portrait frame.
+	local ok, newGuid = pcall(UnitGUID, unit)
+	if (not ok) then newGuid = nil end
+	local guidIsSecret = newGuid and issecretvalue(newGuid)
+	if (guidIsSecret) then newGuid = nil end
+	-- Ensure the 2D fallback texture exists (used when 3D model is unavailable).
+	if (not element.fallback2DTexture) then
+		element.fallback2DTexture = element:CreateTexture()
+		element.fallback2DTexture:SetDrawLayer("ARTWORK")
+		element.fallback2DTexture:SetAllPoints()
+		element.fallback2DTexture:SetTexCoord(.1, .9, .1, .9)
+	end
+	-- Offline/OOR: always use 2D fallback.
 	if (not element.state) then
-		if (not element.fallback2DTexture) then
-			element.fallback2DTexture = element:CreateTexture()
-			element.fallback2DTexture:SetDrawLayer("ARTWORK")
-			element.fallback2DTexture:SetAllPoints()
-			element.fallback2DTexture:SetTexCoord(.1, .9, .1, .9)
-		end
-		local newGuid = UnitGUID(unit)
 		if (element.guid ~= newGuid) then
 			element:ClearModel()
-			SetPortraitTexture(element.fallback2DTexture, unit)
+			pcall(SetPortraitTexture, element.fallback2DTexture, unit)
 			element.guid = newGuid
 		end
 		element.fallback2DTexture:Show()
-	else
-		if (element.fallback2DTexture) then
-			element.fallback2DTexture:Hide()
-		end
-		local newGuid = UnitGUID(unit)
-		if (element.guid == newGuid) then
-			return -- same unit — don't restart animation
-		end
-		element:SetCamDistanceScale(1)
-		element:SetPortraitZoom(1)
-		element:SetPosition(0, 0, 0)
-		element:SetRotation(0)
+		return
+	end
+	-- Secret unit (typical focustarget on hostile NPC): 3D model can't be loaded safely,
+	-- so show a 2D portrait texture instead — prevents an empty frame.
+	if (guidIsSecret) then
 		element:ClearModel()
-		element:SetUnit(unit)
-		element.guid = newGuid
+		pcall(SetPortraitTexture, element.fallback2DTexture, unit)
+		element.fallback2DTexture:Show()
+		element.guid = nil
+		return
 	end
+	-- Normal path: 3D unit model.
+	if (element.fallback2DTexture) then
+		element.fallback2DTexture:Hide()
+	end
+	if (element.guid == newGuid) then
+		return -- same unit — don't restart animation
+	end
+	element:SetCamDistanceScale(1)
+	element:SetPortraitZoom(1)
+	element:SetPosition(0, 0, 0)
+	element:SetRotation(0)
+	element:ClearModel()
+	pcall(element.SetUnit, element, unit)
+	element.guid = newGuid
 end
--- Power post-update (hide when dead/disconnected)
+-- Power post-update (hide when dead/disconnected or no power resource).
+-- WoW 12.0: on units like focustarget (hostile NPC) UnitPowerMax can return a
+-- secret value or 0 — in that case hide the bar AND its decorative backdrops
+-- instead of showing an empty slot.
 local Power_PostUpdate = function(element, unit, cur, min, max)
-	if (UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit)) then
-		element:Show()
-	else
-		element:Hide()
+	local parent = element.__owner or element:GetParent()
+	local function setVisible(show)
+		if (show) then
+			element:Show()
+			if (parent and parent.PowerBarBackground) then parent.PowerBarBackground:Show() end
+			if (parent and parent.PowerBackdrop) then parent.PowerBackdrop:Show() end
+		else
+			element:Hide()
+			if (parent and parent.PowerBarBackground) then parent.PowerBarBackground:Hide() end
+			if (parent and parent.PowerBackdrop) then parent.PowerBackdrop:Hide() end
+		end
 	end
+	if (not UnitIsConnected(unit)) or UnitIsDeadOrGhost(unit) then
+		setVisible(false)
+		return
+	end
+	local maxOk = max and (not issecretvalue(max))
+	local hasPower = maxOk and (max > 0)
+	if (not maxOk) then
+		local okMax, realMax = pcall(UnitPowerMax, unit)
+		hasPower = okMax and realMax and (not issecretvalue(realMax)) and (realMax > 0)
+	end
+	setVisible(hasPower)
 end
 -- Group role override
 local GroupRoleIndicator_Override = function(self, event)
@@ -441,6 +480,11 @@ UnitStyles["Party"] = function(self, unit, id)
 		local btn = ns.AuraStyles.CreateButton(element, position)
 		if (btn and not btn.__partyBorderApplied) then
 			btn.__partyBorderApplied = true
+			-- Pre-size the button at creation time (out of combat) to avoid taint from
+			-- oUF's updateAura calling SetSize on a secure-parented button during combat.
+			if (not InCombatLockdown()) then
+				btn:SetSize(AURA_SIZE, AURA_SIZE)
+			end
 			if (btn.Border) then
 				btn.Border:Hide()
 			end

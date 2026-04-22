@@ -1,4 +1,5 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="Debug.lua"/>
 	<Script file="Elements\Performance.lua"/>
+	<Script file="Elements\BagDump.lua"/>
 </Ui>

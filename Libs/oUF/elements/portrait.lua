@@ -39,8 +39,16 @@ the unit.
 local _, ns = ...
 local oUF = ns.oUF
 
+-- WoW 12.0.0: issecretvalue may not exist in older versions
+local issecretvalue = issecretvalue or function() return false end
+
 local function Update(self, event, unit)
-	if(not unit or not UnitIsUnit(self.unit, unit)) then return end
+	if(not unit) then return end
+	-- WoW 12.0: UnitIsUnit can return a secret boolean for hostile unseen units
+	-- (e.g. target="target" when our focustarget is an enemy NPC). A `not` test on
+	-- a secret boolean throws. Use pcall and treat secret result as "no match".
+	local ok, isSame = pcall(UnitIsUnit, self.unit, unit)
+	if (not ok) or issecretvalue(isSame) or (not isSame) then return end
 
 	local element = self.Portrait
 
@@ -52,7 +60,11 @@ local function Update(self, event, unit)
 	--]]
 	if(element.PreUpdate) then element:PreUpdate(unit) end
 
-	local guid = UnitGUID(unit)
+	-- WoW 12.0: UnitGUID can return a secret value for hostile unseen units
+	-- (e.g. focustarget when target is an enemy NPC). Comparing/storing a secret
+	-- string taints the frame. Treat secret GUID as "no GUID change" to avoid taint.
+	local ok, guid = pcall(UnitGUID, unit)
+	if (not ok) or (guid and issecretvalue(guid)) then guid = nil end
 	local isAvailable = UnitIsConnected(unit) and UnitIsVisible(unit)
 	local hasStateChanged = event ~= 'OnUpdate' or element.guid ~= guid or element.state ~= isAvailable
 	if(hasStateChanged) then
@@ -68,20 +80,22 @@ local function Update(self, event, unit)
 				element:SetPortraitZoom(1)
 				element:SetPosition(0, 0, 0)
 				element:ClearModel()
-				element:SetUnit(unit)
+				pcall(element.SetUnit, element, unit)
 			end
 		else
 			local class, _
 			if(element.showClass) then
 				-- BUG: UnitClassBase can't be trusted
 				--      https://github.com/Stanzilla/WoWUIBugs/issues/621
-				_, class = UnitClass(unit)
+				local okC
+				okC, _, class = pcall(UnitClass, unit)
+				if (not okC) or (class and issecretvalue(class)) then class = nil end
 			end
 
 			if(class) then
 				element:SetAtlas('classicon-' .. class)
 			else
-				SetPortraitTexture(element, unit)
+				pcall(SetPortraitTexture, element, unit)
 			end
 		end
 

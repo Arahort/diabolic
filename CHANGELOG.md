@@ -1,5 +1,44 @@
 # DiabolicUI3 Changelog
 
+## [6.6.6-r469] - 2026-04-22
+
+### ✨ New Features
+- **EditMode for Extra Ability buttons**
+  - `Diabolic: Extra Button` — drag the Extra Action Button (boss abilities, etc.) to any position
+  - `Diabolic: Zone Ability` — drag the Zone Ability Button independently
+  - Per-button size slider (20–100 px, 1 px step) inside EditMode settings
+  - Position and size saved globally (per account)
+  - Placeholder preview icons shown inside EditMode so the frames are visible/draggable even when no active ability is equipped
+  - Default size: **60 px** (previously hardcoded 80)
+  - Button size is now **independent from the "Unit Frames Scale" slider** — fully controlled by EditMode size
+
+- **Bag Dump debug module** (`/bagdump`, `/bagdump bank`, `/bagdump clear`)
+  - Scans all bag slots and saves detailed item info (itemID, quality, bind type, expansion, quest state, etc.) to `DiabolicUI3_BagDump` SavedVariablesPerCharacter
+  - Useful for inventory audits and external tooling
+
+### 🐛 Bug Fixes
+- **FocusTarget on hostile NPCs** (WoW 12.0 secret values)
+  - Fixed empty portrait for enemy target-of-focus: now falls back to a 2D portrait texture when the 3D model can't be loaded safely (secret GUID)
+  - Fixed colorless HP bar on hostile NPCs: `UnitClass`/`UnitReaction` wrapped in `pcall` + `issecretvalue` checks; generic health color used as fallback
+  - Fixed `boolean test on a secret boolean value` in `oUF/portrait.lua` when `UnitIsUnit` returns a secret
+  - Fixed `attempt to compare local 'guid' (a secret string value)` in `oUF/portrait.lua`
+  - Fixed `string conversion on a secret string value` in `Tags.lua` `:Name` tag
+  - Fixed 2000+× Blizzard `TooltipUtil.lua:39` spam: `GameTooltip:GetUnit()` now wrapped in `pcall`
+  - Fixed empty power bar for mobs without mana/rage: Power bar, background and decorative border are now hidden when `UnitPowerMax == 0` or is a secret value
+
+- **ADDON_ACTION_BLOCKED for party auras** (`DiabolicPartyUnitButtonX:SetSize/Hide/EnableMouse`)
+  - `oUF/auras.lua`: `SetSize`, `EnableMouse`, `Show`, `Hide` on secure-parented aura buttons are now skipped in combat (visual hide via `SetAlpha` in combat, real `Hide()` out of combat)
+  - Party aura buttons are pre-sized at `CreateButton` time so `updateAura` never tries to resize them during combat
+
+### 🔧 Changes
+- **Extra Ability Buttons:** removed the D2R orb-style position override — positions are now driven exclusively by EditMode
+- `.mcp.json` added to `.gitignore` (contains absolute user paths)
+
+### 🌍 Localization
+- Added `ExtraButtonSize` / `ExtraButtonSizeDesc` / `ZoneAbilitySize` / `ZoneAbilitySizeDesc` strings across all 12 languages (enUS, ruRU, deDE, esES, esMX, frFR, itIT, koKR, ptBR, ptPT, zhCN, zhTW)
+
+---
+
 ## [6.6.6-r468] - 2026-04-19
 
 ### ✨ New Features

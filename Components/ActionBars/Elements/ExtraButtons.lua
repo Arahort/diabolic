@@ -21,14 +21,17 @@ local noop = ns.Noop
 ExtraButtons.UpdateButton = function(self, button)
 
 	local name = button:GetName()
-	if (name and string_find(name, "ExtraActionButton%d+")) then
+	local isExtra = name and string_find(name, "ExtraActionButton%d+")
+	if (isExtra) then
 		if (not self.ExtraButtons) then
 			self.ExtraButtons = {}
 		end
 		self.ExtraButtons[button] = true
 	end
 
-	button:SetSize(80,80)
+	local db = ns.db.global.extrabuttons
+	local size = isExtra and (db.extraSize or 60) or (db.zoneSize or 60)
+	button:SetSize(size, size)
 
 	if (button:GetNormalTexture()) then
 		button:GetNormalTexture():SetTexture(nil)
@@ -54,7 +57,7 @@ ExtraButtons.UpdateButton = function(self, button)
 
 	local cooldown = button.cooldown or button.Cooldown
 	if (cooldown) then
-		cooldown:SetSize(58,58)
+		cooldown:SetSize(size * 0.725, size * 0.725)
 		cooldown:ClearAllPoints()
 		cooldown:SetPoint("CENTER", 0, 0)
 		cooldown:SetSwipeTexture(GetMedia("actionbutton-mask-circular"))
@@ -77,10 +80,11 @@ ExtraButtons.UpdateButton = function(self, button)
 		end
 	end
 
+	local inset = size * 0.1375
 	local count = button.Count
 	if (count) then
 		count:ClearAllPoints()
-		count:SetPoint("BOTTOMRIGHT", -11, 11)
+		count:SetPoint("BOTTOMRIGHT", -inset, inset)
 		count:SetFontObject(GetFont(14, true))
 		count:SetJustifyH("RIGHT")
 		count:SetJustifyV("BOTTOM")
@@ -92,7 +96,7 @@ ExtraButtons.UpdateButton = function(self, button)
 			keybind:SetParent(UIHider)
 		end
 		keybind:ClearAllPoints()
-		keybind:SetPoint("TOPRIGHT", -11, -11)
+		keybind:SetPoint("TOPRIGHT", -inset, -inset)
 		keybind:SetFontObject(GetFont(12, true))
 		keybind:SetJustifyH("CENTER")
 		keybind:SetJustifyV("BOTTOM")
@@ -139,8 +143,8 @@ ExtraButtons.UpdateButton = function(self, button)
 	-- I honestly have no idea why. Somebody tell me?
 	if (not button.__GP_Icon) then
 		local newIcon = button:CreateTexture()
-		newIcon:SetPoint("TOPLEFT", button, 11, -11)
-		newIcon:SetPoint("BOTTOMRIGHT", button, -11, 11)
+		newIcon:SetPoint("TOPLEFT", button, inset, -inset)
+		newIcon:SetPoint("BOTTOMRIGHT", button, -inset, inset)
 		newIcon:SetMask(GetMedia("actionbutton-mask-circular"))
 		newIcon:SetAlpha(.85)
 		button.__GP_Icon = newIcon
@@ -221,70 +225,73 @@ ExtraButtons.UpdateBindings = function(self)
 end
 
 ExtraButtons.UpdatePosition = function(self)
-	if ns.IsRetail and EditModeManagerFrame then
-		if EditModeManagerFrame:IsEditModeActive() then
-			return
-		else
-			if self.ExtraScaffold then
-				local point, relativeTo, relativePoint, xOfs, yOfs = self.ExtraScaffold:GetPoint()
-				if point and relativeTo and xOfs and yOfs then
-					local db = ns.db.global.extrabuttons
-					db.extraPositionX = xOfs
-					db.extraPositionY = yOfs
-				end
-			end
-			if self.ZoneScaffold then
-				local point, relativeTo, relativePoint, xOfs, yOfs = self.ZoneScaffold:GetPoint()
-				if point and relativeTo and xOfs and yOfs then
-					local db = ns.db.global.extrabuttons
-					db.zonePositionX = xOfs
-					db.zonePositionY = yOfs
-				end
-			end
-		end
-	end
 	local db = ns.db.global.extrabuttons
 	if self.ExtraScaffold then
 		self.ExtraScaffold:ClearAllPoints()
-		-- Different position for D2R orb style (fixed position, ignores saved)
-		if ns.db.global.orbs.useD2RStyle then
-			self.ExtraScaffold:SetPoint("CENTER", UIParent, "BOTTOM", -495, 240)
-		else
-			self.ExtraScaffold:SetPoint("BOTTOM", db.extraPositionX or -546, db.extraPositionY or 156)
-		end
+		self.ExtraScaffold:SetPoint(
+			db.extraPoint or "BOTTOM",
+			UIParent,
+			db.extraRelPoint or "BOTTOM",
+			db.extraPositionX or -546,
+			db.extraPositionY or 156
+		)
 	end
 	if self.ZoneScaffold then
 		self.ZoneScaffold:ClearAllPoints()
-		-- Different position for D2R orb style (fixed position, ignores saved)
-		if ns.db.global.orbs.useD2RStyle then
-			self.ZoneScaffold:SetPoint("CENTER", UIParent, "BOTTOM", 500, 250)
-		else
-			self.ZoneScaffold:SetPoint("BOTTOM", db.zonePositionX or 558, db.zonePositionY or 162)
+		self.ZoneScaffold:SetPoint(
+			db.zonePoint or "BOTTOM",
+			UIParent,
+			db.zoneRelPoint or "BOTTOM",
+			db.zonePositionX or 558,
+			db.zonePositionY or 162
+		)
+	end
+end
+
+ExtraButtons.ApplySize = function(self, which)
+	local db = ns.db.global.extrabuttons
+	if which == "extra" or which == "both" then
+		local size = db.extraSize or 60
+		if self.ExtraScaffold then
+			self.ExtraScaffold:SetSize(size, size)
 		end
+		self:UpdateExtraButtons()
+	end
+	if which == "zone" or which == "both" then
+		local size = db.zoneSize or 60
+		if self.ZoneScaffold then
+			self.ZoneScaffold:SetSize(size, size)
+		end
+		self:UpdateZoneButtons()
 	end
 end
 
 ExtraButtons.OnInitialize = function(self)
-	-- Wrap ALL ExtraAbilityContainer operations in pcall - it's a secure frame and causes taint
-	pcall(SetObjectScale, ExtraAbilityContainer)
-	local ExtraActionBarFrame = SetObjectScale(ExtraActionBarFrame)
+	-- WoW 12.0: Do NOT touch ExtraAbilityContainer (secure frame).
+	-- Any modification (SetScale, SetFrameStrata, SetFrameLevel, assigning fields like
+	-- ignoreFramePositionManager) taints the frame and causes ADDON_ACTION_BLOCKED
+	-- later when Blizzard's code calls Layout()→SetSize() on it.
+	-- Work only with ExtraActionBarFrame (its child) which is safe to re-parent.
+	local db = ns.db.global.extrabuttons
+	-- EditMode scaling: scaffolds use UIParent scale (scale = 1 relative to parent) so that
+	-- visual size is fully controlled by the pixel size setting in EditMode, independent of
+	-- the "Unit Frames Scale" slider. SetIgnoreParentScale(false) keeps LibEditMode drag math
+	-- consistent (coordinates are in UIParent space).
+	local EditModeScale = function(object)
+		if (object and object.SetScale) then
+			object:SetIgnoreParentScale(false)
+			object:SetScale(1)
+		end
+		return object
+	end
+	-- Don't scale ExtraActionBarFrame separately — it inherits scaffold's scale (1 = UIParent space).
 	if (ExtraAbilityContainer and ExtraActionBarFrame) then
-		local extraScaffold = SetObjectScale(CreateFrame("Frame", nil, UIParent))
+		ExtraActionBarFrame:SetIgnoreParentScale(false)
+		ExtraActionBarFrame:SetScale(1)
+		local extraScaffold = EditModeScale(CreateFrame("Frame", nil, UIParent))
 		extraScaffold:SetFrameStrata("LOW")
 		extraScaffold:SetFrameLevel(10)
-		extraScaffold:SetSize(64,64)
-
-		-- This might go away in Dragonflight,
-		-- as it's moved to a filed called UIParentOld.lua
-		if (UIPARENT_MANAGED_FRAME_POSITIONS) then
-			UIPARENT_MANAGED_FRAME_POSITIONS.ExtraAbilityContainer = nil
-		end
-		-- All operations on ExtraAbilityContainer wrapped in pcall to prevent taint
-		pcall(function()
-			ExtraAbilityContainer:SetFrameStrata("LOW")
-			ExtraAbilityContainer:SetFrameLevel(10)
-			ExtraAbilityContainer.ignoreFramePositionManager = true
-		end)
+		extraScaffold:SetSize(db.extraSize or 60, db.extraSize or 60)
 		ExtraActionBarFrame:SetParent(extraScaffold)
 		ExtraActionBarFrame:ClearAllPoints()
 		ExtraActionBarFrame:SetAllPoints()
@@ -295,12 +302,13 @@ ExtraButtons.OnInitialize = function(self)
 		self.ExtraScaffold = extraScaffold
 	end
 
-	local ZoneAbilityFrame = SetObjectScale(ZoneAbilityFrame)
 	if (ZoneAbilityFrame) then
-		local zoneScaffold = SetObjectScale(CreateFrame("Frame", nil, UIParent))
+		ZoneAbilityFrame:SetIgnoreParentScale(false)
+		ZoneAbilityFrame:SetScale(1)
+		local zoneScaffold = EditModeScale(CreateFrame("Frame", nil, UIParent))
 		zoneScaffold:SetFrameStrata("LOW")
 		zoneScaffold:SetFrameLevel(10)
-		zoneScaffold:SetSize(64,64)
+		zoneScaffold:SetSize(db.zoneSize or 60, db.zoneSize or 60)
 
 		ZoneAbilityFrame.SpellButtonContainer.holder = zoneScaffold
 		ZoneAbilityFrame.SpellButtonContainer:SetFrameStrata("LOW")
@@ -316,6 +324,112 @@ ExtraButtons.OnInitialize = function(self)
 	end
 
 	self:UpdatePosition()
+
+	-- EditMode integration (LibEditMode)
+	local LibEditMode = ns.LibEditMode
+	if (LibEditMode and LibEditMode.AddFrame) then
+		local L = ns.L
+		-- Helper: create a visible placeholder so the scaffold is draggable in EditMode
+		-- even when the actual Blizzard Extra/Zone ability frame is hidden (no active spell).
+		local function ensurePreview(scaffold, border, iconTex)
+			if (scaffold.__preview) then return scaffold.__preview end
+			local preview = scaffold:CreateTexture(nil, "BACKGROUND", nil, -1)
+			preview:SetAllPoints()
+			preview:SetTexture([[Interface\ICONS\]] .. (iconTex or "INV_Misc_QuestionMark"))
+			preview:SetMask(GetMedia("actionbutton-mask-circular"))
+			preview:SetAlpha(.85)
+			local bord = scaffold:CreateTexture(nil, "BORDER", nil, -7)
+			bord:SetTexture(GetMedia("button-big-circular"))
+			bord:SetVertexColor(.8, .76, .72)
+			bord:SetAllPoints()
+			preview:Hide(); bord:Hide()
+			scaffold.__preview = preview
+			scaffold.__previewBorder = bord
+			return preview
+		end
+		if self.ExtraScaffold then
+			ensurePreview(self.ExtraScaffold, true, "INV_Misc_PocketWatch_01")
+		end
+		if self.ZoneScaffold then
+			ensurePreview(self.ZoneScaffold, true, "Spell_Shadow_Teleport")
+		end
+		LibEditMode:RegisterCallback("enter", function()
+			if self.ExtraScaffold and self.ExtraScaffold.__preview then
+				self.ExtraScaffold.__preview:Show()
+				self.ExtraScaffold.__previewBorder:Show()
+			end
+			if self.ZoneScaffold and self.ZoneScaffold.__preview then
+				self.ZoneScaffold.__preview:Show()
+				self.ZoneScaffold.__previewBorder:Show()
+			end
+		end)
+		LibEditMode:RegisterCallback("exit", function()
+			if self.ExtraScaffold and self.ExtraScaffold.__preview then
+				self.ExtraScaffold.__preview:Hide()
+				self.ExtraScaffold.__previewBorder:Hide()
+			end
+			if self.ZoneScaffold and self.ZoneScaffold.__preview then
+				self.ZoneScaffold.__preview:Hide()
+				self.ZoneScaffold.__previewBorder:Hide()
+			end
+		end)
+		if self.ExtraScaffold then
+			self.ExtraScaffold.editModeName = "Diabolic: Extra Button"
+			LibEditMode:AddFrame(self.ExtraScaffold, function(frame, layoutName, point, x, y)
+				if (InCombatLockdown()) then return end
+				local d = ns.db.global.extrabuttons
+				d.extraPoint = point
+				d.extraRelPoint = point
+				d.extraPositionX = x
+				d.extraPositionY = y
+			end, {point = db.extraPoint or "BOTTOM", x = db.extraPositionX or -546, y = db.extraPositionY or 156})
+			LibEditMode:AddFrameSettings(self.ExtraScaffold, {
+				{
+					kind = LibEditMode.SettingType.Slider,
+					name = L["ExtraButtonSize"],
+					desc = L["ExtraButtonSizeDesc"],
+					default = 60,
+					minValue = 20,
+					maxValue = 100,
+					valueStep = 1,
+					formatter = function(value) return string.format("%dpx", value) end,
+					get = function() return ns.db.global.extrabuttons.extraSize or 60 end,
+					set = function(layoutName, value)
+						ns.db.global.extrabuttons.extraSize = value
+						ExtraButtons:ApplySize("extra")
+					end,
+				}
+			})
+		end
+		if self.ZoneScaffold then
+			self.ZoneScaffold.editModeName = "Diabolic: Zone Ability"
+			LibEditMode:AddFrame(self.ZoneScaffold, function(frame, layoutName, point, x, y)
+				if (InCombatLockdown()) then return end
+				local d = ns.db.global.extrabuttons
+				d.zonePoint = point
+				d.zoneRelPoint = point
+				d.zonePositionX = x
+				d.zonePositionY = y
+			end, {point = db.zonePoint or "BOTTOM", x = db.zonePositionX or 558, y = db.zonePositionY or 162})
+			LibEditMode:AddFrameSettings(self.ZoneScaffold, {
+				{
+					kind = LibEditMode.SettingType.Slider,
+					name = L["ZoneAbilitySize"],
+					desc = L["ZoneAbilitySizeDesc"],
+					default = 60,
+					minValue = 20,
+					maxValue = 100,
+					valueStep = 1,
+					formatter = function(value) return string.format("%dpx", value) end,
+					get = function() return ns.db.global.extrabuttons.zoneSize or 60 end,
+					set = function(layoutName, value)
+						ns.db.global.extrabuttons.zoneSize = value
+						ExtraButtons:ApplySize("zone")
+					end,
+				}
+			})
+		end
+	end
 
 	if ns.IsRetail then
 		self:RegisterEvent("EDIT_MODE_LAYOUTS_UPDATED", "UpdatePosition")

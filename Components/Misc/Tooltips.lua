@@ -386,7 +386,10 @@ end
 
 Tooltips.OnValueChanged = function(self)
 	-- Get unit from GameTooltip (parent of both original and custom bar)
-	local unit = select(2, GameTooltip:GetUnit())
+	-- WoW 12.0: GameTooltip:GetUnit() internally calls UnitName() which throws on
+	-- secret values (common for world-cursor tooltips on hostile unseen NPCs).
+	local ok, _, unit = pcall(GameTooltip.GetUnit, GameTooltip)
+	if (not ok) then unit = nil end
 	if (not unit) or issecretvalue(unit) then
 		local GMF = GetMouseFocus()
 		if (GMF and GMF.GetAttribute and GMF:GetAttribute("unit")) then

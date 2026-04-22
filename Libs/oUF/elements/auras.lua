@@ -236,9 +236,17 @@ local function updateAura(element, unit, data, position)
 
 	local width = element.width or element.size or 16
 	local height = element.height or element.size or 16
-	button:SetSize(width, height)
-	button:EnableMouse(not element.disableMouse)
-	button:Show()
+	-- WoW 12.0: SetSize/EnableMouse/Show on secure-parented aura buttons taint in combat.
+	-- Only call them when we are out of combat. Alpha can be set anytime (non-secure).
+	if(not InCombatLockdown()) then
+		local curW, curH = button:GetSize()
+		if(curW ~= width or curH ~= height) then
+			button:SetSize(width, height)
+		end
+		button:EnableMouse(not element.disableMouse)
+		button:Show()
+	end
+	button:SetAlpha(1)
 
 	--[[ Callback: Auras:PostUpdateButton(unit, button, data, position)
 	Called after the aura button has been updated.
@@ -553,7 +561,13 @@ local function UpdateAuras(self, event, unit, updateInfo)
 			end
 
 			for i = numVisible + 1, #auras do
-				auras[i]:Hide()
+				-- WoW 12.0: Hide()/EnableMouse on secure-parented aura buttons taint in combat.
+				-- Out of combat: real Hide(). In combat: visually hide via SetAlpha (non-secure).
+				if(not InCombatLockdown()) then
+					auras[i]:Hide()
+				else
+					auras[i]:SetAlpha(0)
+				end
 			end
 
 			if(visibleChanged or auras.createdButtons > auras.anchoredButtons) then

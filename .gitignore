@@ -59,6 +59,9 @@ CHANGES.txt
 # Claude Code local instructions
 .claude/
 
+# Personal MCP server config (contains absolute user paths)
+.mcp.json
+
 # Local reference/research files
 old/
 logo/

@@ -176,10 +176,16 @@ local defaults = {
 			positionY = -454.54
 		},
 		extrabuttons = {
+			extraPoint = "BOTTOM",
+			extraRelPoint = "BOTTOM",
 			extraPositionX = -546,
 			extraPositionY = 156,
+			extraSize = 60,
+			zonePoint = "BOTTOM",
+			zoneRelPoint = "BOTTOM",
 			zonePositionX = 558,
-			zonePositionY = 162
+			zonePositionY = 162,
+			zoneSize = 60
 		},
 		auras = {
 			iconSize = 36,
