@@ -1,5 +1,14 @@
 # DiabolicUI3 Changelog
 
+## [6.6.6-r471] - 2026-04-23
+
+### 🐛 Bug Fixes
+- **Custom orb colors were overridden to red during combat** (`Libs/oUF/elements/health.lua`)
+  - The safety fallback introduced in r469 (to prevent colorless HP bars on hostile NPC `focustarget`) was applied unconditionally when no colorXxx branch matched. On the Player orbs — where every `colorXxx` flag is intentionally disabled so the user's hand-picked color can be used via `SetStatusBarColor` — oUF's UNIT_* events in combat kept triggering `UpdateColor` and the fallback silently repainted the orbs red.
+  - The fallback now only applies when at least one `colorXxx` flag is enabled. If the user (or a unit style) has disabled every flag and is painting the bar manually, we leave the custom color intact.
+
+---
+
 ## [6.6.6-r470] - 2026-04-23
 
 ### ✨ New Features

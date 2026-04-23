@@ -199,9 +199,17 @@ local function UpdateColor(self, event, unit)
 		color = self.colors.health
 	end
 
-	-- WoW 12.0 fallback: when all above branches failed (e.g. secret values on focustarget),
-	-- fall back to the generic health color so the bar is never left transparent.
-	if(not color) then
+	-- WoW 12.0 fallback: when at least one color flag is enabled but every branch
+	-- failed to resolve a color (e.g. secret values on focustarget), fall back to
+	-- the generic health color so the bar is never left transparent.
+	-- IMPORTANT: if the user explicitly disabled every colorXxx flag (e.g. orb
+	-- frames using a hand-picked static color via SetStatusBarColor), do NOT
+	-- override — otherwise we'd repaint their custom color every combat event.
+	local anyColorFlag = element.colorDisconnected or element.colorTapping
+		or element.colorThreat or element.colorClass or element.colorClassNPC
+		or element.colorClassPet or element.colorSelection or element.colorReaction
+		or element.colorSmooth or element.colorHealth
+	if(not color) and anyColorFlag then
 		color = self.colors.health
 	end
 
