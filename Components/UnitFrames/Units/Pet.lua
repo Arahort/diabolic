@@ -111,10 +111,13 @@ local StyleClassic = function(self, unit, id)
 end
 
 -- Orb style (like player health orb but smaller and green)
+-- Reference proportions from 100px design: backdrop = 165 => ratio 1.65.
+local BACKDROP_RATIO = 1.65
+
 local StyleOrb = function(self, unit, id)
-	-- Orb is half the size of player orb (200 -> 100)
-	local orbSize = 100
-	local backdropSize = 165
+	local db = ns.db and ns.db.char and ns.db.char.pet
+	local orbSize = (db and db.orbSize) or 100
+	local backdropSize = orbSize * BACKDROP_RATIO
 
 	self:SetSize(orbSize, orbSize)
 	self:SetHitRectInsets(-10, -10, -10, -10)
@@ -175,6 +178,18 @@ local StyleOrb = function(self, unit, id)
 	healthBorder:SetTexture(GetMedia("orb-border"))
 
 	self.Health.Border = healthBorder
+
+	-- Runtime resize. Re-sizes the frame, health orb and backdrop.
+	-- Shade/Glass/Border are anchored via SetAllPoints so they follow automatically.
+	self.UpdateOrbSize = function(frame, size)
+		size = size or ((ns.db and ns.db.char and ns.db.char.pet and ns.db.char.pet.orbSize) or 100)
+		local bd = size * BACKDROP_RATIO
+		frame:SetSize(size, size)
+		if (frame.Health) then frame.Health:SetSize(size, size) end
+		if (frame.Health and frame.Health.Backdrop) then
+			frame.Health.Backdrop:SetSize(bd, bd)
+		end
+	end
 
 	-- Mark as orb style for positioning
 	self.isOrbStyle = true

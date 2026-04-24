@@ -1,5 +1,19 @@
 # DiabolicUI3 Changelog
 
+## [6.6.6-r472] - 2026-04-24
+
+### ✨ New Features
+- **EditMode for the Pet Orb**
+  - `Diabolic: Pet Orb` is now draggable via Edit Mode (only when the orb style is active)
+  - Position is saved globally (falls back to the auto-calculated slot next to the player orb on first use)
+  - **Pet Orb Size** slider in Edit Mode settings (20–200 px, 1 px step, default 100)
+  - All artwork layers — main orb, backdrop, glass, border, shade — scale together proportionally in real time as the slider moves
+
+### 🌍 Localization
+- Added `PetOrbSize` / `PetOrbSizeDesc` strings across all 12 locales
+
+---
+
 ## [6.6.6-r471] - 2026-04-23
 
 ### 🐛 Bug Fixes

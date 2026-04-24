@@ -441,19 +441,71 @@ UnitFrames.SpawnUnitFrames = function(self)
 
 		-- If pet uses orb style, position it near player health orb
 		if petUseOrb then
-			-- Position depends on number of action bars
-			local hasSecond = ns.db and ns.db.char and ns.db.char.actionbars and ns.db.char.actionbars.enableSecondary
-			local hasThird = ns.db and ns.db.char and ns.db.char.actionbars and ns.db.char.actionbars.enableThird
-			local petX, petY
-			if hasThird then
-				petX, petY = 220, 125 -- 3 action bars
-			elseif hasSecond then
-				petX, petY = 265, 90  -- 2 action bars
-			else
-				petX, petY = 280, 35  -- 1 action bar
-			end
-			petFrame:SetPoint("RIGHT", ns.UnitFramesByName["Player"], "LEFT", petX, petY)
 			petFrame:SetFrameStrata("BACKGROUND") -- Below action bar panels
+
+			-- EditMode-compatible scale (no SetIgnoreParentScale — keeps drag math consistent).
+			if (ns.API.SetEditModeUFObjectScale) then
+				ns.API.SetEditModeUFObjectScale(petFrame, 1)
+			end
+
+			-- Load saved position if the user has dragged the frame in EditMode before.
+			-- Otherwise use the auto-calculated position (relative to Player orb, depends on action bars).
+			local petDb = ns.db.char.pet
+			local hasSaved = petDb.orbPoint and petDb.orbPositionX and petDb.orbPositionY
+			if hasSaved then
+				petFrame:ClearAllPoints()
+				petFrame:SetPoint(petDb.orbPoint, UIParent, petDb.orbRelPoint or petDb.orbPoint, petDb.orbPositionX, petDb.orbPositionY)
+			else
+				local hasSecond = ns.db.char.actionbars and ns.db.char.actionbars.enableSecondary
+				local hasThird = ns.db.char.actionbars and ns.db.char.actionbars.enableThird
+				local petX, petY
+				if hasThird then
+					petX, petY = 220, 125
+				elseif hasSecond then
+					petX, petY = 265, 90
+				else
+					petX, petY = 280, 35
+				end
+				petFrame:SetPoint("RIGHT", ns.UnitFramesByName["Player"], "LEFT", petX, petY)
+			end
+
+			-- Apply saved size to every texture / child frame of the orb.
+			if (petFrame.UpdateOrbSize) then
+				petFrame:UpdateOrbSize(petDb.orbSize or 100)
+			end
+
+			-- EditMode integration
+			local LibEditMode = ns.LibEditMode
+			if (LibEditMode and LibEditMode.AddFrame) then
+				local L = ns.L
+				petFrame.editModeName = "Diabolic: Pet Orb"
+				LibEditMode:AddFrame(petFrame, function(frame, layoutName, point, x, y)
+					if (InCombatLockdown()) then return end
+					ns.db.char.pet.orbPoint = point
+					ns.db.char.pet.orbRelPoint = point
+					ns.db.char.pet.orbPositionX = x
+					ns.db.char.pet.orbPositionY = y
+				end, {point = petDb.orbPoint or "RIGHT", x = petDb.orbPositionX or 280, y = petDb.orbPositionY or 35})
+				LibEditMode:AddFrameSettings(petFrame, {
+					{
+						kind = LibEditMode.SettingType.Slider,
+						name = L["PetOrbSize"],
+						desc = L["PetOrbSizeDesc"],
+						default = 100,
+						minValue = 20,
+						maxValue = 200,
+						valueStep = 1,
+						formatter = function(value) return string.format("%dpx", value) end,
+						get = function() return ns.db.char.pet.orbSize or 100 end,
+						set = function(layoutName, value)
+							ns.db.char.pet.orbSize = value
+							if (petFrame.UpdateOrbSize) then
+								petFrame:UpdateOrbSize(value)
+							end
+						end,
+					}
+				})
+			end
 		end
 
 		-- Focus frame is always docked

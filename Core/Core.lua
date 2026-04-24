@@ -82,7 +82,12 @@ local defaults = {
 			blacklist = {}
 		},
 		pet = {
-			useOrbStyle = true
+			useOrbStyle = true,
+			orbPoint = nil,        -- nil => use auto-calculated position (near player orb)
+			orbRelPoint = nil,
+			orbPositionX = nil,
+			orbPositionY = nil,
+			orbSize = 100
 		},
 		petbar = {
 			positionPoint = "BOTTOM",
