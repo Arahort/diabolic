@@ -1,5 +1,31 @@
 # DiabolicUI3 Changelog
 
+## [6.6.6-r473] - 2026-05-10
+
+### ✨ New Features
+- **EditMode for Player Debuffs** (`Diabolic: Player Debuffs`)
+  - Drag the debuff cluster to any position; saved globally per account
+  - Slider: **icon size** (20–64 px, 1 px step)
+  - Sliders: **horizontal spacing** and **vertical spacing** (0–30 px each)
+  - Dropdowns: **horizontal growth** (Left/Right) and **vertical growth** (Up/Down)
+  - All settings update in real time
+  - On first drag the frame stops auto-positioning next to the action bars and uses the saved position from then on
+
+### 🐛 Bug Fixes
+- **Target auras did not appear in combat** (regression from r469)
+  - The `InCombatLockdown` guard added to protect secure-parented Party aura buttons was applied to every aura button, so non-secure auras (Target, Player Debuffs) couldn't `Show()` during combat — they were created but stayed invisible until you left combat
+  - Non-secure aura buttons are now marked `__nonsecure = true` and bypass the guard. Secure-parented Party buttons remain protected as before
+- **Vehicle-leave button** (`MainMenuBarVehicleLeaveButton`)
+  - The addon no longer force-hides Blizzard's vehicle-leave button. It now appears in the default Blizzard position and can be moved through the standard WoW Edit Mode
+
+### 🔧 Changes
+- **Player buffs near the health orb** are now disabled by default. The main buff header next to the minimap (`Diabolic: Buffs`) remains the canonical place for player buffs
+
+### 🌍 Localization
+- Added `PlayerDebuffsSize/SpacingX/SpacingY/GrowthX/GrowthY` (with descriptions) and `GrowthLeft/Right/Up/Down` strings across all 12 locales
+
+---
+
 ## [6.6.6-r472] - 2026-04-24
 
 ### ✨ New Features

@@ -237,8 +237,9 @@ local function updateAura(element, unit, data, position)
 	local width = element.width or element.size or 16
 	local height = element.height or element.size or 16
 	-- WoW 12.0: SetSize/EnableMouse/Show on secure-parented aura buttons taint in combat.
-	-- Only call them when we are out of combat. Alpha can be set anytime (non-secure).
-	if(not InCombatLockdown()) then
+	-- Buttons that explicitly opt-out via `button.__nonsecure = true` (e.g. Target auras,
+	-- player buffs/debuffs created via the *_NonSecure styles) bypass this guard.
+	if(button.__nonsecure or not InCombatLockdown()) then
 		local curW, curH = button:GetSize()
 		if(curW ~= width or curH ~= height) then
 			button:SetSize(width, height)
@@ -561,9 +562,9 @@ local function UpdateAuras(self, event, unit, updateInfo)
 			end
 
 			for i = numVisible + 1, #auras do
-				-- WoW 12.0: Hide()/EnableMouse on secure-parented aura buttons taint in combat.
-				-- Out of combat: real Hide(). In combat: visually hide via SetAlpha (non-secure).
-				if(not InCombatLockdown()) then
+				-- WoW 12.0: Hide() on secure-parented aura buttons taints in combat.
+				-- NonSecure buttons (Target auras, player buffs/debuffs) can Hide() safely.
+				if(auras[i].__nonsecure or not InCombatLockdown()) then
 					auras[i]:Hide()
 				else
 					auras[i]:SetAlpha(0)

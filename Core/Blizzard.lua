@@ -347,7 +347,8 @@ BlizzKill.KillActionBars = function(self)
 			end
 		end
 
-		hideActionBar(MainMenuBarVehicleLeaveButton, true)
+		-- MainMenuBarVehicleLeaveButton is no longer hidden — Blizzard places it
+		-- via the standard EditMode and the user can move it from there.
 		hideActionBar(MainMenuBarPerformanceBarFrame, false, false, true)
 		hideActionBar(MainMenuExpBar, false, false, true)
 		hideActionBar(ReputationWatchBar, false, false, true)

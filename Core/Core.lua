@@ -202,6 +202,17 @@ local defaults = {
 			twoRowsTargetAuras = false,
 			hideTargetAuras = false
 		},
+		playerDebuffs = {
+			positionPoint = "BOTTOMRIGHT",
+			positionRelPoint = "BOTTOM",
+			positionX = 316,
+			positionY = 100,
+			iconSize = 40,
+			growthX = "LEFT",   -- "LEFT" or "RIGHT"
+			growthY = "UP",     -- "UP" or "DOWN"
+			spacingX = 4,
+			spacingY = 11
+		},
 		stancebar = {
 			positionX = 380,
 			positionY = 84

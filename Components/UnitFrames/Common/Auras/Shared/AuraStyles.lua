@@ -52,6 +52,7 @@ end
 ns.AuraStyles.CreateButtonWithBar_NonSecure = function(element, position)
 	-- Regular Button instead of SecureActionButtonTemplate
 	local aura = CreateFrame("Button", element:GetDebugName() .. "Button" .. position, element)
+	aura.__nonsecure = true -- skip the combat-lockdown guard in oUF/auras.lua
 	aura:RegisterForClicks("RightButtonUp")
 	-- Use OnClick handler instead of secure attributes
 	aura:SetScript("OnClick", OnClick)
@@ -223,6 +224,7 @@ end
 -- Target auras can't be cancelled anyway, so no need for SecureActionButton
 ns.AuraStyles.CreateButton_NonSecure = function(element, position)
 	local aura = CreateFrame("Button", element:GetDebugName() .. "Button" .. position, element)
+	aura.__nonsecure = true -- skip the combat-lockdown guard in oUF/auras.lua
 	aura:RegisterForClicks("RightButtonUp")
 
 	local icon = aura:CreateTexture(nil, "BACKGROUND", nil, 1)

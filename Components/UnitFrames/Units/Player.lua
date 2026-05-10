@@ -842,11 +842,23 @@ local PostUpdateAuraPositions = function(self, event, ...)
 		stanceOffset = 40
 	end
 
-	-- Check if buffs frame exists (depends on showPlayerBuffs setting)
+	-- Check if buffs frame exists (legacy — currently disabled, reserved for future re-enable)
 	if self.Buffs then
 		self.Buffs:SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", -316, 100 + offset)
 	end
-	self.Debuffs:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOM", 316, 100 + offset + stanceOffset)
+	-- Player Debuffs position: prefer the user's EditMode-saved position; otherwise fall
+	-- back to the auto-calculated slot (next to action bars + stance bar offset).
+	if self.Debuffs then
+		local d = ns.db.global.playerDebuffs
+		local hasUserPos = d and d.userPositioned
+		self.Debuffs:ClearAllPoints()
+		if hasUserPos then
+			self.Debuffs:SetPoint(d.positionPoint or "BOTTOMRIGHT", UIParent,
+				d.positionRelPoint or "BOTTOM", d.positionX or 316, d.positionY or 100)
+		else
+			self.Debuffs:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOM", 316, 100 + offset + stanceOffset)
+		end
+	end
 
 	ns:Fire("UnitFrame_Position_Updated", self:GetName())
 end
@@ -1387,57 +1399,30 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	-- Auras
 	--------------------------------------------
-	-- NOTE: Бафы на player frame скрыты, так как они дублируются
-	-- с основным buff header (Components/Auras/Auras.lua)
-	-- который отображается в правом верхнем углу
-	-- Но фреймы должны существовать для PostUpdateAuraPositions
-	-- Check setting to show/hide buffs near health orb
-	if ns.db.global.unitframes.showPlayerBuffs then
-		local buffs = CreateFrame("Frame", self:GetName().."BuffFrame", self)
-		buffs:SetSize(300, 110)
-		buffs.num = 40
-		buffs.size = 40
-		buffs.spacing = 4
-		buffs.filter = "HELPFUL"
-		buffs.disableMouse = false
-		buffs.disableCooldown = false
-		buffs.onlyShowPlayer = false
-		buffs.showStealableBuffs = false
-		buffs.initialAnchor = "BOTTOMLEFT"
-		buffs.spacingX = 4
-		buffs.spacingY = 11
-		buffs.growthX = "RIGHT"
-		buffs.growthY = "UP"
-		buffs.tooltipAnchor = "ANCHOR_TOPLEFT"
-		buffs.sortMethod = "TIME_REMAINING"
-		buffs.sortDirection = "ASCENDING"
-		buffs.reanchorIfVisibleChanged = true
-		-- WoW 12.0.0: Use non-secure buttons for player to avoid ADDON_ACTION_BLOCKED in combat
-		buffs.CreateButton = ns.AuraStyles.CreateButtonWithBar_NonSecure
-		buffs.allowCombatUpdates = true -- Allow oUF to update non-secure buttons in combat
-		buffs.PostUpdateButton = ns.AuraStyles.PlayerPostUpdateButton
-		buffs.FilterAura = ns.AuraFilters.PlayerBuffFilter
-		buffs.SortAuras = ns.AuraSorts.DefaultFunction
+	-- Player Buffs near the health orb are intentionally disabled.
+	-- The main buff header (Components/Auras/Auras.lua, "Diabolic: Buffs"
+	-- near the minimap) shows player buffs and is the canonical place for them.
+	-- self.Buffs is left nil; UpdateAuraPositions handles the nil case.
 
-		self.Buffs = buffs
-	end
-
+	-- Player Debuffs (above the power orb area). Settings come from
+	-- ns.db.global.playerDebuffs and are editable via EditMode.
+	local pdb = ns.db.global.playerDebuffs
 	local debuffs = CreateFrame("Frame", self:GetName().."DebuffFrame", self)
 	debuffs:SetSize(300, 110)
 	debuffs.num = 40
-	debuffs.size = 40
-	debuffs.spacing = 4
+	debuffs.size = pdb.iconSize or 40
+	debuffs.spacing = pdb.spacingX or 4
 	debuffs.filter = "HARMFUL"
 	debuffs.disableMouse = false
 	debuffs.disableCooldown = false
 	debuffs.onlyShowPlayer = false
 	debuffs.showDebuffType = true
 	debuffs.showStealableBuffs = false
-	debuffs.initialAnchor = "BOTTOMRIGHT"
-	debuffs.spacingX = 4
-	debuffs.spacingY = 11
-	debuffs.growthX = "LEFT"
-	debuffs.growthY = "UP"
+	debuffs.initialAnchor = pdb.positionPoint or "BOTTOMRIGHT"
+	debuffs.spacingX = pdb.spacingX or 4
+	debuffs.spacingY = pdb.spacingY or 11
+	debuffs.growthX = pdb.growthX or "LEFT"
+	debuffs.growthY = pdb.growthY or "UP"
 	debuffs.tooltipAnchor = "ANCHOR_TOPRIGHT"
 	debuffs.reanchorIfVisibleChanged = true
 	-- WoW 12.0.0: Use non-secure buttons for player to avoid ADDON_ACTION_BLOCKED in combat
@@ -1448,6 +1433,21 @@ UnitStyles["Player"] = function(self, unit, id)
 	debuffs.SortAuras = ns.AuraSorts.DefaultFunction
 
 	self.Debuffs = debuffs
+
+	-- Apply layout from saved settings. Updates size/spacing/growth and forces re-anchor.
+	self.UpdateDebuffsLayout = function(self)
+		local d = ns.db.global.playerDebuffs
+		local el = self.Debuffs
+		if (not el) then return end
+		el.size       = d.iconSize or 40
+		el.spacing    = d.spacingX or 4
+		el.spacingX   = d.spacingX or 4
+		el.spacingY   = d.spacingY or 11
+		el.growthX    = d.growthX  or "LEFT"
+		el.growthY    = d.growthY  or "UP"
+		el.initialAnchor = d.positionPoint or "BOTTOMRIGHT"
+		if (el.ForceUpdate) then el:ForceUpdate() end
+	end
 
 	-- Scripts & Events
 	--------------------------------------------
@@ -1610,6 +1610,100 @@ UnitStyles["Player"] = function(self, unit, id)
 				el:Hide()
 			end
 		end)
+	end
+
+	-- Register Player Debuffs with EditMode
+	if LibEditMode and LibEditMode.AddFrame and self.Debuffs then
+		local pdb = ns.db.global.playerDebuffs
+		self.Debuffs.editModeName = "Diabolic: Player Debuffs"
+		LibEditMode:AddFrame(self.Debuffs, function(frame, layoutName, point, x, y)
+			if (InCombatLockdown()) then return end
+			pdb.userPositioned = true
+			pdb.positionPoint = point
+			pdb.positionRelPoint = point
+			pdb.positionX = x
+			pdb.positionY = y
+		end, {point = pdb.positionPoint or "BOTTOMRIGHT",
+			x = pdb.positionX or 316, y = pdb.positionY or 100})
+		local growthXValues = {
+			{ text = ns.L["GrowthLeft"]  or "Left",  value = "LEFT"  },
+			{ text = ns.L["GrowthRight"] or "Right", value = "RIGHT" },
+		}
+		local growthYValues = {
+			{ text = ns.L["GrowthUp"]   or "Up",   value = "UP"   },
+			{ text = ns.L["GrowthDown"] or "Down", value = "DOWN" },
+		}
+		LibEditMode:AddFrameSettings(self.Debuffs, {
+			{
+				kind = LibEditMode.SettingType.Slider,
+				name = ns.L["PlayerDebuffsSize"] or "Debuff Size",
+				desc = ns.L["PlayerDebuffsSizeDesc"] or "Size of player debuff icons",
+				default = 40,
+				minValue = 20,
+				maxValue = 64,
+				valueStep = 1,
+				formatter = function(v) return string.format("%dpx", v) end,
+				get = function() return ns.db.global.playerDebuffs.iconSize or 40 end,
+				set = function(_, value)
+					ns.db.global.playerDebuffs.iconSize = value
+					self:UpdateDebuffsLayout()
+				end,
+			},
+			{
+				kind = LibEditMode.SettingType.Slider,
+				name = ns.L["PlayerDebuffsSpacingX"] or "Horizontal Spacing",
+				desc = ns.L["PlayerDebuffsSpacingXDesc"] or "Horizontal gap between icons",
+				default = 4,
+				minValue = 0,
+				maxValue = 30,
+				valueStep = 1,
+				formatter = function(v) return string.format("%dpx", v) end,
+				get = function() return ns.db.global.playerDebuffs.spacingX or 4 end,
+				set = function(_, value)
+					ns.db.global.playerDebuffs.spacingX = value
+					self:UpdateDebuffsLayout()
+				end,
+			},
+			{
+				kind = LibEditMode.SettingType.Slider,
+				name = ns.L["PlayerDebuffsSpacingY"] or "Vertical Spacing",
+				desc = ns.L["PlayerDebuffsSpacingYDesc"] or "Vertical gap between rows",
+				default = 11,
+				minValue = 0,
+				maxValue = 30,
+				valueStep = 1,
+				formatter = function(v) return string.format("%dpx", v) end,
+				get = function() return ns.db.global.playerDebuffs.spacingY or 11 end,
+				set = function(_, value)
+					ns.db.global.playerDebuffs.spacingY = value
+					self:UpdateDebuffsLayout()
+				end,
+			},
+			{
+				kind = LibEditMode.SettingType.Dropdown,
+				name = ns.L["PlayerDebuffsGrowthX"] or "Horizontal Growth",
+				desc = ns.L["PlayerDebuffsGrowthXDesc"] or "Direction icons grow horizontally",
+				default = "LEFT",
+				values = growthXValues,
+				get = function() return ns.db.global.playerDebuffs.growthX or "LEFT" end,
+				set = function(_, value)
+					ns.db.global.playerDebuffs.growthX = value
+					self:UpdateDebuffsLayout()
+				end,
+			},
+			{
+				kind = LibEditMode.SettingType.Dropdown,
+				name = ns.L["PlayerDebuffsGrowthY"] or "Vertical Growth",
+				desc = ns.L["PlayerDebuffsGrowthYDesc"] or "Direction rows grow vertically",
+				default = "UP",
+				values = growthYValues,
+				get = function() return ns.db.global.playerDebuffs.growthY or "UP" end,
+				set = function(_, value)
+					ns.db.global.playerDebuffs.growthY = value
+					self:UpdateDebuffsLayout()
+				end,
+			},
+		})
 	end
 
 end
