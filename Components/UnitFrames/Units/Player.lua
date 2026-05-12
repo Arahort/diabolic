@@ -1406,8 +1406,16 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	-- Player Debuffs (above the power orb area). Settings come from
 	-- ns.db.global.playerDebuffs and are editable via EditMode.
+	-- Parent to UIParent (not the Player frame): the Player frame uses
+	-- SetIgnoreParentScale and a custom unit-frame scale, which makes LibEditMode's
+	-- UIParent-space drag coordinates resolve to the wrong final position when
+	-- the frame is a child of Player. Re-parenting to UIParent + matching scale
+	-- via SetEditModeUFObjectScale eliminates the post-drop jump.
 	local pdb = ns.db.global.playerDebuffs
-	local debuffs = CreateFrame("Frame", self:GetName().."DebuffFrame", self)
+	local debuffs = CreateFrame("Frame", self:GetName().."DebuffFrame", UIParent)
+	if (ns.API.SetEditModeUFObjectScale) then
+		ns.API.SetEditModeUFObjectScale(debuffs, 1)
+	end
 	debuffs:SetSize(300, 110)
 	debuffs.num = 40
 	debuffs.size = pdb.iconSize or 40

@@ -1,5 +1,14 @@
 # DiabolicUI3 Changelog
 
+## [6.6.6-r474] - 2026-05-12
+
+### 🐛 Bug Fixes
+- **Player Debuffs jumped to a wrong spot when released in Edit Mode**
+  - The debuff frame was a child of the Player frame, which uses `SetIgnoreParentScale(true)` and a custom unit-frame scale. LibEditMode computes drag coordinates in UIParent space, so the final `SetPoint` on a differently-scaled parent resolved to a different on-screen position
+  - Re-parented to `UIParent` and applied `SetEditModeUFObjectScale(frame, 1)` (same pattern that fixed Focus / FocusTarget / Pet Orb / Extra & Zone buttons). The drag-and-drop position now matches the cursor exactly
+
+---
+
 ## [6.6.6-r473] - 2026-05-10
 
 ### ✨ New Features
