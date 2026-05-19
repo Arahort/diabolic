@@ -1406,11 +1406,7 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	-- Player Debuffs (above the power orb area). Settings come from
 	-- ns.db.global.playerDebuffs and are editable via EditMode.
-	-- Parent to UIParent (not the Player frame): the Player frame uses
-	-- SetIgnoreParentScale and a custom unit-frame scale, which makes LibEditMode's
-	-- UIParent-space drag coordinates resolve to the wrong final position when
-	-- the frame is a child of Player. Re-parenting to UIParent + matching scale
-	-- via SetEditModeUFObjectScale eliminates the post-drop jump.
+	-- Parent is UIParent (not Player) — keeps LibEditMode drag math consistent.
 	local pdb = ns.db.global.playerDebuffs
 	local debuffs = CreateFrame("Frame", self:GetName().."DebuffFrame", UIParent)
 	if (ns.API.SetEditModeUFObjectScale) then
@@ -1418,6 +1414,18 @@ UnitStyles["Player"] = function(self, unit, id)
 	end
 	debuffs:SetSize(300, 110)
 	debuffs.num = 40
+	-- Derive initialAnchor (the corner inside the frame where the first icon
+	-- starts) from growth direction. positionPoint is the frame's own anchor on
+	-- screen (used by drag), not where icons begin inside the frame.
+	-- growthX = LEFT  -> icons grow leftwards  -> start from the RIGHT side
+	-- growthX = RIGHT -> icons grow rightwards -> start from the LEFT side
+	-- growthY = UP    -> icons grow upwards    -> start from the BOTTOM
+	-- growthY = DOWN  -> icons grow downwards  -> start from the TOP
+	local function deriveInitialAnchor(gx, gy)
+		local vert = (gy == "DOWN") and "TOP" or "BOTTOM"
+		local horiz = (gx == "RIGHT") and "LEFT" or "RIGHT"
+		return vert .. horiz
+	end
 	debuffs.size = pdb.iconSize or 40
 	debuffs.spacing = pdb.spacingX or 4
 	debuffs.filter = "HARMFUL"
@@ -1426,7 +1434,7 @@ UnitStyles["Player"] = function(self, unit, id)
 	debuffs.onlyShowPlayer = false
 	debuffs.showDebuffType = true
 	debuffs.showStealableBuffs = false
-	debuffs.initialAnchor = pdb.positionPoint or "BOTTOMRIGHT"
+	debuffs.initialAnchor = deriveInitialAnchor(pdb.growthX or "LEFT", pdb.growthY or "UP")
 	debuffs.spacingX = pdb.spacingX or 4
 	debuffs.spacingY = pdb.spacingY or 11
 	debuffs.growthX = pdb.growthX or "LEFT"
@@ -1453,7 +1461,11 @@ UnitStyles["Player"] = function(self, unit, id)
 		el.spacingY   = d.spacingY or 11
 		el.growthX    = d.growthX  or "LEFT"
 		el.growthY    = d.growthY  or "UP"
-		el.initialAnchor = d.positionPoint or "BOTTOMRIGHT"
+		el.initialAnchor = deriveInitialAnchor(el.growthX, el.growthY)
+		-- Force a re-anchor of all created buttons by making oUF think nothing has
+		-- been anchored yet; otherwise updateAura's `createdButtons > anchoredButtons`
+		-- branch never fires after the very first batch and the new anchor is ignored.
+		el.anchoredButtons = 0
 		if (el.ForceUpdate) then el:ForceUpdate() end
 	end
 

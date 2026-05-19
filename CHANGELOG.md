@@ -1,5 +1,15 @@
 # DiabolicUI3 Changelog
 
+## [6.6.6-r475] - 2026-05-19
+
+### 🐛 Bug Fixes
+- **Player debuff icons appeared in the middle of the frame (and could vanish off-screen on some setups)**
+  - The frame's screen-anchor (`positionPoint`, set by drag — could become `BOTTOM`, `TOP`, `CENTER`) was incorrectly reused as the *internal* `initialAnchor` (the corner inside the frame where the first icon starts). When the user dragged the frame to the bottom of the screen, `positionPoint` became `BOTTOM`, so the first icon anchored to the middle of the frame's bottom edge — making it look like the icons floated in the middle, and on smaller resolutions they could slide off-screen entirely
+  - `initialAnchor` is now derived automatically from the **growth direction** (e.g. `growthX=LEFT + growthY=UP → BOTTOMRIGHT`), independent of where the frame itself is anchored on screen
+  - `UpdateDebuffsLayout` now resets `anchoredButtons = 0` before `ForceUpdate` so existing icons re-anchor immediately when the user changes growth in Edit Mode
+
+---
+
 ## [6.6.6-r474] - 2026-05-12
 
 ### 🐛 Bug Fixes
