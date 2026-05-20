@@ -1,5 +1,18 @@
 # DiabolicUI3 Changelog
 
+## [6.6.6-r476] - 2026-05-20
+
+### 🐛 Bug Fixes
+- **One-shot migration: Player Debuffs position reset**
+  - Earlier versions of the Player Debuffs Edit Mode integration could persist a broken / off-screen saved position. Users affected by this saw the debuff frame "disappear" with no obvious way to recover it
+  - On first login after installing this version, the saved position is automatically reset to its default (`userPositioned = false`, anchor `BOTTOMRIGHT`, x=316, y=100). Size / spacing / growth settings are intentionally left untouched
+  - A migration marker (`global.migrations.playerDebuffsPositionReset`) guarantees the reset runs exactly once per account — subsequent re-positioning via Edit Mode persists normally
+
+### 🔧 Internal
+- Added a generic `global.migrations` table to support future one-shot data fixes without bumping version numbers in marker names
+
+---
+
 ## [6.6.6-r475] - 2026-05-19
 
 ### 🐛 Bug Fixes

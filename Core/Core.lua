@@ -452,6 +452,26 @@ ns.OnInitialize = function(self)
 	-- self.db.RegisterCallback(self, "OnProfileCopied", "UpdateSettings")
 	-- self.db.RegisterCallback(self, "OnProfileReset", "UpdateSettings")
 
+	-- One-shot migrations. Each block runs exactly once per account thanks to
+	-- its marker; add new entries here when a saved value needs cleaning up.
+	self.db.global.migrations = self.db.global.migrations or {}
+	local migrations = self.db.global.migrations
+	-- Early versions of the Player Debuffs EditMode integration could persist
+	-- a broken/off-screen position. Reset the position once so the frame is
+	-- rediscoverable; the user can re-position it via Edit Mode afterwards.
+	-- Size / spacing / growth settings are intentionally left untouched.
+	if (not migrations.playerDebuffsPositionReset) then
+		if (self.db.global.playerDebuffs) then
+			local d = self.db.global.playerDebuffs
+			d.userPositioned = false
+			d.positionPoint = "BOTTOMRIGHT"
+			d.positionRelPoint = "BOTTOM"
+			d.positionX = 316
+			d.positionY = 100
+		end
+		migrations.playerDebuffsPositionReset = true
+	end
+
 	-- Apply user scale to all elements
 	if (self.db.global.core.relativeScale) then
 		SetRelativeScale(self.db.global.core.relativeScale)
