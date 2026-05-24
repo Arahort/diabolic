@@ -40,6 +40,8 @@ L["UnitFramesScale"] = "Escala da IU inferior"
 L["UnitFramesScaleDesc"] = "Ajustar a escala de orbes, painéis e barras de ação (0.75 - 1.25)"
 L["TargetFrameScale"] = "Escala do quadro do alvo"
 L["TargetFrameScaleDesc"] = "Escala independente do quadro do alvo (0.5 - 2.0, requer /reload)"
+L["TargetFrameCastbar"] = "Mostrar barra de lançamento do alvo"
+L["TargetFrameCastbarDesc"] = "Mostra a barra de lançamento do alvo entre a barra de vida e os efeitos negativos."
 -- Spheres
 L["OrbsHeader"] = "Esferas"
 L["UseD2ROrbStyle"] = "Usar estilo de esferas do Diablo 2 Resurrected"

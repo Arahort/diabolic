@@ -147,9 +147,22 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 end
 
 -- Update cast bar color to indicate protected casts.
+-- element.notInterruptible is a *secret boolean* for enemy casts in WoW 12.0, so we
+-- derive the colour via the secret-safe C_CurveUtil.EvaluateColorValueFromBoolean
+-- (true -> protected red, false -> normal cast colour) instead of a Lua boolean test.
 local Cast_UpdateInterruptible = function(element, unit)
-	if (element.notInterruptible) then
-		element:SetStatusBarColor(unpack(Colors.red))
+	local notInt = element.notInterruptible
+	if (notInt == nil) then
+		notInt = false
+	end
+	local ev = C_CurveUtil and C_CurveUtil.EvaluateColorValueFromBoolean
+	if (ev) then
+		local red, cast = Colors.red, Colors.cast
+		element:SetStatusBarColor(
+			ev(notInt, red[1], cast[1]),
+			ev(notInt, red[2], cast[2]),
+			ev(notInt, red[3], cast[3])
+		)
 	else
 		element:SetStatusBarColor(unpack(Colors.cast))
 	end
@@ -345,14 +358,15 @@ UnitStyles["NamePlate"] = function(self, unit, id)
 
 	-- Castbar
 	--------------------------------------------
-	local cast = self:CreateBar()
+	-- Native StatusBar (not LibSmoothBar): the modern oUF Castbar fills via
+	-- SetTimerDuration and updates/hides through OnUpdate, neither of which
+	-- LibSmoothBar implements (the smooth bar would never fill or disappear).
+	local cast = CreateFrame("StatusBar", nil, self)
 	cast:Hide()
 	cast:SetSize(75,5)
 	cast:SetPoint("CENTER", health, 0, -10)
 	cast:SetStatusBarTexture(GetMedia("bar-small"))
-	cast:SetSparkTexture(GetMedia("blank"))
 	cast:SetStatusBarColor(64/255, 128/255, 255/255)
-	cast:DisableSmoothing(true)
 	cast.PostCastInterruptible = Cast_UpdateInterruptible
 	cast.PostCastStart = Cast_UpdateInterruptible
 

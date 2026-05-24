@@ -40,6 +40,8 @@ L["UnitFramesScale"] = "Scala UI inferiore"
 L["UnitFramesScaleDesc"] = "Regola la scala di sfere, pannelli e barre azioni (0.75 - 1.25)"
 L["TargetFrameScale"] = "Scala riquadro bersaglio"
 L["TargetFrameScaleDesc"] = "Scala indipendente riquadro bersaglio (0.5 - 2.0, richiede /reload)"
+L["TargetFrameCastbar"] = "Mostra barra di lancio del bersaglio"
+L["TargetFrameCastbarDesc"] = "Mostra la barra di lancio del bersaglio tra la barra della salute e i malus."
 -- Spheres
 L["OrbsHeader"] = "Sfere"
 L["UseD2ROrbStyle"] = "Usa lo stile delle sfere di Diablo 2 Resurrected"

@@ -92,7 +92,10 @@ UnitStyles["Focus"] = function(self, unit, id)
 
 	-- Cast
 	--------------------------------------------
-	local cast = self:CreateBar(self:GetName().."CastBar")
+	-- Native StatusBar (not LibSmoothBar): the modern oUF Castbar fills via
+	-- SetTimerDuration and updates/hides through OnUpdate, neither of which
+	-- LibSmoothBar implements (the smooth bar would never fill or disappear).
+	local cast = CreateFrame("StatusBar", self:GetName().."CastBar", self)
 	cast:Hide()
 	cast:SetFrameLevel(health:GetFrameLevel() + 1)
 	cast:SetHeight(9)
@@ -101,8 +104,6 @@ UnitStyles["Focus"] = function(self, unit, id)
 	cast:SetPoint("RIGHT", -2, 0)
 	cast:SetStatusBarTexture(GetMedia("bar-small"))
 	cast:SetStatusBarColor(1, 1, 1, .25)
-	cast:SetSparkTexture(GetMedia("blank"))
-	cast:DisableSmoothing(true)
 
 	self.Castbar = cast
 

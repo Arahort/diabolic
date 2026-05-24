@@ -40,6 +40,8 @@ L["UnitFramesScale"] = "底部介面縮放"
 L["UnitFramesScaleDesc"] = "調整法球、面板和動作列縮放 (0.75 - 1.25)"
 L["TargetFrameScale"] = "目標框架縮放"
 L["TargetFrameScaleDesc"] = "獨立的目標框架縮放 (0.5 - 2.0, 需要 /reload)"
+L["TargetFrameCastbar"] = "顯示目標施法條"
+L["TargetFrameCastbarDesc"] = "在生命條和減益效果之間顯示目標的施法條。"
 -- Spheres
 L["OrbsHeader"] = "能量球"
 L["UseD2ROrbStyle"] = "使用暗黑破壞神2重製版能量球樣式"

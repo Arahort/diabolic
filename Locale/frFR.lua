@@ -40,6 +40,8 @@ L["UnitFramesScale"] = "Échelle de l'IU inférieure"
 L["UnitFramesScaleDesc"] = "Ajuster l'échelle des orbes, panneaux et barres d'action (0.75 - 1.25)"
 L["TargetFrameScale"] = "Échelle du cadre de la cible"
 L["TargetFrameScaleDesc"] = "Échelle indépendante du cadre de la cible (0.5 - 2.0, nécessite /reload)"
+L["TargetFrameCastbar"] = "Afficher la barre d'incantation de la cible"
+L["TargetFrameCastbarDesc"] = "Affiche la barre d'incantation de la cible entre la barre de vie et les affaiblissements."
 -- Spheres
 L["OrbsHeader"] = "Sphères"
 L["UseD2ROrbStyle"] = "Utiliser le style de sphères de Diablo 2 Resurrected"

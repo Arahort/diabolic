@@ -40,6 +40,8 @@ L["UnitFramesScale"] = "하단 UI 크기"
 L["UnitFramesScaleDesc"] = "구체, 패널 및 행동 단축바 크기 조정 (0.75 - 1.25)"
 L["TargetFrameScale"] = "대상 프레임 크기"
 L["TargetFrameScaleDesc"] = "독립적인 대상 프레임 크기 (0.5 - 2.0, /reload 필요)"
+L["TargetFrameCastbar"] = "대상 시전 막대 표시"
+L["TargetFrameCastbarDesc"] = "체력 막대와 약화 효과 사이에 대상의 시전 막대를 표시합니다."
 -- Spheres
 L["OrbsHeader"] = "구체"
 L["UseD2ROrbStyle"] = "디아블로 2 레저렉션 구체 스타일 사용"

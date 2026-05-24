@@ -40,6 +40,8 @@ L["UnitFramesScale"] = "Масштаб нижнего блока"
 L["UnitFramesScaleDesc"] = "Настройка масштаба орб, панелей и панелей действий (0.75 - 1.25)"
 L["TargetFrameScale"] = "Масштаб фрейма цели"
 L["TargetFrameScaleDesc"] = "Независимый масштаб фрейма цели (0.5 - 2.0, требуется /reload)"
+L["TargetFrameCastbar"] = "Отображать полосу заклинаний цели"
+L["TargetFrameCastbarDesc"] = "Отображать полосу заклинаний цели между полосой здоровья и дебаффами."
 -- Spheres
 L["OrbsHeader"] = "Сферы"
 L["UseD2ROrbStyle"] = "Использовать стиль сфер из Diablo 2 Resurrected"

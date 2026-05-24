@@ -174,6 +174,7 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 
 end
 
+-- Castbar: remaining time, with the casting delay appended in red.
 local Cast_CustomDelayText = function(element, duration)
 	-- WoW 12.0.1: duration may be a timer object, extract number
 	if type(duration) == "table" and duration.GetRemainingDuration then
@@ -188,6 +189,7 @@ local Cast_CustomDelayText = function(element, duration)
 	end
 end
 
+-- Castbar: remaining time only.
 local Cast_CustomTimeText = function(element, duration)
 	-- WoW 12.0.1: duration may be a timer object, extract number
 	if type(duration) == "table" and duration.GetRemainingDuration then
@@ -201,55 +203,37 @@ local Cast_CustomTimeText = function(element, duration)
 	end
 end
 
-local Cast_PostCastStart = function(element, unit)
-	local self = element.__owner
-	local db = ns.db
-	local showCastbar = db and db.global and db.global.unitframes and db.global.unitframes.showTargetCastbar
+-- Interruptible casts are red; protected (non-interruptible) casts are tinted
+-- blue-grey like Platynator. element.notInterruptible is a *secret boolean* for
+-- enemy targets in WoW 12.0, so we must NOT branch on it in Lua (if/and/or/not).
+-- Instead we derive each colour channel with the secret-safe C-function
+-- C_CurveUtil.EvaluateColorValueFromBoolean(bool, valueIfTrue, valueIfFalse):
+-- notInterruptible == true -> protected colour, false -> interruptible (red).
+-- The result is fed straight into the C-side SetStatusBarColor — no Lua boolean
+-- test ever happens. Comparing to nil is fine, as a secret boolean is never
+-- equal to nil (deterministic, leaks nothing).
+local CAST_COLOR_PROTECTED = { .51, .75, .76 }
 
-	if showCastbar then
-		self.Name:Hide()
-		self.Health.Value:Hide()
-		element.Text:Show()
-		element.Time:Show()
-		element:SetAlpha(1)
-		element:Show()
-		local _,class = UnitClass(unit)
-		if (class == "PRIEST") then
-			element:SetStatusBarColor(.3, .3, .3, .25)
-		else
-			element:SetStatusBarColor(1, 1, 1, .25)
-		end
+local Cast_UpdateInterruptible = function(element, unit)
+	local notInt = element.notInterruptible
+	if (notInt == nil) then
+		notInt = false
+	end
+	local ok = Colors.red
+	local ev = C_CurveUtil and C_CurveUtil.EvaluateColorValueFromBoolean
+	if (ev) then
+		element:SetStatusBarColor(
+			ev(notInt, CAST_COLOR_PROTECTED[1], ok[1]),
+			ev(notInt, CAST_COLOR_PROTECTED[2], ok[2]),
+			ev(notInt, CAST_COLOR_PROTECTED[3], ok[3])
+		)
 	else
-		element.Text:Hide()
-		element.Time:Hide()
-		element:SetAlpha(0)
+		element:SetStatusBarColor(ok[1], ok[2], ok[3])
 	end
 end
 
-local Cast_PostCastStop = function(element, unit, spellID)
-	local self = element.__owner
-	self.Name:Show()
-	self.Health.Value:Show()
-	self.Health.Value:UpdateTag()
-	element.Text:Hide()
-	element.Time:Hide()
-	element:SetAlpha(1)
-	element:Show()
-end
-
-local Cast_PostCastFail = function(element, unit, spellID)
-	local self = element.__owner
-	self.Name:Show()
-	self.Health.Value:Show()
-	element:Show()
-	self.Health.Value:UpdateTag()
-
-	local r, g, b = self.colors.normal[1], self.colors.normal[2], self.colors.normal[3]
-	element.Text:SetTextColor(r, g, b)
-	element.Text:Hide()
-	element.Time:Hide()
-	element:SetAlpha(1)
-	element:SetValue(0)
+local Cast_PostCastStart = function(element, unit)
+	Cast_UpdateInterruptible(element, unit)
 end
 
 -- Update health color setting based on user preference.
@@ -387,42 +371,95 @@ UnitStyles["Target"] = function(self, unit, id)
 
 	self.CombatFeedback = feedbackText
 
-	-- Cast Bar (temporarily disabled for testing gray overlay on health bar)
+	-- Cast Bar
 	--------------------------------------------
-	--[[
-	local cast = self:CreateBar(self:GetName())
-	cast:SetFrameLevel(health:GetFrameLevel() + 3)
-	cast:SetSize(291,43)
-	cast:SetPoint("CENTER")
-	cast:SetStatusBarTexture(GetMedia("target-bar-normal-diabolic"))
-	cast:GetStatusBarTexture():SetTexCoord(221/1024, 803/1024, 85/256, 171/256)
-	cast:SetStatusBarColor(1, 1, 1, .25)
-	cast:SetSparkTexture(GetMedia("blank"))
-	cast:DisableSmoothing(true)
+	-- Parented to the frame so it scales together with the EditMode target scale.
+	-- Bar/border/background textures match the Party HP/Power bars for a consistent
+	-- look. Visibility is driven by "showTargetCastbar" via the ShouldShow override.
+	--
+	-- NOTE: this MUST be a native StatusBar, not self:CreateBar (LibSmoothBar).
+	-- The modern oUF Castbar fills the bar through StatusBar:SetTimerDuration and
+	-- updates/hides it through its OnUpdate; LibSmoothBar stubs out SetTimerDuration
+	-- and never runs the OnUpdate, so a smooth bar would never fill or disappear.
+	local CAST_WIDTH, CAST_HEIGHT = 240, 20
+	local CAST_BORDER_PAD_X, CAST_BORDER_PAD_Y = 10, 8
+	local CAST_BACK_PAD_X, CAST_BACK_PAD_Y = 2, 2
+	local CAST_ICON_SIZE = CAST_HEIGHT + CAST_BORDER_PAD_Y
+
+	local cast = CreateFrame("StatusBar", self:GetName().."Castbar", self)
+	cast:SetSize(CAST_WIDTH, CAST_HEIGHT)
+	cast:SetPoint("TOP", self, "BOTTOM", 0, -10)
+	cast:SetFrameLevel(health:GetFrameLevel() + 4)
+	cast:SetStatusBarTexture(GetMedia("statusbar/Heath-Bar"))
+	cast:SetStatusBarColor(unpack(Colors.red))
 	cast.timeToHold = 0.5
 
-	local castTime = cast:CreateFontString(nil, "OVERLAY", nil, 0)
-	castTime:SetFontObject(GetFont(16,true))
-	castTime:SetTextColor(unpack(self.colors.offwhite))
-	castTime:SetPoint("CENTER", 0, 0)
-	cast.Time = castTime
+	-- Bar background behind the fill
+	local castBack = cast:CreateTexture(nil, "BACKGROUND", nil, -2)
+	castBack:SetSize(CAST_WIDTH + CAST_BACK_PAD_X, CAST_HEIGHT + CAST_BACK_PAD_Y)
+	castBack:SetPoint("CENTER", cast, "CENTER", 0, 0)
+	castBack:SetTexture(GetMedia("statusbar/Heath-Bar-Back"))
+	castBack:SetVertexColor(.15, .15, .15, .85)
 
-	local castText = cast:CreateFontString(nil, "OVERLAY", nil, 0)
-	castText:SetFontObject(GetFont(16,true))
+	-- Decorative border around the bar
+	local castBorder = cast:CreateTexture(nil, "OVERLAY", nil, 0)
+	castBorder:SetSize(CAST_WIDTH + CAST_BORDER_PAD_X, CAST_HEIGHT + CAST_BORDER_PAD_Y)
+	castBorder:SetPoint("CENTER", cast, "CENTER", 0, 0)
+	castBorder:SetTexture(GetMedia("statusbar/Health-Bar-Border2"))
+
+	-- Spell icon to the left of the bar
+	local castIcon = cast:CreateTexture(nil, "OVERLAY", nil, 1)
+	castIcon:SetSize(CAST_ICON_SIZE, CAST_ICON_SIZE)
+	castIcon:SetPoint("RIGHT", cast, "LEFT", -8, 0)
+	castIcon:SetTexCoord(5/64, 59/64, 5/64, 59/64) -- trim the default icon border
+	cast.Icon = castIcon
+
+	-- Border around the spell icon (same art as the bar border)
+	local castIconBorder = cast:CreateTexture(nil, "ARTWORK", nil, 0)
+	castIconBorder:SetSize(CAST_ICON_SIZE + CAST_BORDER_PAD_X, CAST_ICON_SIZE + CAST_BORDER_PAD_Y)
+	castIconBorder:SetPoint("CENTER", castIcon, "CENTER", 0, 0)
+	castIconBorder:SetTexture(GetMedia("statusbar/Health-Bar-Border2"))
+
+	-- "Cannot interrupt" shield (copied from Platynator). oUF shows/hides it
+	-- automatically on protected casts via Shield:SetAlphaFromBoolean(notInterruptible).
+	local castShield = cast:CreateTexture(nil, "OVERLAY", nil, 3)
+	castShield:SetSize(CAST_ICON_SIZE * 1.0, CAST_ICON_SIZE * 1.0 * (165/136))
+	castShield:SetPoint("RIGHT", castIcon, "LEFT", -6, 0)
+	castShield:SetTexture(GetMedia("target-castbar-shield", "png"))
+	cast.Shield = castShield
+
+	-- Spell name
+	local castText = cast:CreateFontString(nil, "OVERLAY", nil, 7)
+	castText:SetFontObject(GetFont(14, true))
 	castText:SetTextColor(unpack(self.colors.offwhite))
-	castText:SetAlpha(.85)
-	castText:SetPoint("BOTTOM", self, "TOP", 0, 0)
+	castText:SetJustifyH("LEFT")
+	castText:SetWordWrap(false)
+	castText:SetPoint("LEFT", cast, "LEFT", 6, 0)
+	castText:SetPoint("RIGHT", cast, "RIGHT", -36, 0)
 	cast.Text = castText
+
+	-- Remaining cast time
+	local castTime = cast:CreateFontString(nil, "OVERLAY", nil, 7)
+	castTime:SetFontObject(GetFont(14, true))
+	castTime:SetTextColor(unpack(self.colors.offwhite))
+	castTime:SetJustifyH("RIGHT")
+	castTime:SetPoint("RIGHT", cast, "RIGHT", -6, 0)
+	cast.Time = castTime
 
 	cast.CustomDelayText = Cast_CustomDelayText
 	cast.CustomTimeText = Cast_CustomTimeText
-	cast.PostCastFail = Cast_PostCastFail
-	cast.PostCastStop = Cast_PostCastStop
 	cast.PostCastStart = Cast_PostCastStart
-	cast:SetScript("OnHide", Cast_PostCastStop)
+	cast.PostCastInterruptible = Cast_UpdateInterruptible
+
+	-- Gate the castbar on the user setting (default on). Returning false here
+	-- stops oUF from ever showing the bar while the option is disabled.
+	cast.ShouldShow = function(element, unit)
+		local show = ns.db and ns.db.global and ns.db.global.unitframes and ns.db.global.unitframes.showTargetCastbar
+		if (show == nil) then show = true end
+		return show and (element.__owner.unit == unit)
+	end
 
 	self.Castbar = cast
-	--]]
 
 	-- Auras
 	--------------------------------------------
@@ -435,7 +472,7 @@ UnitStyles["Target"] = function(self, unit, id)
 		auras:SetSize(40*7-4, 36)  -- 1 row
 		auras.numTotal = 7
 	end
-	auras:SetPoint("TOP", self, "BOTTOM", 0, -12)
+	-- Anchor is set by UpdateTargetCastbar (depends on whether the castbar is shown).
 	auras.size = 36
 	auras.spacing = 4
 	auras.disableMouse = false
@@ -474,5 +511,22 @@ UnitStyles["Target"] = function(self, unit, id)
 	end
 	self:UpdateTargetAurasVisibility()
 	ns.RegisterCallback(self, "TargetAuras_Visibility_Updated", "UpdateTargetAurasVisibility")
+
+	-- React to the "show target castbar" toggle: when on, reserve space and
+	-- anchor the auras below the castbar; when off, hide it and pull the auras
+	-- back up to the frame. Actual cast visibility is handled by Castbar:ShouldShow.
+	self.UpdateTargetCastbar = function(self)
+		local show = ns.db and ns.db.global and ns.db.global.unitframes and ns.db.global.unitframes.showTargetCastbar
+		if (show == nil) then show = true end
+		self.Auras:ClearAllPoints()
+		if (show) then
+			self.Auras:SetPoint("TOP", self.Castbar, "BOTTOM", 0, -14)
+		else
+			if (self.Castbar:IsShown()) then self.Castbar:Hide() end
+			self.Auras:SetPoint("TOP", self, "BOTTOM", 0, -12)
+		end
+	end
+	self:UpdateTargetCastbar()
+	ns.RegisterCallback(self, "UnitFrames_Settings_Updated", "UpdateTargetCastbar")
 
 end

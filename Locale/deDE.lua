@@ -40,6 +40,8 @@ L["UnitFramesScale"] = "Untere UI-Skalierung"
 L["UnitFramesScaleDesc"] = "Skalierung von Kugeln, Leisten und Aktionsleisten anpassen (0.75 - 1.25)"
 L["TargetFrameScale"] = "Zielfenster Skalierung"
 L["TargetFrameScaleDesc"] = "Unabhängige Zielfenster-Skalierung (0.5 - 2.0, erfordert /reload)"
+L["TargetFrameCastbar"] = "Zauberleiste des Ziels anzeigen"
+L["TargetFrameCastbarDesc"] = "Zeigt die Zauberleiste des Ziels zwischen der Gesundheitsleiste und den Schwächungseffekten an."
 -- Spheres
 L["OrbsHeader"] = "Sphären"
 L["UseD2ROrbStyle"] = "Diablo 2 Resurrected Sphären-Stil verwenden"

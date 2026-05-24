@@ -161,7 +161,7 @@ local defaults = {
 		},
 		unitframes = {
 			enableNamePlates = false,
-			showTargetCastbar = false,
+			showTargetCastbar = true,
 			useHealthColorForTarget = false,
 			showThreatOnTarget = false,
 			targetRelativeScale = 1.2
@@ -280,9 +280,9 @@ local SanitizeSettings = function(db)
 			db.char.actionbars.enableSecondary = false
 		end
 	end
-	local hideTargetNameOnCast = db.global.unitframes and db.global.unitframes.hideTargetNameOnCast
-	if (hideTargetNameOnCast ~= nil) then
-		db.global.unitframes.showTargetCastbar = hideTargetNameOnCast
+	-- Purge the obsolete name-hiding setting; the target castbar is a separate
+	-- element now and no longer reuses this legacy toggle.
+	if (db.global.unitframes) then
 		db.global.unitframes.hideTargetNameOnCast = nil
 	end
 	local scale = db.global.core.relativeScale

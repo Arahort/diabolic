@@ -412,6 +412,29 @@ UnitFrames.SpawnUnitFrames = function(self)
 				end
 			end, {point = "TOP", x = 0, y = -95})
 			LibEditMode:AddFrameSettings(targetFrame, {
+				-- Checkbox: show the target spell castbar
+				{
+					kind = LibEditMode.SettingType.Checkbox,
+					name = ns.L["TargetFrameCastbar"] or "Show Target Castbar",
+					desc = ns.L["TargetFrameCastbarDesc"] or "Show the target's spell castbar between the health bar and debuffs",
+					default = true,
+					get = function(layoutName)
+						if (ns.db and ns.db.global and ns.db.global.unitframes) then
+							local v = ns.db.global.unitframes.showTargetCastbar
+							if (v == nil) then return true end
+							return v
+						end
+						return true
+					end,
+					set = function(layoutName, value)
+						if (ns.db and ns.db.global and ns.db.global.unitframes) then
+							ns.db.global.unitframes.showTargetCastbar = value and true or false
+						end
+						if (targetFrame.UpdateTargetCastbar) then
+							targetFrame:UpdateTargetCastbar()
+						end
+					end,
+				},
 				{
 					kind = LibEditMode.SettingType.Slider,
 					name = ns.L["TargetFrameScale"] or "Target Frame Scale",

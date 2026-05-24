@@ -40,6 +40,8 @@ L["UnitFramesScale"] = "Bottom UI Scale"
 L["UnitFramesScaleDesc"] = "Adjust orbs, panels and action bars scale (0.75 - 1.25)"
 L["TargetFrameScale"] = "Target Frame Scale"
 L["TargetFrameScaleDesc"] = "Independent target frame scale (0.5 - 2.0, requires /reload)"
+L["TargetFrameCastbar"] = "Show Target Castbar"
+L["TargetFrameCastbarDesc"] = "Show the target's spell castbar between the health bar and debuffs."
 -- Spheres
 L["OrbsHeader"] = "Spheres"
 L["UseD2ROrbStyle"] = "Use Diablo 2 Resurrected Sphere Style"

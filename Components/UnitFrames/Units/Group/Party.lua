@@ -392,12 +392,14 @@ UnitStyles["Party"] = function(self, unit, id)
 	powerBackdrop:SetPoint("CENTER", power, "CENTER", 0, 0)
 	powerBarBack:SetPoint("CENTER", power, "CENTER", 0, 0)
 	-- Castbar (shown when unit is casting) - overlays HP bar
-	local castbar = self:CreateBar(self:GetName().."Castbar")
+	-- Native StatusBar (not LibSmoothBar): the modern oUF Castbar fills via
+	-- SetTimerDuration and updates/hides through OnUpdate, neither of which
+	-- LibSmoothBar implements (the smooth bar would never fill or disappear).
+	local castbar = CreateFrame("StatusBar", self:GetName().."Castbar", self)
 	castbar:SetSize(HEALTH_WIDTH, initHpHeight)
 	castbar:SetPoint("BOTTOM", 0, initHpOffset)
 	castbar:SetStatusBarTexture(GetMedia("statusbar/Heath-Bar"))
 	castbar:SetStatusBarColor(1, 1, 1, .25)
-	castbar:SetSparkTexture(GetMedia("blank"))
 	castbar:SetFrameLevel(health:GetFrameLevel() + 2)
 	castbar:Hide()
 	self.Castbar = castbar
