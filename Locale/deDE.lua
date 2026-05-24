@@ -42,6 +42,8 @@ L["TargetFrameScale"] = "Zielfenster Skalierung"
 L["TargetFrameScaleDesc"] = "Unabhängige Zielfenster-Skalierung (0.5 - 2.0, erfordert /reload)"
 L["TargetFrameCastbar"] = "Zauberleiste des Ziels anzeigen"
 L["TargetFrameCastbarDesc"] = "Zeigt die Zauberleiste des Ziels zwischen der Gesundheitsleiste und den Schwächungseffekten an."
+L["TargetFrameCastbarAboveName"] = "Zauberleiste über dem Namen"
+L["TargetFrameCastbarAboveNameDesc"] = "Wenn die Zauberleiste des Ziels aktiv ist, über dem Namen des Ziels statt unter dem Rahmen anzeigen."
 -- Spheres
 L["OrbsHeader"] = "Sphären"
 L["UseD2ROrbStyle"] = "Diablo 2 Resurrected Sphären-Stil verwenden"

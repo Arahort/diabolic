@@ -42,6 +42,8 @@ L["TargetFrameScale"] = "目標框架縮放"
 L["TargetFrameScaleDesc"] = "獨立的目標框架縮放 (0.5 - 2.0, 需要 /reload)"
 L["TargetFrameCastbar"] = "顯示目標施法條"
 L["TargetFrameCastbarDesc"] = "在生命條和減益效果之間顯示目標的施法條。"
+L["TargetFrameCastbarAboveName"] = "施法條顯示在名稱上方"
+L["TargetFrameCastbarAboveNameDesc"] = "啟用目標施法條時，將其顯示在目標名稱上方，而非框架下方。"
 -- Spheres
 L["OrbsHeader"] = "能量球"
 L["UseD2ROrbStyle"] = "使用暗黑破壞神2重製版能量球樣式"

@@ -42,6 +42,8 @@ L["TargetFrameScale"] = "Scala riquadro bersaglio"
 L["TargetFrameScaleDesc"] = "Scala indipendente riquadro bersaglio (0.5 - 2.0, richiede /reload)"
 L["TargetFrameCastbar"] = "Mostra barra di lancio del bersaglio"
 L["TargetFrameCastbarDesc"] = "Mostra la barra di lancio del bersaglio tra la barra della salute e i malus."
+L["TargetFrameCastbarAboveName"] = "Barra di lancio sopra il nome"
+L["TargetFrameCastbarAboveNameDesc"] = "Quando la barra di lancio del bersaglio è attiva, posizionarla sopra il nome del bersaglio invece che sotto il riquadro."
 -- Spheres
 L["OrbsHeader"] = "Sfere"
 L["UseD2ROrbStyle"] = "Usa lo stile delle sfere di Diablo 2 Resurrected"

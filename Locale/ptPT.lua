@@ -42,6 +42,8 @@ L["TargetFrameScale"] = "Escala do quadro do alvo"
 L["TargetFrameScaleDesc"] = "Escala independente do quadro do alvo (0.5 - 2.0, requer /reload)"
 L["TargetFrameCastbar"] = "Mostrar barra de lançamento do alvo"
 L["TargetFrameCastbarDesc"] = "Mostra a barra de lançamento do alvo entre a barra de vida e os efeitos negativos."
+L["TargetFrameCastbarAboveName"] = "Barra de lançamento acima do nome"
+L["TargetFrameCastbarAboveNameDesc"] = "Quando a barra de lançamento do alvo está ativada, posicioná-la acima do nome do alvo em vez de abaixo do quadro."
 -- Spheres
 L["OrbsHeader"] = "Esferas"
 L["UseD2ROrbStyle"] = "Usar estilo de esferas do Diablo 2 Resurrected"

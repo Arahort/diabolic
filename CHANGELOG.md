@@ -1,5 +1,28 @@
 # DiabolicUI3 Changelog
 
+## [6.6.6-r478] - 2026-05-25
+
+### ✨ New Features
+- **Target Castbar** — a native cast bar for your current target, shown between the target's health bar and its debuffs
+  - Spell icon, spell name and remaining cast time
+  - "Cannot interrupt" shield indicator (uses the same secret-safe API as Platynator), shown on protected casts
+  - Bar colour reflects interruptibility: **red** when the cast can be interrupted, **blue-grey** when it cannot
+  - Uses the same bar/border textures as the Party frames and scales together with the Target frame
+- **EditMode integration for the Target Castbar**
+  - Toggle **"Show Target Castbar"** (enabled by default)
+  - Toggle **"Castbar Above Name"** — optionally place the cast bar above the target's name instead of below the frame; debuffs reposition automatically
+  - A sample cast bar is shown while Edit Mode is open (like the debuffs preview) so it can be positioned without an active cast
+  - Fully localised in all 12 client languages
+
+### 🐛 Bug Fixes
+- Fixed a Lua error on enemy casts (`secret boolean value`) — interrupt state is no longer tested in Lua; it is resolved through the secret-safe `C_CurveUtil.EvaluateColorValueFromBoolean` and `SetAlphaFromBoolean`
+
+### 🔧 Internal
+- Converted the Target, Focus, Pet, Party and Nameplate cast bars from LibSmoothBar to native `StatusBar`s — LibSmoothBar stubs out the modern `SetTimerDuration` API and never runs the element `OnUpdate`, so those cast bars never filled or hid under WoW 12.0
+- Removed the obsolete `hideTargetNameOnCast` setting and its migration
+
+---
+
 ## [6.6.6-r476] - 2026-05-20
 
 ### 🐛 Bug Fixes

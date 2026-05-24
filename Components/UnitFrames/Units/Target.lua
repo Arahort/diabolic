@@ -515,16 +515,72 @@ UnitStyles["Target"] = function(self, unit, id)
 	-- React to the "show target castbar" toggle: when on, reserve space and
 	-- anchor the auras below the castbar; when off, hide it and pull the auras
 	-- back up to the frame. Actual cast visibility is handled by Castbar:ShouldShow.
+	-- Position the castbar (above the name or below the frame) and re-anchor the
+	-- auras accordingly, based on the two options. Also refreshes the EditMode
+	-- preview so toggling the options while EditMode is open updates live.
 	self.UpdateTargetCastbar = function(self)
-		local show = ns.db and ns.db.global and ns.db.global.unitframes and ns.db.global.unitframes.showTargetCastbar
-		if (show == nil) then show = true end
+		local uf = ns.db and ns.db.global and ns.db.global.unitframes
+		local show = true
+		if (uf and uf.showTargetCastbar ~= nil) then show = uf.showTargetCastbar end
+		local aboveName = uf and uf.showTargetCastbarAboveName
+		local cast = self.Castbar
+		cast:ClearAllPoints()
 		self.Auras:ClearAllPoints()
-		if (show) then
-			self.Auras:SetPoint("TOP", self.Castbar, "BOTTOM", 0, -14)
-		else
-			if (self.Castbar:IsShown()) then self.Castbar:Hide() end
+		if (show and aboveName) then
+			cast:SetPoint("BOTTOM", self.Name, "TOP", 0, 8)
 			self.Auras:SetPoint("TOP", self, "BOTTOM", 0, -12)
+		elseif (show) then
+			cast:SetPoint("TOP", self, "BOTTOM", 0, -10)
+			self.Auras:SetPoint("TOP", cast, "BOTTOM", 0, -14)
+		else
+			cast:SetPoint("TOP", self, "BOTTOM", 0, -10)
+			self.Auras:SetPoint("TOP", self, "BOTTOM", 0, -12)
+			if (cast:IsShown() and not self.castbarPreviewActive) then
+				cast:Hide()
+			end
 		end
+		self:RefreshCastbarPreview()
+	end
+
+	-- EditMode preview: while EditMode is open, fill the castbar with a sample cast
+	-- (like the debuffs preview) so it can be positioned, but only when the castbar
+	-- option is on. The oUF element is disabled during preview, otherwise its
+	-- OnUpdate would instantly hide our static sample.
+	self.RefreshCastbarPreview = function(self)
+		local cast = self.Castbar
+		if (not cast) then return end
+		local uf = ns.db and ns.db.global and ns.db.global.unitframes
+		local show = true
+		if (uf and uf.showTargetCastbar ~= nil) then show = uf.showTargetCastbar end
+		if (self.inEditMode and show) then
+			if (not self.castbarPreviewActive) then
+				self:DisableElement("Castbar")
+				self.castbarPreviewActive = true
+			end
+			local previewSpell = 116 -- Frostbolt: localized name + matching icon via C_Spell
+			local name = C_Spell and C_Spell.GetSpellName and C_Spell.GetSpellName(previewSpell)
+			local icon = C_Spell and C_Spell.GetSpellTexture and C_Spell.GetSpellTexture(previewSpell)
+			if (cast.Icon) then cast.Icon:SetTexture(icon or 134400) end
+			if (cast.Text) then cast.Text:SetText(name or "") end
+			if (cast.Time) then cast.Time:SetText("1.5") end
+			if (cast.Shield) then cast.Shield:SetAlpha(0) end
+			cast:SetStatusBarColor(unpack(Colors.red))
+			cast:SetMinMaxValues(0, 1)
+			cast:SetValue(0.66)
+			cast:Show()
+		elseif (self.castbarPreviewActive) then
+			self.castbarPreviewActive = nil
+			self:EnableElement("Castbar")
+			cast:Hide()
+		end
+	end
+	self.ShowCastbarPreview = function(self)
+		self.inEditMode = true
+		self:RefreshCastbarPreview()
+	end
+	self.HideCastbarPreview = function(self)
+		self.inEditMode = nil
+		self:RefreshCastbarPreview()
 	end
 	self:UpdateTargetCastbar()
 	ns.RegisterCallback(self, "UnitFrames_Settings_Updated", "UpdateTargetCastbar")

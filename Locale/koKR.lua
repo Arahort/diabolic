@@ -42,6 +42,8 @@ L["TargetFrameScale"] = "대상 프레임 크기"
 L["TargetFrameScaleDesc"] = "독립적인 대상 프레임 크기 (0.5 - 2.0, /reload 필요)"
 L["TargetFrameCastbar"] = "대상 시전 막대 표시"
 L["TargetFrameCastbarDesc"] = "체력 막대와 약화 효과 사이에 대상의 시전 막대를 표시합니다."
+L["TargetFrameCastbarAboveName"] = "이름 위에 시전 막대 표시"
+L["TargetFrameCastbarAboveNameDesc"] = "대상 시전 막대가 켜져 있을 때, 프레임 아래 대신 대상 이름 위에 표시합니다."
 -- Spheres
 L["OrbsHeader"] = "구체"
 L["UseD2ROrbStyle"] = "디아블로 2 레저렉션 구체 스타일 사용"

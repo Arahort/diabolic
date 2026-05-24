@@ -42,6 +42,8 @@ L["TargetFrameScale"] = "Масштаб фрейма цели"
 L["TargetFrameScaleDesc"] = "Независимый масштаб фрейма цели (0.5 - 2.0, требуется /reload)"
 L["TargetFrameCastbar"] = "Отображать полосу заклинаний цели"
 L["TargetFrameCastbarDesc"] = "Отображать полосу заклинаний цели между полосой здоровья и дебаффами."
+L["TargetFrameCastbarAboveName"] = "Полоса заклинаний над именем"
+L["TargetFrameCastbarAboveNameDesc"] = "Когда полоса заклинаний цели включена, располагать её над именем цели, а не под фреймом."
 -- Spheres
 L["OrbsHeader"] = "Сферы"
 L["UseD2ROrbStyle"] = "Использовать стиль сфер из Diablo 2 Resurrected"

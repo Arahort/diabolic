@@ -403,6 +403,16 @@ UnitFrames.SpawnUnitFrames = function(self)
 		-- Register Target frame with EditMode (LibEditMode)
 		local LibEditMode = ns.LibEditMode
 		if LibEditMode and LibEditMode.AddFrame then
+			-- Force-show a sample castbar while EditMode is open (like the debuffs),
+			-- so it can be positioned even when the target isn't casting.
+			if (LibEditMode.RegisterCallback) then
+				LibEditMode:RegisterCallback("enter", function()
+					if (targetFrame.ShowCastbarPreview) then targetFrame:ShowCastbarPreview() end
+				end)
+				LibEditMode:RegisterCallback("exit", function()
+					if (targetFrame.HideCastbarPreview) then targetFrame:HideCastbarPreview() end
+				end)
+			end
 			targetFrame.editModeName = "Diabolic: Target"
 			LibEditMode:AddFrame(targetFrame, function(frame, layoutName, point, x, y)
 				if tDb then
@@ -429,6 +439,27 @@ UnitFrames.SpawnUnitFrames = function(self)
 					set = function(layoutName, value)
 						if (ns.db and ns.db.global and ns.db.global.unitframes) then
 							ns.db.global.unitframes.showTargetCastbar = value and true or false
+						end
+						if (targetFrame.UpdateTargetCastbar) then
+							targetFrame:UpdateTargetCastbar()
+						end
+					end,
+				},
+				-- Checkbox: place the target castbar above the name
+				{
+					kind = LibEditMode.SettingType.Checkbox,
+					name = ns.L["TargetFrameCastbarAboveName"] or "Castbar Above Name",
+					desc = ns.L["TargetFrameCastbarAboveNameDesc"] or "When the target castbar is enabled, place it above the target's name instead of below the frame",
+					default = false,
+					get = function(layoutName)
+						if (ns.db and ns.db.global and ns.db.global.unitframes) then
+							return ns.db.global.unitframes.showTargetCastbarAboveName and true or false
+						end
+						return false
+					end,
+					set = function(layoutName, value)
+						if (ns.db and ns.db.global and ns.db.global.unitframes) then
+							ns.db.global.unitframes.showTargetCastbarAboveName = value and true or false
 						end
 						if (targetFrame.UpdateTargetCastbar) then
 							targetFrame:UpdateTargetCastbar()

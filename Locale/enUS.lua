@@ -42,6 +42,8 @@ L["TargetFrameScale"] = "Target Frame Scale"
 L["TargetFrameScaleDesc"] = "Independent target frame scale (0.5 - 2.0, requires /reload)"
 L["TargetFrameCastbar"] = "Show Target Castbar"
 L["TargetFrameCastbarDesc"] = "Show the target's spell castbar between the health bar and debuffs."
+L["TargetFrameCastbarAboveName"] = "Castbar Above Name"
+L["TargetFrameCastbarAboveNameDesc"] = "When the target castbar is enabled, place it above the target's name instead of below the frame."
 -- Spheres
 L["OrbsHeader"] = "Spheres"
 L["UseD2ROrbStyle"] = "Use Diablo 2 Resurrected Sphere Style"

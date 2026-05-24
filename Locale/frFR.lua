@@ -42,6 +42,8 @@ L["TargetFrameScale"] = "Échelle du cadre de la cible"
 L["TargetFrameScaleDesc"] = "Échelle indépendante du cadre de la cible (0.5 - 2.0, nécessite /reload)"
 L["TargetFrameCastbar"] = "Afficher la barre d'incantation de la cible"
 L["TargetFrameCastbarDesc"] = "Affiche la barre d'incantation de la cible entre la barre de vie et les affaiblissements."
+L["TargetFrameCastbarAboveName"] = "Barre d'incantation au-dessus du nom"
+L["TargetFrameCastbarAboveNameDesc"] = "Lorsque la barre d'incantation de la cible est activée, la placer au-dessus du nom de la cible plutôt que sous le cadre."
 -- Spheres
 L["OrbsHeader"] = "Sphères"
 L["UseD2ROrbStyle"] = "Utiliser le style de sphères de Diablo 2 Resurrected"

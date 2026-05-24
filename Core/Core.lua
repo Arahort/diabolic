@@ -162,6 +162,7 @@ local defaults = {
 		unitframes = {
 			enableNamePlates = false,
 			showTargetCastbar = true,
+			showTargetCastbarAboveName = false,
 			useHealthColorForTarget = false,
 			showThreatOnTarget = false,
 			targetRelativeScale = 1.2
