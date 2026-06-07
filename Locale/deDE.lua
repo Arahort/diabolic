@@ -229,3 +229,4 @@ L["UseAzeriteClassPowerDesc"] = "Klassenressourcen (Kombopunkte, Runen, Heilige 
 -- Key Bindings (global variables for Blizzard Key Bindings UI)
 BINDING_NAME_DIABOLICUI3_TOGGLE_LEFT_PANEL = "Linke Seitenleiste umschalten"
 BINDING_NAME_DIABOLICUI3_TOGGLE_RIGHT_PANEL = "Rechte Seitenleiste umschalten"
+BINDING_NAME_DIABOLICUI3_TOGGLE_MICRO_MENU = "Mikromenü umschalten"

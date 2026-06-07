@@ -3,4 +3,6 @@
 	</Binding>
 	<Binding name="DIABOLICUI3_TOGGLE_RIGHT_PANEL" category="DiabolicUI">
 	</Binding>
+	<Binding name="DIABOLICUI3_TOGGLE_MICRO_MENU" category="DiabolicUI">
+	</Binding>
 </Bindings>

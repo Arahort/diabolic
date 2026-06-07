@@ -1,5 +1,15 @@
 # DiabolicUI3 Changelog
 
+## [6.6.6-r479] - 2026-06-07
+
+### ✨ New Features
+- **Micro Menu keybinding** — assign a key to open/close the Diabolic Micro Menu
+  - New binding **"Toggle Micro Menu"** under the *DiabolicUI* category in the Key Bindings menu
+  - Works in combat — bound to the secure toggle button via an override binding, the same way the side panel toggles work
+  - Localised in all 12 client languages
+
+---
+
 ## [6.6.6-r478] - 2026-05-25
 
 ### ✨ New Features

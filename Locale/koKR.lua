@@ -229,3 +229,4 @@ L["UseAzeriteClassPowerDesc"] = "클래스 자원(연계 점수, 룬, 신성한 
 -- Key Bindings (global variables for Blizzard Key Bindings UI)
 BINDING_NAME_DIABOLICUI3_TOGGLE_LEFT_PANEL = "왼쪽 사이드 패널 전환"
 BINDING_NAME_DIABOLICUI3_TOGGLE_RIGHT_PANEL = "오른쪽 사이드 패널 전환"
+BINDING_NAME_DIABOLICUI3_TOGGLE_MICRO_MENU = "마이크로 메뉴 전환"

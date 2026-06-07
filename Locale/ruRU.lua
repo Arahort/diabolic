@@ -229,3 +229,4 @@ L["UseAzeriteClassPowerDesc"] = "Отображать ресурсы класс�
 -- Key Bindings (global variables for Blizzard Key Bindings UI)
 BINDING_NAME_DIABOLICUI3_TOGGLE_LEFT_PANEL = "Показать/скрыть левую панель"
 BINDING_NAME_DIABOLICUI3_TOGGLE_RIGHT_PANEL = "Показать/скрыть правую панель"
+BINDING_NAME_DIABOLICUI3_TOGGLE_MICRO_MENU = "Показать/скрыть микро-меню"

@@ -229,3 +229,4 @@ L["UseAzeriteClassPowerDesc"] = "以 AzeriteUI 风格显示职业资源（连击
 -- Key Bindings (global variables for Blizzard Key Bindings UI)
 BINDING_NAME_DIABOLICUI3_TOGGLE_LEFT_PANEL = "显示/隐藏左侧面板"
 BINDING_NAME_DIABOLICUI3_TOGGLE_RIGHT_PANEL = "显示/隐藏右侧面板"
+BINDING_NAME_DIABOLICUI3_TOGGLE_MICRO_MENU = "显示/隐藏微型菜单"

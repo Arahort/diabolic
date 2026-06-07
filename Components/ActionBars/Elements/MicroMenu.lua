@@ -228,6 +228,19 @@ MicroMenu.InitializeMicroMenu = function(self)
 		end
 	]])
 	RegisterStateDriver(toggle, "state-vis", "[petbattle][possessbar][overridebar][vehicleui][@vehicle,exists]hide;show")
+	-- Key binding integration: map the Bindings.xml key directly to the toggle button via C-level
+	local bindingOwner = CreateFrame("Frame")
+	local function UpdateMicroMenuBinding()
+		if (InCombatLockdown()) then return end
+		ClearOverrideBindings(bindingOwner)
+		local key1, key2 = GetBindingKey("DIABOLICUI3_TOGGLE_MICRO_MENU")
+		local name = toggle:GetName()
+		if (key1) then SetOverrideBindingClick(bindingOwner, false, key1, name, "LeftButton") end
+		if (key2) then SetOverrideBindingClick(bindingOwner, false, key2, name, "LeftButton") end
+	end
+	bindingOwner:RegisterEvent("UPDATE_BINDINGS")
+	bindingOwner:RegisterEvent("PLAYER_ENTERING_WORLD")
+	bindingOwner:SetScript("OnEvent", UpdateMicroMenuBinding)
 	-- Auto-hide: close menu when mouse leaves for 3 seconds
 	local AUTO_HIDE_DELAY = 3
 	local hideTimer = 0
