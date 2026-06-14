@@ -219,12 +219,33 @@ local AzeriteRoundFillScale = 0.125
 
 -- Element Callbacks
 --------------------------------------------
+-- Create a 3D ModelScene orb layered over one of our LibOrb orbs (oUF_Diablo style, MIT (c) zork).
+-- The model is submerged in the fill and clipped to the fill level by the ported DiabolicUI3ModelOrb template.
+local CreateModelOrb = function(parentOrb, modelID)
+	local modelOrb = CreateFrame("Frame", nil, parentOrb, "DiabolicUI3ModelOrb")
+	modelOrb:SetSize(256, 256)
+	modelOrb:SetScale((parentOrb:GetWidth() or 200) / 256)
+	modelOrb:SetPoint("CENTER", parentOrb, "CENTER", 0, 0)
+	modelOrb:SetFrameLevel(parentOrb:GetFrameLevel() + 1)
+	-- Lift the template's inner frames above the parent orb. Their XML frameLevels (1/2/3)
+	-- are too low and otherwise render beneath our LibOrb orb, leaving the model invisible.
+	modelOrb.FillingStatusBar:SetFrameLevel(modelOrb:GetFrameLevel() + 1)
+	modelOrb.ClipFrame:SetFrameLevel(modelOrb:GetFrameLevel() + 2)
+	modelOrb.OverlayFrame:SetFrameLevel(modelOrb:GetFrameLevel() + 3)
+	if (modelID) then
+		modelOrb:LoadModelDataByID(modelID, false)
+	end
+	return modelOrb
+end
 -- Forceupdate health prediction on health updates,
 -- to assure our smoothed elements are properly aligned.
 local Health_PostUpdate = function(element, unit, cur, max)
 	local predict = element.__owner.HealthPrediction
 	if (predict) then
 		predict:ForceUpdate()
+	end
+	if (element.ModelOrb) then
+		element.ModelOrb.FillingStatusBar:SetValue(UnitHealthPercent(unit, true), Enum.StatusBarInterpolation.ExponentialEaseOut)
 	end
 end
 
@@ -791,6 +812,9 @@ local Power_OnMouseOver = function(element)
 end
 
 local Power_PostUpdate = function(element, unit, cur, min, max)
+	if (element.ModelOrb) then
+		element.ModelOrb.FillingStatusBar:SetValue(UnitPowerPercent(unit, UnitPowerType(unit), true), Enum.StatusBarInterpolation.ExponentialEaseOut)
+	end
 	-- Don't override custom colors
 	if ns.db.char.orbs and ns.db.char.orbs.useCustomColors then
 		return
@@ -1088,6 +1112,43 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	self.Power = power
 	self.Power.Override = ns.API.UpdatePower
+	-- 3D model orbs (optional, off by default; oUF_Diablo style). Submerge a 3D model in the
+	-- health/power fill; Health/Power PostUpdate drive the fill level by HP/Power percent.
+	-- Created/shown on demand so the toggle applies live (no reload) via Orbs_3D_Updated.
+	self.SetModelOrbAnimSpeed = function(self, which, speed)
+		local element = self[which]
+		local mo = element and element.ModelOrb
+		if (not mo) then return end
+		local scene = mo.ClipFrame and mo.ClipFrame.ModelFrame
+		local actor = scene and scene.zorkActor
+		if (not actor) then return end
+		if (actor.SetAnimation) then
+			actor:SetAnimation(0, 0, speed or 1)
+		elseif (actor.SetAnimationSpeedMultiplier) then
+			actor:SetAnimationSpeedMultiplier(speed or 1)
+		end
+	end
+	self.UpdateModelOrbs = function(self)
+		if (ns.db.char.orbs and ns.db.char.orbs.use3DModel) then
+			if (not self.Health.ModelOrb) then
+				self.Health.ModelOrb = CreateModelOrb(self.Health, ns.db.char.orbs.healthModelID)
+			end
+			if (not self.Power.ModelOrb) then
+				self.Power.ModelOrb = CreateModelOrb(self.Power, ns.db.char.orbs.powerModelID)
+			end
+			self.Health.ModelOrb:Show()
+			self.Power.ModelOrb:Show()
+			self:SetModelOrbAnimSpeed("Health", ns.db.char.orbs.healthAnimSpeed or 1)
+			self:SetModelOrbAnimSpeed("Power", ns.db.char.orbs.powerAnimSpeed or 1)
+			if (self.Health.ForceUpdate) then self.Health:ForceUpdate() end
+			if (self.Power.ForceUpdate) then self.Power:ForceUpdate() end
+		else
+			if (self.Health.ModelOrb) then self.Health.ModelOrb:Hide() end
+			if (self.Power.ModelOrb) then self.Power.ModelOrb:Hide() end
+		end
+	end
+	ns.RegisterCallback(self, "Orbs_3D_Updated", "UpdateModelOrbs")
+	self:UpdateModelOrbs()
 
 	local powerBackdrop = artworkHolder:CreateTexture(power:GetName().."Backdrop", "BACKGROUND", nil, -7)
 	powerBackdrop:SetSize(330,330)

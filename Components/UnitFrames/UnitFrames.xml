@@ -6,6 +6,8 @@
 	<Script file="Common\Tags.lua"/>
 	<Include file="Common\Auras\Auras.xml"/>
 
+	<Include file="Orbs\ModelOrb.xml"/>
+
 	<Script file="Units\Player.lua"/>
 	<Script file="Units\Pet.lua"/>
 	<!-- <Script file="Units\Focus.lua"/> --> <!-- TEST: disabled for testing -->

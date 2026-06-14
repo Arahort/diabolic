@@ -282,6 +282,82 @@ SettingsModule.OnInitialize = function(self)
 			CreateColorSwatch("healthColor", "CustomHealthOrbColor", "CustomHealthOrbColorDesc", {r = 1, g = 0, b = 0})
 			CreateColorSwatch("powerColor", "CustomPowerOrbColor", "CustomPowerOrbColorDesc", {r = 0, g = 0, b = 1})
 		end
+		-- 3D model orbs (oUF_Diablo style, MIT zork): per-character toggle + model pickers for HP/Power.
+		do
+			local set3D = Settings.RegisterProxySetting(
+				catOrbs,
+				"char_orbs_use3DModel",
+				"boolean",
+				L["Use3DModelOrbs"] or "3D Model Orbs",
+				false,
+				function() return ns.db.char.orbs.use3DModel end,
+				function(value)
+					ns.db.char.orbs.use3DModel = value
+					ns.callbacks:Fire("Orbs_3D_Updated")
+				end
+			)
+			if set3D then
+				CreateCheckbox(catOrbs, set3D, L["Use3DModelOrbsDesc"] or "Show an animated 3D model inside the health and power orbs.")
+			end
+			local function UpdateOrbModel(which, value)
+				local player = ns.UnitFramesByName and ns.UnitFramesByName.Player
+				local element = player and player[which]
+				if element and element.ModelOrb then
+					element.ModelOrb:LoadModelDataByID(value, false)
+					if (player.SetModelOrbAnimSpeed) then
+						local speed = (which == "Health") and ns.db.char.orbs.healthAnimSpeed or ns.db.char.orbs.powerAnimSpeed
+						player:SetModelOrbAnimSpeed(which, speed or 1)
+					end
+				end
+			end
+			local function OpenPicker(which, dbKey, header)
+				if (not ns.ModelOrbGallery) then return end
+				ns.ModelOrbGallery:Open(header, ns.db.char.orbs[dbKey], function(id)
+					ns.db.char.orbs[dbKey] = id
+					UpdateOrbModel(which, id)
+				end)
+			end
+			local function AddSpeedSlider(which, dbKey, nameKey, descKey, fallbackName)
+				local setting = Settings.RegisterProxySetting(
+					catOrbs,
+					"char_orbs_" .. dbKey,
+					"number",
+					L[nameKey] or fallbackName,
+					1,
+					function() return ns.db.char.orbs[dbKey] end,
+					function(value)
+						ns.db.char.orbs[dbKey] = value
+						local player = ns.UnitFramesByName and ns.UnitFramesByName.Player
+						if (player and player.SetModelOrbAnimSpeed) then
+							player:SetModelOrbAnimSpeed(which, value)
+						end
+					end
+				)
+				if (setting) then
+					local options = Settings.CreateSliderOptions(0.1, 2.0, 0.1)
+					options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
+						return string.format("%.1f", value)
+					end)
+					Settings.CreateSlider(catOrbs, setting, options, L[descKey] or "")
+				end
+			end
+			layoutOrbs:AddInitializer(CreateSettingsButtonInitializer(
+				L["Health3DModel"] or "Health Orb Model",
+				L["SelectModelButton"] or "Select model...",
+				function() OpenPicker("Health", "healthModelID", L["Health3DModel"] or "Health Orb Model") end,
+				L["Health3DModelDesc"] or "Choose the 3D model shown inside the health orb",
+				true
+			))
+			AddSpeedSlider("Health", "healthAnimSpeed", "HealthOrbAnimSpeed", "HealthOrbAnimSpeedDesc", "Health Orb Animation Speed")
+			layoutOrbs:AddInitializer(CreateSettingsButtonInitializer(
+				L["Power3DModel"] or "Power Orb Model",
+				L["SelectModelButton"] or "Select model...",
+				function() OpenPicker("Power", "powerModelID", L["Power3DModel"] or "Power Orb Model") end,
+				L["Power3DModelDesc"] or "Choose the 3D model shown inside the power orb",
+				true
+			))
+			AddSpeedSlider("Power", "powerAnimSpeed", "PowerOrbAnimSpeed", "PowerOrbAnimSpeedDesc", "Power Orb Animation Speed")
+		end
 		--------------------------------------------
 		-- Subcategory: Action Bars (Панели действий)
 		--------------------------------------------
@@ -1089,6 +1165,10 @@ SettingsModule.OnInitialize = function(self)
 			Label("This Fork")
 			Line("Updated for WoW 11.x and 12.x by: Alex Arahort")
 			Line("Artwork: Alex Arahort and Karina Kisenkova", nil, 2)
+			Gap()
+			Label("Third-Party Libraries")
+			Line("3D model orbs engine (oUF_Diablo / rModelOrbTemplate)")
+			Line("by zork (Erik Raetz) - MIT License", nil, 2)
 			Header("Support")
 			Gap()
 			LinkButton("Patreon", "https://www.patreon.com/c/Arahort")

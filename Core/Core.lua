@@ -63,7 +63,12 @@ local defaults = {
 		orbs = {
 			useCustomColors = false,
 			healthColor = {r = 1, g = 0, b = 0},
-			powerColor = {r = 0, g = 0, b = 1}
+			powerColor = {r = 0, g = 0, b = 1},
+			use3DModel = false,
+			healthModelID = 1041899,
+			powerModelID = 2030216,
+			healthAnimSpeed = 1,
+			powerAnimSpeed = 1
 		},
 		mapcoords = {
 			worldmapCursor = true,

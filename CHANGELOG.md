@@ -1,5 +1,21 @@
 # DiabolicUI3 Changelog
 
+## [6.6.6-r480] - 2026-06-14
+
+### ✨ New Features
+- **3D Model Orbs** — optional animated 3D models inside the player's health and power orbs (oUF_Diablo style)
+  - Toggle in **Settings → Spheres** (off by default, saved per character)
+  - **Visual model picker** — a gallery window with live 3D previews and paging, so you pick a model by its look instead of its name
+  - **Animation speed** sliders (0.1–2.0) for the health and power orbs independently
+  - Real-time: toggling the option and changing model/speed apply instantly, no reload needed
+  - Fully localised in all 12 client languages
+
+### 🔧 Internal
+- Ported and namespaced the 3D orb engine (template, ModelScene camera, 206 model presets) under `DiabolicUI3` to avoid global conflicts
+- 3D orb engine based on **oUF_Diablo / rModelOrbTemplate** by zork (Erik Raetz), MIT License — credited in the About panel
+
+---
+
 ## [6.6.6-r479] - 2026-06-07
 
 ### ✨ New Features
