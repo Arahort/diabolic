@@ -1,5 +1,12 @@
 # DiabolicUI3 Changelog
 
+## [6.6.6-r481] - 2026-06-18
+
+### 🔧 Internal
+- Updated Table of Contents for **WoW 12.0.7** (Interface `120007`); dropped the older interface versions
+
+---
+
 ## [6.6.6-r480] - 2026-06-14
 
 ### ✨ New Features
