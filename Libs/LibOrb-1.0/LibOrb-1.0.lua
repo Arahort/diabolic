@@ -92,6 +92,18 @@ local smoothingMinValue = 1 -- if a value is lower than this, we won't smoothe
 local smoothingFrequency = .5 -- time for the smooth transition to complete
 local smoothingLimit = 1/60 -- max updates per second
 
+-- DiabolicUI3 local patch (WoW 12.1): resolve the interpolation and render modes once.
+-- Enum.StatusBarInterpolation only holds Immediate and ExponentialEaseOut. The Linear
+-- name this library asked for moved to the new Enum.StatusBarRenderMode, so the lookup
+-- returned nil, and StatusBar:SetValue declares its interpolation argument as
+-- Nilable = false. The documented default only applies to a missing argument, not to an
+-- explicit nil, so every smoothed update was rejected and the orb stopped moving.
+local Interpolation = Enum.StatusBarInterpolation or {}
+local INTERP_IMMEDIATE = Interpolation.Immediate or 0
+local INTERP_SMOOTH = Interpolation.ExponentialEaseOut or INTERP_IMMEDIATE
+local RENDERMODE_LINEAR = Enum.StatusBarRenderMode and Enum.StatusBarRenderMode.Linear
+local FILLSTYLE_STANDARD = Enum.StatusBarFillStyle and Enum.StatusBarFillStyle.Standard
+
 local Update = function(self, elapsed)
 	local data = Orbs[self]
 	local value = data.disableSmoothing and data.barValue or data.barDisplayValue
@@ -291,13 +303,17 @@ Orb.Clear = function(self)
 	-- WoW 12.0.1: Reset native statusbar
 	local nativeBar = data.nativeStatusBar
 	if nativeBar then
-		nativeBar:SetValue(0, Enum.StatusBarInterpolation.Immediate)
+		nativeBar:SetValue(0, INTERP_IMMEDIATE)
 	end
 end
 
 Orb.SetSparkTexture = function(self, path)
+	-- DiabolicUI3 local patch (WoW 12.1): the Update() call is gone. That function is
+	-- the old Lua draw path, which computes the fill from barValue - a secret number
+	-- since 12.0 - and drives it through scrollframe:SetVerticalScroll, a method the
+	-- clip frame that replaced the scroll frame does not even have. The fill is owned by
+	-- the native status bar now, so this only swaps the texture.
 	Orbs[self].spark:SetTexture(path)
-	Update(self)
 end
 
 Orb.SetSparkColor = function(self, ...)
@@ -307,7 +323,9 @@ end
 Orb.SetSparkMinMaxPercent = function(self, min, max)
 	local data = Orbs[self]
 	data.sparkMinPercent = min
-	data.sparkMinPercent = max
+	-- DiabolicUI3 local patch: this used to assign the minimum twice, so the maximum
+	-- was never stored.
+	data.sparkMaxPercent = max
 end
 
 Orb.SetSparkBlendMode = function(self, blendMode)
@@ -336,14 +354,15 @@ Orb.SetValue = function(self, value, overrideSmoothing)
 	-- WoW 12.0.1: Use native StatusBar to handle secret values
 	local nativeBar = data.nativeStatusBar
 	if nativeBar then
-		-- Convert boolean overrideSmoothing to interpolation enum
+		-- DiabolicUI3 local patch (WoW 12.1): never hand SetValue a nil interpolation,
+		-- see the note next to INTERP_SMOOTH above.
 		local interpMode
-		if overrideSmoothing == true then
-			interpMode = Enum.StatusBarInterpolation.Immediate
+		if (overrideSmoothing == true) or data.disableSmoothing then
+			interpMode = INTERP_IMMEDIATE
 		elseif type(overrideSmoothing) == "number" then
 			interpMode = overrideSmoothing
 		else
-			interpMode = Enum.StatusBarInterpolation.Linear
+			interpMode = INTERP_SMOOTH
 		end
 		nativeBar:SetValue(value, interpMode)
 	end
@@ -460,10 +479,19 @@ lib.CreateOrb = function(self, name, parent, template, rotateClockwise, speedMod
 	nativeStatusBar:SetAllPoints()
 	nativeStatusBar:SetOrientation("VERTICAL")
 	nativeStatusBar:SetReverseFill(false) -- fill from bottom to top
+	-- DiabolicUI3 local patch (WoW 12.1): pin the linear render mode and fill style.
+	-- The new radial mode drives the managed texture's progress percent instead of
+	-- resizing the texture anchors, and the clip frame below rides exactly those anchors.
+	if (nativeStatusBar.SetRenderMode and RENDERMODE_LINEAR) then
+		nativeStatusBar:SetRenderMode(RENDERMODE_LINEAR)
+	end
+	if (nativeStatusBar.SetFillStyle and FILLSTYLE_STANDARD) then
+		nativeStatusBar:SetFillStyle(FILLSTYLE_STANDARD)
+	end
 	nativeStatusBar:SetStatusBarTexture([[Interface\Buttons\WHITE8X8]])
 	nativeStatusBar:GetStatusBarTexture():SetAlpha(0) -- hide the texture, we use our own
 	nativeStatusBar:SetMinMaxValues(0, 1)
-	nativeStatusBar:SetValue(0)
+	nativeStatusBar:SetValue(0, INTERP_IMMEDIATE)
 
 	-- WoW 12.0.1: Use clipping frame instead of ScrollFrame
 	-- clipFrame clips content, its height follows native statusbar

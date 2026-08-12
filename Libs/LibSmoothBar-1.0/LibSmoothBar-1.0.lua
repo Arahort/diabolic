@@ -517,7 +517,11 @@ StatusBar.SetValue = function(self, value, overrideSmoothing)
 		elseif type(overrideSmoothing) == "number" then
 			interpMode = overrideSmoothing
 		else
-			interpMode = data.smoothingMode or Enum.StatusBarInterpolation.Linear
+			-- DiabolicUI3 local patch (WoW 12.1): Enum.StatusBarInterpolation.Linear does
+			-- not exist, that name moved to Enum.StatusBarRenderMode. Passing the
+			-- resulting nil into SetValue, whose interpolation argument is Nilable=false,
+			-- meant the bar never took the new value.
+			interpMode = data.smoothingMode or Enum.StatusBarInterpolation.ExponentialEaseOut
 		end
 		nativeBar:SetValue(value, interpMode)
 	end
@@ -873,7 +877,8 @@ lib.CreateSmoothBar = function(self, name, parent, template)
 	data.barValue = 0 -- real value
 	data.barDisplayValue = 0 -- displayed value while smoothing
 	data.barOrientation = "RIGHT" -- direction the bar is growing in
-	data.smoothingMode = Enum.StatusBarInterpolation.Linear
+	-- DiabolicUI3 local patch (WoW 12.1): Linear is gone from this enum, see SetValue.
+	data.smoothingMode = Enum.StatusBarInterpolation.ExponentialEaseOut
 
 	-- API compatibility
 	data.barBlizzardOrientation = "HORIZONTAL"
