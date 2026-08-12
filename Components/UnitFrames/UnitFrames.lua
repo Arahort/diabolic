@@ -979,9 +979,9 @@ UnitFrames.SetNamePlateSizes = function()
 	if (InCombatLockdown()) then return end
 
 	local w,h = 90,45 -- 110,45
-	C_NamePlate.SetNamePlateFriendlySize(w,h)
-	C_NamePlate.SetNamePlateEnemySize(w,h)
-	C_NamePlate.SetNamePlateSelfSize(w,h)
+	-- WoW 12.1: the separate friendly, enemy and self setters are gone, one call covers
+	-- every nameplate now. Only reached when custom nameplates are switched back on.
+	C_NamePlate.SetNamePlateSize(w,h)
 end
 
 UnitFrames.SetNamePlateScales = function(self)

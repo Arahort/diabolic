@@ -539,7 +539,12 @@ UnitStyles["Target"] = function(self, unit, id)
 		cast:ClearAllPoints()
 		self.Auras:ClearAllPoints()
 		if (show and aboveName) then
-			cast:SetPoint("BOTTOM", self.Name, "TOP", 0, 8)
+			-- WoW 12.1: the unit name is a secret string, so the name font string has
+			-- secret anchors, and anything anchored to it inherits that. The cast bar
+			-- would then report a secret width, which breaks the empower stage pips.
+			-- It hangs off the frame itself instead, cleared by the name's line height.
+			local _, nameFontSize = self.Name:GetFont()
+			cast:SetPoint("BOTTOM", self, "TOP", 0, 8 + (nameFontSize or 16))
 			self.Auras:SetPoint("TOP", self, "BOTTOM", 0, -12)
 		elseif (show) then
 			cast:SetPoint("TOP", self, "BOTTOM", 0, -10)
