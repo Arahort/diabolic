@@ -1,5 +1,12 @@
 # DiabolicUI3 Changelog
 
+## [6.6.6-r497] - 2026-08-12
+
+### 🐛 Bug Fixes
+- Fixed the role icon missing on your own frame in a group. Hiding it on units that are not group members, which the previous release introduced for the focus frames, also caught the player: that frame carries the `player` token rather than a party one
+
+---
+
 ## [6.6.6-r495] - 2026-08-12
 
 Support for **WoW 12.1 "Curse of Ula'tek"** (Interface `120100`). This patch closed
