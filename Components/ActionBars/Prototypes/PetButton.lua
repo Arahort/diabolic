@@ -23,7 +23,7 @@ local IsModifiedClick = IsModifiedClick
 local IsShiftKeyDown = IsShiftKeyDown
 local PickupPetAction = PickupPetAction
 local SetBinding = SetBinding
-local SetDesaturation = SetDesaturation
+local GetPetActionSlotUsable = GetPetActionSlotUsable
 
 ns.PetButtons = {}
 
@@ -109,11 +109,10 @@ PetButton.Update = function(self)
 	end
 
 	if (texture) then
-		if (GetPetActionsUsable()) then
-			SetDesaturation(self.icon, nil)
-		else
-			SetDesaturation(self.icon, 1)
-		end
+		-- WoW 12.1: the global SetDesaturation wrapper is gone, desaturation is a
+		-- texture method now, and usability is asked per slot the way Blizzard does
+		-- it in Blizzard_ActionBar/Shared/PetActionBar.lua.
+		self.icon:SetDesaturated(not GetPetActionSlotUsable(self.id))
 		self.icon:Show()
 		self:ShowButton()
 	else

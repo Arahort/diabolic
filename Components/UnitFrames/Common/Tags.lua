@@ -39,6 +39,15 @@ local r = "|r"
 -- WoW 12.0.0: issecretvalue may not exist in older versions
 local issecretvalue = issecretvalue or function() return false end
 
+-- WoW 12.1: health and absorb values are secret, which rules out comparing or
+-- concatenating them in Lua. These C helpers do both for us: TruncateWhenZero turns a
+-- number into text and yields an empty string for zero, and WrapString only glues the
+-- prefix and suffix on when the middle part is not empty, so a missing value simply
+-- disappears together with its brackets and separators.
+local RoundToNearestString = C_StringUtil.RoundToNearestString
+local TruncateWhenZero = C_StringUtil.TruncateWhenZero
+local WrapString = C_StringUtil.WrapString
+
 -- Strings
 local L_DEAD = DEAD
 local L_RARE = ITEM_QUALITY3_DESC
@@ -52,15 +61,10 @@ Events[ns.Prefix..":Absorb"] = "UNIT_ABSORB_AMOUNT_CHANGED"
 Methods[ns.Prefix..":Absorb"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return
-	else
-		local absorb = UnitGetTotalAbsorbs(unit) or 0
-		-- WoW 12.0.0: Skip operations if absorb is secret value
-		if not issecretvalue(absorb) then
-			if (absorb > 0) then
-				return c_gray.." ("..r..c_normal..absorb..r..c_gray..")"..r
-			end
-		end
 	end
+	-- UnitGetTotalAbsorbs is flagged SecretReturns, so it is secret at all times and
+	-- the old "> 0" test never passed, leaving this tag permanently empty.
+	return WrapString(TruncateWhenZero(UnitGetTotalAbsorbs(unit)), c_gray.." ("..r..c_normal, r..c_gray..")"..r)
 end
 
 Events[ns.Prefix..":Classification"] = "UNIT_LEVEL PLAYER_LEVEL_UP UNIT_CLASSIFICATION_CHANGED"
@@ -158,12 +162,13 @@ Methods[ns.Prefix..":HealthPercent"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return L_DEAD
 	end
-	-- Midnight API path: UnitHealthPercent + ScaleTo100 + RoundToNearestString
-	if (UnitHealthPercent and CurveConstants and CurveConstants.ScaleTo100
-			and C_StringUtil and C_StringUtil.RoundToNearestString) then
+	-- Midnight API path: UnitHealthPercent + ScaleTo100 + RoundToNearestString.
+	-- UnitHealthPercent is flagged SecretReturns, so the rounded text is a secret
+	-- string as well and the percent sign has to be appended in C, not with "..".
+	if (UnitHealthPercent and CurveConstants and CurveConstants.ScaleTo100) then
 		local ok, pct = pcall(UnitHealthPercent, unit, true, CurveConstants.ScaleTo100)
-		if (ok and pct) then
-			return C_StringUtil.RoundToNearestString(pct) .. "%"
+		if (ok) then
+			return WrapString(RoundToNearestString(pct), nil, "%")
 		end
 	end
 	-- Fallback: direct calculation if values aren't secret
