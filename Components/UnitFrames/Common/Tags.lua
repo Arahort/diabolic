@@ -97,57 +97,49 @@ else
 	end
 end
 
+-- Builds "1234567 (73%)" out of two secret numbers. UnitHealth is flagged SecretReturns,
+-- so it can never be abbreviated or compared in Lua, and the abbreviated number formatter
+-- only works on C driven widgets, not on font strings. The text is assembled in C
+-- instead, where WrapString drops a part together with its punctuation if it is empty.
+local FormatHealthWithPercent = function(unit)
+	local healthText = RoundToNearestString(UnitHealth(unit))
+	if (UnitHealthPercent and CurveConstants and CurveConstants.ScaleTo100) then
+		local ok, pct = pcall(UnitHealthPercent, unit, true, CurveConstants.ScaleTo100)
+		if (ok) then
+			local percentText = WrapString(RoundToNearestString(pct), c_gray.." ("..r, c_gray.."%)"..r)
+			return WrapString(healthText, nil, percentText)
+		end
+	end
+	return healthText
+end
+
 Events[ns.Prefix..":Health"] = "UNIT_HEALTH UNIT_MAXHEALTH"
 Methods[ns.Prefix..":Health"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return L_DEAD
-	else
-		local health = UnitHealth(unit)
-		-- WoW 12.0.0: Can't compare secret values, but can pass to functions
-		if issecretvalue(health) then
-			return health -- Return secret value directly, SetText can display it
-		end
-		if (health and health > 0) then
-			return AbbreviateNumber(health)
-		end
 	end
+	return FormatHealthWithPercent(unit)
 end
 
 Events[ns.Prefix..":Health:Full"] = "UNIT_HEALTH UNIT_MAXHEALTH"
 Methods[ns.Prefix..":Health:Full"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return
-	else
-		local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
-		-- WoW 12.0.0: Can't concatenate secret values, return as is
-		if issecretvalue(health) or issecretvalue(maxHealth) then
-			return health -- Return current health, can't format with secret values
-		end
-		if (maxHealth and maxHealth > 0) then
-			return health..c_gray.."/"..r..maxHealth
-		end
 	end
+	-- The old version bailed out to the bare current health, because both values are
+	-- secret and could not be concatenated, so the maximum was never shown.
+	local maxText = WrapString(RoundToNearestString(UnitHealthMax(unit)), c_gray.."/"..r, nil)
+	return WrapString(RoundToNearestString(UnitHealth(unit)), nil, maxText)
 end
 
 Events[ns.Prefix..":Health:Smart"] = "UNIT_HEALTH UNIT_MAXHEALTH"
 Methods[ns.Prefix..":Health:Smart"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return L_DEAD
-	else
-		local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
-		-- WoW 12.0.0: Can't do math with secret values, return as is
-		if issecretvalue(health) or issecretvalue(maxHealth) then
-			return health -- Return current health, can't calculate percentage
-		end
-		if (maxHealth and maxHealth > 0) then
-			if (health == maxHealth) then
-				return AbbreviateNumber(health)
-			else
-				local displayValue = health / maxHealth * 100 + .5
-				return displayValue - displayValue%1
-			end
-		end
 	end
+	-- The "number at full health, percentage otherwise" rule needed a comparison
+	-- between two secret numbers, which Lua no longer allows, so both are shown.
+	return FormatHealthWithPercent(unit)
 end
 
 -- WoW 12.0+: UnitHealthPercent + CurveConstants.ScaleTo100 returns scaled 0-100 value.
@@ -247,16 +239,11 @@ Events[ns.Prefix..":Power:Full"] = "UNIT_POWER_FREQUENT UNIT_MAXPOWER"
 Methods[ns.Prefix..":Power:Full"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return
-	else
-		local current, total = UnitPower(unit), UnitPowerMax(unit)
-		-- WoW 12.0.0: Can't concatenate secret values, return as is
-		if issecretvalue(current) or issecretvalue(total) then
-			return current -- Return current power, can't format with secret values
-		end
-		if (total and total > 0) then
-			return current..c_gray.."/"..r..total
-		end
 	end
+	-- Power is secret while restricted, and the old version then fell back to the bare
+	-- current value, silently dropping the maximum. Both parts are joined in C instead.
+	local maxText = WrapString(RoundToNearestString(UnitPowerMax(unit)), c_gray.."/"..r, nil)
+	return WrapString(RoundToNearestString(UnitPower(unit)), nil, maxText)
 end
 
 Events[ns.Prefix..":Rare"] = "UNIT_CLASSIFICATION_CHANGED"
