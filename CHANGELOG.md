@@ -1,6 +1,6 @@
 # DiabolicUI3 Changelog
 
-## [6.6.6-r494] - 2026-08-12
+## [6.6.6-r495] - 2026-08-12
 
 Support for **WoW 12.1 "Curse of Ula'tek"** (Interface `120100`). This patch closed
 addon access to aura data and renamed a number of frames and APIs, so most of the
