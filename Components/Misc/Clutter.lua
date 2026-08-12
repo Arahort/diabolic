@@ -167,10 +167,11 @@ Clutter.HandleMessageFrames = function(self)
 	UIErrorsFrame:UnregisterEvent("UI_INFO_MESSAGE")
 	UIErrorsFrame.RegisterEvent = function() end
 
-	-- WoW 12.1 rebuilt the raid warnings around a font string pool.
-	-- The named Slot1/Slot2 strings and the .timings table are gone, so the text
-	-- is styled as it comes out of the pool instead, and the growing text scaling
-	-- is stopped right there rather than by neutralizing SetTextHeight.
+	-- Raid warning styling is switched off, Blizzard's own presentation is used instead.
+	-- WoW 12.1 rebuilt these frames around a font string pool, moved the boss emotes into
+	-- a private frame addons cannot reach, and turned the raid warning into an EditMode
+	-- system, so the player positions it from the standard editor now.
+	--[==[
 	local RaidWarningFrame = SetObjectScale(_G.RaidWarningFrame)
 	RaidWarningFrame:SetAlpha(.85)
 
@@ -183,16 +184,8 @@ Clutter.HandleMessageFrames = function(self)
 		end
 	end
 	hooksecurefunc(RaidWarningFrame, "AddMessage", StyleNotices)
+	]==]
 
-	-- WoW 12.1 also moved the boss emotes into a private frame owned by Blizzard.
-	-- Its text is out of reach for addons now; all we get is the anchor it uses,
-	-- and that one already follows the raid warnings, so we leave it alone.
-
-	-- Just a little in-game test for dev purposes!
-	-- /run RaidWarningUtil.AddMessage("Testing how texts will be displayed with my changes! Testing how texts will be displayed with my changes!", ChatTypeInfo["RAID_WARNING"])
-
-	-- RaidWarningFrame is an EditMode system as of 12.1, so its position belongs
-	-- to Blizzard's EditMode and the player moves it from there.
 	UIErrorsFrame:ClearAllPoints()
 	UIErrorsFrame:SetPoint("TOP", UIParent, "TOP", 0, -600)
 

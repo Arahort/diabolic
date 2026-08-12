@@ -55,30 +55,14 @@ ExtraButtons.UpdateButton = function(self, button)
 		end
 	end
 
-	local cooldown = button.cooldown or button.Cooldown
-	if (cooldown) then
-		cooldown:SetSize(size * 0.725, size * 0.725)
-		cooldown:ClearAllPoints()
-		cooldown:SetPoint("CENTER", 0, 0)
-		cooldown:SetSwipeTexture(GetMedia("actionbutton-mask-circular"))
-		cooldown:SetSwipeColor(0, 0, 0, .75)
-		cooldown:SetDrawSwipe(true)
-		cooldown:SetBlingTexture(GetMedia("blank"), 0, 0, 0 , 0)
-		cooldown:SetDrawBling(true)
-		cooldown:SetHideCountdownNumbers(true)
-
-		-- Attempting to fix the issue with too opaque swipe textures
-		if (not cooldown.__GP_Swipe) then
-			cooldown.__GP_Swipe = function()
-				cooldown:SetSwipeColor(0, 0, 0, .75)
-				cooldown:SetDrawSwipe(true)
-				cooldown:SetBlingTexture(GetMedia("blank"), 0, 0, 0 , 0)
-				cooldown:SetDrawBling(true)
-				cooldown:SetHideCountdownNumbers(true)
-			end
-			cooldown:HookScript("OnShow", cooldown.__GP_Swipe)
-		end
-	end
+	-- WoW 12.1: the cooldown of this button is left completely alone on purpose.
+	-- Blizzard drives it with cooldown:SetCooldown(start, duration, modRate), and that
+	-- call is declared SecretArguments = "AllowedWhenUntainted". In combat the duration
+	-- is a secret value, so it only reaches a frame no addon has touched. Resizing it,
+	-- reanchoring it or swapping its swipe texture from here was enough to make the
+	-- engine refuse the update, and the swipe simply never appeared during combat.
+	-- The regular action buttons are unaffected because their cooldown belongs to
+	-- LibActionButton, not to Blizzard.
 
 	local inset = size * 0.1375
 	local count = button.Count
