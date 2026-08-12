@@ -15,6 +15,9 @@
 	<!-- Clutter.lua - hides various unwanted Blizzard UI elements -->
 	<Script file="Clutter.lua"/>
 
+	<!-- GameMenu.lua - reskins the Escape game menu (backdrop, buttons, title) -->
+	<Script file="GameMenu.lua"/>
+
 	<!-- MapCoords.lua - adds player coordinates display to the world map -->
 	<Script file="MapCoords.lua"/>
 

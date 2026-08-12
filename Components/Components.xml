@@ -1,8 +1,10 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
 
 	<Include file="ActionBars\ActionBars.xml"/>
-	<!-- Disabled for WoW 12.1: the player aura display was built on SecureAuraHeaderTemplate,
-	     which Blizzard now loads for Classic only. It needs a rewrite on top of AuraContainer. -->
+	<!-- Retired in WoW 12.1. This was the player aura display next to the minimap,
+	     built on SecureAuraHeaderTemplate, which Blizzard now loads for Classic only.
+	     Rather than rebuild it on AuraContainer we keep Blizzard's own buff frame
+	     there, so this module stays out of the load order. -->
 	<!-- <Include file="Auras\Auras.xml"/> -->
 	<Include file="UnitFrames\UnitFrames.xml"/>
 	<Include file="Misc\Misc.xml"/>

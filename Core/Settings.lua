@@ -465,7 +465,9 @@ SettingsModule.OnInitialize = function(self)
 		--------------------------------------------
 		local catAuras, layoutAuras = Settings.RegisterVerticalLayoutSubcategory(category, "|T135893:14:14|t  " .. L["AurasHeader"])
 		AddApplyButton(layoutAuras)
-		-- Disabled for WoW 12.1 along with the player aura display itself, see Components\Components.xml.
+		-- Retired together with the player aura display next to the minimap, which we
+		-- no longer ship as of WoW 12.1 (see Components\Components.xml). Blizzard's own
+		-- buff frame is used there now, so these options have nothing left to drive.
 		-- Only the target aura options below stay, they belong to the unit frames.
 		--[==[
 		local alwaysShowSetting, alwaysHideSetting
@@ -1183,6 +1185,10 @@ SettingsModule.OnInitialize = function(self)
 			Label("Third-Party Libraries")
 			Line("3D model orbs engine (oUF_Diablo / rModelOrbTemplate)")
 			Line("by zork (Erik Raetz) - MIT License", nil, 2)
+			Gap()
+			Label("Game Menu Skin")
+			Line("Artwork and original implementation by Gonkast")
+			Line("(MyCustomFrames, \"Charcoal\" skin) - used with permission", nil, 2)
 			Header("Support")
 			Gap()
 			LinkButton("Patreon", "https://www.patreon.com/c/Arahort")

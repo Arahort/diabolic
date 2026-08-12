@@ -470,9 +470,9 @@ BlizzKill.KillFloaters = function(self)
 	--end
 
 	-- Regular minimap buffs and debuffs.
-	-- Left visible while our own player aura display is disabled for the 12.1 rework,
-	-- otherwise the player would have no buffs on screen at all. Re-enable this
-	-- together with the AuraContainer based replacement.
+	-- Kept visible on purpose: as of WoW 12.1 we no longer ship our own player aura
+	-- display next to the minimap (see Components\Components.xml) and rely on
+	-- Blizzard's buff frame instead, so it must not be hidden here.
 	--[==[
 	if (BuffFrame) then
 		BuffFrame:SetScript("OnLoad", nil)
