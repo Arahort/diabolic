@@ -1,6 +1,6 @@
 # DiabolicUI3 Changelog
 
-## [6.6.6-r485] - 2026-08-12
+## [6.6.6-r494] - 2026-08-12
 
 Support for **WoW 12.1 "Curse of Ula'tek"** (Interface `120100`). This patch closed
 addon access to aura data and renamed a number of frames and APIs, so most of the
@@ -20,7 +20,10 @@ work below is about rebuilding on top of what 12.1 offers instead.
   - Nameplates show boss auras, the player's own short debuffs and stealable buffs
   - Stack counters, cooldown spirals and tooltips are now driven by the container
 - **Raid frame customization (Experiments) is temporarily off** while it is reworked. The saved setting is left untouched, so it returns as you left it
-- Raid warnings are styled through the new font string pool; boss emotes moved into a Blizzard-private frame and can no longer be restyled, and the raid warning position now belongs to Blizzard's Edit Mode
+- **Raid warnings use Blizzard's own presentation.** 12.1 rebuilt them around a font string pool, moved boss emotes into a private frame addons cannot reach, and made the raid warning an Edit Mode system, so it is positioned from the standard editor now
+- **Health text shows the number with the percentage** next to it. Secret values cannot be abbreviated, so "1.2m" is no longer possible; the target of target shows the percentage alone, since the full number does not fit
+- **The extra action button keeps Blizzard's cooldown look.** Its swipe is filled with a secret duration in combat, and that only reaches a frame no addon has touched, so restyling it cost the cooldown itself
+- Focus and focus target show at most six debuffs, and no longer display a role icon — they are not group members
 
 ### 🐛 Bug Fixes
 - Fixed the addon aborting during load on a hook for `TalentFrame_LoadUI`, a Classic-only leftover removed in 12.1. This aborted the whole *KillActionBars* pass, which is why **the default action bar with the gryphons came back**
@@ -29,11 +32,25 @@ work below is about rebuilding on top of what 12.1 offers instead.
 - Fixed the focus target and target of target showing a stale name and health bar — those units fire no events of their own, so they now refresh on `UNIT_TARGET` of their base unit instead of waiting for the next poll
 - Fixed a load error in the experience and reputation bars: `IsPlayerAtEffectiveMaxLevel` moved to `GameRulesUtil`
 - Fixed a load error in the raid warning styling, which used the `timings` table and the named slot font strings that 12.1 removed
+- **Fixed the health and power orbs standing still.** They asked for an interpolation mode that does not exist, and the resulting `nil` was rejected by the engine, so the fill never moved — silently, with nothing in the error log
+- **Fixed the target frame losing its border and showing a white health bar.** Four plugin files still read the retired `frame.unit`, and the resulting error aborted the update before the bar was coloured and before the artwork was applied
+- **Fixed bars refusing to colour by threat.** The threat status is secret in 12.1 and was used both as a condition and as a table key; threat colouring still applies wherever the game exposes the value
+- **Fixed the pet bar erroring on every update**, which left buttons without icon, cooldown or keybind: the global `SetDesaturation` wrapper is gone, desaturation is a texture method now
+- **Fixed proc highlights not lighting up.** The button library draws them through LibButtonGlow, which was missing from the addon
+- **Fixed party resource bars disappearing.** Maximum power is restricted for group members and allied NPCs, and the code read that as "has no resource"; the bar now only hides when the maximum is readable and really zero
+- **Fixed the absorb tag never displaying anything** and the health and power text silently dropping their maximum — secret values cannot be compared or concatenated in Lua, so the text is assembled through `C_StringUtil`
+- **Fixed the focus target showing the previous unit's name and role icon**
+- **Fixed empowered cast stage pips erroring** when the castbar was placed above the target's name, which anchored it to a secret font string
+- **Fixed the golden highlight on the targeted group member**, which relied on a unit comparison that is secret in 12.1
+- Fixed damage and healing numbers never showing crits, absorbs or blocks — the code compared an undefined global instead of its own variable
 
 ### 🔧 Internal
 - Table of Contents updated to **Interface `120100`**
 - **oUF updated to 14.0.0**, which carries the 12.1 aura rewrite; our health and power prediction plugins carried over
 - **Replaced the LibActionButton-1.0-GE fork with upstream LibActionButton-1.0 v155**, which is maintained for 12.1. The out-of-range and unusable button colouring lives in the addon itself, so the look is unchanged
+- Added **LibButtonGlow-1.0**, the proc highlight dependency of the button library
+- Local patches to bundled libraries are marked with a `DIABOLIC PATCH (12.1)` comment so they survive the next library update
+- Unit tooltips are built from the frame's own unit instead of going through Blizzard's handler, which reads the field oUF retired
 - Game menu textures converted from TGA to PNG, 7.8 MB down to 1.8 MB
 
 ---
