@@ -1,8 +1,8 @@
 ﻿local Addon, ns = ...
 local ActionBars = ns:GetModule("ActionBars")
 local ButtonMod = ActionBars:NewModule("Buttons")
-local LAB = LibStub("LibActionButton-1.0-GE")
-local LAB_Version = LibStub.minors["LibActionButton-1.0-GE"]
+local LAB = LibStub("LibActionButton-1.0")
+local LAB_Version = LibStub.minors["LibActionButton-1.0"]
 
 -- Lua API
 local next = next

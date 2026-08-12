@@ -65,7 +65,12 @@ local function SetupNameTruncation()
 end
 -- Check if module should be enabled
 local function IsEnabled()
-	return ns.db and ns.db.global and ns.db.global.experiments and ns.db.global.experiments.customizeRaidFrames
+	-- Temporarily off while the raid frame styling is reworked for WoW 12.1.
+	-- The saved setting is deliberately left untouched, so players who had it enabled
+	-- get it back exactly as they left it once the rework lands. Name truncation and
+	-- the raid manager toggle below are separate features and keep working.
+	return false
+	--return ns.db and ns.db.global and ns.db.global.experiments and ns.db.global.experiments.customizeRaidFrames
 end
 -- Check if raid manager should be hidden
 local function ShouldHideRaidManager()

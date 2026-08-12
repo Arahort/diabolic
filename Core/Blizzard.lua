@@ -339,13 +339,9 @@ BlizzKill.KillActionBars = function(self)
 		end
 
 
-		if (not ns.IsClassic) then
-			if (PlayerTalentFrame) then
-				PlayerTalentFrame:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
-			else
-				hooksecurefunc("TalentFrame_LoadUI", function() PlayerTalentFrame:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED") end)
-			end
-		end
+		-- PlayerTalentFrame and TalentFrame_LoadUI are Classic-only leftovers.
+		-- Retail replaced them with PlayerSpellsFrame long ago, and in 12.1 the
+		-- global TalentFrame_LoadUI is gone entirely, so hooking it errored on load.
 
 		-- MainMenuBarVehicleLeaveButton is no longer hidden — Blizzard places it
 		-- via the standard EditMode and the user can move it from there.

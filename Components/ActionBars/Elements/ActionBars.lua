@@ -1,7 +1,7 @@
 ﻿local Addon, ns = ...
 local ActionBars = ns:GetModule("ActionBars")
 local Bars = ActionBars:NewModule("Bars", "LibMoreEvents-1.0", "AceConsole-3.0")
-local LAB = LibStub("LibActionButton-1.0-GE")
+local LAB = LibStub("LibActionButton-1.0")
 
 -- Lua API
 local math_floor = math.floor

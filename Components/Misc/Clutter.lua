@@ -167,66 +167,33 @@ Clutter.HandleMessageFrames = function(self)
 	UIErrorsFrame:UnregisterEvent("UI_INFO_MESSAGE")
 	UIErrorsFrame.RegisterEvent = function() end
 
-	-- The RaidWarnings have a tendency to look really weird,
-	-- as the SetTextHeight method scales the text after it already
-	-- has been turned into a bitmap and turned into a texture.
-	-- So I'm just going to turn it off. Completely.
+	-- WoW 12.1 rebuilt the raid warnings around a font string pool.
+	-- The named Slot1/Slot2 strings and the .timings table are gone, so the text
+	-- is styled as it comes out of the pool instead, and the growing text scaling
+	-- is stopped right there rather than by neutralizing SetTextHeight.
 	local RaidWarningFrame = SetObjectScale(_G.RaidWarningFrame)
 	RaidWarningFrame:SetAlpha(.85)
-	RaidWarningFrame:SetHeight(80)
 
-	RaidWarningFrame.timings.RAID_NOTICE_MIN_HEIGHT = 26
-	RaidWarningFrame.timings.RAID_NOTICE_MAX_HEIGHT = 26
-	RaidWarningFrame.timings.RAID_NOTICE_SCALE_UP_TIME = 0
-	RaidWarningFrame.timings.RAID_NOTICE_SCALE_DOWN_TIME = 0
-
-	RaidWarningFrame.Slot1 = _G.RaidWarningFrameSlot1
-	RaidWarningFrame.Slot1:SetFontObject(GetFont(26, true, "Chat"))
-	RaidWarningFrame.Slot1:SetShadowColor(0,0,0,.5)
-	RaidWarningFrame.Slot1:SetWidth(760)
-	RaidWarningFrame.Slot1.SetTextHeight = function() end
-
-	RaidWarningFrame.Slot2 = _G.RaidWarningFrameSlot2
-	RaidWarningFrame.Slot2:SetFontObject(GetFont(26, true, "Chat"))
-	RaidWarningFrame.Slot2:SetShadowColor(0,0,0,.5)
-	RaidWarningFrame.Slot2:SetWidth(760)
-	RaidWarningFrame.Slot2.SetTextHeight = function() end
-
-	local RaidBossEmoteFrame = SetObjectScale(_G.RaidBossEmoteFrame)
-	RaidBossEmoteFrame:SetAlpha(.85)
-	RaidBossEmoteFrame:SetHeight(80)
-
-	RaidBossEmoteFrame.timings.RAID_NOTICE_MIN_HEIGHT = 26
-	RaidBossEmoteFrame.timings.RAID_NOTICE_MAX_HEIGHT = 26
-	RaidBossEmoteFrame.timings.RAID_NOTICE_SCALE_UP_TIME = 0
-	RaidBossEmoteFrame.timings.RAID_NOTICE_SCALE_DOWN_TIME = 0
-
-	RaidBossEmoteFrame.Slot1 = _G.RaidBossEmoteFrameSlot1
-	if RaidBossEmoteFrame.Slot1 then
-		RaidBossEmoteFrame.Slot1:SetFontObject(GetFont(26,true,"Chat"))
-		RaidBossEmoteFrame.Slot1:SetShadowColor(0,0,0,.5)
-		RaidBossEmoteFrame.Slot1:SetWidth(760)
-		RaidBossEmoteFrame.Slot1.SetTextHeight = function() end
+	local StyleNotices = function(frame)
+		for fontString in frame.fontStringPool:EnumerateActive() do
+			fontString:SetFontObject(GetFont(26, true, "Chat"))
+			fontString:SetShadowColor(0,0,0,.5)
+			fontString:SetWidth(760)
+			FadingFrame_StopTextScaling(fontString)
+		end
 	end
+	hooksecurefunc(RaidWarningFrame, "AddMessage", StyleNotices)
 
-	RaidBossEmoteFrame.Slot2 = _G.RaidBossEmoteFrameSlot2
-	if RaidBossEmoteFrame.Slot2 then
-		RaidBossEmoteFrame.Slot2:SetFontObject(GetFont(26,true,"Chat"))
-		RaidBossEmoteFrame.Slot2:SetShadowColor(0,0,0,.5)
-		RaidBossEmoteFrame.Slot2:SetWidth(760)
-		RaidBossEmoteFrame.Slot2.SetTextHeight = function() end
-	end
+	-- WoW 12.1 also moved the boss emotes into a private frame owned by Blizzard.
+	-- Its text is out of reach for addons now; all we get is the anchor it uses,
+	-- and that one already follows the raid warnings, so we leave it alone.
 
 	-- Just a little in-game test for dev purposes!
-	-- /run RaidNotice_AddMessage(RaidWarningFrame, "Testing how texts will be displayed with my changes! Testing how texts will be displayed with my changes!", ChatTypeInfo["RAID_WARNING"])
-	-- /run RaidNotice_AddMessage(RaidBossEmoteFrame, "Testing how texts will be displayed with my changes! Testing how texts will be displayed with my changes!", ChatTypeInfo["RAID_WARNING"])
+	-- /run RaidWarningUtil.AddMessage("Testing how texts will be displayed with my changes! Testing how texts will be displayed with my changes!", ChatTypeInfo["RAID_WARNING"])
 
-	RaidWarningFrame:ClearAllPoints()
-	RaidBossEmoteFrame:ClearAllPoints()
+	-- RaidWarningFrame is an EditMode system as of 12.1, so its position belongs
+	-- to Blizzard's EditMode and the player moves it from there.
 	UIErrorsFrame:ClearAllPoints()
-
-	RaidWarningFrame:SetPoint("TOP", UIParent, "TOP", 0, -340)
-	RaidBossEmoteFrame:SetPoint("TOP", UIParent, "TOP", 0, -(440))
 	UIErrorsFrame:SetPoint("TOP", UIParent, "TOP", 0, -600)
 
 	self:RegisterEvent("UI_ERROR_MESSAGE", "OnEvent")

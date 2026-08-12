@@ -465,6 +465,9 @@ SettingsModule.OnInitialize = function(self)
 		--------------------------------------------
 		local catAuras, layoutAuras = Settings.RegisterVerticalLayoutSubcategory(category, "|T135893:14:14|t  " .. L["AurasHeader"])
 		AddApplyButton(layoutAuras)
+		-- Disabled for WoW 12.1 along with the player aura display itself, see Components\Components.xml.
+		-- Only the target aura options below stay, they belong to the unit frames.
+		--[==[
 		local alwaysShowSetting, alwaysHideSetting
 		do
 			alwaysShowSetting = RegisterSetting(
@@ -524,6 +527,7 @@ SettingsModule.OnInitialize = function(self)
 			end)
 			Settings.CreateSlider(catAuras, setting, options, L["AurasIconSizeDesc"])
 		end
+		]==]
 		do
 			local setting = RegisterSetting(
 				catAuras,
@@ -553,6 +557,7 @@ SettingsModule.OnInitialize = function(self)
 			end)
 			CreateCheckbox(catAuras, setting, L["HideTargetAurasDesc"])
 		end
+		--[==[
 		do
 			local setting = RegisterSetting(
 				catAuras,
@@ -568,6 +573,7 @@ SettingsModule.OnInitialize = function(self)
 			Settings.SetOnValueChangedCallback("char_auras_growUpward", OnGrowUpwardChanged)
 			CreateCheckbox(catAuras, setting, L["AurasGrowUpwardDesc"])
 		end
+		]==]
 		--------------------------------------------
 		-- Subcategory: Unit Frames (Рамки юнитов)
 		--------------------------------------------
@@ -919,6 +925,10 @@ SettingsModule.OnInitialize = function(self)
 			Settings.SetOnValueChangedCallback("global_experiments_hideRaidManager", OnHideRaidManagerToggle)
 			CreateCheckbox(catExp, setting, L["HideRaidManagerDesc"])
 		end
+		-- Temporarily disabled: raid frame customization is being reworked for WoW 12.1.
+		-- The module itself is switched off in Components\Misc\RaidFrames.lua, so anyone
+		-- who had this enabled simply stops getting the styling, with the saved value untouched.
+		--[==[
 		do
 			local setting = RegisterSetting(
 				catExp,
@@ -1043,6 +1053,7 @@ SettingsModule.OnInitialize = function(self)
 			end)
 			Settings.CreateSlider(catExp, settingRoleOffsetY, optionsRoleOffsetY, L["RaidFramesRoleOffsetYDesc"])
 		end
+		]==]
 		-- (AzeriteGroupFrames moved to Unit Frames subcategory)
 		--[[ useAzeriteClassPower (hidden, always enabled)
 		do

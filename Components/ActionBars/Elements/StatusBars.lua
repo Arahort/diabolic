@@ -24,7 +24,8 @@ local GetTimeToWellRested = GetTimeToWellRested or function() return nil end
 local GetWatchedFactionInfo = GetWatchedFactionInfo
 local GetXPExhaustion = GetXPExhaustion
 local IsFactionParagon = C_Reputation and C_Reputation.IsFactionParagon
-local IsPlayerAtEffectiveMaxLevel = IsPlayerAtEffectiveMaxLevel
+-- WoW 12.1: moved from a global to GameRulesUtil
+local IsPlayerAtEffectiveMaxLevel = GameRulesUtil.IsPlayerAtEffectiveMaxLevel
 local IsResting = IsResting
 local IsXPUserDisabled = IsXPUserDisabled
 local UnitLevel = UnitLevel
