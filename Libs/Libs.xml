@@ -23,6 +23,8 @@
 
 	<!-- Actionbar specific libraries -->
 	<Include file="LibKeyBound-1.0\lib.xml"/>
+	<!-- LibButtonGlow provides the proc highlight LibActionButton draws on its buttons -->
+	<Script file="LibButtonGlow-1.0\LibButtonGlow-1.0.lua"/>
 	<Script file="LibActionButton-1.0\LibActionButton-1.0.lua"/>
 
 	<!-- Unitframe specific libraries -->

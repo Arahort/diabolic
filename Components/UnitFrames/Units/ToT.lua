@@ -263,7 +263,9 @@ UnitStyles["ToT"] = function(self, unit, id)
 	healthValue:SetTextColor(unpack(self.colors.offwhite))
 	healthValue:SetAlpha(.85)
 	healthValue:SetPoint("CENTER", 0, 0)
-	self:Tag(healthValue, "["..ns.Prefix..":Health:Smart]")
+	-- Percentage only: the frame is small, and since 12.1 the health number can no
+	-- longer be abbreviated, so the full figure would not fit.
+	self:Tag(healthValue, "["..ns.Prefix..":HealthPercent]")
 
 	self.Health.Value = healthValue
 

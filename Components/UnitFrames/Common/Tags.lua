@@ -222,13 +222,16 @@ end
 
 Events[ns.Prefix..":Name"] = "UNIT_NAME_UPDATE"
 Methods[ns.Prefix..":Name"] = function(unit, realUnit)
-	-- WoW 12.0: UnitName() returns a secret value for hostile/unseen units in combat
-	-- (e.g. focustarget when target is an enemy NPC). string_find on a secret string
-	-- raises "attempt to perform string conversion on a secret string value".
 	local ok, name = pcall(UnitName, realUnit or unit)
 	if (not ok) or (not name) then return end
-	-- issecretvalue check: returning a secret string from a tag method would taint the FontString.
-	if (issecretvalue and issecretvalue(name)) then return end
+	-- WoW 12.1: the name of a unit whose identity is restricted is a secret string, and
+	-- this used to bail out on those, which left the font string showing whoever stood
+	-- there before - most visibly on the focus target. oUF passes tag output straight
+	-- into SetFormattedText, which takes secrets, so the name is returned untouched.
+	-- Only the abbreviation has to be skipped, since string.find would throw on it.
+	if (issecretvalue(name)) then
+		return name
+	end
 	if (string_find(name, "%s")) then
 		name = AbbreviateName(name)
 	end

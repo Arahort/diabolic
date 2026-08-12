@@ -204,7 +204,20 @@ end
 local GroupRoleIndicator_Override = function(self, event)
 	local element = self.GroupRoleIndicator
 	if (not element) then return end
-	local role = UnitGroupRolesAssigned(self.__unit)
+	local unit = self.__unit
+	-- The focus and focus target frames borrow this style but are not group members,
+	-- so they have no role to show. Asking anyway returns a secret string in 12.1 once
+	-- the unit's identity is restricted, and comparing that to "TANK" is not allowed,
+	-- which left whatever icon the previous occupant of the frame had.
+	if (not unit) or (not unit:match("^party") and not unit:match("^raid")) then
+		element:Hide()
+		return
+	end
+	local role = UnitGroupRolesAssigned(unit)
+	if (issecretvalue(role)) then
+		element:Hide()
+		return
+	end
 	if (role == "TANK" or role == "HEALER" or role == "DAMAGER") then
 		element.Icon:SetTexture(element[role])
 		element:Show()
@@ -498,7 +511,10 @@ UnitStyles["Party"] = function(self, unit, id)
 		btn.partyBackdrop = backdrop
 	end
 
-	auras.debuffGroup = auras:AddGroup(ns.AuraFilters.PlayerDebuffs, { maxFrameCount = AURA_TOTAL })
+	-- The focus and focus target frames share this style but sit on their own, so their
+	-- debuff rows are capped at a single row instead of the full group grid.
+	local auraLimit = (unit == "focus" or unit == "focustarget") and AURA_PER_ROW * 2 or AURA_TOTAL
+	auras.debuffGroup = auras:AddGroup(ns.AuraFilters.PlayerDebuffs, { maxFrameCount = auraLimit })
 
 	self.Auras = auras
 	return self
