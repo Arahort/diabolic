@@ -209,7 +209,9 @@ local GroupRoleIndicator_Override = function(self, event)
 	-- so they have no role to show. Asking anyway returns a secret string in 12.1 once
 	-- the unit's identity is restricted, and comparing that to "TANK" is not allowed,
 	-- which left whatever icon the previous occupant of the frame had.
-	if (not unit) or (not unit:match("^party") and not unit:match("^raid")) then
+	-- The player's own frame in the group uses the "player" token rather than a party
+	-- one, so it has to be listed here explicitly.
+	if (not unit) or (unit ~= "player" and not unit:match("^party") and not unit:match("^raid")) then
 		element:Hide()
 		return
 	end
