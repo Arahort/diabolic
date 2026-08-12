@@ -231,11 +231,20 @@ local TargetHighlight_Update = function(self, event, unit)
 	unit = unit or self.__unit
 	if (not self.Portrait or not self.Portrait.Border) then return end
 	local border = self.Portrait.Border
-	if (unit and UnitIsUnit(unit, "target")) then
-		-- Golden target color
+	if (not unit) then
+		border:SetVertexColor(UI_R, UI_G, UI_B, 1)
+		return
+	end
+	-- WoW 12.1: UnitIsUnit is SecretWhenUnitComparisonRestricted, so its result must not
+	-- be tested in Lua. Each channel is picked in C instead, the same way the target
+	-- castbar resolves its interrupt state, so the golden highlight keeps working.
+	local isTarget = UnitIsUnit(unit, "target")
+	local ev = C_CurveUtil and C_CurveUtil.EvaluateColorValueFromBoolean
+	if (ev) then
+		border:SetVertexColor(ev(isTarget, 1, UI_R), ev(isTarget, .94, UI_G), ev(isTarget, .66, UI_B), 1)
+	elseif (isTarget) then
 		border:SetVertexColor(1, .94, .66, 1)
 	else
-		-- Default silver
 		border:SetVertexColor(UI_R, UI_G, UI_B, 1)
 	end
 end
