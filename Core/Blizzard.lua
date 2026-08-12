@@ -470,6 +470,10 @@ BlizzKill.KillFloaters = function(self)
 	--end
 
 	-- Regular minimap buffs and debuffs.
+	-- Left visible while our own player aura display is disabled for the 12.1 rework,
+	-- otherwise the player would have no buffs on screen at all. Re-enable this
+	-- together with the AuraContainer based replacement.
+	--[==[
 	if (BuffFrame) then
 		BuffFrame:SetScript("OnLoad", nil)
 		BuffFrame:SetScript("OnUpdate", nil)
@@ -490,6 +494,7 @@ BlizzKill.KillFloaters = function(self)
 			DebuffFrame:UnregisterAllEvents()
 		end
 	end
+	]==]
 
 	-- Some shadowlands crap, possibly BfA.
 	if (PlayerBuffTimerManager) then

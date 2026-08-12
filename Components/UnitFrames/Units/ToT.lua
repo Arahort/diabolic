@@ -18,7 +18,7 @@ local SetObjectScale = ns.API.SetUnitFramesObjectScale
 --------------------------------------------
 -- Update transparency to avoid "double" units.
 local PostUpdate = function(self)
-	local unit = self.unit
+	local unit = self.__unit
 	if (not unit) then
 		return
 	end

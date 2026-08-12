@@ -173,7 +173,7 @@ end
 local Power_PostUpdate = function(element, unit, cur, min, max)
 	local self = element.__owner
 	if (not unit) then
-		unit = self.unit
+		unit = self.__unit
 	end
 	if (not unit) then
 		return
@@ -230,10 +230,10 @@ local Plate_UpdateHighlight = function(self)
 	if (not highlight) then
 		return
 	end
-	if (UnitIsUnit("target", self.unit)) then
+	if (UnitIsUnit("target", self.__unit)) then
 		highlight:SetBackdropBorderColor(1, 1, 1)
 		highlight:Show()
-	elseif (UnitIsUnit("focus", self.unit)) then
+	elseif (UnitIsUnit("focus", self.__unit)) then
 		highlight:SetBackdropBorderColor(144/255, 195/255, 255/255)
 		highlight:Show()
 	else
@@ -416,26 +416,39 @@ UnitStyles["NamePlate"] = function(self, unit, id)
 
 	-- Auras
 	--------------------------------------------
-	local auras = CreateFrame("Frame", nil, self)
+	-- WoW 12.1: the old nameplate filter kept boss auras, stealable buffs and the
+	-- player's own short auras. Those three rules become three groups, since the
+	-- container decides what to show from filters declared up front.
+	local auras = self:CreateAuras({
+		initialAnchor = "BOTTOMLEFT",
+		growthX = "RIGHT",
+		growthY = "UP",
+		layoutLimit = 30*3-4,
+	})
 	auras:SetSize(30*3-4, 26)
 	auras:SetPoint("BOTTOM", self.Health, "TOP", 0, 6)
 	auras.size = 26
-	auras.spacing = 4
-	auras.numTotal = 6
+	auras.elementSpacing = 4
+	auras.lineSpacing = 4
+	auras.groupSpacing = 4
 	auras.disableMouse = true
 	auras.disableCooldown = false
-	auras.onlyShowPlayer = false
-	auras.showStealableBuffs = false
-	auras.initialAnchor = "BOTTOMLEFT"
-	auras["spacing-x"] = 4
-	auras["spacing-y"] = 4
-	auras["growth-x"] = "RIGHT"
-	auras["growth-y"] = "UP"
-	auras.reanchorIfVisibleChanged = true
-	auras.FilterAura = ns.AuraFilters.NameplateAuraFilter
+	auras.sortMethod = ns.AuraSorts.Default
+	auras.sortDirection = ns.AuraSorts.DefaultDirection
 	auras.CreateButton = ns.AuraStyles.CreateButton
-	auras.PostUpdateButton = ns.AuraStyles.NameplatePostUpdateButton
-	auras.SortAuras = ns.AuraSorts.DefaultFunction
+
+	auras:AddGroup(ns.AuraFilters.PlayerDebuffs, {
+		maxFrameCount = 3,
+		candidateFilters = ns.AuraFilters.BossAuraCandidates,
+	})
+	auras:AddGroup(ns.AuraFilters.OwnDebuffs, {
+		maxFrameCount = 3,
+		candidateFilters = ns.AuraFilters.ShortDebuffCandidates,
+	})
+	auras:AddGroup(ns.AuraFilters.PlayerBuffs, {
+		maxFrameCount = 3,
+		candidateFilters = ns.AuraFilters.StealableCandidates,
+	})
 
 	self.Auras = auras
 

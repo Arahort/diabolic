@@ -18,6 +18,38 @@ local TargetFrameScaled = {}
 local EditModeUFScaled = {}
 local EditModeMinimapScaled = {}
 
+-- Deferred scaling
+---------------------------------------------------------
+-- SetIgnoreParentScale is protected on secure frames. A group header spawns its
+-- member buttons lazily, so a new party button can be created mid combat: the
+-- SetIgnoreParentScale call is blocked, the SetScale right after it is not, and
+-- that single frame ends up scaled by both itself and its parent — one oversized
+-- frame among correct ones, and it stays that way until a scale slider is touched.
+-- Both calls are deferred to the end of combat instead, so the frame simply
+-- inherits its parent scale until then.
+local pendingScale = {}
+local combatWatcher = CreateFrame("Frame")
+combatWatcher:RegisterEvent("PLAYER_REGEN_ENABLED")
+combatWatcher:SetScript("OnEvent", function()
+	for object, info in next, pendingScale do
+		pendingScale[object] = nil
+		if (object.SetScale) then
+			object:SetIgnoreParentScale(true)
+			object:SetScale(info.getScale() * info.factor)
+		end
+	end
+end)
+
+local ApplyIgnoredParentScale = function(object, factor, getScale)
+	if (InCombatLockdown()) then
+		pendingScale[object] = { factor = factor, getScale = getScale }
+		return
+	end
+	pendingScale[object] = nil
+	object:SetIgnoreParentScale(true)
+	object:SetScale(getScale() * factor)
+end
+
 -- Scaling Functions
 ---------------------------------------------------------
 -- Get the scale to set when ignoring parent scale
@@ -72,8 +104,7 @@ end
 API.SetObjectScale = function(object, factor)
 	if (object and object.SetScale) then
 		Scaled[object] = factor or 1
-		object:SetIgnoreParentScale(true)
-		object:SetScale(API.GetScale() * (factor or 1))
+		ApplyIgnoredParentScale(object, factor or 1, API.GetScale)
 	end
 	return object
 end
@@ -81,8 +112,7 @@ end
 API.SetEffectiveObjectScale = function(object, factor)
 	if (object and object.SetScale) then
 		ScaledToUIParent[object] = factor or 1
-		object:SetIgnoreParentScale(true)
-		object:SetScale(API.GetEffectiveScale() * (factor or 1))
+		ApplyIgnoredParentScale(object, factor or 1, API.GetEffectiveScale)
 	end
 	return object
 end
@@ -91,8 +121,7 @@ end
 API.SetMinimapObjectScale = function(object, factor)
 	if (object and object.SetScale) then
 		MinimapScaled[object] = factor or 1
-		object:SetIgnoreParentScale(true)
-		object:SetScale(API.GetMinimapScale() * (factor or 1))
+		ApplyIgnoredParentScale(object, factor or 1, API.GetMinimapScale)
 	end
 	return object
 end
@@ -101,8 +130,7 @@ end
 API.SetUnitFramesObjectScale = function(object, factor)
 	if (object and object.SetScale) then
 		UnitFramesScaled[object] = factor or 1
-		object:SetIgnoreParentScale(true)
-		object:SetScale(API.GetUnitFramesScale() * (factor or 1))
+		ApplyIgnoredParentScale(object, factor or 1, API.GetUnitFramesScale)
 	end
 	return object
 end

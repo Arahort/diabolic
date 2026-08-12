@@ -594,7 +594,7 @@ local AzeriteStagger_SetStatusBarColor = function(element, r, g, b)
 	end
 end
 local AzeriteStagger_UpdateColor = function(self, event, unit)
-	if (unit and unit ~= self.unit) then return end
+	if (unit and unit ~= self.__unit) then return end
 	local element = self.Stagger
 	local colors = self.colors.power["STAGGER"]
 	if (not colors) then return end
@@ -1469,12 +1469,6 @@ UnitStyles["Player"] = function(self, unit, id)
 	-- ns.db.global.playerDebuffs and are editable via EditMode.
 	-- Parent is UIParent (not Player) — keeps LibEditMode drag math consistent.
 	local pdb = ns.db.global.playerDebuffs
-	local debuffs = CreateFrame("Frame", self:GetName().."DebuffFrame", UIParent)
-	if (ns.API.SetEditModeUFObjectScale) then
-		ns.API.SetEditModeUFObjectScale(debuffs, 1)
-	end
-	debuffs:SetSize(300, 110)
-	debuffs.num = 40
 	-- Derive initialAnchor (the corner inside the frame where the first icon
 	-- starts) from growth direction. positionPoint is the frame's own anchor on
 	-- screen (used by drag), not where icons begin inside the frame.
@@ -1487,27 +1481,33 @@ UnitStyles["Player"] = function(self, unit, id)
 		local horiz = (gx == "RIGHT") and "LEFT" or "RIGHT"
 		return vert .. horiz
 	end
+	-- WoW 12.1: an AuraContainer is spawned as a child of the unit frame, but this
+	-- one is dragged on its own through EditMode, so it is reparented to UIParent
+	-- right after creation to keep the drag math consistent.
+	local debuffs = self:CreateAuras({
+		initialAnchor = deriveInitialAnchor(pdb.growthX or "LEFT", pdb.growthY or "UP"),
+		growthX = pdb.growthX or "LEFT",
+		growthY = pdb.growthY or "UP",
+		layoutLimit = 300,
+	})
+	debuffs:SetParent(UIParent)
+	debuffs:SetSize(300, 110)
+	if (ns.API.SetEditModeUFObjectScale) then
+		ns.API.SetEditModeUFObjectScale(debuffs, 1)
+	end
 	debuffs.size = pdb.iconSize or 40
-	debuffs.spacing = pdb.spacingX or 4
-	debuffs.filter = "HARMFUL"
+	debuffs.elementSpacing = pdb.spacingX or 4
+	debuffs.lineSpacing = pdb.spacingY or 11
 	debuffs.disableMouse = false
 	debuffs.disableCooldown = false
-	debuffs.onlyShowPlayer = false
-	debuffs.showDebuffType = true
-	debuffs.showStealableBuffs = false
-	debuffs.initialAnchor = deriveInitialAnchor(pdb.growthX or "LEFT", pdb.growthY or "UP")
-	debuffs.spacingX = pdb.spacingX or 4
-	debuffs.spacingY = pdb.spacingY or 11
-	debuffs.growthX = pdb.growthX or "LEFT"
-	debuffs.growthY = pdb.growthY or "UP"
+	debuffs.showDispelType = true
+	debuffs.countFontSize = 14
 	debuffs.tooltipAnchor = "ANCHOR_TOPRIGHT"
-	debuffs.reanchorIfVisibleChanged = true
-	-- WoW 12.0.0: Use non-secure buttons for player to avoid ADDON_ACTION_BLOCKED in combat
-	debuffs.CreateButton = ns.AuraStyles.CreateButtonWithBar_NonSecure
-	debuffs.allowCombatUpdates = true -- Allow oUF to update non-secure buttons in combat
-	debuffs.PostUpdateButton = ns.AuraStyles.PlayerPostUpdateButton
-	debuffs.FilterAura = ns.AuraFilters.PlayerDebuffFilter
-	debuffs.SortAuras = ns.AuraSorts.DefaultFunction
+	debuffs.sortMethod = ns.AuraSorts.UnitFrameDebuff
+	debuffs.sortDirection = ns.AuraSorts.DefaultDirection
+	debuffs.CreateButton = ns.AuraStyles.CreateButton
+
+	debuffs.debuffGroup = debuffs:AddGroup(ns.AuraFilters.PlayerDebuffs, { maxFrameCount = 40 })
 
 	self.Debuffs = debuffs
 
@@ -1517,16 +1517,19 @@ UnitStyles["Player"] = function(self, unit, id)
 		local el = self.Debuffs
 		if (not el) then return end
 		el.size       = d.iconSize or 40
-		el.spacing    = d.spacingX or 4
-		el.spacingX   = d.spacingX or 4
-		el.spacingY   = d.spacingY or 11
+		el.elementSpacing = d.spacingX or 4
+		el.lineSpacing    = d.spacingY or 11
 		el.growthX    = d.growthX  or "LEFT"
 		el.growthY    = d.growthY  or "UP"
-		el.initialAnchor = deriveInitialAnchor(el.growthX, el.growthY)
-		-- Force a re-anchor of all created buttons by making oUF think nothing has
-		-- been anchored yet; otherwise updateAura's `createdButtons > anchoredButtons`
-		-- branch never fires after the very first batch and the new anchor is ignored.
-		el.anchoredButtons = 0
+		-- The container owns the layout now, so growth and spacing are pushed into it
+		-- directly, and the buttons it already built are resized in place.
+		el:SetFlowLayoutAnchorPoint(deriveInitialAnchor(el.growthX, el.growthY))
+		el:SetFlowLayoutGrowthDirection((el.growthX == "LEFT") and -1 or 1, (el.growthY == "DOWN") and -1 or 1)
+		el:SetAuraGroupLayout(el.debuffGroup, {
+			elementSpacing = el.elementSpacing,
+			lineSpacing = el.lineSpacing,
+		})
+		ns.AuraStyles.UpdateButtonSizes(el, el.debuffGroup, el.size)
 		if (el.ForceUpdate) then el:ForceUpdate() end
 	end
 

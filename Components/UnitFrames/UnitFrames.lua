@@ -51,6 +51,21 @@ local Spawn = function(unit, name)
 	return frame
 end
 
+-- Units like targettarget and focustarget fire no events of their own, so oUF
+-- falls back to polling them twice a second. Miss a tick while the base unit is
+-- switching targets and the frame keeps showing the previous unit's name and
+-- health. Blizzard's own target-of-target frame listens to UNIT_TARGET on the base
+-- unit for exactly this reason, so we follow suit and refresh immediately.
+local WatchBaseUnitTarget = function(frame, baseUnit)
+	if (not frame) then return end
+	local watcher = CreateFrame("Frame", nil, frame)
+	watcher:RegisterUnitEvent("UNIT_TARGET", baseUnit)
+	watcher:SetScript("OnEvent", function()
+		frame:UpdateAllElements("UNIT_TARGET")
+	end)
+	return frame
+end
+
 -- Styling
 -----------------------------------------------------
 local UnitSpecific = function(self, unit)
@@ -487,7 +502,8 @@ UnitFrames.SpawnUnitFrames = function(self)
 				}
 			})
 		end
-		Spawn("targettarget", "ToT"):SetPoint("CENTER", ns.UnitFramesByName["Target"], "CENTER", 0, -26)
+		WatchBaseUnitTarget(Spawn("targettarget", "ToT"), "target")
+			:SetPoint("CENTER", ns.UnitFramesByName["Target"], "CENTER", 0, -26)
 
 		-- Spawn pet frame
 		local petFrame = Spawn("pet", "Pet")
@@ -915,6 +931,7 @@ UnitFrames.SpawnGroupFrames = function(self)
 			"focusPoint", "focusX", "focusY", 200, -42)
 		ns.FocusTargetFrame = SpawnFocusFrame("focustarget", "FocusTarget", "Diabolic: FocusTarget",
 			"focusTargetPoint", "focusTargetX", "focusTargetY", 350, -42)
+		WatchBaseUnitTarget(ns.FocusTargetFrame, "focus")
 	end)
 end
 

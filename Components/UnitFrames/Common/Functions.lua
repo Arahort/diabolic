@@ -13,7 +13,7 @@ local UnitPowerMax = UnitPowerMax
 
 -- Simple UpdateHealth - direct API for all units
 API.UpdateHealth = function(self, event, unit)
-	if (not unit or self.unit ~= unit) then return end
+	if (not unit or self.__unit ~= unit) then return end
 	local element = self.Health
 	if (element.PreUpdate) then
 		element:PreUpdate(unit)
@@ -62,7 +62,7 @@ end
 
 -- WoW 12.0.1: Power update - native StatusBar handles secret values
 API.UpdatePower = function(self, event, unit)
-	if(self.unit ~= unit) then return end
+	if(self.__unit ~= unit) then return end
 	local element = self.Power
 	if (element.PreUpdate) then
 		element:PreUpdate(unit)

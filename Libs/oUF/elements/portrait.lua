@@ -38,17 +38,14 @@ the unit.
 
 local _, ns = ...
 local oUF = ns.oUF
+local Private = oUF.Private
 
--- WoW 12.0.0: issecretvalue may not exist in older versions
-local issecretvalue = issecretvalue or function() return false end
+local STATE = {}
+
+local unitIsUnit = Private.unitIsUnit
 
 local function Update(self, event, unit)
-	if(not unit) then return end
-	-- WoW 12.0: UnitIsUnit can return a secret boolean for hostile unseen units
-	-- (e.g. target="target" when our focustarget is an enemy NPC). A `not` test on
-	-- a secret boolean throws. Use pcall and treat secret result as "no match".
-	local ok, isSame = pcall(UnitIsUnit, self.unit, unit)
-	if (not ok) or issecretvalue(isSame) or (not isSame) then return end
+	if(not unit or not unitIsUnit(self.__unit, unit)) then return end
 
 	local element = self.Portrait
 
@@ -60,13 +57,18 @@ local function Update(self, event, unit)
 	--]]
 	if(element.PreUpdate) then element:PreUpdate(unit) end
 
-	-- WoW 12.0: UnitGUID can return a secret value for hostile unseen units
-	-- (e.g. focustarget when target is an enemy NPC). Comparing/storing a secret
-	-- string taints the frame. Treat secret GUID as "no GUID change" to avoid taint.
-	local ok, guid = pcall(UnitGUID, unit)
-	if (not ok) or (guid and issecretvalue(guid)) then guid = nil end
+	local guid = UnitGUID(unit)
 	local isAvailable = UnitIsConnected(unit) and UnitIsVisible(unit)
-	local hasStateChanged = event ~= 'OnUpdate' or element.guid ~= guid or element.state ~= isAvailable
+
+	local hasStateChanged
+	if(event ~= 'OnUpdate') then
+		hasStateChanged = true
+	elseif(STATE[element].available ~= isAvailable) then
+		hasStateChanged = true
+	elseif(not issecretvalue(guid) and not issecretvalue(STATE[element].guid)) then
+		hasStateChanged = STATE[element].guid ~= guid
+	end
+
 	if(hasStateChanged) then
 		if(element:IsObjectType('PlayerModel')) then
 			if(not isAvailable) then
@@ -80,27 +82,23 @@ local function Update(self, event, unit)
 				element:SetPortraitZoom(1)
 				element:SetPosition(0, 0, 0)
 				element:ClearModel()
-				pcall(element.SetUnit, element, unit)
+				element:SetUnit(unit)
 			end
 		else
 			local class, _
 			if(element.showClass) then
-				-- BUG: UnitClassBase can't be trusted
-				--      https://github.com/Stanzilla/WoWUIBugs/issues/621
-				local okC
-				okC, _, class = pcall(UnitClass, unit)
-				if (not okC) or (class and issecretvalue(class)) then class = nil end
+				_, class = UnitClass(unit)
 			end
 
-			if(class) then
+			if(class ~= nil) then
 				element:SetAtlas('classicon-' .. class)
 			else
-				pcall(SetPortraitTexture, element, unit)
+				SetPortraitTexture(element, unit)
 			end
 		end
 
-		element.guid = guid
-		element.state = isAvailable
+		STATE[element].guid = guid
+		STATE[element].available = isAvailable
 	end
 
 	--[[ Callback: Portrait:PostUpdate(unit)
@@ -127,7 +125,7 @@ local function Path(self, ...)
 end
 
 local function ForceUpdate(element)
-	return Path(element.__owner, 'ForceUpdate', element.__owner.unit)
+	return Path(element.__owner, 'ForceUpdate', element.__owner.__unit)
 end
 
 local function Enable(self, unit)
@@ -135,6 +133,8 @@ local function Enable(self, unit)
 	if(element) then
 		element.__owner = self
 		element.ForceUpdate = ForceUpdate
+
+		STATE[element] = {}
 
 		self:RegisterEvent('UNIT_MODEL_CHANGED', Path)
 		self:RegisterEvent('UNIT_PORTRAIT_UPDATE', Path)

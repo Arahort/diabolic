@@ -242,7 +242,7 @@ local UpdateHealthColor = function(self)
 	local db = ns.db
 	if db and db.global and db.global.unitframes then
 		self.Health.colorHealth = db.global.unitframes.useHealthColorForTarget
-		if (self.unit) then
+		if (self.__unit) then
 			self.Health:ForceUpdate()
 		end
 	end
@@ -250,7 +250,7 @@ end
 
 -- Update artwork based on unit classification.
 local UpdateArtwork = function(self)
-	local unit = self.unit
+	local unit = self.__unit
 	if (not unit) then
 		return
 	end
@@ -456,42 +456,58 @@ UnitStyles["Target"] = function(self, unit, id)
 	cast.ShouldShow = function(element, unit)
 		local show = ns.db and ns.db.global and ns.db.global.unitframes and ns.db.global.unitframes.showTargetCastbar
 		if (show == nil) then show = true end
-		return show and (element.__owner.unit == unit)
+		return show and (element.__owner.__unit == unit)
 	end
 
 	self.Castbar = cast
 
 	-- Auras
 	--------------------------------------------
-	local auras = CreateFrame("Frame", nil, self)
+	-- WoW 12.1: auras live in an AuraContainer. Filtering happens through filter
+	-- strings, so "who cast this" is expressed as separate groups instead of a Lua
+	-- filter: the player's own auras come first in full color, foreign ones follow
+	-- dimmed, exactly the order the old comparator produced.
 	local twoRows = ns.db and ns.db.global and ns.db.global.auras and ns.db.global.auras.twoRowsTargetAuras
-	if twoRows then
-		auras:SetSize(40*7-4, 36*2+4)  -- 2 rows: height for 2 aura rows + spacing
-		auras.numTotal = 14
-	else
-		auras:SetSize(40*7-4, 36)  -- 1 row
-		auras.numTotal = 7
-	end
+	local rows = twoRows and 2 or 1
+	local perRow = 7
+	local auras = self:CreateAuras({
+		initialAnchor = "TOPLEFT",
+		growthX = "RIGHT",
+		growthY = "DOWN",
+		layoutLimit = 40*perRow-4,
+	})
+	auras:SetSize(40*perRow-4, 36*rows + (rows-1)*4)
 	-- Anchor is set by UpdateTargetCastbar (depends on whether the castbar is shown).
 	auras.size = 36
-	auras.spacing = 4
+	auras.elementSpacing = 4
+	auras.lineSpacing = 4
+	auras.groupSpacing = 4
 	auras.disableMouse = false
 	auras.disableCooldown = false
-	auras.onlyShowPlayer = false
-	auras.showStealableBuffs = false
-	auras.initialAnchor = "TOPLEFT"
-	auras["spacing-x"] = 4
-	auras["spacing-y"] = 4
-	auras["growth-x"] = "RIGHT"
-	auras["growth-y"] = "DOWN"
 	auras.tooltipAnchor = "ANCHOR_BOTTOMRIGHT"
-	auras.reanchorIfVisibleChanged = true
-	auras.CreateButton = ns.AuraStyles.CreateButton_NonSecure
-	auras.PostUpdateButton = ns.AuraStyles.TargetPostUpdateButton
-	auras.FilterAura = ns.AuraFilters.TargetAuraFilter
-	auras.SortAuras = ns.AuraSorts.DefaultFunction
+	auras.sortMethod = ns.AuraSorts.Default
+	auras.sortDirection = ns.AuraSorts.DefaultDirection
+	auras.CreateButton = ns.AuraStyles.CreateButton
+
+	local maxPerGroup = perRow * rows
+	auras:AddGroup(ns.AuraFilters.OwnBuffs, { maxFrameCount = maxPerGroup })
+	auras:AddGroup(ns.AuraFilters.OwnDebuffs, { maxFrameCount = maxPerGroup })
+	auras.foreignBuffGroup = auras:AddGroup(ns.AuraFilters.ForeignBuffs, {
+		maxFrameCount = maxPerGroup,
+		PostCreateButton = ns.AuraStyles.PostCreateForeignButton,
+	})
+	auras.foreignDebuffGroup = auras:AddGroup(ns.AuraFilters.ForeignDebuffs, {
+		maxFrameCount = maxPerGroup,
+		PostCreateButton = ns.AuraStyles.PostCreateForeignButton,
+	})
 
 	self.Auras = auras
+
+	-- "Show only my debuffs" is now a filter swap on the foreign debuff group.
+	self.UpdateTargetDebuffFilter = function(self)
+		local onlyMine = ns.db and ns.db.char and ns.db.char.unitframes and ns.db.char.unitframes.showOnlyMyDebuffs
+		self.Auras:SetAuraGroupMaxFrameCount(self.Auras.foreignDebuffGroup, onlyMine and 0 or maxPerGroup)
+	end
 
 	self.PostUpdate = UpdateArtwork
 	self:RegisterEvent("PLAYER_TARGET_CHANGED", UpdateArtwork, true)
@@ -501,16 +517,15 @@ UnitStyles["Target"] = function(self, unit, id)
 
 	self.UpdateTargetAurasVisibility = function(self)
 		local hide = ns.db and ns.db.global and ns.db.global.auras and ns.db.global.auras.hideTargetAuras
-		if hide then
-			self.Auras.Show = function() end  -- prevent oUF/any code from showing it back
-			self.Auras:Hide()
-		else
-			self.Auras.Show = nil  -- restore default Show
-			self.Auras:Show()
-		end
+		-- The container drives its own visibility, so it is switched off at the
+		-- source rather than by neutralizing Show().
+		self.Auras:SetEnabled(not hide)
+		self.Auras:SetShown(not hide)
 	end
 	self:UpdateTargetAurasVisibility()
+	self:UpdateTargetDebuffFilter()
 	ns.RegisterCallback(self, "TargetAuras_Visibility_Updated", "UpdateTargetAurasVisibility")
+	ns.RegisterCallback(self, "TargetAuras_Filter_Updated", "UpdateTargetDebuffFilter")
 
 	-- React to the "show target castbar" toggle: when on, reserve space and
 	-- anchor the auras below the castbar; when off, hide it and pull the auras

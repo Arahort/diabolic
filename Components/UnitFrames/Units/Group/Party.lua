@@ -198,7 +198,7 @@ end
 local GroupRoleIndicator_Override = function(self, event)
 	local element = self.GroupRoleIndicator
 	if (not element) then return end
-	local role = UnitGroupRolesAssigned(self.unit)
+	local role = UnitGroupRolesAssigned(self.__unit)
 	if (role == "TANK" or role == "HEALER" or role == "DAMAGER") then
 		element.Icon:SetTexture(element[role])
 		element:Show()
@@ -208,8 +208,8 @@ local GroupRoleIndicator_Override = function(self, event)
 end
 -- Target highlight update: color the portrait border golden when unit is targeted
 local TargetHighlight_Update = function(self, event, unit)
-	if (unit and unit ~= self.unit) then return end
-	unit = unit or self.unit
+	if (unit and unit ~= self.__unit) then return end
+	unit = unit or self.__unit
 	if (not self.Portrait or not self.Portrait.Border) then return end
 	local border = self.Portrait.Border
 	if (unit and UnitIsUnit(unit, "target")) then
@@ -463,45 +463,37 @@ UnitStyles["Party"] = function(self, unit, id)
 	-- Auras (3x3 grid under character — below name)
 	local aurasWidth = AURA_SIZE * AURA_PER_ROW + AURA_SPACING * (AURA_PER_ROW - 1)
 	local aurasHeight = AURA_SIZE * AURA_ROWS + AURA_SPACING * (AURA_ROWS - 1)
-	local auras = CreateFrame("Frame", self:GetName().."Auras", self)
+	-- WoW 12.1: debuffs come from an AuraContainer group. Only harmful auras are
+	-- shown here, same as the old numBuffs = 0 setup.
+	local auras = self:CreateAuras({
+		initialAnchor = "TOPLEFT",
+		growthX = "RIGHT",
+		growthY = "DOWN",
+		layoutLimit = aurasWidth,
+	})
 	auras:SetSize(aurasWidth, aurasHeight)
 	auras:SetPoint("TOP", self, "BOTTOM", 0, -4)
 	auras.size = AURA_SIZE
-	auras.spacing = AURA_SPACING
-	auras.numDebuffs = AURA_TOTAL
-	auras.numBuffs = 0
-	auras.numTotal = AURA_TOTAL
-	auras["growth-x"] = "RIGHT"
-	auras["growth-y"] = "DOWN"
-	auras.initialAnchor = "TOPLEFT"
+	auras.elementSpacing = AURA_SPACING
+	auras.lineSpacing = AURA_SPACING
 	auras.disableMouse = false
-	auras.showStealableBuffs = false
-	auras.onlyShowPlayer = false
-	-- Custom aura button creator with stance-style button-big border
-	auras.CreateButton = function(element, position)
-		local btn = ns.AuraStyles.CreateButton(element, position)
-		if (btn and not btn.__partyBorderApplied) then
-			btn.__partyBorderApplied = true
-			-- Pre-size the button at creation time (out of combat) to avoid taint from
-			-- oUF's updateAura calling SetSize on a secure-parented button during combat.
-			if (not InCombatLockdown()) then
-				btn:SetSize(AURA_SIZE, AURA_SIZE)
-			end
-			if (btn.Border) then
-				btn.Border:Hide()
-			end
-			-- Add stance-style backdrop (button-big texture)
-			local backdrop = btn:CreateTexture(nil, "BACKGROUND", nil, -1)
-			backdrop:SetSize(AURA_SIZE + 9, AURA_SIZE + 9)
-			backdrop:SetPoint("CENTER")
-			backdrop:SetTexture(GetMedia("button-big"))
-			btn.partyBackdrop = backdrop
+	auras.sortMethod = ns.AuraSorts.UnitFrameDebuff
+	auras.sortDirection = ns.AuraSorts.DefaultDirection
+	auras.CreateButton = ns.AuraStyles.CreateButton
+	-- Stance-style button-big backdrop behind each icon, in place of the aura border.
+	auras.PostCreateButton = function(element, btn)
+		if (btn.Border) then
+			btn.Border:Hide()
 		end
-		return btn
+		local backdrop = btn:CreateTexture(nil, "BACKGROUND", nil, -1)
+		backdrop:SetSize(AURA_SIZE + 9, AURA_SIZE + 9)
+		backdrop:SetPoint("CENTER")
+		backdrop:SetTexture(GetMedia("button-big"))
+		btn.partyBackdrop = backdrop
 	end
-	if (ns.AuraStyles and ns.AuraStyles.TargetPostUpdateButton) then
-		auras.PostUpdateButton = ns.AuraStyles.TargetPostUpdateButton
-	end
+
+	auras.debuffGroup = auras:AddGroup(ns.AuraFilters.PlayerDebuffs, { maxFrameCount = AURA_TOTAL })
+
 	self.Auras = auras
 	return self
 end

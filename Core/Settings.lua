@@ -621,6 +621,9 @@ SettingsModule.OnInitialize = function(self)
 				true,
 				L["ShowOnlyMyDebuffsDesc"]
 			)
+			Settings.SetOnValueChangedCallback("char_unitframes_showOnlyMyDebuffs", function()
+				ns.callbacks:Fire("TargetAuras_Filter_Updated")
+			end)
 			CreateCheckbox(catUF, setting, L["ShowOnlyMyDebuffsDesc"])
 		end
 		-- AzeriteUI style Group Frames (party + focus + focustarget)
