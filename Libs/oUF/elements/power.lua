@@ -109,6 +109,15 @@ local function GetDisplayPower(_, unit)
 	end
 end
 
+-- DIABOLIC PATCH (12.1): same secret threat status as in health.lua, see the comment
+-- there. Testing it as a condition and using it as a table key both throw, which aborted
+-- UpdateColor before the bar was ever colored. Keep this when updating oUF.
+local function GetThreatColor(colors, unit)
+	local status = UnitThreatSituation('player', unit)
+	if(status == nil or issecretvalue(status)) then return end
+	return colors.threat[status]
+end
+
 local function UpdateColor(self, event, unit)
 	if(self.__unit ~= unit) then return end
 	local element = self.Power
@@ -118,8 +127,8 @@ local function UpdateColor(self, event, unit)
 		color = self.colors.disconnected
 	elseif(element.colorTapping and not UnitPlayerControlled(unit) and UnitIsTapDenied(unit)) then
 		color = self.colors.tapped
-	elseif(element.colorThreat and not UnitPlayerControlled(unit) and UnitThreatSituation('player', unit)) then
-		color =  self.colors.threat[UnitThreatSituation('player', unit)]
+	elseif(element.colorThreat and not UnitPlayerControlled(unit) and GetThreatColor(self.colors, unit)) then
+		color = GetThreatColor(self.colors, unit)
 	elseif(element.colorPower) then
 		if(STATE[element].displayType) then
 			color = self.colors.power[STATE[element].displayType]

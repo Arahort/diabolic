@@ -37,14 +37,7 @@ end
 
 -- Update the health preview color on health color updates.
 local Health_PostUpdateColor = function(element, unit, r, g, b)
-	-- WoW 12.0.0: oUF now passes ColorMixin objects instead of r,g,b numbers
-	if type(r) == "table" and r.GetRGB then
-		r, g, b = r:GetRGB()
-	end
-	local preview = element.Preview
-	if (preview and r and g and b) then
-		preview:SetStatusBarColor(r * .7, g * .7, b * .7)
-	end
+	ns.API.SetPreviewColor(element.Preview, r, g, b)
 end
 
 -- Align our custom health prediction texture
@@ -275,6 +268,10 @@ UnitStyles["Target"] = function(self, unit, id)
 	local backdrop = self:CreateTexture(self:GetName().."Backdrop", "BACKGROUND", nil, -1)
 	backdrop:SetSize(512,128)
 	backdrop:SetPoint("CENTER")
+	-- Start out with the normal artwork. UpdateArtwork swaps in the elite frame from
+	-- PostUpdate, and if any element ever throws before that runs, the frame would
+	-- otherwise be left without a border at all.
+	backdrop:SetTexture(GetMedia("target-normal-diabolic"))
 
 	self.Backdrop = backdrop
 

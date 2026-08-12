@@ -263,10 +263,7 @@ local Health_PostUpdateColor = function(element, unit, r, g, b)
 	if r and g and b then
 		element:SetStatusBarColor(r, g, b)
 	end
-	local preview = element.Preview
-	if (preview and r and g and b) then
-		preview:SetStatusBarColor(r * .7, g * .7, b * .7)
-	end
+	ns.API.SetPreviewColor(element.Preview, r, g, b)
 end
 
 -- Align our custom health prediction texture

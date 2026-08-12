@@ -155,6 +155,19 @@ local STATE = {}
 
 local unitSelectionType = Private.unitSelectionType
 
+-- DIABOLIC PATCH (12.1): UnitThreatSituation is SecretWhenUnitThreatStateRestricted.
+-- A secret number can neither be tested as a condition nor used as a table key, so the
+-- original "and UnitThreatSituation(...)" test and the colors.threat[...] lookup both
+-- threw, aborting UpdateColor before it ever reached SetStatusBarColor and leaving the
+-- bar at its default white. Threat coloring still applies wherever the game exposes the
+-- value; where it refuses, the chain falls through to class and reaction coloring.
+-- Keep this when updating oUF.
+local function GetThreatColor(colors, unit)
+	local status = UnitThreatSituation('player', unit)
+	if(status == nil or issecretvalue(status)) then return end
+	return colors.threat[status]
+end
+
 local function UpdateColor(self, event, unit)
 	if(not unit or self.__unit ~= unit) then return end
 	local element = self.Health
@@ -164,8 +177,8 @@ local function UpdateColor(self, event, unit)
 		color = self.colors.disconnected
 	elseif(element.colorTapping and not UnitPlayerControlled(unit) and UnitIsTapDenied(unit)) then
 		color = self.colors.tapped
-	elseif(element.colorThreat and not UnitPlayerControlled(unit) and UnitThreatSituation('player', unit)) then
-		color =  self.colors.threat[UnitThreatSituation('player', unit)]
+	elseif(element.colorThreat and not UnitPlayerControlled(unit) and GetThreatColor(self.colors, unit)) then
+		color = GetThreatColor(self.colors, unit)
 	elseif(element.colorClass and (UnitIsPlayer(unit) or UnitInPartyIsAI(unit)))
 		or (element.colorClassNPC and not (UnitIsPlayer(unit) or UnitInPartyIsAI(unit)))
 		or (element.colorClassPet and UnitPlayerControlled(unit) and not UnitIsPlayer(unit)) then

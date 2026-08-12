@@ -133,7 +133,7 @@ local function createUpdateFrame()
 end
 
 local function Update(self, event, unit, ...)
-	if(not unit) or (unit ~= self.unit) then
+	if(not unit) or (unit ~= self.__unit) then
 		return
 	end
 
@@ -151,39 +151,39 @@ local function Update(self, event, unit, ...)
 	elseif (event == 'WOUND') then
 		if (amount ~= 0) then
 
-			if (flags == 'CRITICAL') then
+			if (flagText == 'CRITICAL') then
 				fontType ='large'
 				color = colors.CRITICAL
 
-			elseif (flags == 'CRUSHING') then
+			elseif (flagText == 'CRUSHING') then
 				fontType ='large'
 				color = colors.CRUSHING
 
-			elseif (flags == 'GLANCING') then
+			elseif (flagText == 'GLANCING') then
 				fontType ='small'
 				color = colors.GLANCING
 			else
 				color = colors.DAMAGE
 			end
 
-			if (flags == 'BLOCK_REDUCED') then
+			if (flagText == 'BLOCK_REDUCED') then
 				text = COMBAT_TEXT_BLOCK_REDUCED:format(short(text))
 			else
 				text = damage_format
 				arg = large(amount)
 			end
 
-		elseif (flags == 'ABSORB') then
+		elseif (flagText == 'ABSORB') then
 			fontType ='small'
 			text = CombatFeedbackText['ABSORB']
 			color = colors.ABSORB
 
-		elseif (flags == 'BLOCK') then
+		elseif (flagText == 'BLOCK') then
 			fontType ='small'
 			text = CombatFeedbackText['BLOCK']
 			color = colors.BLOCK
 
-		elseif (flags == 'RESIST') then
+		elseif (flagText == 'RESIST') then
 			fontType ='small'
 			text = CombatFeedbackText['RESIST']
 			color = colors.RESIST
@@ -201,7 +201,7 @@ local function Update(self, event, unit, ...)
 	elseif (event == 'HEAL') then
 		text = heal_format
 		arg = large(amount)
-		if (flags == 'CRITICAL') then
+		if (flagText == 'CRITICAL') then
 			fontType ='large'
 			color = colors.CRITHEAL
 		else
@@ -210,7 +210,7 @@ local function Update(self, event, unit, ...)
 
 	elseif (event == 'ENERGIZE') then
 		text = large(amount)
-		if (flags == 'CRITICAL') then
+		if (flagText == 'CRITICAL') then
 			fontType = 'large'
 			color = colors.CRITENERGIZE
 		else
@@ -254,7 +254,7 @@ local function Path(self, ...)
 end
 
 local function ForceUpdate(element)
-	Path(element.__owner, 'ForceUpdate', element.__owner.unit)
+	Path(element.__owner, 'ForceUpdate', element.__owner.__unit)
 end
 
 local function Enable(self)

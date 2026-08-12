@@ -1,5 +1,43 @@
 # DiabolicUI3 Changelog
 
+## [6.6.6-r485] - 2026-08-12
+
+Support for **WoW 12.1 "Curse of Ula'tek"** (Interface `120100`). This patch closed
+addon access to aura data and renamed a number of frames and APIs, so most of the
+work below is about rebuilding on top of what 12.1 offers instead.
+
+### ✨ New Features
+- **Game Menu skin** — the Escape menu now matches the rest of the interface
+  - Stone backdrop, metal button plates and a dimmed screen behind the menu
+  - Separate plate for *Log Out* / *Exit Game* / *Return to Game*
+  - Reskinning is postponed while in combat, so nothing is touched next to the protected buttons
+  - Artwork and the original implementation by **Gonkast** (MyCustomFrames, "Charcoal" skin), used with permission and credited in the About panel
+
+### 🔄 Changes
+- **Player buffs next to the minimap are now Blizzard's own.** Our display was built on `SecureAuraHeaderTemplate`, which 12.1 loads for Classic only. Rather than rebuild it, the standard buff frame is left visible and no longer hidden by the addon
+- **Unit frame auras rebuilt on the new AuraContainer** — the game no longer lets addons read aura data, so filtering and sorting are declared up front and performed by the game:
+  - Target shows the player's own auras first in full colour, everything else follows dimmed
+  - Nameplates show boss auras, the player's own short debuffs and stealable buffs
+  - Stack counters, cooldown spirals and tooltips are now driven by the container
+- **Raid frame customization (Experiments) is temporarily off** while it is reworked. The saved setting is left untouched, so it returns as you left it
+- Raid warnings are styled through the new font string pool; boss emotes moved into a Blizzard-private frame and can no longer be restyled, and the raid warning position now belongs to Blizzard's Edit Mode
+
+### 🐛 Bug Fixes
+- Fixed the addon aborting during load on a hook for `TalentFrame_LoadUI`, a Classic-only leftover removed in 12.1. This aborted the whole *KillActionBars* pass, which is why **the default action bar with the gryphons came back**
+- Fixed health and power bars freezing on every unit frame: oUF no longer publishes `frame.unit`, only `frame.__unit`, and every override still compared against the old field. This is what left **party members without resource bars**
+- Fixed one party frame occasionally rendering oversized: a member button created during combat had its protected `SetIgnoreParentScale` blocked while the scale was applied anyway, so it scaled twice. Both calls now wait for the fight to end
+- Fixed the focus target and target of target showing a stale name and health bar — those units fire no events of their own, so they now refresh on `UNIT_TARGET` of their base unit instead of waiting for the next poll
+- Fixed a load error in the experience and reputation bars: `IsPlayerAtEffectiveMaxLevel` moved to `GameRulesUtil`
+- Fixed a load error in the raid warning styling, which used the `timings` table and the named slot font strings that 12.1 removed
+
+### 🔧 Internal
+- Table of Contents updated to **Interface `120100`**
+- **oUF updated to 14.0.0**, which carries the 12.1 aura rewrite; our health and power prediction plugins carried over
+- **Replaced the LibActionButton-1.0-GE fork with upstream LibActionButton-1.0 v155**, which is maintained for 12.1. The out-of-range and unusable button colouring lives in the addon itself, so the look is unchanged
+- Game menu textures converted from TGA to PNG, 7.8 MB down to 1.8 MB
+
+---
+
 ## [6.6.6-r481] - 2026-06-18
 
 ### 🔧 Internal

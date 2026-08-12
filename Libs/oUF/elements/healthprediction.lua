@@ -116,7 +116,7 @@ local function UpdateSize(self, event, unit)
 end
 
 local function Update(self, event, unit)
-	if(self.unit ~= unit) then return end
+	if(self.__unit ~= unit) then return end
 
 	local element = self.HealthPrediction
 
@@ -220,7 +220,7 @@ local function ForceUpdate(element)
 	element.isHoriz = nil
 	element.size = nil
 
-	return Path(element.__owner, 'ForceUpdate', element.__owner.unit)
+	return Path(element.__owner, 'ForceUpdate', element.__owner.__unit)
 end
 
 local function Enable(self)

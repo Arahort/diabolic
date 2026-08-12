@@ -116,13 +116,30 @@ end
 
 -- UnitFrame Callbacks
 -----------------------------------------------------
+-- Blizzard's UnitFrame_UpdateTooltip reads frame.unit, which oUF stopped publishing in
+-- 14.0.0 because the game itself started reading that field. Handing it our frame made it
+-- call GameTooltip:SetUnit(nil) and error, so the same tooltip is built here from __unit.
+local UpdateUnitTooltip = function(self)
+	local unit = self.__unit
+	if (not unit) then return end
+	GameTooltip_SetDefaultAnchor(GameTooltip, self)
+	if (GameTooltip:SetUnit(unit, self.hideStatusOnTooltip)) then
+		GameTooltip_AddBlankLineToTooltip(GameTooltip)
+		GameTooltip_AddInstructionLine(GameTooltip, UNIT_POPUP_RIGHT_CLICK)
+		GameTooltip:Show()
+		self.UpdateTooltip = UpdateUnitTooltip
+	else
+		self.UpdateTooltip = nil
+	end
+end
+
 local OnEnter = function(self, ...)
 	self.isMouseOver = true
 	if (self.OnEnter) then
 		self:OnEnter(...)
 	end
 	if (self.isUnitFrame) then
-		return _G.UnitFrame_OnEnter(self, ...)
+		return UpdateUnitTooltip(self)
 	end
 end
 

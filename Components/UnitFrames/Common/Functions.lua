@@ -11,6 +11,26 @@ local UnitHealthMax = UnitHealthMax
 local UnitPower = UnitPower
 local UnitPowerMax = UnitPowerMax
 
+-- WoW 12.0.0: issecretvalue may not exist in older versions
+local issecretvalue = issecretvalue or function() return false end
+
+-- Tints the preview bar sitting behind a health bar with a darker shade of the health
+-- color. oUF hands us a ColorMixin these days, and in WoW 12.1 the class color of a unit
+-- whose identity is restricted comes back as secret numbers, which cannot be multiplied
+-- in addon code. Those units get the plain color instead of a darkened one.
+API.SetPreviewColor = function(preview, r, g, b)
+	if (not preview) then return end
+	if (type(r) == "table" and r.GetRGB) then
+		r, g, b = r:GetRGB()
+	end
+	if (not r or not g or not b) then return end
+	if (issecretvalue(r)) then
+		preview:SetStatusBarColor(r, g, b)
+	else
+		preview:SetStatusBarColor(r * .7, g * .7, b * .7)
+	end
+end
+
 -- Simple UpdateHealth - direct API for all units
 API.UpdateHealth = function(self, event, unit)
 	if (not unit or self.__unit ~= unit) then return end

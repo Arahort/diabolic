@@ -28,10 +28,7 @@ end
 
 -- Update the health preview color on health color updates.
 local Health_PostUpdateColor = function(element, unit, r, g, b)
-	local preview = element.Preview
-	if (preview) then
-		preview:SetStatusBarColor(r * .7, g * .7, b * .7)
-	end
+	ns.API.SetPreviewColor(element.Preview, r, g, b)
 end
 
 -- Align our custom health prediction texture
