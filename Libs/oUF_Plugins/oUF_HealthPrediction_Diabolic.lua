@@ -15,7 +15,7 @@ if not oUF then return end
 -- This override replaces the standard oUF HealthPrediction.Override function
 -- It maintains the old PostUpdate signature that DiabolicUI3 expects
 local function Update(self, event, unit)
-	if(self.__unit ~= unit) then return end
+	if(not unit or self.__unit ~= unit) then return end
 
 	local element = self.HealthPrediction
 	if not element then return end

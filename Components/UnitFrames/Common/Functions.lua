@@ -82,7 +82,7 @@ end
 
 -- WoW 12.0.1: Power update - native StatusBar handles secret values
 API.UpdatePower = function(self, event, unit)
-	if(self.__unit ~= unit) then return end
+	if(not unit or self.__unit ~= unit) then return end
 	local element = self.Power
 	if (element.PreUpdate) then
 		element:PreUpdate(unit)

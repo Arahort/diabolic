@@ -8,8 +8,9 @@ local LAB_Version = LibStub.minors["LibActionButton-1.0"]
 local next = next
 
 -- WoW API
--- WoW 12.0.0: IsSpellOverlayed moved to C_Spell namespace
-local IsSpellOverlayed = (C_Spell and C_Spell.IsSpellOverlayed) or IsSpellOverlayed
+-- WoW 12.1: IsSpellOverlayed lives in C_SpellActivationOverlay. It was never in C_Spell,
+-- so the old lookup resolved to nil and the proc highlight errored out on every check.
+local IsSpellOverlayed = C_SpellActivationOverlay.IsSpellOverlayed
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 
 -- Addon API

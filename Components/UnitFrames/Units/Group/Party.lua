@@ -186,13 +186,19 @@ local Power_PostUpdate = function(element, unit, cur, min, max)
 		setVisible(false)
 		return
 	end
-	local maxOk = max and (not issecretvalue(max))
-	local hasPower = maxOk and (max > 0)
-	if (not maxOk) then
+	-- WoW 12.1: UnitPowerMax is SecretWhenUnitPowerMaxRestricted, and a secret number
+	-- cannot be compared, so the old code treated every restricted unit as having no
+	-- power at all and hid the bar. Party members and allied NPCs ended up without any
+	-- resource bar. The bar is only hidden when the maximum is readable and really zero,
+	-- which still covers the mobs this was written for.
+	local maxKnown = max and (not issecretvalue(max))
+	if (not maxKnown) then
 		local okMax, realMax = pcall(UnitPowerMax, unit)
-		hasPower = okMax and realMax and (not issecretvalue(realMax)) and (realMax > 0)
+		if (okMax and realMax and not issecretvalue(realMax)) then
+			maxKnown, max = true, realMax
+		end
 	end
-	setVisible(hasPower)
+	setVisible((not maxKnown) or (max > 0))
 end
 -- Group role override
 local GroupRoleIndicator_Override = function(self, event)
