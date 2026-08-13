@@ -1,5 +1,15 @@
 # DiabolicUI3 Changelog
 
+## [6.6.6-r499] - 2026-08-13
+
+### 🐛 Bug Fixes
+- **Fixed frames losing their border and drag handle in Edit Mode**, the micro menu among them. Blizzard's selection label ends up testing `FontString:IsTruncated()`, which is secret while the frame it belongs to is anchored to one of our bars, and the resulting error aborted the loop before the remaining frames were set up
+
+### 🔄 Changes
+- The extra action button no longer draws the dark cooldown plate. Its geometry belongs to Blizzard and must stay untouched, otherwise the cooldown stops updating in combat, so the swipe is turned off and the countdown text is left on its own
+
+---
+
 ## [6.6.6-r497] - 2026-08-12
 
 ### 🐛 Bug Fixes
