@@ -66,6 +66,21 @@ local function resetDialogs()
 	end
 end
 
+-- DiabolicUI3 local patch (WoW 12.1): ShowHighlighted ends up in Blizzard's
+-- UpdateLabelVisibility, which sets text on a ShrinkUntilTruncate font string and then
+-- tests FontString:IsTruncated(). That one is flagged SecretWhenAnchoringSecret, and the
+-- selection frame is parented to our unit frames, whose bars carry secret values, so the
+-- result comes back secret and the boolean test inside Blizzard's code throws.
+-- The error used to abort the whole loop, leaving every remaining frame unselectable and
+-- some of them half drawn. Now only the label of the offending frame is lost; the
+-- highlight itself is still shown. Keep this when updating LibEditMode.
+local function showHighlighted(selection)
+	if not pcall(selection.ShowHighlighted, selection) then
+		selection.isSelected = false
+		selection:Show()
+	end
+end
+
 local function resetSelection()
 	for frame, selection in next, lib.frameSelections do
 		if selection.isSelected then
@@ -76,7 +91,7 @@ local function resetSelection()
 			selection:Hide()
 			selection.isSelected = false
 		else
-			selection:ShowHighlighted()
+			showHighlighted(selection)
 		end
 	end
 end
@@ -185,7 +200,12 @@ local function onMouseDown(self) -- replacement for EditModeSystemMixin:SelectSy
 
 	if not self.isSelected then
 		self.parent:SetMovable(true)
-		self:ShowSelected(true)
+		-- DiabolicUI3 local patch (WoW 12.1): same secret label as in showHighlighted
+		-- above, clicking a frame must not throw before the dialog opens.
+		if not pcall(self.ShowSelected, self, true) then
+			self.isSelected = true
+			self:Show()
+		end
 
 		if internal.dialog.selection ~= self then
 			internal.dialog:Reset()
@@ -413,6 +433,11 @@ function lib:AddFrame(frame, callback, default, name)
 	lib.frameSelections[frame] = selection
 	lib.frameCallbacks[frame] = callback
 	lib.frameDefaults[frame] = default
+
+	if lib.isEditing then
+		-- refresh the selection if we're already in edit mode
+		showHighlighted(selection)
+	end
 
 	if not internal.dialog then
 		internal.dialog = internal:CreateDialog()

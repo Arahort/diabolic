@@ -55,14 +55,20 @@ ExtraButtons.UpdateButton = function(self, button)
 		end
 	end
 
-	-- WoW 12.1: the cooldown of this button is left completely alone on purpose.
-	-- Blizzard drives it with cooldown:SetCooldown(start, duration, modRate), and that
-	-- call is declared SecretArguments = "AllowedWhenUntainted". In combat the duration
-	-- is a secret value, so it only reaches a frame no addon has touched. Resizing it,
-	-- reanchoring it or swapping its swipe texture from here was enough to make the
-	-- engine refuse the update, and the swipe simply never appeared during combat.
-	-- The regular action buttons are unaffected because their cooldown belongs to
-	-- LibActionButton, not to Blizzard.
+	-- WoW 12.1: the geometry of this cooldown is left alone on purpose. Blizzard drives
+	-- it with cooldown:SetCooldown(start, duration, modRate), declared
+	-- SecretArguments = "AllowedWhenUntainted", so in combat the secret duration only
+	-- reaches a frame no addon has resized or reanchored. Doing either made the engine
+	-- drop the update and no cooldown showed at all. The regular action buttons are
+	-- unaffected, their cooldown belongs to LibActionButton rather than to Blizzard.
+	-- Only the swipe is turned off, which is allowed from addon code and leaves the
+	-- countdown text on its own, without the dark plate sitting off center.
+	local cooldown = button.cooldown or button.Cooldown
+	if (cooldown) then
+		cooldown:SetDrawSwipe(false)
+		cooldown:SetDrawBling(false)
+		cooldown:SetDrawEdge(false)
+	end
 
 	local inset = size * 0.1375
 	local count = button.Count
